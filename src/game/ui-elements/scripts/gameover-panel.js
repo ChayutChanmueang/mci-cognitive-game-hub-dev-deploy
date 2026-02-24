@@ -4,24 +4,31 @@ export default class GameOverPanel extends UIPanel{
     constructor(scene){
         super(scene,scene.scale.width/2,scene.scale.height/2);
 
-        this.titleText = scene.add.text(0,-80,"GAME OVER",{
+        this.titleText = scene.add.text(0,-100,"GAME OVER",{
             fontSize: '48px', color:'#ff4444',fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        this.scoreText = scene.add.text(0,-10,"Final Score: 0", {
+        this.scoreText = scene.add.text(0,-30,"Score: 0", {
             fontSize: '32px', color: '#ffffff'
         }).setOrigin(0.5);
 
-        this.restartBtn = this.createButton(0,80, "RESTART", () => {
+        this.highscoreText = scene.add.text(0,30,"Highscore: 0", {
+            fontSize: '32px', color: '#ffffff'
+        }).setOrigin(0.5);
+
+        this.restartBtn = this.createButton(0,100, "RESTART", () => {
             console.log("Restarting...");
             this.scene.scene.restart();
         });
 
-        this.addElements([this.titleText, this.scoreText, ...this.restartBtn]);
+        this.addElements([this.titleText, this.scoreText, this.highscoreText, ...this.restartBtn]);
     }
 
     setFinalScore(score){
-        this.scoreText.setText("Final Score: " + score);
+        this.scoreText.setText("Score: " + score);
+    }
+    setHighscore(score){
+        this.highscoreText.setText("Highscore: " + score);
     }
 
     createButton(x,y,text,onClick){

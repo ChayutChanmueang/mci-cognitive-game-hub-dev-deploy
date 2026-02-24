@@ -17,7 +17,7 @@ export default class UIPanel{
 
         this.overlay.setInteractive();
         
-        this.panelBg = scene.add.rectangle(0,0,400,300,0x222222,1);
+        this.panelBg = scene.add.rectangle(0,0,400,350,0x222222,1);
         this.panelBg.setStrokeStyle(4,0xffffff);
 
         this.container.add([this.overlay, this.panelBg]);

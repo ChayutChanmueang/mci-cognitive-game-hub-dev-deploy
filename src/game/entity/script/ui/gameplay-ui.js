@@ -1,3 +1,4 @@
+import StorageManager from "../../../../core/storage-manager";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
 import Entity from "../../entity";
 
@@ -34,6 +35,7 @@ export default class GameplayUI extends Entity{
     }
     showGameOverPanel(finalScore){
         this.gameoverPanel.setFinalScore(finalScore);
+        this.gameoverPanel.setHighscore(StorageManager.get('highscore'));
         this.gameoverPanel.show();
     }
 }

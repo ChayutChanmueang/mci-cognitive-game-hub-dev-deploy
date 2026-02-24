@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import Conveyer from "../entity/script/conveyer";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
+import StorageManager from "../../core/storage-manager";
 
 export default class UITestScene extends Phaser.Scene {
   constructor() {
@@ -89,7 +90,11 @@ export default class UITestScene extends Phaser.Scene {
     if(this.conveyer){
       this.conveyer.stop();
     }
+    if(this.score > StorageManager.get('highscore')){
+      StorageManager.save('highscore',this.score);
+    }
     this.gameplayUI.showGameOverPanel(this.score);
+    //console.log("Highscore: " + StorageManager.get('highscore'));
   }
   
 }
