@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import Conveyer from "../entity/script/conveyer";
+import GameplayUI from "../entity/script/ui/gameplay-ui";
 
 export default class UITestScene extends Phaser.Scene {
   constructor() {
@@ -28,6 +29,8 @@ export default class UITestScene extends Phaser.Scene {
     this.level = this.score / 100;
     this.lastLevel = this.level;
     this.lives = 3;
+
+    this.gameplayUI = new GameplayUI(this,0,0);
     this.conveyer = new Conveyer(this,this.scale.width/2,(this.scale.height/2) - 950);
     
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
@@ -52,7 +55,9 @@ export default class UITestScene extends Phaser.Scene {
     console.log("Current Score: " + this.score);
     this.level = this.score / 100;
     this.level = Math.floor(this.level);
-    console.log("level: " + this.level)
+    console.log("level: " + this.level);
+    this.gameplayUI.setScore(this.score);
+    
     if(this.level % 10 == 0 && this.level != this.lastLevel){
       this.conveyer.animal.changeAnimal();
       console.log("change animal");
@@ -66,9 +71,16 @@ export default class UITestScene extends Phaser.Scene {
   removeLives(removedLives){
     this.lives -= removedLives
     console.log("Current Lives: " + this.lives);
-    if(this.lives < 0){
-      this.scene.pause();
+    if(this.lives >= 0){
+      this.gameplayUI.setLives(this.lives);
     }
+    if(this.lives < 0){
+      //this.scene.pause();
+      this.onGameOver();
+    }
+  }
+  onGameOver(){
+    this.scene.pause();
   }
   
 }
