@@ -1,3 +1,4 @@
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
 import Entity from "../../entity";
 
 export default class GameplayUI extends Entity{
@@ -22,11 +23,17 @@ export default class GameplayUI extends Entity{
             this.livesPreText + scene.lives,
             {fontSize: "64px"}
         ).setOrigin(1,0);
+
+        this.gameoverPanel = new GameOverPanel(scene);
     }
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
     }
     setLives(newLives){
         this.currentLives.text = this.livesPreText + newLives;
+    }
+    showGameOverPanel(finalScore){
+        this.gameoverPanel.setFinalScore(finalScore);
+        this.gameoverPanel.show();
     }
 }

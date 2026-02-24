@@ -25,6 +25,8 @@ export default class Fruit extends Entity{
         this.addComponent(Clickable,{
             onClickAction: (entity) => {
             //console.log("You clicked the food!");
+            entity.emit('itemSorted');
+            entity.disableInteractive();
 
             const _direction = Phaser.Math.RND.pick([-1,1]);
             const _speed = 300;

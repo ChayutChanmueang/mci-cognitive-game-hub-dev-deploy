@@ -80,7 +80,16 @@ export default class UITestScene extends Phaser.Scene {
     }
   }
   onGameOver(){
-    this.scene.pause();
+    //this.scene.pause();
+    this.physics.pause();
+
+    if(this.conveyer && this.conveyer.spawnTimer){
+      this.conveyer.spawnTimer.paused = true;
+    }
+    if(this.conveyer){
+      this.conveyer.stop();
+    }
+    this.gameplayUI.showGameOverPanel(this.score);
   }
   
 }

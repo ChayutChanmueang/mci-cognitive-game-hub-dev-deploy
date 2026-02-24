@@ -5,19 +5,22 @@ import Fruit from "./fruit";
 export default class Conveyer extends Entity{
     constructor(scene,x,y,speed = 150){
         super(scene,x,y,null);
+        this.isMoving = true;
 
         this.speed = speed;
 
-        const canvas = scene.textures.createCanvas('beltSegment',100,32);
-        const ctx = canvas.context;
+        if(!scene.textures.exists('beltSegment')){
+            const canvas = scene.textures.createCanvas('beltSegment',100,32);
+            const ctx = canvas.context;
 
-        ctx.fillStyle = '#333333';
-        ctx.fillRect(0,0,100,32);
+            ctx.fillStyle = '#333333';
+            ctx.fillRect(0,0,100,32);
 
-        ctx.fillStyle = '#444444';
-        ctx.fillRect(0,28,100,4);
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(0,28,100,4);
 
-        canvas.refresh();
+            canvas.refresh();
+        }
 
         this.conveyer = scene.add.tileSprite(
             x,
@@ -40,6 +43,8 @@ export default class Conveyer extends Entity{
         });
     }
     update(time,delta){
+        if(!this.isMoving) return;
+
         const _deltaInSeconds = delta/1000;
         const _moveDistance = this.speed * _deltaInSeconds;
         this.conveyer.tilePositionY -= _moveDistance;
@@ -57,6 +62,9 @@ export default class Conveyer extends Entity{
         this.spawnCooldown = 0;
 
         _fruit.once('destroy', () => {
+            this.removeFoodFromList(_fruit);
+        })
+        _fruit.once('itemSorted', () => {
             this.removeFoodFromList(_fruit);
         })
     }
@@ -79,5 +87,17 @@ export default class Conveyer extends Entity{
     }
     addSpeed(addedSpeed){
         this.setSpeed(this.speed + addedSpeed);
+    }
+    disableFoodsInput(){
+        this.foods.forEach(food => {
+            if(food.active){
+                food.disableInteractive();
+            }
+        });
+    }
+    stop(){
+        this.isMoving = false;
+        this.disableFoodsInput();
+        if(this.spawnTimer) this.spawnTimer.paused = true;
     }
 }
