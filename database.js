@@ -1,8 +1,12 @@
 ﻿import fetch from "node-fetch";
 import { createClient } from '@supabase/supabase-js'
+import dotenv from 'dotenv'
 
 class Supabase {
     constructor() {
+        // load config
+        dotenv.config()
+
         this.supabase = null;
         this.data = null;
         this.config = {
@@ -30,6 +34,7 @@ class Supabase {
     }
 
     async connect(retry = 12) {
+        console.log(`Connecting to Supabase URL ${this.config.host}`);
         this.supabase = createClient(this.config.host, this.config.anon, {
             auth: {
                 autoRefreshToken: true,
