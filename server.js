@@ -4,8 +4,10 @@ import { fileURLToPath } from "url";
 import dotenv from 'dotenv'
 import Supabase from "./database.js";
 
+// Load local config
 dotenv.config()
 
+// Define variable
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,8 +26,11 @@ async function startConnect() {
   }
 
   try {
+    const text = await Supabase.hello()
+
     server = app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Try get hello word:${text}`);
     });
   } catch (err) {
     Error(err.message);

@@ -26,6 +26,8 @@ class Supabase {
         );
     }
 
+    /** Connect Function **/
+// #region Connect Function
     async ensureLogin() {
         if (!this.isLoggedIn() || !await this.requestTestConnection()) {
             console.log("Session expired. Reconnecting...");
@@ -35,6 +37,9 @@ class Supabase {
 
     async connect(retry = 12) {
         console.log(`Connecting to Supabase URL ${this.config.host}`);
+        console.log(`Username ${this.config.user}`);
+        console.log(`Password ${this.config.password}`);
+        console.log(`ANON ${this.config.anon}`);
         this.supabase = createClient(this.config.host, this.config.anon, {
             auth: {
                 autoRefreshToken: true,
@@ -147,67 +152,6 @@ class Supabase {
         }
     }
 
-    async requestTestConnection() {
-        try {
-            const controller = new AbortController();
-            const url = new URL("functions/v1/test/checkConnection", this.config.host);
-            const supabaseResponse = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.config.anon}`
-                },
-                signal: controller.signal,
-            });
-
-            return await this.IsResponseOK(supabaseResponse);
-        } catch (err) {
-            return false;
-        }
-    }
-
-    async createHistory(createdAt, label, updatedAt) {
-        if (!createdAt || !label || !updatedAt) {
-            throw new Error("Invalid parameters: createdAt or label or updatedAt missing");
-        }
-
-        await this.ensureLogin();
-
-        try {
-            const controller = new AbortController();
-            const url = new URL("functions/v1/write-database/createHistory", this.config.host);
-            const supabaseResponse = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.config.anon}`
-                },
-                body: JSON.stringify({
-                    token: this.data.session.access_token,
-                    createdAt: createdAt,
-                    label: label,
-                    updatedAt: updatedAt
-                }),
-                signal: controller.signal,
-            });
-
-            if (!await this.IsResponseOK(supabaseResponse)){
-                throw new Error(supabaseResponse.status.toString());
-            }
-
-            const data = await supabaseResponse.json();
-
-            return {
-                id: data.id ?? null,
-                message: data.message ?? null
-            };
-        } catch (err) {
-            return {
-                message: err ?? null
-            };
-        }
-    }
-
     async IsResponseOK(response) {
         if (!response.ok) {
             const errorBody = await response.text();
@@ -219,7 +163,79 @@ class Supabase {
 
         return response.ok;
     }
-}
+// #endregion
+    /** Connect Function **/
 
+    /** Application Functions **/
+// #region Application Functions
+    async requestTestConnection() {
+        try {
+            const controller = new AbortController();
+
+            console.log('Request test connection...');
+
+            const url = new URL("functions/v1/test/checkConnection", this.config.host);
+            const supabaseResponse = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.config.anon}`
+                },
+                body: JSON.stringify({
+                    token: this.data.session.access_token
+                }),
+                signal: controller.signal,
+            });
+
+            if (!await this.IsResponseOK(supabaseResponse)){
+                console.error(supabaseResponse.status.toString())
+                throw new Error(supabaseResponse.status.toString());
+            }
+
+            console.log("Request test connection successful");
+            return await this.IsResponseOK(supabaseResponse);
+        } catch (err) {
+            return false;
+        }
+    }
+
+    async hello() {
+        await this.ensureLogin();
+
+        try {
+            const controller = new AbortController();
+
+            console.log('Request hello function...');
+
+            const url = new URL("functions/v1/read-database/hello", this.config.host);
+            const supabaseResponse = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.config.anon}`
+                },
+                body: JSON.stringify({
+                    token: this.data.session.access_token
+                }),
+                signal: controller.signal,
+            });
+
+            if (!await this.IsResponseOK(supabaseResponse)){
+                console.error(supabaseResponse.status.toString())
+                throw new Error(supabaseResponse.status.toString());
+            }
+
+            const text = await supabaseResponse.text();
+
+            console.log(`Message: ${text}`)
+
+            return text;
+        } catch (err) {
+            return err;
+        }
+    }
+}
+// #endregion
+    /** Application Functions **/
 
 export default new Supabase();
