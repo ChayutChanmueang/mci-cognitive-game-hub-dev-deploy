@@ -238,10 +238,7 @@ class Supabase {
     async getRow(from, select, order){
         try {
             const controller = new AbortController();
-
-            console.log('Request hello function...');
-
-            const url = new URL("functions/v1/read-database/hello", this.config.host);
+            const url = new URL("functions/v1/read-database/getRow", this.config.host);
             const supabaseResponse = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -275,10 +272,7 @@ class Supabase {
     async getRowSingle(from, select, row, value){
         try {
             const controller = new AbortController();
-
-            console.log('Request hello function...');
-
-            const url = new URL("functions/v1/read-database/hello", this.config.host);
+            const url = new URL("functions/v1/read-database/getRowSingle", this.config.host);
             const supabaseResponse = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -305,6 +299,75 @@ class Supabase {
             console.log(`Message: ${result.message}`)
 
             return result.data;
+        } catch (err) {
+            return err;
+        }
+    }
+
+    async createRow(from, insert, select){
+        try {
+            const controller = new AbortController();
+            const url = new URL("functions/v1/read-database/createRow", this.config.host);
+            const supabaseResponse = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.config.anon}`
+                },
+                body: JSON.stringify({
+                    token: this.data.session.access_token,
+                    from: from,
+                    insert: insert,
+                    select: select
+                }),
+                signal: controller.signal,
+            });
+
+            if (!await this.IsResponseOK(supabaseResponse)){
+                console.error(supabaseResponse.status.toString())
+                throw new Error(supabaseResponse.status.toString());
+            }
+
+            const result = await supabaseResponse.json();
+
+            console.log(`Message: ${result.message}`)
+
+            return result.id;
+        } catch (err) {
+            return err;
+        }
+    }
+
+    async updateRow(from, update, row, value){
+        try {
+            const controller = new AbortController();
+            const url = new URL("functions/v1/read-database/updateRow", this.config.host);
+            const supabaseResponse = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.config.anon}`
+                },
+                body: JSON.stringify({
+                    token: this.data.session.access_token,
+                    from: from,
+                    update: update,
+                    row: row,
+                    value: value
+                }),
+                signal: controller.signal,
+            });
+
+            if (!await this.IsResponseOK(supabaseResponse)){
+                console.error(supabaseResponse.status.toString())
+                throw new Error(supabaseResponse.status.toString());
+            }
+
+            const result = await supabaseResponse.json();
+
+            console.log(`Message: ${result.message}`)
+
+            return result.id;
         } catch (err) {
             return err;
         }
