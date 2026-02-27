@@ -234,8 +234,83 @@ class Supabase {
             return err;
         }
     }
-}
+
+    async getRow(from, select, order){
+        try {
+            const controller = new AbortController();
+
+            console.log('Request hello function...');
+
+            const url = new URL("functions/v1/read-database/hello", this.config.host);
+            const supabaseResponse = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.config.anon}`
+                },
+                body: JSON.stringify({
+                    token: this.data.session.access_token,
+                    from: from,
+                    select: select,
+                    order: order
+                }),
+                signal: controller.signal,
+            });
+
+            if (!await this.IsResponseOK(supabaseResponse)){
+                console.error(supabaseResponse.status.toString())
+                throw new Error(supabaseResponse.status.toString());
+            }
+
+            const result = await supabaseResponse.json();
+
+            console.log(`Message: ${result.message}`)
+
+            return result.data;
+        } catch (err) {
+            return err;
+        }
+    }
+
+    async getRowSingle(from, select, row, value){
+        try {
+            const controller = new AbortController();
+
+            console.log('Request hello function...');
+
+            const url = new URL("functions/v1/read-database/hello", this.config.host);
+            const supabaseResponse = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${this.config.anon}`
+                },
+                body: JSON.stringify({
+                    token: this.data.session.access_token,
+                    from: from,
+                    select: select,
+                    row: row,
+                    value: value
+                }),
+                signal: controller.signal,
+            });
+
+            if (!await this.IsResponseOK(supabaseResponse)){
+                console.error(supabaseResponse.status.toString())
+                throw new Error(supabaseResponse.status.toString());
+            }
+
+            const result = await supabaseResponse.json();
+
+            console.log(`Message: ${result.message}`)
+
+            return result.data;
+        } catch (err) {
+            return err;
+        }
+    }
 // #endregion
     /** Application Functions **/
+}
 
 export default new Supabase();

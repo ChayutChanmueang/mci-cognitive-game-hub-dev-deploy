@@ -27,10 +27,14 @@ async function startConnect() {
 
   try {
     const text = await Supabase.hello()
+    const row = await Supabase.getRow('attention-sorting-game', "*", "*")
+    const rowSingle = await Supabase.getRowSingle('attention-sorting-game', "*", "id", "0")
 
     server = app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log(`Try get hello word:${text}`);
+      console.log(`Row : ${row.toString()}`);
+      console.log(`Row Single : ${rowSingle.toString()}`);
     });
   } catch (err) {
     Error(err.message);
