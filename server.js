@@ -29,12 +29,19 @@ async function startConnect() {
     const text = await Supabase.hello()
     const row = await Supabase.getRow('attention-sorting-game', "*", "")
     const rowSingle = await Supabase.getRowSingle('attention-sorting-game', "*", "id", "1")
+    const createID = await Supabase.createRow('attention-sorting-game',
+        {score: 100, highscore: 500, playtime: 30, UID: "9bd1626d-8073-4c49-9564-7fab36f88c6e"})
+    const updateID = await Supabase.updateRow('attention-sorting-game',
+        {score: 100000, highscore: 500000, playtime: 30000, UID: "5eb4deed-7613-4968-9a2e-f8615880c53a"},
+        "id", `${createID}`)
 
     server = app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log(`Try get hello word:${text}`);
       console.log(`Row : ${JSON.stringify(row)}`);
       console.log(`Row Single : ${JSON.stringify(rowSingle)}`);
+      console.log(`Create At ID : ${createID}`);
+      console.log(`Update At ID : ${updateID}`);
     });
   } catch (err) {
     Error(err.message);

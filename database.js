@@ -304,7 +304,7 @@ class Supabase {
         }
     }
 
-    async createRow(from, insert, select){
+    async createRow(from, insert){
         try {
             const controller = new AbortController();
             const url = new URL("functions/v1/read-database/createRow", this.config.host);
@@ -317,8 +317,7 @@ class Supabase {
                 body: JSON.stringify({
                     token: this.data.session.access_token,
                     from: from,
-                    insert: insert,
-                    select: select
+                    insert: insert
                 }),
                 signal: controller.signal,
             });
