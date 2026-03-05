@@ -307,7 +307,7 @@ class Supabase {
     async createRow(from, insert){
         try {
             const controller = new AbortController();
-            const url = new URL("functions/v1/read-database/createRow", this.config.host);
+            const url = new URL("functions/v1/write-database/createRow", this.config.host);
             const supabaseResponse = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -340,7 +340,7 @@ class Supabase {
     async updateRow(from, update, row, value){
         try {
             const controller = new AbortController();
-            const url = new URL("functions/v1/read-database/updateRow", this.config.host);
+            const url = new URL("functions/v1/write-database/updateRow", this.config.host);
             const supabaseResponse = await fetch(url, {
                 method: "POST",
                 headers: {
