@@ -27,7 +27,7 @@ async function startConnect() {
 
   try {
     const text = await Supabase.hello()
-    const row = await Supabase.getRow('attention-sorting-game', "*", "")
+    const row = await Supabase.getRow('attention-sorting-game', "*", "", "")
     const rowSingle = await Supabase.getRowSingle('attention-sorting-game', "*", "id", "1")
     const createID = await Supabase.createRow('attention-sorting-game',
         {score: 100, highscore: 500, playtime: 30, UID: "9bd1626d-8073-4c49-9564-7fab36f88c6e"})

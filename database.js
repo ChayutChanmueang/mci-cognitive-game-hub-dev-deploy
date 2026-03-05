@@ -235,7 +235,7 @@ class Supabase {
         }
     }
 
-    async getRow(from, select, order){
+    async getRow(from, select, order, ascending){
         try {
             const controller = new AbortController();
             const url = new URL("functions/v1/read-database/getRow", this.config.host);
@@ -249,7 +249,8 @@ class Supabase {
                     token: this.data.session.access_token,
                     from: from,
                     select: select,
-                    order: order
+                    order: order,
+                    ascending: ascending
                 }),
                 signal: controller.signal,
             });
