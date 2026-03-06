@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import Conveyer from "../entity/script/conveyer";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import StorageManager from "../../core/storage-manager";
+import db from "../../core/database.js";
 
 export default class UITestScene extends Phaser.Scene {
   constructor() {
@@ -91,6 +92,11 @@ export default class UITestScene extends Phaser.Scene {
       this.conveyer.stop();
     }
     if(this.score > StorageManager.get('highscore')){
+      db.createRow('attention-sorting-game',
+          {score: this.score, highscore: this.score, playtime: 0, UID: "9bd1626d-8073-4c49-9564-7fab36f88c6e"}).then(r => {
+        console.log(`Return ID : ${r}`);
+      })
+
       StorageManager.save('highscore',this.score);
     }
     this.gameplayUI.showGameOverPanel(this.score);

@@ -264,6 +264,7 @@ class Supabase {
 
             console.log(`Message: ${result.message}`)
 
+            console.log(`Row : ${JSON.stringify(result.data)}`);
             return result.data;
         } catch (err) {
             return err;
