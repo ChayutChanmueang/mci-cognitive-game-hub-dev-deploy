@@ -26,6 +26,10 @@ class Supabase {
         );
     }
 
+    /** General Function **/
+    /** **************** **/
+    /** General Function **/
+
     /** Connect Function **/
 // #region Connect Function
     async ensureLogin() {
@@ -202,70 +206,49 @@ class Supabase {
     async hello() {
         await this.ensureLogin();
 
-        try {
-            const controller = new AbortController();
-
-            console.log('Request hello function...');
-
-            const url = new URL("functions/v1/read-database/hello", this.config.host);
-            const supabaseResponse = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.config.anon}`
-                },
-                body: JSON.stringify({
-                    token: this.data.session.access_token
-                }),
-                signal: controller.signal,
-            });
-
-            if (!await this.IsResponseOK(supabaseResponse)){
-                console.error(supabaseResponse.status.toString())
-                throw new Error(supabaseResponse.status.toString());
-            }
-
-            const text = await supabaseResponse.text();
-
-            console.log(`Message: ${text}`)
-
-            return text;
-        } catch (err) {
-            return err;
-        }
+        return `Hello World!`;
     }
 
     async getRow(from, select, order, ascending){
         try {
-            const controller = new AbortController();
-            const url = new URL("functions/v1/read-database/getRow", this.config.host);
-            const supabaseResponse = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.config.anon}`
-                },
-                body: JSON.stringify({
-                    token: this.data.session.access_token,
-                    from: from,
-                    select: select,
-                    order: order,
-                    ascending: ascending
-                }),
-                signal: controller.signal,
-            });
-
-            if (!await this.IsResponseOK(supabaseResponse)){
-                console.error(supabaseResponse.status.toString())
-                throw new Error(supabaseResponse.status.toString());
+            if (!this.supabase) {
+                console.error("Please login first")
+                throw new Error("Please login first");
             }
 
-            const result = await supabaseResponse.json();
+            if (!from) {
+                console.error("Invalid parameters")
+                throw new Error("Invalid parameters");
+            }
 
-            console.log(`Message: ${result.message}`)
+            let query = this.supabase
+                .from(from)
+                .select(select || "*");
 
-            console.log(`Row : ${JSON.stringify(result.data)}`);
-            return result.data;
+            if (Array.isArray(order)) {
+                order.forEach((o) => {
+                    query = query.order(o.column, { ascending: o.ascending });
+                });
+            }
+            else if (order && ascending) {
+                query = query.order(order, { ascending: ascending ?? false });
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                console.error("Select error:", error);
+                throw error;
+            }
+
+            if (!data) {
+                console.error("Row not found");
+                throw new Error("Row not found");
+            }
+
+            console.log(`Found ${data.length} records`);
+            console.log(`Row : ${JSON.stringify(data)}`);
+            return data;
         } catch (err) {
             return err;
         }
@@ -273,34 +256,35 @@ class Supabase {
 
     async getRowSingle(from, select, row, value){
         try {
-            const controller = new AbortController();
-            const url = new URL("functions/v1/read-database/getRowSingle", this.config.host);
-            const supabaseResponse = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.config.anon}`
-                },
-                body: JSON.stringify({
-                    token: this.data.session.access_token,
-                    from: from,
-                    select: select,
-                    row: row,
-                    value: value
-                }),
-                signal: controller.signal,
-            });
-
-            if (!await this.IsResponseOK(supabaseResponse)){
-                console.error(supabaseResponse.status.toString())
-                throw new Error(supabaseResponse.status.toString());
+            if (!this.supabase) {
+                console.error("Please login first")
+                throw new Error("Please login first");
             }
 
-            const result = await supabaseResponse.json();
+            if (!from || !row || !value) {
+                console.error("Invalid parameters")
+                throw new Error("Invalid parameters");
+            }
 
-            console.log(`Message: ${result.message}`)
+            const { data, error } = await this.supabase
+                .from(from)
+                .select(select)
+                .eq(row, value)
+                .single();
 
-            return result.data;
+            if (error) {
+                console.error("Select error:", error);
+                throw error;
+            }
+
+            if (!data) {
+                console.error("Row not found");
+                throw new Error("Row not found");
+            }
+
+            console.log(`Found ${data.length} records`);
+            console.log(`Row : ${JSON.stringify(data)}`);
+            return data;
         } catch (err) {
             return err;
         }
@@ -308,32 +292,33 @@ class Supabase {
 
     async createRow(from, insert){
         try {
-            const controller = new AbortController();
-            const url = new URL("functions/v1/write-database/createRow", this.config.host);
-            const supabaseResponse = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.config.anon}`
-                },
-                body: JSON.stringify({
-                    token: this.data.session.access_token,
-                    from: from,
-                    insert: insert
-                }),
-                signal: controller.signal,
-            });
-
-            if (!await this.IsResponseOK(supabaseResponse)){
-                console.error(supabaseResponse.status.toString())
-                throw new Error(supabaseResponse.status.toString());
+            if (!this.supabase) {
+                console.error("Please login first")
+                throw new Error("Please login first");
             }
 
-            const result = await supabaseResponse.json();
+            if (!from || !insert) {
+                console.error("Invalid parameters")
+                throw new Error("Invalid parameters");
+            }
 
-            console.log(`Message: ${result.message}`)
+            const { data, error } = await this.supabase
+                .from(from)
+                .insert([insert])
+                .select()
+                .single();
 
-            return result.id;
+            if (error) {
+                console.error("Select error:", error);
+                throw error;
+            }
+
+            if (!data) {
+                console.warn("ID not return");
+            }
+
+            console.log(`ID : ${data.id}`);
+            return data.id;
         } catch (err) {
             return err;
         }
@@ -341,34 +326,34 @@ class Supabase {
 
     async updateRow(from, update, row, value){
         try {
-            const controller = new AbortController();
-            const url = new URL("functions/v1/write-database/updateRow", this.config.host);
-            const supabaseResponse = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${this.config.anon}`
-                },
-                body: JSON.stringify({
-                    token: this.data.session.access_token,
-                    from: from,
-                    update: update,
-                    row: row,
-                    value: value
-                }),
-                signal: controller.signal,
-            });
-
-            if (!await this.IsResponseOK(supabaseResponse)){
-                console.error(supabaseResponse.status.toString())
-                throw new Error(supabaseResponse.status.toString());
+            if (!this.supabase) {
+                console.error("Please login first")
+                throw new Error("Please login first");
             }
 
-            const result = await supabaseResponse.json();
+            if (!from || !update || !row || !value) {
+                console.error("Invalid parameters")
+                throw new Error("Invalid parameters");
+            }
 
-            console.log(`Message: ${result.message}`)
+            const { data, error } = await this.supabase
+                .from(from)
+                .update(update)
+                .eq(row, value)
+                .select()
+                .single();
 
-            return result.id;
+            if (error) {
+                console.error("Select error:", error);
+                throw error;
+            }
+
+            if (!data) {
+                console.warn("ID not return");
+            }
+
+            console.log(`ID : ${data.id}`);
+            return data.id;
         } catch (err) {
             return err;
         }

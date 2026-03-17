@@ -27,13 +27,13 @@
         "vite": "^6.3.1"
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.97.0",
+        "@supabase/supabase-js": "^2.99.1",
         "dotenv": "^17.3.1",
+        "express": "^5.2.1",
+        "node-fetch": "^3.3.2",
+        "path": "^0.12.7",
         "phaser": "^3.90.0",
         "phaser3-rex-plugins": "^1.80.18",
-        "node-fetch": "^3.3.2",
-        "supabase": "^2.76.15",
-        "express": "^5.2.1",
-        "path": "^0.12.7"
+        "supabase": "^2.76.15"
     }
 }
