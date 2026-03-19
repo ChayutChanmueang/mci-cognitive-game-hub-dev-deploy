@@ -34,7 +34,10 @@ class Database {
 
     async initAuth() {
         if (!this.authReadyPromise) {
-            this.authReadyPromise = this.ensureSignedIn();
+            this.authReadyPromise = this.ensureSignedIn().catch((error) => {
+                this.authReadyPromise = null;
+                throw error;
+            });
         }
 
         return this.authReadyPromise;
@@ -53,6 +56,10 @@ class Database {
         }
 
         const anonymousResult = await this.signInAnonymously();
+        if (!anonymousResult.session) {
+            throw new Error("Anonymous sign-in did not return a session");
+        }
+
         return anonymousResult.session;
     }
 
@@ -78,7 +85,7 @@ class Database {
             throw error;
         }
 
-        this.authReadyPromise = Promise.resolve(data.session);
+        this.authReadyPromise = data.session ? Promise.resolve(data.session) : null;
         return data;
     }
 
@@ -94,7 +101,7 @@ class Database {
             throw error;
         }
 
-        this.authReadyPromise = Promise.resolve(data.session);
+        this.authReadyPromise = data.session ? Promise.resolve(data.session) : null;
         return data;
     }
 
@@ -110,21 +117,25 @@ class Database {
         return true;
     }
 
-    async getCurrentUser() {
+    async getCurrentSession() {
         const client = this.getClient();
-        const { data, error } = await client.auth.getUser();
+        const { data, error } = await client.auth.getSession();
 
         if (error) {
             throw error;
         }
 
-        return data.user;
+        return data.session;
+    }
+
+    async getCurrentUser() {
+        const session = await this.getCurrentSession();
+        return session?.user || null;
     }
 
     async submitHighScore(score, playtime = 0) {
-        await this.initAuth();
-
-        const user = await this.getCurrentUser();
+        const session = await this.initAuth();
+        const user = session?.user || (await this.getCurrentUser());
         const parsedScore = Number(score);
         const parsedPlaytime = Number(playtime);
 

@@ -33,6 +33,12 @@ export default class GameplayUI extends Entity{
     setLives(newLives){
         this.currentLives.text = this.livesPreText + newLives;
     }
+    setGameOverHighscore(score){
+        this.gameoverPanel.setHighscore(score);
+    }
+    resetGameOverPanel(){
+        this.gameoverPanel.reset();
+    }
     showGameOverPanel(finalScore){
         this.gameoverPanel.setFinalScore(finalScore);
         this.gameoverPanel.setHighscore(StorageManager.get('highscore'));

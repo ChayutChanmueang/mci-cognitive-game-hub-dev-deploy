@@ -18,6 +18,11 @@ export default class GameOverPanel extends UIPanel{
 
         this.restartBtn = this.createButton(0,100, "RESTART", () => {
             console.log("Restarting...");
+            if (this.scene.restartGame) {
+                this.scene.restartGame();
+                return;
+            }
+
             this.scene.scene.restart();
         });
 
@@ -29,6 +34,11 @@ export default class GameOverPanel extends UIPanel{
     }
     setHighscore(score){
         this.highscoreText.setText("Highscore: " + score);
+    }
+    reset(){
+        this.setFinalScore(0);
+        this.setHighscore(0);
+        this.hide();
     }
 
     createButton(x,y,text,onClick){
