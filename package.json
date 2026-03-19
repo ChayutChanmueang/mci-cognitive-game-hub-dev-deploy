@@ -19,8 +19,7 @@
         "build": "node log.js build & vite build --config vite/config.prod.mjs",
         "dev-nolog": "vite --config vite/config.dev.mjs",
         "build-nolog": "vite build --config vite/config.prod.mjs",
-        "start-dev": "node server.js --use-system-ca",
-        "start": "node server.js"
+        "start": "vite --config vite/config.dev.mjs"
     },
     "devDependencies": {
         "terser": "^5.39.0",
@@ -28,12 +27,7 @@
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.99.1",
-        "dotenv": "^17.3.1",
-        "express": "^5.2.1",
-        "node-fetch": "^3.3.2",
-        "path": "^0.12.7",
         "phaser": "^3.90.0",
-        "phaser3-rex-plugins": "^1.80.18",
-        "supabase": "^2.76.15"
+        "phaser3-rex-plugins": "^1.80.18"
     }
 }
