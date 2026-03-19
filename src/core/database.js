@@ -155,21 +155,18 @@ class Database {
             score: Math.floor(parsedScore),
             highscore: Math.floor(parsedScore),
             playtime: Math.floor(parsedPlaytime),
-            UID: user.id,
         };
 
         const client = this.getClient();
-        const { data, error } = await client
+        const { error } = await client
             .from(HIGH_SCORE_TABLE)
-            .insert([payload])
-            .select()
-            .single();
+            .insert([payload]);
 
         if (error) {
             throw error;
         }
 
-        return data;
+        return payload;
     }
 }
 

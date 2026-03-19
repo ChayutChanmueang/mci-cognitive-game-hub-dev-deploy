@@ -104,12 +104,12 @@ export default class UITestScene extends Phaser.Scene {
 
     if(this.score > storedHighScore){
       db.submitHighScore(this.score, 0)
-        .then((record) => {
+        .then(() => {
           if (this.isRestarting || !this.sys.isActive()) {
             return;
           }
 
-          console.log(`Saved high score ID: ${record.id}`);
+          console.log("Saved high score to Supabase");
           StorageManager.save('highscore', this.score);
           this.gameplayUI.setGameOverHighscore(this.score);
         })
