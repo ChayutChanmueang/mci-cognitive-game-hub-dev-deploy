@@ -92,7 +92,7 @@ export default class UITestScene extends Phaser.Scene {
       this.conveyer.stop();
     }
     if(this.score > StorageManager.get('highscore')){
-      db.createRow('attention-sorting-game',
+      db.createRow('attention_sorting_game',
           {score: this.score, highscore: this.score, playtime: 0, UID: "9bd1626d-8073-4c49-9564-7fab36f88c6e"}).then(r => {
         console.log(`Return ID : ${r}`);
       })
