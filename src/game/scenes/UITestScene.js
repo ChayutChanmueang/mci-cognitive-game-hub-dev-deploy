@@ -36,13 +36,17 @@ export default class UITestScene extends Phaser.Scene {
 
     this.gameplayUI = new GameplayUI(this,0,0);
     this.gameplayUI.resetGameOverPanel();
-    this.conveyer = new Conveyer(this,this.scale.width/2,(this.scale.height/2) - 950);
+    this.conveyer1 = new Conveyer(this,this.scale.width * (1/2),(this.scale.height/2) - 950,150,2.15);
+    this.conveyer2 = new Conveyer(this,this.scale.width * (1/4),(this.scale.height/2) - 950,150,2.15);
+    this.conveyer3 = new Conveyer(this,this.scale.width * (3/4),(this.scale.height/2) - 950,150,2.15);
     this.physics.resume();
     
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
   }
   update(time,delta){
-    this.conveyer.update(time,delta);
+    this.conveyer1.update(time,delta);
+    this.conveyer2.update(time,delta);
+    this.conveyer3.update(time,delta);
   }
   onGetEatableFood(){
     this.addScore(100);
@@ -65,12 +69,16 @@ export default class UITestScene extends Phaser.Scene {
     this.gameplayUI.setScore(this.score);
     
     if(this.level % 10 == 0 && this.level != this.lastLevel){
-      this.conveyer.animal.changeAnimal();
+      this.conveyer1.animal.changeAnimal();
+      this.conveyer2.animal.changeAnimal();
+      this.conveyer3.animal.changeAnimal();
       console.log("change animal");
       //this.lastLevel = this.level;
     }
     if(this.level % 5 == 0 && this.level != this.lastLevel){
-      this.conveyer.addSpeed(50);
+      this.conveyer1.addSpeed(50);
+      this.conveyer2.addSpeed(50);
+      this.conveyer3.addSpeed(50);
       this.lastLevel = this.level;
     }
   }
@@ -94,11 +102,23 @@ export default class UITestScene extends Phaser.Scene {
     //this.scene.pause();
     this.physics.pause();
 
-    if(this.conveyer && this.conveyer.spawnTimer){
-      this.conveyer.spawnTimer.paused = true;
+    if(this.conveyer1){
+      this.conveyer1.stop();
+      if(this.conveyer1.spawnTimer){
+        this.conveyer1.spawnTimer.paused = true;
+      }
     }
-    if(this.conveyer){
-      this.conveyer.stop();
+    if(this.conveyer2){
+      this.conveyer2.stop();
+      if(this.conveyer2.spawnTimer){
+        this.conveyer2.spawnTimer.paused = true;
+      }
+    }
+    if(this.conveyer3){
+      this.conveyer3.stop();
+      if(this.conveyer3.spawnTimer){
+        this.conveyer3.spawnTimer.paused = true;
+      }
     }
     const storedHighScore = StorageManager.get('highscore', 0);
 

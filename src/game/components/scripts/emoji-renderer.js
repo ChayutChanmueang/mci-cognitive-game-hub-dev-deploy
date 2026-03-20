@@ -12,6 +12,9 @@ export default class EmojiRenderer extends Component{
         else{
             this.fontSize = 64
         }
+        if(settings.sizeScale){
+            this.fontSize*= settings.sizeScale;
+        }
     }
     awake(){
         this.entity.setAlpha(0.001);

@@ -3,14 +3,26 @@ import Animal from "./animal";
 import Fruit from "./fruit";
 
 export default class Conveyer extends Entity{
-    constructor(scene,x,y,speed = 150){
+    constructor(scene,x,y,speed = 150,scale = 1){
         super(scene,x,y,null);
+
+        this.setVisible(false);
+
         this.isMoving = true;
 
         this.speed = speed;
 
-        if(!scene.textures.exists('beltSegment')){
-            const canvas = scene.textures.createCanvas('beltSegment',100,32);
+        this.scale = scale;
+
+        this.beltSegmentPretext = 'beltSegment';
+        this.beltNum = 1;
+        while(scene.textures.exists('beltSegment'+this.beltNum.toString())){
+            this.beltNum++;
+        }
+        this.beltSegmentName = this.beltSegmentPretext + this.beltNum.toString();
+        console.log(this.beltSegmentName);
+        if(!scene.textures.exists(this.beltSegmentName)){
+            const canvas = scene.textures.createCanvas(this.beltSegmentName,100,32);
             const ctx = canvas.context;
 
             ctx.fillStyle = '#333333';
@@ -27,20 +39,21 @@ export default class Conveyer extends Entity{
             y + 500,
             100,
             1100,
-            'beltSegment'
+            this.beltSegmentName
         );
-        //this.conveyer.setDepth(-1);
+        this.conveyer.setDepth(-1);
 
-        this.animal = new Animal(scene,scene.scale.width/2,1200);
+        this.animal = new Animal(scene,x,1200 * 1.55,1.5);
 
         this.foods = [];
         this.spawnFoods();
         this.spawnTimer = this.scene.time.addEvent({
-            delay: 1000, //ms
+            delay: this.randomSpawnTime(9,15) * 100, //ms
             callback: this.spawnFoods,
             callbackScope: this,
             loop: true
         });
+        this.conveyer.scale = this.scale;
     }
     update(time,delta){
         if(!this.isMoving) return;
@@ -56,10 +69,14 @@ export default class Conveyer extends Entity{
         }
     }
     spawnFoods(){
-        const _fruit = new Fruit(this.scene, this.x, this.y,this);
+        const _fruit = new Fruit(this.scene, this.x, this.y,this,1.5);
         _fruit.setVelocityY(this.speed);
+        //_fruit.scale = this.scale;
         this.foods.push(_fruit);
         this.spawnCooldown = 0;
+        if(this.spawnTimer != null){
+            this.spawnTimer.delay = this.randomSpawnTime(9,15) * 100;
+        }
 
         _fruit.once('destroy', () => {
             this.removeFoodFromList(_fruit);
@@ -67,6 +84,11 @@ export default class Conveyer extends Entity{
         _fruit.once('itemSorted', () => {
             this.removeFoodFromList(_fruit);
         })
+    }
+    randomSpawnTime(min,max){
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     removeFoodFromList(fruit){
         const index = this.foods.indexOf(fruit);

@@ -5,7 +5,7 @@ import TriggerListener from "../../components/scripts/trigger-listener";
 import { FoodTypes, FoodSpriteLibrary } from "../../constants";
 
 export default class Fruit extends Entity{
-    constructor(scene,x,y,converyerBelt = null){
+    constructor(scene,x,y,converyerBelt = null,sizeScale = 1){
         super(scene,x,y,null);
 
         this.converyerBelt = converyerBelt;
@@ -20,7 +20,8 @@ export default class Fruit extends Entity{
         this.foodSprite = Phaser.Math.RND.pick(_spriteOptions);
 
         this.addComponent(EmojiRenderer,{
-            emojiSprite: this.foodSprite
+            emojiSprite: this.foodSprite,
+            sizeScale:sizeScale
         });
         this.addComponent(Clickable,{
             onClickAction: (entity) => {
