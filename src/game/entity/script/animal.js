@@ -3,13 +3,14 @@ import EmojiRenderer from "../../components/scripts/emoji-renderer";
 import { AnimalSetting } from "../../constants";
 
 export default class Animal extends Entity{
-    constructor(scene,x,y){
+    constructor(scene,x,y,sizeScale = 1){
         super(scene,x,y,null);
 
         this.randomAnimal()
         this.Sprite = this.addComponent(EmojiRenderer,{
             emojiSprite: this.currentAnimal.Sprite,
-            size: 128
+            size: 128,
+            sizeScale:sizeScale
         });
 
         this.setCollideWorldBounds(true);
