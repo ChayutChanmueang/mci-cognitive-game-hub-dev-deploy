@@ -168,6 +168,29 @@ class Database {
 
         return payload;
     }
+
+    async getTopHighScores(limit = 10) {
+        await this.initAuth();
+
+        const parsedLimit = Math.floor(Number(limit));
+        if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+            throw new Error("Invalid limit");
+        }
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(HIGH_SCORE_TABLE)
+            .select("id, created_at, score, highscore, playtime, UID")
+            .order("highscore", { ascending: false })
+            .order("created_at", { ascending: true })
+            .limit(parsedLimit);
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
+    }
 }
 
 export default new Database();
