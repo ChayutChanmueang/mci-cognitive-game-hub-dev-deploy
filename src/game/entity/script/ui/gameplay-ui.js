@@ -10,17 +10,29 @@ export default class GameplayUI extends Entity{
         const _TopScreenAnchor = 0;
         const _ButtomScreenAnchor = scene.scale.height;
 
+        // 1. SETTINGS FOR THE UI BAR
+        const uiBarHeight = 100; // Adjust based on your 64px font
+        const padding = 20;      // Space from the edges
+
+        // 2. DRAW THE BACKGROUND BAR
+        // Arguments: x, y, width, height, color, alpha
+        this.uiBackground = scene.add.rectangle(
+            0, 0, 
+            scene.scale.width, uiBarHeight, 
+            0x000000, 0.75
+        ).setOrigin(0, 0);
+
         this.scorePreText = "Score : ";
         this.currentScore = scene.add.text(
-            _LeftScreenAnchor,
-            _TopScreenAnchor,
+            _LeftScreenAnchor + padding,
+            _TopScreenAnchor + padding,
             this.scorePreText + scene.score,
             {fontSize: "64px"}
         );
         this.livesPreText = "Lives : ";                         
         this.currentLives = scene.add.text(
-            _RightScreenAnchor,
-            _TopScreenAnchor,
+            _RightScreenAnchor - padding,
+            _TopScreenAnchor + padding,
             this.livesPreText + scene.lives,
             {fontSize: "64px"}
         ).setOrigin(1,0);

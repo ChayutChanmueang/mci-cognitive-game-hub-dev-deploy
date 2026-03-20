@@ -36,17 +36,24 @@ export default class UITestScene extends Phaser.Scene {
 
     this.gameplayUI = new GameplayUI(this,0,0);
     this.gameplayUI.resetGameOverPanel();
-    this.conveyer1 = new Conveyer(this,this.scale.width * (1/2),(this.scale.height/2) - 950,150,2.15);
-    this.conveyer2 = new Conveyer(this,this.scale.width * (1/4),(this.scale.height/2) - 950,150,2.15);
-    this.conveyer3 = new Conveyer(this,this.scale.width * (3/4),(this.scale.height/2) - 950,150,2.15);
+    const _conveyerNums = 3;
+    this.currentConeyer = 0;
+    this.conveyers = [];
+    while(this.conveyers.length < _conveyerNums){
+      this.conveyers[this.currentConeyer] = new Conveyer(this,this.scale.width * ((1 + this.currentConeyer)/(_conveyerNums+1)),(this.scale.height/2) - 950,150,2.15);
+      this.currentConeyer++;
+    }
+
+    console.log(this.conveyers.length);
+    this.spawnFruit();
     this.physics.resume();
     
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
   }
   update(time,delta){
-    this.conveyer1.update(time,delta);
-    this.conveyer2.update(time,delta);
-    this.conveyer3.update(time,delta);
+    for(const _conveyer of this.conveyers){
+      _conveyer.update(time,delta);
+    }
   }
   onGetEatableFood(){
     this.addScore(100);
@@ -69,16 +76,16 @@ export default class UITestScene extends Phaser.Scene {
     this.gameplayUI.setScore(this.score);
     
     if(this.level % 10 == 0 && this.level != this.lastLevel){
-      this.conveyer1.animal.changeAnimal();
-      this.conveyer2.animal.changeAnimal();
-      this.conveyer3.animal.changeAnimal();
+      for(const _conveyer of this.conveyers){
+      _conveyer.animal.changeAnimal();
+      }
       console.log("change animal");
       //this.lastLevel = this.level;
     }
     if(this.level % 5 == 0 && this.level != this.lastLevel){
-      this.conveyer1.addSpeed(50);
-      this.conveyer2.addSpeed(50);
-      this.conveyer3.addSpeed(50);
+      for(const _conveyer of this.conveyers){
+      _conveyer.addSpeed(50);
+      }
       this.lastLevel = this.level;
     }
   }
@@ -102,23 +109,15 @@ export default class UITestScene extends Phaser.Scene {
     //this.scene.pause();
     this.physics.pause();
 
-    if(this.conveyer1){
-      this.conveyer1.stop();
-      if(this.conveyer1.spawnTimer){
-        this.conveyer1.spawnTimer.paused = true;
+    for(const _conveyer of this.conveyers){
+      _conveyer.stop();
+      if(_conveyer.spawnTimer){
+        _conveyer.spawnTimer.paused = true;
       }
     }
-    if(this.conveyer2){
-      this.conveyer2.stop();
-      if(this.conveyer2.spawnTimer){
-        this.conveyer2.spawnTimer.paused = true;
-      }
-    }
-    if(this.conveyer3){
-      this.conveyer3.stop();
-      if(this.conveyer3.spawnTimer){
-        this.conveyer3.spawnTimer.paused = true;
-      }
+    if(this.spawnFruitTimer){
+      this.time.removeEvent(this.spawnFruitTimer);
+      this.spawnFruitTimer = undefined;
     }
     const storedHighScore = StorageManager.get('highscore', 0);
 
@@ -158,5 +157,28 @@ export default class UITestScene extends Phaser.Scene {
 
     this.scene.restart();
   }
+  spawnFruit(){
+    this.randomSpawnFruit();
+    console.log(this.spawnFruitTimer);
+    if(this.spawnFruitTimer == null){
+        this.spawnFruitTimer = this.time.addEvent({
+            delay: this.randomChooseNum(9,15) * 100, //ms
+            callback: this.randomSpawnFruit,
+            callbackScope: this,
+            loop: true
+        });
+    }
+  }
+  randomSpawnFruit(){
+    this.conveyers[this.randomChooseNum(0,this.conveyers.length-1)].spawnFoods();
+    if(this.spawnFruitTimer){
+      this.spawnFruitTimer.delay = this.randomChooseNum(9,15) * 100;
+    }
+  }
+  randomChooseNum(min,max){
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
   
 }

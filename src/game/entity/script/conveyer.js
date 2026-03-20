@@ -21,15 +21,20 @@ export default class Conveyer extends Entity{
         }
         this.beltSegmentName = this.beltSegmentPretext + this.beltNum.toString();
         console.log(this.beltSegmentName);
+
+        //Belt Settings
+        const _beltTotalSize = 64;
+        const _beltConnectorHeight = 4;
+        const _beltSize = _beltTotalSize - _beltConnectorHeight;
         if(!scene.textures.exists(this.beltSegmentName)){
-            const canvas = scene.textures.createCanvas(this.beltSegmentName,100,32);
+            const canvas = scene.textures.createCanvas(this.beltSegmentName,100,_beltTotalSize);
             const ctx = canvas.context;
 
             ctx.fillStyle = '#333333';
-            ctx.fillRect(0,0,100,32);
+            ctx.fillRect(0,0,100,_beltTotalSize);
 
             ctx.fillStyle = '#444444';
-            ctx.fillRect(0,28,100,4);
+            ctx.fillRect(0,_beltSize,100,_beltConnectorHeight);
 
             canvas.refresh();
         }
@@ -46,13 +51,13 @@ export default class Conveyer extends Entity{
         this.animal = new Animal(scene,x,1200 * 1.55,1.5);
 
         this.foods = [];
-        this.spawnFoods();
-        this.spawnTimer = this.scene.time.addEvent({
-            delay: this.randomSpawnTime(9,15) * 100, //ms
-            callback: this.spawnFoods,
-            callbackScope: this,
-            loop: true
-        });
+        // this.spawnFoods();
+        // this.spawnTimer = this.scene.time.addEvent({
+        //     delay: this.randomSpawnTime(9,15) * 100, //ms
+        //     callback: this.spawnFoods,
+        //     callbackScope: this,
+        //     loop: true
+        // });
         this.conveyer.scale = this.scale;
     }
     update(time,delta){
