@@ -1,28 +1,48 @@
-import { Scene } from 'phaser';
+import Phaser from "phaser";
+export default class MainMenuScene extends Phaser.Scene {
+  constructor() {
+    super("main-menu-scene");
+  }
 
-export class MainMenu extends Scene
-{
-    constructor ()
-    {
-        super('MainMenu');
-    }
+  preload() {
+    this.load.scenePlugin(
+      "rexuiplugin",
+      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
+      "rexUI",
+      "rexUI",
+    );
 
-    create ()
-    {
-        this.add.image(512, 384, 'background');
+    this.load.image('button-idle','assets/button_rectangle_depth_flat.png')
+    this.load.image('button-press','assets/button_rectangle_flat.png')
+  }
 
-        this.add.image(512, 300, 'logo');
-
-        this.add.text(512, 460, 'Main Menu', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
+  create(data) {
+    this.easyBtn = this.createButton(this.scale.width/2 ,(this.scale.height/2) - 100, "EASY", () => {
+            this.scene.start('ui-test-scene',{ conveyerNums: 1 })
+        });
+    this.normalBtn = this.createButton(this.scale.width/2 ,(this.scale.height/2), "NORMAL", () => {
+            this.scene.start('ui-test-scene',{ conveyerNums: 2 })
+        });
+    this.hardBtn = this.createButton(this.scale.width/2 ,(this.scale.height/2) + 100, "HARD", () => {
+            this.scene.start('ui-test-scene',{ conveyerNums: 3 })
+        });
+    this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"ZOO FEEDER",{
+            fontSize: '96px', fontStyle: 'bold'
+        }).setOrigin(0.5);
+    this.titleText.setDepth(100);
+    console.log(this.titleText.x, this.titleText.y);
+  }
+  createButton(x,y,text,onClick){
+        const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});
+        const label = this.add.text(x,y,text,{
+            fontSize: '28px', fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        this.input.once('pointerdown', () => {
+        bg.on('pointerdown',onClick);
 
-            this.scene.start('Game');
+        bg.on('pointerover', () => bg.setFillStyle(0x00ff00));
+        bg.on('pointerout', () => bg.setFillStyle(0x00aa00));
 
-        });
+        return [bg,label];
     }
 }

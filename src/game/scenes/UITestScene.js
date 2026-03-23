@@ -21,7 +21,7 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('button-press','assets/button_rectangle_flat.png')
   }
 
-  create() {
+  create(data) {
     console.log("UI test scene");
 
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
@@ -36,7 +36,7 @@ export default class UITestScene extends Phaser.Scene {
 
     this.gameplayUI = new GameplayUI(this,0,0);
     this.gameplayUI.resetGameOverPanel();
-    const _conveyerNums = 3;
+    const _conveyerNums = data.conveyerNums || 3;
     this.currentConeyer = 0;
     this.conveyers = [];
     while(this.conveyers.length < _conveyerNums){

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 export default class UIPanel{
-    constructor(scene,x,y){
+    constructor(scene,x,y,sizeX,sizeY){
         this.scene = scene;
         this.x = x;
         this.y = y;
@@ -17,7 +17,7 @@ export default class UIPanel{
 
         this.overlay.setInteractive();
         
-        this.panelBg = scene.add.rectangle(0,0,400,350,0x222222,1);
+        this.panelBg = scene.add.rectangle(0,0,sizeX,sizeY,0x222222,1);
         this.panelBg.setStrokeStyle(4,0xffffff);
 
         this.container.add([this.overlay, this.panelBg]);
