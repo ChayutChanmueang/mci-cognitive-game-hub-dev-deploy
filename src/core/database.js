@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-const HIGH_SCORE_TABLE = "attention_sorting_game";
+const GAME_LIST_TABLE = "game_list_data";
+const USER_GAME_DATA_TABLE = "user_game_data";
 
 class Database {
     constructor() {
@@ -133,18 +134,70 @@ class Database {
         return session?.user || null;
     }
 
-    async submitHighScore(score, playtime = 0) {
+    async getGameList() {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(GAME_LIST_TABLE)
+            .select("id, gid, name, created_at")
+            .order("created_at", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
+    }
+
+    async getGameByGid(gid) {
+        const parsedGid = String(gid || "").trim();
+        if (!parsedGid) {
+            throw new Error("Invalid gid");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(GAME_LIST_TABLE)
+            .select("id, gid, name, created_at")
+            .eq("gid", parsedGid)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || null;
+    }
+
+    async submitGameData({ gid, score, startedAt, endedAt }) {
         const session = await this.initAuth();
         const user = session?.user || (await this.getCurrentUser());
+        const parsedGid = String(gid || "").trim();
         const parsedScore = Number(score);
-        const parsedPlaytime = Number(playtime);
+        const normalizedStartedAt = new Date(startedAt);
+        const normalizedEndedAt = new Date(endedAt);
+
+        if (!parsedGid) {
+            throw new Error("Invalid gid");
+        }
 
         if (!Number.isFinite(parsedScore) || parsedScore < 0) {
             throw new Error("Invalid score");
         }
 
-        if (!Number.isFinite(parsedPlaytime) || parsedPlaytime < 0) {
-            throw new Error("Invalid playtime");
+        if (Number.isNaN(normalizedStartedAt.getTime())) {
+            throw new Error("Invalid startedAt");
+        }
+
+        if (Number.isNaN(normalizedEndedAt.getTime())) {
+            throw new Error("Invalid endedAt");
+        }
+
+        if (normalizedEndedAt < normalizedStartedAt) {
+            throw new Error("endedAt must be greater than or equal to startedAt");
         }
 
         if (!user?.id) {
@@ -152,14 +205,15 @@ class Database {
         }
 
         const payload = {
+            gid: parsedGid,
             score: Math.floor(parsedScore),
-            highscore: Math.floor(parsedScore),
-            playtime: Math.floor(parsedPlaytime),
+            started_at: normalizedStartedAt.toISOString(),
+            ended_at: normalizedEndedAt.toISOString(),
         };
 
         const client = this.getClient();
         const { error } = await client
-            .from(HIGH_SCORE_TABLE)
+            .from(USER_GAME_DATA_TABLE)
             .insert([payload]);
 
         if (error) {
@@ -169,27 +223,16 @@ class Database {
         return payload;
     }
 
-    async getTopHighScores(limit = 10) {
-        await this.initAuth();
+    async submitHighScore(score, playtime = 0, gid = "attention-sorting-line") {
+        const endedAt = new Date();
+        const startedAt = new Date(endedAt.getTime() - Math.max(0, Number(playtime) || 0) * 1000);
 
-        const parsedLimit = Math.floor(Number(limit));
-        if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
-            throw new Error("Invalid limit");
-        }
-
-        const client = this.getClient();
-        const { data, error } = await client
-            .from(HIGH_SCORE_TABLE)
-            .select("id, created_at, score, highscore, playtime, UID")
-            .order("highscore", { ascending: false })
-            .order("created_at", { ascending: true })
-            .limit(parsedLimit);
-
-        if (error) {
-            throw error;
-        }
-
-        return data || [];
+        return this.submitGameData({
+            gid,
+            score,
+            startedAt,
+            endedAt,
+        });
     }
 }
 

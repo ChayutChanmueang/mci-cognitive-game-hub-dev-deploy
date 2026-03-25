@@ -4,6 +4,8 @@ import GameplayUI from "../entity/script/ui/gameplay-ui";
 import StorageManager from "../../core/storage-manager";
 import db from "../../core/database.js";
 
+const GAME_ID = "ATTN001";
+
 export default class UITestScene extends Phaser.Scene {
   constructor() {
     super("ui-test-scene");
@@ -33,6 +35,7 @@ export default class UITestScene extends Phaser.Scene {
     this.lives = 3;
     this.isGameOver = false;
     this.isRestarting = false;
+    this.gameStartedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this,0,0);
     this.gameplayUI.resetGameOverPanel();
@@ -120,22 +123,30 @@ export default class UITestScene extends Phaser.Scene {
       this.spawnFruitTimer = undefined;
     }
     const storedHighScore = StorageManager.get('highscore', 0);
+    const endedAt = new Date();
 
-    if(this.score > storedHighScore){
-      db.submitHighScore(this.score, 0)
-        .then(() => {
-          if (this.isRestarting || !this.sys.isActive()) {
-            return;
-          }
+    db.submitGameData({
+      gid: GAME_ID,
+      score: this.score,
+      startedAt: this.gameStartedAt,
+      endedAt,
+    })
+      .then(() => {
+        if (this.isRestarting || !this.sys.isActive()) {
+          return;
+        }
 
-          console.log("Saved high score to Supabase");
+        console.log("Saved game data to Supabase");
+
+        if(this.score > storedHighScore){
           StorageManager.save('highscore', this.score);
           this.gameplayUI.setGameOverHighscore(this.score);
-        })
-        .catch((error) => {
-          console.error("Failed to save high score:", error);
-        });
-    }
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to save game data:", error);
+      });
+
     this.gameplayUI.showGameOverPanel(this.score);
     //console.log("Highscore: " + StorageManager.get('highscore'));
   }
