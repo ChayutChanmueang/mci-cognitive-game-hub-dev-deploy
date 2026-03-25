@@ -8,6 +8,9 @@ export default class Fruit extends Entity{
     constructor(scene,x,y,converyerBelt = null,sizeScale = 1){
         super(scene,x,y,null);
 
+        this.setScale(1.5);
+        //this.refreshBody();
+
         this.converyerBelt = converyerBelt;
 
         //Random Food Type

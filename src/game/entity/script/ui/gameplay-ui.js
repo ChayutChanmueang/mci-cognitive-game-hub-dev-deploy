@@ -28,7 +28,7 @@ export default class GameplayUI extends Entity{
             _TopScreenAnchor + padding,
             this.scorePreText + scene.score,
             {fontSize: "64px"}
-        );
+        )
         this.livesPreText = "Lives : ";                         
         this.currentLives = scene.add.text(
             _RightScreenAnchor - padding,

@@ -3,10 +3,8 @@ import Phaser from 'phaser'
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 
 import UITestScene from  './scenes/UITestScene';
+import MainMenuScene from './scenes/MainMenu';
 import { Boot } from './scenes/Boot';
-import { Game as MainGame } from './scenes/Game';
-import { GameOver } from './scenes/GameOver';
-import { MainMenu } from './scenes/MainMenu';
 import { Preloader } from './scenes/Preloader';
 import { AUTO, Game } from 'phaser';
 
@@ -30,12 +28,10 @@ const config = {
         }
     },
     scene: [
+        MainMenuScene,
         UITestScene,
         Boot,
         Preloader,
-        MainMenu,
-        MainGame,
-        GameOver
     ],
     plugins: {
         scene:[
