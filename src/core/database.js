@@ -140,7 +140,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(GAME_LIST_TABLE)
-            .select("id, gid, name, created_at")
+            .select("id, gid, name, mci_group, created_at")
             .order("created_at", { ascending: true });
 
         if (error) {
@@ -161,7 +161,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(GAME_LIST_TABLE)
-            .select("id, gid, name, created_at")
+            .select("id, gid, name, mci_group, created_at")
             .eq("gid", parsedGid)
             .maybeSingle();
 
@@ -172,11 +172,12 @@ class Database {
         return data || null;
     }
 
-    async submitGameData({ gid, score, startedAt, endedAt }) {
+    async submitGameData({ gid, score = null, level = null, startedAt, endedAt }) {
         const session = await this.initAuth();
         const user = session?.user || (await this.getCurrentUser());
         const parsedGid = String(gid || "").trim();
-        const parsedScore = Number(score);
+        const parsedScore = score == null ? null : Number(score);
+        const parsedLevel = level == null ? null : Number(level);
         const normalizedStartedAt = new Date(startedAt);
         const normalizedEndedAt = new Date(endedAt);
 
@@ -184,8 +185,12 @@ class Database {
             throw new Error("Invalid gid");
         }
 
-        if (!Number.isFinite(parsedScore) || parsedScore < 0) {
+        if (parsedScore != null && (!Number.isFinite(parsedScore) || parsedScore < 0)) {
             throw new Error("Invalid score");
+        }
+
+        if (parsedLevel != null && (!Number.isFinite(parsedLevel) || parsedLevel < 0)) {
+            throw new Error("Invalid level");
         }
 
         if (Number.isNaN(normalizedStartedAt.getTime())) {
@@ -206,7 +211,8 @@ class Database {
 
         const payload = {
             gid: parsedGid,
-            score: Math.floor(parsedScore),
+            score: parsedScore == null ? null : Math.floor(parsedScore),
+            level: parsedLevel == null ? null : Math.floor(parsedLevel),
             started_at: normalizedStartedAt.toISOString(),
             ended_at: normalizedEndedAt.toISOString(),
         };
@@ -223,13 +229,14 @@ class Database {
         return payload;
     }
 
-    async submitHighScore(score, playtime = 0, gid = "attention-sorting-line") {
+    async submitHighScore(score, playtime = 0, gid = "ATTN001", level = null) {
         const endedAt = new Date();
         const startedAt = new Date(endedAt.getTime() - Math.max(0, Number(playtime) || 0) * 1000);
 
         return this.submitGameData({
             gid,
             score,
+            level,
             startedAt,
             endedAt,
         });

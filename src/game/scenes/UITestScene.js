@@ -128,6 +128,7 @@ export default class UITestScene extends Phaser.Scene {
     db.submitGameData({
       gid: GAME_ID,
       score: this.score,
+      level: this.level,
       startedAt: this.gameStartedAt,
       endedAt,
     })
