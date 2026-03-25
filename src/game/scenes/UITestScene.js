@@ -39,11 +39,11 @@ export default class UITestScene extends Phaser.Scene {
 
     this.gameplayUI = new GameplayUI(this,0,0);
     this.gameplayUI.resetGameOverPanel();
-    const _conveyerNums = data.conveyerNums || 3;
+    this.conveyerNums = data.conveyerNums || 3;
     this.currentConeyer = 0;
     this.conveyers = [];
-    while(this.conveyers.length < _conveyerNums){
-      this.conveyers[this.currentConeyer] = new Conveyer(this,this.scale.width * ((1 + this.currentConeyer)/(_conveyerNums+1)),(this.scale.height/2) - 950,150,2.15);
+    while(this.conveyers.length < this.conveyerNums){
+      this.conveyers[this.currentConeyer] = new Conveyer(this,this.scale.width * ((1 + this.currentConeyer)/(this.conveyerNums+1)),(this.scale.height/2) - 950,150,2.15);
       this.currentConeyer++;
     }
 
@@ -128,7 +128,7 @@ export default class UITestScene extends Phaser.Scene {
     db.submitGameData({
       gid: GAME_ID,
       score: this.score,
-      level: this.level,
+      level: this.conveyerNums,
       startedAt: this.gameStartedAt,
       endedAt,
     })
