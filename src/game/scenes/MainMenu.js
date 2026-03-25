@@ -34,9 +34,11 @@ export default class MainMenuScene extends Phaser.Scene {
   }
   createButton(x,y,text,onClick){
         const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});
+        bg.setScale(1.5);
         const label = this.add.text(x,y,text,{
             fontSize: '28px', fontStyle: 'bold'
         }).setOrigin(0.5);
+        label.setScale(1.5);
 
         bg.on('pointerdown',onClick);
 

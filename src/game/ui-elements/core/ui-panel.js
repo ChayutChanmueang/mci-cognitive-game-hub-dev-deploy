@@ -22,7 +22,7 @@ export default class UIPanel{
 
         this.container.add([this.overlay, this.panelBg]);
 
-        this.hide();
+        //this.hide();
     }
     addElements(elements){
         this.container.add(elements);
