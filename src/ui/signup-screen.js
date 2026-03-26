@@ -116,7 +116,7 @@ export function renderSignupScreen(root, options = {}) {
                                 <p>กำหนดวันที่เริ่มโปรแกรมฝึกสมอง โดยใช้ปฏิทินของ browser</p>
                             </div>
 
-                            <div class="signup-grid signup-grid--program">
+                            <div class="signup-grid signup-grid--program-row">
                                 <md-outlined-text-field
                                     id="signup-started-program"
                                     class="auth-field"
@@ -125,15 +125,17 @@ export function renderSignupScreen(root, options = {}) {
                                     value="${createDateValue()}"
                                     required
                                 ></md-outlined-text-field>
-                            </div>
-                        </section>
 
-                        <div class="auth-actions">
-                            <md-filled-button id="signup-submit-button" type="submit">
-                                <span slot="icon" class="material-symbols-rounded">how_to_reg</span>
-                                ยืนยันข้อมูลคนไข้
-                            </md-filled-button>
-                        </div>
+                                <div class="signup-submit-wrap">
+                                    <md-filled-button id="signup-submit-button" type="submit">
+                                        <span slot="icon" class="material-symbols-rounded">how_to_reg</span>
+                                        ยืนยันข้อมูลคนไข้
+                                    </md-filled-button>
+                                </div>
+                            </div>
+
+                            <p id="signup-feedback" class="auth-feedback" aria-live="polite"></p>
+                        </section>
                     </form>
                 </div>
             </div>
@@ -142,8 +144,10 @@ export function renderSignupScreen(root, options = {}) {
 
     const form = root.querySelector("#patient-signup-form");
     const backButton = root.querySelector("#signup-back-button");
+    const submitButton = root.querySelector("#signup-submit-button");
+    const feedback = root.querySelector("#signup-feedback");
 
-    if (!form || !backButton) {
+    if (!form || !backButton || !submitButton || !feedback) {
         return;
     }
 
@@ -151,7 +155,7 @@ export function renderSignupScreen(root, options = {}) {
         onBack();
     });
 
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const formData = {
@@ -165,6 +169,18 @@ export function renderSignupScreen(root, options = {}) {
         };
 
         sessionStorage.setItem("patient_signup_draft", JSON.stringify(formData));
-        onSubmit(formData);
+        submitButton.disabled = true;
+        feedback.textContent = "กำลังบันทึกข้อมูลผู้ป่วย...";
+
+        try {
+            await onSubmit(formData);
+        } catch (error) {
+            console.error("Patient signup flow failed:", error);
+            feedback.textContent = error?.message || "ไม่สามารถบันทึกข้อมูลผู้ป่วยได้";
+            submitButton.disabled = false;
+            return;
+        }
+
+        feedback.textContent = "";
     });
 }

@@ -15,7 +15,7 @@ export function renderLoginScreen(root, options = {}) {
         return;
     }
 
-    const { onAccept = () => {}, onOpenSignup = () => {} } = options;
+    const { onAccept = () => {} } = options;
 
     root.innerHTML = `
         <section class="auth-screen">
@@ -51,11 +51,7 @@ export function renderLoginScreen(root, options = {}) {
                             กรอกรหัสผู้ป่วยก่อนกด Accept ID
                         </p>
 
-                        <div class="auth-actions auth-actions--stack-mobile">
-                            <md-text-button id="patient-signup-link" type="button">
-                                <span slot="icon" class="material-symbols-rounded">person_add</span>
-                                ลงทะเบียนผู้ป่วยใหม่
-                            </md-text-button>
+                        <div class="auth-actions auth-actions--login-only">
                             <md-filled-button id="patient-login-submit" type="submit" disabled>
                                 <span slot="icon" class="material-symbols-rounded">arrow_forward</span>
                                 Accept ID
@@ -71,9 +67,8 @@ export function renderLoginScreen(root, options = {}) {
     const input = root.querySelector("#patient-id-input");
     const submitButton = root.querySelector("#patient-login-submit");
     const feedback = root.querySelector("#patient-login-feedback");
-    const signupButton = root.querySelector("#patient-signup-link");
 
-    if (!form || !input || !submitButton || !feedback || !signupButton) {
+    if (!form || !input || !submitButton || !feedback) {
         return;
     }
 
@@ -91,13 +86,7 @@ export function renderLoginScreen(root, options = {}) {
 
     input.addEventListener("input", updateState);
 
-    signupButton.addEventListener("click", () => {
-        onOpenSignup({
-            hn: String(input.value || "").trim(),
-        });
-    });
-
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const patientId = String(input.value || "").trim();
@@ -109,7 +98,19 @@ export function renderLoginScreen(root, options = {}) {
         }
 
         sessionStorage.setItem("patient_login_id", patientId);
-        onAccept({ patientId });
+        submitButton.disabled = true;
+        input.disabled = true;
+        feedback.textContent = "กำลังตรวจสอบรหัสผู้ป่วย...";
+
+        try {
+            await onAccept({ patientId });
+        } catch (error) {
+            console.error("Patient login flow failed:", error);
+            toggleFieldError(input, true);
+            feedback.textContent = error?.message || "ไม่สามารถตรวจสอบรหัสผู้ป่วยได้";
+            input.disabled = false;
+            updateState();
+        }
     });
 
     updateState();

@@ -199,6 +199,16 @@ md-text-button {
     grid-template-columns: minmax(260px, 420px);
 }
 
+.signup-grid--program-row {
+    grid-template-columns: minmax(260px, 420px) auto;
+    align-items: end;
+}
+
+.signup-submit-wrap {
+    display: flex;
+    justify-content: flex-start;
+}
+
 .signup-note {
     padding: 16px 18px;
     border-radius: 18px;
@@ -253,6 +263,10 @@ md-text-button {
     justify-content: space-between;
 }
 
+.auth-actions--login-only {
+    justify-content: flex-end;
+}
+
 md-filled-button {
     --md-filled-button-container-height: 56px;
     --md-filled-button-container-shape: 18px;
@@ -302,8 +316,13 @@ md-outlined-select {
     }
 
     .signup-grid--two,
-    .signup-grid--three {
+    .signup-grid--three,
+    .signup-grid--program-row {
         grid-template-columns: 1fr;
+    }
+
+    .signup-submit-wrap {
+        justify-content: stretch;
     }
 
     .auth-actions {
@@ -312,6 +331,7 @@ md-outlined-select {
         align-items: stretch;
     }
 
+    .signup-submit-wrap md-filled-button,
     .auth-actions md-filled-button,
     .auth-actions md-outlined-button,
     .auth-actions md-text-button {

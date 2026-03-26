@@ -1,4 +1,5 @@
 import StartGame from './game/main';
+import db from "./core/database.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 
@@ -32,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSignupScreen(uiRoot, {
             initialHn: hn,
             onBack: () => showLogin({ patientId: hn }),
-            onSubmit: (formData) => {
-                console.info("Signup mockup submitted:", formData);
+            onSubmit: async (formData) => {
+                await db.createPatientProfile(formData);
                 showGame();
             },
         });
@@ -41,11 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showLogin = ({ patientId = "" } = {}) => {
         renderLoginScreen(uiRoot, {
-            onAccept: ({ patientId: acceptedId }) => {
-                console.info("Login mockup accepted:", acceptedId);
-                showGame();
+            onAccept: async ({ patientId: acceptedId }) => {
+                const patient = await db.getPatientByHn(acceptedId);
+
+                if (patient) {
+                    showGame();
+                    return;
+                }
+
+                showSignup({ hn: acceptedId });
             },
-            onOpenSignup: ({ hn }) => showSignup({ hn: hn || patientId }),
         });
 
         const input = uiRoot?.querySelector("#patient-id-input");
