@@ -22,7 +22,7 @@ export default class UIPanel{
 
         this.container.add([this.overlay, this.panelBg]);
 
-        //this.hide();
+        this.forceHide();
     }
     addElements(elements){
         this.container.add(elements);
@@ -38,6 +38,21 @@ export default class UIPanel{
         });
     }
     hide(){
+        this.scene.tweens.add({
+            targets: this.container,
+            scaleX: {from: 1, to: 0},
+            scaleY: {from: 1, to: 0},
+            duration: 200,
+            ease: 'Back.out',
+            onComplete: () =>{
+                //console.log("test");
+                if(this.onHide){
+                    this.onHide();
+                }
+            }
+        });
+    }
+    forceHide(){
         this.container.setVisible(false);
     }
     destroy(){

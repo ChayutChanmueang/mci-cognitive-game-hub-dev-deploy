@@ -1,4 +1,5 @@
 import StorageManager from "../../../../core/storage-manager";
+import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
 import Entity from "../../entity";
 
@@ -37,6 +38,8 @@ export default class GameplayUI extends Entity{
             {fontSize: "64px"}
         ).setOrigin(1,0);
 
+        this.TutorialPanel = new TutorialPanel(scene);
+        this.TutorialPanel.show();
         this.gameoverPanel = new GameOverPanel(scene);
     }
     setScore(newScore){

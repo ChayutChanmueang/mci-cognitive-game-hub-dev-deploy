@@ -48,7 +48,7 @@ export default class UITestScene extends Phaser.Scene {
     }
 
     console.log(this.conveyers.length);
-    this.spawnFruit();
+    //this.spawnFruit();
     this.physics.resume();
     
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
