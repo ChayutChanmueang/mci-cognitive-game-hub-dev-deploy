@@ -4,6 +4,7 @@ import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 
 document.addEventListener('DOMContentLoaded', () => {
+    const app = document.getElementById("app");
     const uiRoot = document.getElementById("ui-root");
     const gameContainer = document.getElementById("game-container");
     let hasStartedGame = false;
@@ -13,15 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const showGame = () => {
-        if (gameContainer) {
-            gameContainer.classList.remove("game-container--hidden");
-        }
-
-        if (!uiRoot) {
+        if (!app) {
             return;
         }
 
-        uiRoot.innerHTML = "";
+        document.body.classList.add("game-mode");
+        app.classList.add("game-mode");
+        app.innerHTML = '<div id="game-container"></div>';
 
         if (!hasStartedGame) {
             StartGame('game-container');
