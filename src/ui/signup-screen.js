@@ -68,101 +68,52 @@ export function renderSignupScreen(root, options = {}) {
                                     required
                                 ></md-outlined-text-field>
 
-                                <div style="position: relative;">
-                                    <md-outlined-text-field
-                                        id="signup-gender-trigger"
-                                        class="auth-field select-trigger"
-                                        label="เพศ"
-                                        readonly
-                                        required
-                                    >
-                                        <md-icon slot="trailing-icon" class="material-symbols-rounded">arrow_drop_down</md-icon>
-                                    </md-outlined-text-field>
-                                    <md-menu id="signup-gender-menu" anchor="signup-gender-trigger">
-                                        <md-menu-item value="male">
-                                            <div class="row">
-                                                <div class="col-md-2 menu-icon">
-                                                    <span class="material-symbols-rounded">male</span>
-                                                </div>
-                                                <div class="col-md-10 menu-text">ชาย</div>
-                                            </div>
-                                        </md-menu-item>
-                                        <md-menu-item value="female">
-                                            <div class="row">
-                                                <div class="col-md-2 menu-icon">
-                                                    <span class="material-symbols-rounded">female</span>
-                                                </div>
-                                                <div class="col-md-10 menu-text">หญิง</div>
-                                            </div>
-                                        </md-menu-item>
-                                        <md-menu-item value="other">
-                                            <div class="row">
-                                                <div class="col-md-2 menu-icon">
-                                                    <span class="material-symbols-rounded">transgender</span>
-                                                </div>
-                                                <div class="col-md-10 menu-text">อื่น ๆ</div>
-                                            </div>
-                                        </md-menu-item>
-                                        <md-menu-item value="unknown">
-                                            <div class="row">
-                                                <div class="col-md-2 menu-icon">
-                                                    <span class="material-symbols-rounded">question_mark</span>
-                                                </div>
-                                                <div class="col-md-10 menu-text">ยังไม่ระบุ</div>
-                                            </div>
-                                        </md-menu-item>
-                                    </md-menu>
-                                    <input type="hidden" id="signup-gender" value="">
-                                </div>
+                                <md-outlined-select
+                                    id="signup-gender"
+                                    class="auth-field"
+                                    label="เพศ"
+                                    required
+                                >
+                                    <md-select-option value="male">
+                                        <div slot="headline">ชาย</div>
+                                    </md-select-option>
+                                    <md-select-option value="female">
+                                        <div slot="headline">หญิง</div>
+                                    </md-select-option>
+                                    <md-select-option value="other">
+                                        <div slot="headline">อื่น ๆ</div>
+                                    </md-select-option>
+                                    <md-select-option value="unknown">
+                                        <div slot="headline">ยังไม่ระบุ</div>
+                                    </md-select-option>
+                                </md-outlined-select>
 
-                                <div style="position: relative;">
-                                    <md-outlined-text-field
-                                        id="signup-education-level-trigger"
-                                        class="auth-field select-trigger"
-                                        label="ระดับการศึกษา"
-                                        readonly
-                                    >
-                                        <md-icon slot="trailing-icon" class="material-symbols-rounded">arrow_drop_down</md-icon>
-                                    </md-outlined-text-field>
-                                    <md-menu id="signup-education-level-menu" anchor="signup-education-level-trigger">
-                                        <md-menu-item value="placeholder-1">
-                                            <div class="row">
-                                                <div class="col-md-2 menu-icon">
-                                                    <span class="material-symbols-rounded">school</span>
-                                                </div>
-                                                <div class="col-md-10 menu-text">ประถมศึกษา</div>
-                                            </div>
-                                        </md-menu-item>
-                                        <md-menu-item value="placeholder-2">
-                                            <div class="row">
-                                                <div class="col-md-2 menu-icon">
-                                                    <span class="material-symbols-rounded">school</span>
-                                                </div>
-                                                <div class="col-md-10 menu-text">มัธยมศึกษา</div>
-                                            </div>
-                                        </md-menu-item>
-                                        <md-menu-item value="placeholder-3">
-                                            <div class="row">
-                                                <div class="col-md-2 menu-icon">
-                                                    <span class="material-symbols-rounded">school</span>
-                                                </div>
-                                                <div class="col-md-10 menu-text">ปริญญาตรี</div>
-                                            </div>
-                                        </md-menu-item>
-                                    </md-menu>
-                                    <input type="hidden" id="signup-education-level" value="">
-                                </div>
+                                <md-outlined-select
+                                    id="signup-education-level"
+                                    class="auth-field"
+                                    label="ระดับการศึกษา"
+                                >
+                                    <md-select-option value="placeholder-1">
+                                        <div slot="headline">ตัวเลือกตัวอย่าง 1</div>
+                                    </md-select-option>
+                                    <md-select-option value="placeholder-2">
+                                        <div slot="headline">ตัวเลือกตัวอย่าง 2</div>
+                                    </md-select-option>
+                                    <md-select-option value="placeholder-3">
+                                        <div slot="headline">ตัวเลือกตัวอย่าง 3</div>
+                                    </md-select-option>
+                                </md-outlined-select>
                             </div>
 
                             <div class="signup-note">
-                                ข้อมูลนี้จะใช้ในการเปรียบเทียบผลการฝึกตามช่วงวัยและระดับการศึกษา
+                                ฟิลด์ระดับการศึกษาเป็น mockup ชั่วคราว และจะเปลี่ยนเป็นตัวเลือกจริงภายหลัง
                             </div>
                         </section>
 
                         <section class="signup-section signup-section--program">
                             <div class="signup-section__heading">
                                 <h3>ข้อมูลเริ่มโปรแกรม</h3>
-                                <p>กำหนดวันที่เริ่มโปรแกรมฝึกสมอง</p>
+                                <p>กำหนดวันที่เริ่มโปรแกรมฝึกสมอง โดยใช้ปฏิทินของ browser</p>
                             </div>
 
                             <div class="signup-grid signup-grid--program">
@@ -195,44 +146,6 @@ export function renderSignupScreen(root, options = {}) {
     if (!form || !backButton) {
         return;
     }
-
-    // Gender Menu Logic
-    const genderTrigger = root.querySelector("#signup-gender-trigger");
-    const genderMenu = root.querySelector("#signup-gender-menu");
-    const genderHiddenInput = root.querySelector("#signup-gender");
-
-    genderTrigger.addEventListener("click", () => {
-        genderMenu.open = !genderMenu.open;
-    });
-
-    genderMenu.addEventListener("closed", (e) => {
-        const item = e.target.selectedItem;
-        if (item) {
-            const value = item.value;
-            const text = item.querySelector(".menu-text").textContent;
-            genderTrigger.value = text;
-            genderHiddenInput.value = value;
-        }
-    });
-
-    // Education Menu Logic
-    const eduTrigger = root.querySelector("#signup-education-level-trigger");
-    const eduMenu = root.querySelector("#signup-education-level-menu");
-    const eduHiddenInput = root.querySelector("#signup-education-level");
-
-    eduTrigger.addEventListener("click", () => {
-        eduMenu.open = !eduMenu.open;
-    });
-
-    eduMenu.addEventListener("closed", (e) => {
-        const item = e.target.selectedItem;
-        if (item) {
-            const value = item.value;
-            const text = item.querySelector(".menu-text").textContent;
-            eduTrigger.value = text;
-            eduHiddenInput.value = value;
-        }
-    });
 
     backButton.addEventListener("click", () => {
         onBack();
