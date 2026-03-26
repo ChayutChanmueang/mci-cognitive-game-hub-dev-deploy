@@ -1,15 +1,320 @@
+:root {
+    --md-sys-color-primary: #356859;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #d2eadf;
+    --md-sys-color-on-primary-container: #143b30;
+    --md-sys-color-secondary: #5f6257;
+    --md-sys-color-surface: #f7f4ee;
+    --md-sys-color-surface-container: #ffffff;
+    --md-sys-color-surface-container-high: #f2ede5;
+    --md-sys-color-on-surface: #1e1b18;
+    --md-sys-color-on-surface-variant: #64605a;
+    --md-sys-color-outline: #b7b0a8;
+    --md-sys-color-error: #ba1a1a;
+    --app-shadow: 0 24px 60px rgba(53, 104, 89, 0.14);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
 body {
     margin: 0;
-    padding: 0;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #000000;
+    min-height: 100%;
+}
+
+body {
+    color: var(--md-sys-color-on-surface);
+    background:
+        radial-gradient(circle at top left, rgba(210, 234, 223, 0.9), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(255, 214, 153, 0.35), transparent 28%),
+        linear-gradient(180deg, #f8f5ef 0%, #f2ede4 100%);
+    font-family: "Noto Sans Thai", sans-serif;
 }
 
 #app {
     width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.auth-screen {
+    width: min(100%, 1120px);
+}
+
+.auth-screen--hidden {
+    display: none;
+}
+
+.auth-shell {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: minmax(280px, 1.15fr) minmax(320px, 0.95fr);
     align-items: center;
+}
+
+.auth-shell--signup {
+    grid-template-columns: 1fr;
+    width: min(100%, 1100px);
+}
+
+.auth-brand h1,
+.auth-card h2,
+md-filled-button,
+md-outlined-text-field,
+md-outlined-button,
+md-text-button {
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+}
+
+.auth-eyebrow {
+    margin: 0 0 12px;
+    color: var(--md-sys-color-primary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.auth-brand h1 {
+    margin: 0;
+    font-size: clamp(3rem, 5vw, 4.8rem);
+    line-height: 0.94;
+    letter-spacing: -0.04em;
+}
+
+.auth-copy {
+    max-width: 44rem;
+    margin: 20px 0 0;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 1.15rem;
+    line-height: 1.8;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid rgba(183, 176, 168, 0.8);
+    border-radius: 32px;
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(10px);
+    padding: 32px;
+}
+
+.auth-card__header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.auth-card__header--spread {
+    justify-content: space-between;
+}
+
+.auth-card__header-group {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.auth-card__header h2 {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.auth-card__header p {
+    margin: 6px 0 0;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.6;
+}
+
+.auth-card__icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 20px;
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.auth-form {
+    display: grid;
+    gap: 18px;
+}
+
+.signup-form {
+    display: grid;
+    gap: 20px;
+}
+
+.signup-section {
+    display: grid;
+    gap: 18px;
+}
+
+.signup-section + .signup-section {
+    padding-top: 24px;
+    border-top: 2px solid rgba(183, 176, 168, 0.6);
+}
+
+.signup-section__heading {
+    display: grid;
+    gap: 6px;
+}
+
+.signup-section__heading h3 {
+    margin: 0;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.signup-section__heading p {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.6;
+}
+
+.signup-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.signup-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.signup-grid--three {
+    grid-template-columns: 0.7fr 1fr 1.3fr;
+}
+
+.signup-grid--program {
+    grid-template-columns: minmax(260px, 420px);
+}
+
+.signup-note {
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: var(--md-sys-color-surface-container-high);
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.6;
+}
+
+.signup-context {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(210, 234, 223, 0.55);
+    color: var(--md-sys-color-on-primary-container);
+}
+
+.signup-context__label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.signup-context__value {
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.auth-field {
+    width: 100%;
+}
+
+.auth-feedback {
+    margin: 0;
+    min-height: 1.6em;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.98rem;
+}
+
+.auth-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.auth-actions--stack-mobile {
+    justify-content: space-between;
+}
+
+md-filled-button {
+    --md-filled-button-container-height: 56px;
+    --md-filled-button-container-shape: 18px;
+    --md-filled-button-label-text-size: 1.05rem;
+}
+
+md-outlined-button,
+md-text-button {
+    --md-outlined-button-container-height: 48px;
+    --md-outlined-button-container-shape: 18px;
+    --md-text-button-container-height: 48px;
+}
+
+md-outlined-select {
+    width: 100%;
+    --md-outlined-select-text-field-container-shape: 18px;
+}
+
+#game-container {
+    width: 100%;
+}
+
+.game-container--hidden {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    #app {
+        padding: 16px;
+    }
+
+    .auth-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-brand h1 {
+        font-size: clamp(2.4rem, 12vw, 4rem);
+    }
+
+    .auth-card {
+        padding: 24px;
+        border-radius: 24px;
+    }
+
+    .auth-card__header-group {
+        flex-direction: column;
+    }
+
+    .signup-grid--two,
+    .signup-grid--three {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-actions {
+        justify-content: stretch;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .auth-actions md-filled-button,
+    .auth-actions md-outlined-button,
+    .auth-actions md-text-button {
+        width: 100%;
+    }
 }

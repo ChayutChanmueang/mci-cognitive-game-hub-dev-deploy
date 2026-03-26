@@ -2,6 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
+const USER_EVENT_LOG_TABLE = "user_event_log";
+const EVENT_IDS = Object.freeze({
+    OPEN_APP: "OPAPP",
+    START_PLAY_GAME: "SPG",
+});
 
 class Database {
     constructor() {
@@ -240,6 +245,45 @@ class Database {
             startedAt,
             endedAt,
         });
+    }
+
+    async logUserEvent(eventId, gid = null) {
+        const session = await this.initAuth();
+        const user = session?.user || (await this.getCurrentUser());
+        const parsedEventId = String(eventId || "").trim().toUpperCase();
+        const parsedGid = gid == null ? null : String(gid).trim();
+
+        if (!parsedEventId) {
+            throw new Error("Invalid eventId");
+        }
+
+        if (!Object.values(EVENT_IDS).includes(parsedEventId)) {
+            throw new Error(`Unsupported eventId: ${parsedEventId}`);
+        }
+
+        if (parsedGid === "") {
+            throw new Error("Invalid gid");
+        }
+
+        if (!user?.id) {
+            throw new Error("Missing authenticated user");
+        }
+
+        const payload = {
+            eventid: parsedEventId,
+            gid: parsedGid,
+        };
+
+        const client = this.getClient();
+        const { error } = await client
+            .from(USER_EVENT_LOG_TABLE)
+            .insert([payload]);
+
+        if (error) {
+            throw error;
+        }
+
+        return payload;
     }
 }
 

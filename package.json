@@ -26,6 +26,9 @@
         "vite": "^6.3.1"
     },
     "dependencies": {
+        "@material/web": "^2.4.1",
+        "@mui/icons-material": "^7.3.5",
+        "@mui/material": "^7.3.4",
         "@supabase/supabase-js": "^2.99.1",
         "phaser": "^3.90.0",
         "phaser3-rex-plugins": "^1.80.18"
