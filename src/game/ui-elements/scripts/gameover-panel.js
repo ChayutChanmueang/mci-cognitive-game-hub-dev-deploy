@@ -47,7 +47,7 @@ export default class GameOverPanel extends UIPanel{
     reset(){
         this.setFinalScore(0);
         this.setHighscore(0);
-        this.hide();
+        this.forceHide();
     }
 
     createButton(x,y,text,onClick){
