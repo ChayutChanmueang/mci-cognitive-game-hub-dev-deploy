@@ -342,6 +342,7 @@ md-text-button {
 .hub-shell {
     display: grid;
     gap: 16px;
+    min-width: 0;
 }
 
 .hub-header {
@@ -351,11 +352,13 @@ md-text-button {
     align-items: start;
     padding: 18px;
     border-radius: 28px;
+    min-width: 0;
 }
 
 .hub-header__copy {
     display: grid;
     gap: 4px;
+    min-width: 0;
 }
 
 .hub-header h2 {
@@ -366,11 +369,13 @@ md-text-button {
 .hub-layout {
     display: grid;
     gap: 16px;
+    min-width: 0;
 }
 
 .hub-panel {
     padding: 18px;
     border-radius: 28px;
+    min-width: 0;
 }
 
 .hub-panel__heading {
@@ -507,6 +512,7 @@ md-text-button {
     border-radius: 24px;
     background: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(183, 176, 168, 0.8);
+    min-width: 0;
 }
 
 .hub-game-card__icon {
@@ -645,6 +651,7 @@ md-outlined-select {
 @media (max-width: 900px) {
     #app {
         padding: 16px;
+        overflow-x: hidden;
     }
 
     .auth-shell {
@@ -677,8 +684,22 @@ md-outlined-select {
         padding-right: 16px;
     }
 
+    .hub-screen,
+    .hub-shell,
+    .hub-layout,
+    .hub-panel--categories,
+    .hub-panel--games,
+    .hub-game-list {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
     .hub-category-rail {
         grid-auto-columns: minmax(172px, 76%);
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
     }
 
     .signup-grid--two,
