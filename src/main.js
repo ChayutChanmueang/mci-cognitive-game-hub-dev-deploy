@@ -1,5 +1,6 @@
 import StartGame from './game/main';
 import db from "./core/database.js";
+import { renderGameHubScreen } from "./ui/game-hub-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 
@@ -13,14 +14,38 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.classList.add("game-container--hidden");
     }
 
+    const showHub = async () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        app?.classList.remove("game-mode");
+        gameContainer.classList.add("game-container--hidden");
+
+        await renderGameHubScreen(uiRoot, {
+            loadGames: () => db.getGameList(),
+            onLaunchGame: async (selectedGame) => {
+                try {
+                    await db.logUserEvent("SPG", selectedGame?.gid || null);
+                } catch (error) {
+                    console.warn("Unable to log start game event:", error);
+                }
+
+                showGame();
+            },
+        });
+    };
+
     const showGame = () => {
-        if (!app) {
+        if (!gameContainer || !uiRoot) {
             return;
         }
 
         document.body.classList.add("game-mode");
-        app.classList.add("game-mode");
-        app.innerHTML = '<div id="game-container"></div>';
+        app?.classList.add("game-mode");
+        uiRoot.innerHTML = "";
+        gameContainer.classList.remove("game-container--hidden");
 
         if (!hasStartedGame) {
             StartGame('game-container');
@@ -34,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             onBack: () => showLogin({ patientId: hn }),
             onSubmit: async (formData) => {
                 await db.createPatientProfile(formData);
-                showGame();
+                await showHub();
             },
         });
     };
@@ -45,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const patient = await db.getPatientByHn(acceptedId);
 
                 if (patient) {
-                    showGame();
+                    await showHub();
                     return;
                 }
 
