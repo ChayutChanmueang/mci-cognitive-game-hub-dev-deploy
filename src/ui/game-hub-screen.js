@@ -42,14 +42,19 @@ const CATEGORY_META = Object.freeze({
 });
 
 const CATEGORY_ORDER = ["Memory", "Visuospatial", "Attention", "Language", "Executive"];
-
-const MOCK_GAMES = [
-    { gid: "MEM001", name: "Postcard Reader", mci_group: "Memory", status: "coming_soon" },
-    { gid: "VIS001", name: "Symmetry Decor", mci_group: "Visuospatial", status: "coming_soon" },
-    { gid: "ATTN001", name: "Sorting Line", mci_group: "Attention", status: "playable" },
-    { gid: "LANG001", name: "Context Clues", mci_group: "Language", status: "coming_soon" },
-    { gid: "EXEC001", name: "Zoo Detective", mci_group: "Executive", status: "coming_soon" },
-];
+const PAGE_SIZE = 10;
+const FALLBACK_GAMES = Object.freeze({
+    Attention: [
+        {
+            id: "fallback-attn-001",
+            gid: "ATTN001",
+            name: "Zoo Feeder",
+            mci_group: "Attention",
+            max_score: null,
+            created_at: null,
+        },
+    ],
+});
 
 function escapeHtml(value) {
     return String(value || "")
@@ -60,45 +65,28 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
-function normalizeGames(gameList = []) {
-    return gameList
-        .map((item, index) => {
-            const groupId = String(item?.mci_group || "").trim();
-            if (!CATEGORY_META[groupId]) {
-                return null;
-            }
-
-            return {
-                id: item?.id ?? `${groupId}-${index}`,
-                gid: String(item?.gid || `${groupId}-${index}`).trim(),
-                name: String(item?.name || "Untitled Game").trim(),
-                mci_group: groupId,
-                status: item?.status === "playable" ? "playable" : "coming_soon",
-            };
-        })
-        .filter(Boolean);
+function normalizeGame(item, index, categoryId) {
+    return {
+        id: item?.id ?? `${categoryId}-${index}`,
+        gid: String(item?.gid || `${categoryId}-${index}`).trim(),
+        name: String(item?.name || "Untitled Game").trim(),
+        mci_group: String(item?.mci_group || categoryId).trim(),
+        max_score: item?.max_score ?? null,
+        created_at: item?.created_at ?? null,
+    };
 }
 
-async function resolveHubGames(loadGames) {
-    if (typeof loadGames !== "function") {
-        return normalizeGames(MOCK_GAMES);
-    }
-
-    try {
-        const loadedGames = await loadGames();
-        const normalized = normalizeGames(loadedGames);
-        return normalized.length ? normalized : normalizeGames(MOCK_GAMES);
-    } catch (error) {
-        console.warn("Falling back to mock hub data:", error);
-        return normalizeGames(MOCK_GAMES);
-    }
-}
-
-function groupGamesByCategory(gameList) {
-    return CATEGORY_ORDER.reduce((accumulator, categoryId) => {
-        accumulator[categoryId] = gameList.filter((game) => game.mci_group === categoryId);
-        return accumulator;
-    }, {});
+function createCategoryState() {
+    return {
+        items: [],
+        total: null,
+        nextOffset: 0,
+        hasMore: false,
+        initialized: false,
+        loading: false,
+        error: "",
+        usedFallback: false,
+    };
 }
 
 function getPatientLabel() {
@@ -121,15 +109,24 @@ function getPatientLabel() {
     return loginId;
 }
 
-function getSummaryText(games) {
-    if (!games.length) {
+function getSummaryText(state) {
+    if (state.loading && !state.initialized) {
+        return "กำลังโหลด...";
+    }
+
+    if (state.total === 0) {
         return "ยังไม่มีเกม";
     }
 
-    const playableCount = games.filter((game) => game.status === "playable").length;
-    return playableCount
-        ? `${games.length} เกม พร้อมเล่น ${playableCount} เกม`
-        : `${games.length} เกม รอเปิดใช้งาน`;
+    if (typeof state.total === "number" && state.total > 0) {
+        return `${state.total} เกม`;
+    }
+
+    if (state.usedFallback && state.items.length) {
+        return `${state.items.length} เกมตัวอย่าง`;
+    }
+
+    return "แตะเพื่อดูรายการเกม";
 }
 
 function buildIntroMarkup() {
@@ -153,7 +150,7 @@ function buildIntroMarkup() {
     `;
 }
 
-function buildCategoryButton(category, games, isActive) {
+function buildCategoryButton(category, state, isActive) {
     return `
         <button
             type="button"
@@ -162,14 +159,12 @@ function buildCategoryButton(category, games, isActive) {
         >
             <span class="hub-category-chip__name">${escapeHtml(category.nameTh)}</span>
             <span class="hub-category-chip__en">${escapeHtml(category.nameEn)}</span>
-            <span class="hub-category-chip__meta">${escapeHtml(getSummaryText(games))}</span>
+            <span class="hub-category-chip__meta">${escapeHtml(getSummaryText(state))}</span>
         </button>
     `;
 }
 
 function buildGameCard(game, category) {
-    const playable = game.status === "playable";
-
     return `
         <article class="hub-game-card">
             <div class="hub-game-card__icon">
@@ -181,13 +176,12 @@ function buildGameCard(game, category) {
                     <p>${escapeHtml(category.nameTh)} · ${escapeHtml(category.nameEn)} · ${escapeHtml(game.gid)}</p>
                 </div>
                 <div class="hub-game-card__actions">
-                    <span class="hub-status-chip ${playable ? "hub-status-chip--playable" : ""}">
-                        ${playable ? "พร้อมเล่น" : "เร็ว ๆ นี้"}
+                    <span class="hub-status-chip hub-status-chip--playable">
+                        พร้อมเล่น
                     </span>
                     <md-filled-icon-button
-                        aria-label="${playable ? `เล่น ${escapeHtml(game.name)}` : `${escapeHtml(game.name)} ยังไม่เปิดใช้งาน`}"
+                        aria-label="เล่น ${escapeHtml(game.name)}"
                         data-game-gid="${escapeHtml(game.gid)}"
-                        ${playable ? "" : "disabled"}
                     >
                         <span class="material-symbols-rounded">play_arrow</span>
                     </md-filled-icon-button>
@@ -197,27 +191,75 @@ function buildGameCard(game, category) {
     `;
 }
 
-function buildSelectionMarkup({ activeCategory, gamesByCategory, patientLabel }) {
+function buildLoadingMarkup() {
+    return `
+        <div class="hub-empty-state">
+            <span class="material-symbols-rounded">progress_activity</span>
+            <h3>กำลังโหลดรายการเกม</h3>
+            <p>กำลังดึงข้อมูลเกมของหมวดนี้จากฐานข้อมูล</p>
+        </div>
+    `;
+}
+
+function buildErrorMarkup() {
+    return `
+        <div class="hub-empty-state">
+            <span class="material-symbols-rounded">cloud_off</span>
+            <h3>ยังโหลดรายการเกมไม่ได้</h3>
+            <p>ลองแตะหมวดนี้อีกครั้งในภายหลัง</p>
+        </div>
+    `;
+}
+
+function buildEmptyMarkup() {
+    return `
+        <div class="hub-empty-state">
+            <span class="material-symbols-rounded">upcoming</span>
+            <h3>เกมจะตามมาในภายหลัง</h3>
+            <p>หมวดนี้ยังไม่มีเกมในระบบตอนนี้ แต่จะมีเกมเพิ่มเข้ามาเร็ว ๆ นี้</p>
+        </div>
+    `;
+}
+
+function buildLoadMoreMarkup() {
+    return `
+        <div class="hub-load-more">
+            <md-outlined-button id="hub-load-more-button" type="button">
+                <span slot="icon" class="material-symbols-rounded">expand_more</span>
+                โหลดเพิ่มอีก 10 เกม
+            </md-outlined-button>
+        </div>
+    `;
+}
+
+function buildSelectionMarkup({ activeCategory, categoryStates, patientLabel }) {
     const currentCategory = CATEGORY_META[activeCategory];
-    const currentGames = gamesByCategory[activeCategory] || [];
+    const currentState = categoryStates[activeCategory];
 
     const categoriesHtml = CATEGORY_ORDER.map((categoryId) =>
         buildCategoryButton(
             CATEGORY_META[categoryId],
-            gamesByCategory[categoryId] || [],
+            categoryStates[categoryId],
             categoryId === activeCategory,
         ),
     ).join("");
 
-    const gamesHtml = currentGames.length
-        ? currentGames.map((game) => buildGameCard(game, currentCategory)).join("")
-        : `
-            <div class="hub-empty-state">
-                <span class="material-symbols-rounded">construction</span>
-                <h3>ยังไม่มีเกมในหมวดนี้</h3>
-                <p>เมื่อเชื่อมกับฐานข้อมูลแล้ว รายการเกมของหมวดนี้จะแสดงที่นี่</p>
-            </div>
-        `;
+    let gamesHtml = "";
+    if (currentState.loading && !currentState.initialized) {
+        gamesHtml = buildLoadingMarkup();
+    } else if (currentState.error && !currentState.items.length) {
+        gamesHtml = buildErrorMarkup();
+    } else if (!currentState.items.length) {
+        gamesHtml = buildEmptyMarkup();
+    } else {
+        gamesHtml = currentState.items
+            .map((game) => buildGameCard(game, currentCategory))
+            .join("");
+
+        if (currentState.hasMore) {
+            gamesHtml += buildLoadMoreMarkup();
+        }
+    }
 
     return `
         <section class="hub-screen hub-screen--selection">
@@ -238,7 +280,7 @@ function buildSelectionMarkup({ activeCategory, gamesByCategory, patientLabel })
                             <span class="material-symbols-rounded">category</span>
                             <h3>หมวด MCI</h3>
                         </div>
-                        <div class="hub-category-rail" id="hub-category-rail">
+                        <div class="hub-category-rail">
                             ${categoriesHtml}
                         </div>
                     </aside>
@@ -269,29 +311,32 @@ export async function renderGameHubScreen(root, options = {}) {
     }
 
     const {
-        loadGames,
+        loadGamesByCategory,
         onLaunchGame = () => {},
     } = options;
 
-    const games = await resolveHubGames(loadGames);
-    const gamesByCategory = groupGamesByCategory(games);
     const patientLabel = getPatientLabel();
+    const categoryStates = CATEGORY_ORDER.reduce((accumulator, categoryId) => {
+        accumulator[categoryId] = createCategoryState();
+        return accumulator;
+    }, {});
     let scene = "intro";
-    let activeCategory = CATEGORY_ORDER.find((categoryId) => (gamesByCategory[categoryId] || []).length) || CATEGORY_ORDER[0];
+    let activeCategory = "Attention";
 
     const render = () => {
         root.innerHTML = scene === "intro"
             ? buildIntroMarkup()
             : buildSelectionMarkup({
                 activeCategory,
-                gamesByCategory,
+                categoryStates,
                 patientLabel,
             });
 
         if (scene === "intro") {
-            root.querySelector("#hub-start-button")?.addEventListener("click", () => {
+            root.querySelector("#hub-start-button")?.addEventListener("click", async () => {
                 scene = "selection";
                 render();
+                await ensureCategoryLoaded(activeCategory);
             });
 
             return;
@@ -303,18 +348,23 @@ export async function renderGameHubScreen(root, options = {}) {
         });
 
         root.querySelectorAll("[data-category-id]").forEach((button) => {
-            button.addEventListener("click", () => {
+            button.addEventListener("click", async () => {
                 activeCategory = button.getAttribute("data-category-id") || activeCategory;
                 render();
+                await ensureCategoryLoaded(activeCategory);
             });
+        });
+
+        root.querySelector("#hub-load-more-button")?.addEventListener("click", async () => {
+            await loadCategoryPage(activeCategory, true);
         });
 
         root.querySelectorAll("[data-game-gid]").forEach((button) => {
             button.addEventListener("click", async () => {
                 const gid = String(button.getAttribute("data-game-gid") || "").trim();
-                const selectedGame = games.find((game) => game.gid === gid);
+                const selectedGame = categoryStates[activeCategory].items.find((game) => game.gid === gid);
 
-                if (!selectedGame || selectedGame.status !== "playable") {
+                if (!selectedGame) {
                     return;
                 }
 
@@ -324,6 +374,78 @@ export async function renderGameHubScreen(root, options = {}) {
                 await onLaunchGame(selectedGame);
             });
         });
+    };
+
+    const applyFallbackData = (categoryId) => {
+        const fallbackItems = (FALLBACK_GAMES[categoryId] || []).map((item, index) =>
+            normalizeGame(item, index, categoryId),
+        );
+        const state = categoryStates[categoryId];
+
+        state.items = fallbackItems;
+        state.total = fallbackItems.length;
+        state.nextOffset = fallbackItems.length;
+        state.hasMore = false;
+        state.initialized = true;
+        state.loading = false;
+        state.error = "";
+        state.usedFallback = fallbackItems.length > 0;
+    };
+
+    const loadCategoryPage = async (categoryId, append = false) => {
+        const state = categoryStates[categoryId];
+        if (state.loading) {
+            return;
+        }
+
+        state.loading = true;
+        state.error = "";
+        render();
+
+        try {
+            if (typeof loadGamesByCategory !== "function") {
+                applyFallbackData(categoryId);
+                render();
+                return;
+            }
+
+            const result = await loadGamesByCategory(categoryId, {
+                offset: append ? state.nextOffset : 0,
+                pageSize: PAGE_SIZE,
+            });
+            const items = (result?.items || []).map((item, index) =>
+                normalizeGame(item, index + (append ? state.nextOffset : 0), categoryId),
+            );
+
+            state.items = append ? [...state.items, ...items] : items;
+            state.total = Number.isFinite(result?.total) ? Number(result.total) : state.items.length;
+            state.nextOffset = Number(result?.nextOffset) || state.items.length;
+            state.hasMore = Boolean(result?.hasMore);
+            state.initialized = true;
+            state.loading = false;
+            state.error = "";
+            state.usedFallback = false;
+        } catch (error) {
+            console.warn(`Unable to load games for ${categoryId}:`, error);
+
+            if (!state.initialized) {
+                applyFallbackData(categoryId);
+            } else {
+                state.loading = false;
+                state.error = error?.message || "Unable to load games";
+            }
+        }
+
+        render();
+    };
+
+    const ensureCategoryLoaded = async (categoryId) => {
+        const state = categoryStates[categoryId];
+        if (state.initialized || state.loading) {
+            return;
+        }
+
+        await loadCategoryPage(categoryId, false);
     };
 
     render();

@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.classList.add("game-container--hidden");
 
         await renderGameHubScreen(uiRoot, {
-            loadGames: () => db.getGameList(),
+            loadGamesByCategory: (mciGroup, options) => db.getGamesByMciGroup(mciGroup, options),
             onLaunchGame: async (selectedGame) => {
                 try {
                     await db.logUserEvent("SPG", selectedGame?.gid || null);

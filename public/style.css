@@ -595,6 +595,12 @@ md-filled-icon-button {
     font-size: 42px;
 }
 
+.hub-load-more {
+    display: flex;
+    justify-content: center;
+    padding-top: 4px;
+}
+
 .hub-category-rail::-webkit-scrollbar,
 .hub-game-list::-webkit-scrollbar {
     width: 8px;

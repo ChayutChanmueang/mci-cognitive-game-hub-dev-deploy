@@ -4,6 +4,7 @@ const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
 const USER_EVENT_LOG_TABLE = "user_event_log";
 const USER_PATIENT_DATA_TABLE = "user_patient_data";
+const DEFAULT_GAME_PAGE_SIZE = 10;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
     START_PLAY_GAME: "SPG",
@@ -261,6 +262,43 @@ class Database {
         }
 
         return data || [];
+    }
+
+    async getGamesByMciGroup(mciGroup, options = {}) {
+        const parsedGroup = String(mciGroup || "").trim();
+        const pageSize = Math.max(1, Number(options.pageSize) || DEFAULT_GAME_PAGE_SIZE);
+        const offset = Math.max(0, Number(options.offset) || 0);
+
+        if (!parsedGroup) {
+            throw new Error("Invalid mciGroup");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const rangeEnd = offset + pageSize - 1;
+        const { data, error, count } = await client
+            .from(GAME_LIST_TABLE)
+            .select("id, gid, name, mci_group, max_score, created_at", { count: "exact" })
+            .eq("mci_group", parsedGroup)
+            .order("created_at", { ascending: true })
+            .range(offset, rangeEnd);
+
+        if (error) {
+            throw error;
+        }
+
+        const items = data || [];
+        const total = Number(count) || 0;
+
+        return {
+            items,
+            total,
+            offset,
+            pageSize,
+            nextOffset: offset + items.length,
+            hasMore: offset + items.length < total,
+        };
     }
 
     async getGameByGid(gid) {
