@@ -15,7 +15,10 @@ export function renderLoginScreen(root, options = {}) {
         return;
     }
 
-    const { onAccept = () => {} } = options;
+    const {
+        onAccept = () => {},
+        initialPatientCode = "",
+    } = options;
 
     root.innerHTML = `
         <section class="auth-screen">
@@ -24,7 +27,7 @@ export function renderLoginScreen(root, options = {}) {
                     <p class="auth-eyebrow">Brain Training Setup</p>
                     <h1>Setup Patient</h1>
                     <p class="auth-copy">
-                        กรุณากรอก patient ID หรือ HN ที่ได้รับจากแพทย์ก่อนเริ่มใช้งานระบบฝึกสมอง
+                        กรุณากรอก Patient Code ที่ได้รับจากแพทย์ก่อนเริ่มใช้งานระบบฝึกสมอง
                     </p>
                 </div>
 
@@ -41,8 +44,8 @@ export function renderLoginScreen(root, options = {}) {
                         <md-outlined-text-field
                             id="patient-id-input"
                             class="auth-field"
-                            label="Patient ID / HN"
-                            placeholder="เช่น HN-000123"
+                            label="Patient Code"
+                            placeholder="เช่น PID007"
                             required
                             supporting-text="กรอกรหัสผู้ป่วยเพื่อดำเนินการต่อ"
                         ></md-outlined-text-field>
@@ -70,6 +73,10 @@ export function renderLoginScreen(root, options = {}) {
 
     if (!form || !input || !submitButton || !feedback) {
         return;
+    }
+
+    if (initialPatientCode) {
+        input.value = initialPatientCode;
     }
 
     const updateState = () => {

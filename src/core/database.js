@@ -152,7 +152,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, hn, firstname, lastname, age, gender, education_level, started_program")
+            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
             .eq("hn", parsedHn)
             .maybeSingle();
 
@@ -234,7 +234,7 @@ class Database {
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, hn, firstname, lastname, age, gender, education_level, started_program")
+            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
             .maybeSingle();
 
         if (error) {

@@ -601,6 +601,91 @@ md-filled-icon-button {
     padding-top: 4px;
 }
 
+.app-popup {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.app-popup__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(30, 27, 24, 0.38);
+    backdrop-filter: blur(8px);
+}
+
+.app-popup__dialog {
+    position: relative;
+    width: min(100%, 480px);
+    display: grid;
+    gap: 24px;
+    padding: 28px;
+    border-radius: 28px;
+    border: 1px solid rgba(183, 176, 168, 0.85);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 244, 238, 0.98));
+    box-shadow: 0 24px 60px rgba(30, 27, 24, 0.18);
+}
+
+.app-popup__dialog--error {
+    background:
+        radial-gradient(circle at top left, rgba(255, 221, 221, 0.9), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 244, 238, 0.98));
+}
+
+.app-popup__header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.app-popup__icon-wrap {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    background: rgba(210, 234, 223, 0.72);
+    color: var(--md-sys-color-on-primary-container);
+}
+
+.app-popup__dialog--error .app-popup__icon-wrap {
+    background: rgba(255, 222, 222, 0.92);
+    color: var(--md-sys-color-error);
+}
+
+.app-popup__icon {
+    font-size: 30px;
+}
+
+.app-popup__copy {
+    display: grid;
+    gap: 8px;
+}
+
+.app-popup__copy h2 {
+    margin: 0;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: 2rem;
+    line-height: 0.96;
+}
+
+.app-popup__copy p {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.7;
+}
+
+.app-popup__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
 .hub-category-rail::-webkit-scrollbar,
 .hub-game-list::-webkit-scrollbar {
     width: 8px;
@@ -632,6 +717,11 @@ md-filled-button {
     --md-filled-button-container-height: 56px;
     --md-filled-button-container-shape: 18px;
     --md-filled-button-label-text-size: 1.05rem;
+}
+
+.hub-logout-button {
+    --md-filled-button-container-color: #ba1a1a;
+    --md-filled-button-label-text-color: #ffffff;
 }
 
 md-outlined-button,
@@ -712,6 +802,25 @@ md-outlined-select {
     .signup-grid--three,
     .signup-grid--program-row {
         grid-template-columns: 1fr;
+    }
+
+    .app-popup {
+        padding: 16px;
+    }
+
+    .app-popup__dialog {
+        padding: 24px 20px;
+        border-radius: 24px;
+    }
+
+    .app-popup__actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .app-popup__actions md-filled-button,
+    .app-popup__actions md-outlined-button {
+        width: 100%;
     }
 
     .signup-submit-wrap {

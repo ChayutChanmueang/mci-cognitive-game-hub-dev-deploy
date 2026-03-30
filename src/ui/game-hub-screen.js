@@ -1,3 +1,5 @@
+import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
+
 const CATEGORY_META = Object.freeze({
     Memory: {
         id: "Memory",
@@ -89,7 +91,25 @@ function createCategoryState() {
     };
 }
 
+function createCategoryStates() {
+    return CATEGORY_ORDER.reduce((accumulator, categoryId) => {
+        accumulator[categoryId] = createCategoryState();
+        return accumulator;
+    }, {});
+}
+
+export function createGameHubState() {
+    return {
+        categoryStates: createCategoryStates(),
+    };
+}
+
 function getPatientLabel() {
+    const rememberedSession = getPatientSessionCookie();
+    if (rememberedSession) {
+        return getPatientSessionLabel(rememberedSession);
+    }
+
     const loginId = sessionStorage.getItem("patient_login_id") || "";
     const draft = sessionStorage.getItem("patient_signup_draft");
 
@@ -144,6 +164,10 @@ function buildIntroMarkup() {
                 <md-filled-button id="hub-start-button" type="button">
                     <span slot="icon" class="material-symbols-rounded">play_arrow</span>
                     เริ่มเลือกเกม
+                </md-filled-button>
+                <md-filled-button id="hub-logout-button" class="hub-logout-button" type="button">
+                    <span slot="icon" class="material-symbols-rounded">logout</span>
+                    ออกจากระบบ
                 </md-filled-button>
             </div>
         </section>
@@ -312,16 +336,23 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const {
         loadGamesByCategory,
+        initialScene = "intro",
+        initialCategory = "Attention",
         onLaunchGame = () => {},
+        onLogout = () => {},
+        onStateChange = () => {},
+        sharedState = null,
     } = options;
 
     const patientLabel = getPatientLabel();
-    const categoryStates = CATEGORY_ORDER.reduce((accumulator, categoryId) => {
-        accumulator[categoryId] = createCategoryState();
-        return accumulator;
-    }, {});
-    let scene = "intro";
-    let activeCategory = "Attention";
+    const categoryStates = sharedState?.categoryStates || createCategoryStates();
+
+    if (sharedState && !sharedState.categoryStates) {
+        sharedState.categoryStates = categoryStates;
+    }
+
+    let scene = initialScene === "selection" ? "selection" : "intro";
+    let activeCategory = CATEGORY_META[initialCategory] ? initialCategory : "Attention";
 
     const render = () => {
         root.innerHTML = scene === "intro"
@@ -336,7 +367,16 @@ export async function renderGameHubScreen(root, options = {}) {
             root.querySelector("#hub-start-button")?.addEventListener("click", async () => {
                 scene = "selection";
                 render();
+                onStateChange({ scene, activeCategory });
                 await ensureCategoryLoaded(activeCategory);
+            });
+
+            root.querySelector("#hub-logout-button")?.addEventListener("click", async () => {
+                try {
+                    await onLogout();
+                } catch (error) {
+                    console.error("Unable to logout from hub:", error);
+                }
             });
 
             return;
@@ -345,12 +385,14 @@ export async function renderGameHubScreen(root, options = {}) {
         root.querySelector("#hub-back-button")?.addEventListener("click", () => {
             scene = "intro";
             render();
+            onStateChange({ scene, activeCategory });
         });
 
         root.querySelectorAll("[data-category-id]").forEach((button) => {
             button.addEventListener("click", async () => {
                 activeCategory = button.getAttribute("data-category-id") || activeCategory;
                 render();
+                onStateChange({ scene, activeCategory });
                 await ensureCategoryLoaded(activeCategory);
             });
         });
@@ -368,10 +410,11 @@ export async function renderGameHubScreen(root, options = {}) {
                     return;
                 }
 
-                sessionStorage.setItem("selected_game_gid", selectedGame.gid);
-                sessionStorage.setItem("selected_game_name", selectedGame.name);
-                sessionStorage.setItem("selected_game_group", selectedGame.mci_group);
-                await onLaunchGame(selectedGame);
+                try {
+                    await onLaunchGame(selectedGame);
+                } catch (error) {
+                    console.error("Unable to launch selected game:", error);
+                }
             });
         });
     };
@@ -449,4 +492,8 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     render();
+
+    if (scene === "selection") {
+        await ensureCategoryLoaded(activeCategory);
+    }
 }

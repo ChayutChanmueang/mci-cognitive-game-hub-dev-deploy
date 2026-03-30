@@ -39,7 +39,7 @@ export function renderSignupScreen(root, options = {}) {
                             </div>
 
                             <div class="signup-context">
-                                <span class="signup-context__label">Patient ID / HN</span>
+                                <span class="signup-context__label">Patient Code</span>
                                 <strong class="signup-context__value">${initialHn || "-"}</strong>
                             </div>
 
