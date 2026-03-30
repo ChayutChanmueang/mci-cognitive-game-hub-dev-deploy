@@ -18,13 +18,16 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   create(data) {
-    this.lv1Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) - 100, "START LV1", () => {
+    this.lv1Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) - 100, "EASY", () => {
             this.scene.start('gameplay-scene',{ level:1 })
         });
-    this.lv2Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2), "START LV2", () => {
+    this.lv2Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2), "NORMAL", () => {
             this.scene.start('gameplay-scene',{ level:2 })
         });
-    this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"MAIN MENU",{
+      this.lv2Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) + 100, "HARD", () => {
+          this.scene.start('gameplay-scene',{ level:2 })
+      });
+    this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"Context Clues",{
             fontSize: '96px', fontStyle: 'bold'
         }).setOrigin(0.5);
     this.titleText.setDepth(100);

@@ -6,7 +6,7 @@ export default class TemplatePanel extends UIPanel{
 
         //Relative to the main container
 
-        this.titleText = scene.add.text(0,-350,"POP UP PANEL",{
+        this.titleText = scene.add.text(0,-350,"Tutorial",{
             fontSize: '48px', color:'#ff4444',fontStyle: 'bold'
         }).setOrigin(0.5);
         this.titleText.setScale(1.5);
@@ -21,7 +21,7 @@ export default class TemplatePanel extends UIPanel{
         this.subContainer1 = scene.add.container(0,0);
         this.subContainer1Panel = scene.add.rectangle(0,0,600,450,0x222222,1);
         this.subContainer1Panel.setStrokeStyle(4,0xffffff);
-        this.subtitleText = scene.add.text(0,-50,"YOUR TEXT HERE",{
+        this.subtitleText = scene.add.text(0,-50,"ลากคำศัพท์ไปเติมในช่องว่าง",{
             fontSize: '48px', color:'#ff4444',fontStyle: 'bold'
         }).setOrigin(0.5);
         this.subText= scene.add.text(0,50,SampleConstants.VARIABLE1,{

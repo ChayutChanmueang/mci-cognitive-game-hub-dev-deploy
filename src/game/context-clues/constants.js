@@ -19,5 +19,5 @@ export const AnimalSetting = Object.freeze({
     }
 })
 export const SampleConstants = Object.freeze({
-    VARIABLE1: "Testing..."
+    VARIABLE1: "สวัสดีตอน [...] นะครับ\n \n[เช้า] [กลางวัน] [เย็น]"
 })
