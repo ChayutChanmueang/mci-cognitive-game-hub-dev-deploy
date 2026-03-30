@@ -1,8 +1,8 @@
-import ZooFeeder from './game/zoo-feeder/main';
 import db from "./core/database.js";
 import { renderGameHubScreen } from "./ui/game-hub-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
+import StringUtil from "./util/string-util.js"
 
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById("app");
@@ -32,12 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.warn("Unable to log start game event:", error);
                 }
 
-                showGame();
+                showGame().then(r => {
+                    console.log("Game Logged in successfully");
+                });
             },
         });
     };
 
-    const showGame = () => {
+    const showGame = async (gameName) => {
         if (!gameContainer || !uiRoot) {
             return;
         }
@@ -47,8 +49,18 @@ document.addEventListener('DOMContentLoaded', () => {
         uiRoot.innerHTML = "";
         gameContainer.classList.remove("game-container--hidden");
 
+        gameName = StringUtil.toSlug(gameName)
+
         if (!hasStartedGame) {
-            ZooFeeder('game-container');
+            const module = await import(`./game/${gameName}/main.js`);
+
+            if (typeof module["StartGame"] !== "function") {
+                console.error("Action not found");
+            } else {
+                const result = await module["StartGame"]('game-container');
+                console.log(result);
+            }
+
             hasStartedGame = true;
         }
     };
