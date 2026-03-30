@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import Conveyer from "../entity/script/conveyer";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
-import StorageManager from "../../core/storage-manager";
-import db from "../../core/database.js";
+import StorageManager from "../../../core/storage-manager";
+import db from "../../../core/database.js";
 
 const GAME_ID = "ATTN001";
 

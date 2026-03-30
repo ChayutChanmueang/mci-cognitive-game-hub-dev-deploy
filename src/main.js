@@ -1,4 +1,4 @@
-import StartGame from './game/main';
+import ZooFeeder from './game/zoo-feeder/main';
 import db from "./core/database.js";
 import { renderGameHubScreen } from "./ui/game-hub-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.classList.remove("game-container--hidden");
 
         if (!hasStartedGame) {
-            StartGame('game-container');
+            ZooFeeder('game-container');
             hasStartedGame = true;
         }
     };

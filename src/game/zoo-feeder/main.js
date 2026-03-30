@@ -44,10 +44,10 @@ const config = {
     }
 };
 
-const StartGame = (parent) => {
+const ZooFeeder = (parent) => {
 
     return new Game({ ...config, parent });
 
 }
 
-export default StartGame;
+export default ZooFeeder;
