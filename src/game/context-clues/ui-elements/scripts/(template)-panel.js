@@ -1,5 +1,5 @@
 import UIPanel from "../core/ui-panel";
-import {SampleConstants} from "../../constants";
+import {TutorialText} from "../../constants";
 export default class TemplatePanel extends UIPanel{
     constructor(scene){
         super(scene,scene.scale.width/2,scene.scale.height/2,800,1000);
@@ -24,7 +24,7 @@ export default class TemplatePanel extends UIPanel{
         this.subtitleText = scene.add.text(0,-50,"ลากคำศัพท์ไปเติมในช่องว่าง",{
             fontSize: '48px', color:'#ff4444',fontStyle: 'bold'
         }).setOrigin(0.5);
-        this.subText= scene.add.text(0,50,SampleConstants.VARIABLE1,{
+        this.subText= scene.add.text(0,50,TutorialText.T1,{
             fontSize: '48px', color:'#ffffff',fontStyle: 'bold'
         }).setOrigin(0.5);
         this.subContainer1.add([this.subContainer1Panel,this.subtitleText,this.subText]);

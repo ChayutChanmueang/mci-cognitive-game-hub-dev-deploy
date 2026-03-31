@@ -25,7 +25,7 @@ export default class MainMenuScene extends Phaser.Scene {
             this.scene.start('gameplay-scene',{ level:2 })
         });
       this.lv2Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) + 100, "HARD", () => {
-          this.scene.start('gameplay-scene',{ level:2 })
+          this.scene.start('gameplay-scene',{ level:3 })
       });
     this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"Context Clues",{
             fontSize: '96px', fontStyle: 'bold'

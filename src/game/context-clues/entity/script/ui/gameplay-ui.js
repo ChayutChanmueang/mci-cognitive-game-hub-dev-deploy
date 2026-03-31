@@ -1,5 +1,5 @@
 import StorageManager from "/src/core/storage-manager.js";
-import TemplatePanel from "../../../ui-elements/scripts/template-panel";
+import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
 
 export default class GameplayUI extends Entity{
@@ -37,8 +37,8 @@ export default class GameplayUI extends Entity{
             {fontSize: "64px"}
         ).setOrigin(1,0);
 
-        this.TemplatePanel = new TemplatePanel(scene);
-        this.TemplatePanel.show();
+        this.TutorialPanel = new TutorialPanel(scene);
+        this.TutorialPanel.show();
     }
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
