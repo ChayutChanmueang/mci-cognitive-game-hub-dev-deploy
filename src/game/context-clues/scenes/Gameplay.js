@@ -4,6 +4,7 @@ import RandomQuiz from "../components/scripts/random-quiz.js";
 import {LevelMap, BlankWord} from "../constants.js";
 import { createThaiText, ThaiTextPresets } from "../utils/thai-text";
 import {createInlineSentence} from "../utils/auto-insert-layout.js";
+import ProgressBar from "../utils/progress-bar.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -54,6 +55,12 @@ export default class GameplayScene extends Phaser.Scene {
           this.scale.height,
           this.scale.width,
           250,0xffffff,1).setOrigin(0.5, 1);
+      this.progressBar = new ProgressBar(this, this.scale.width / 2, 500, {
+          width: 500,
+          height: 50,
+      })
+        this.progressBar.setValue(0)
+      this.progressBar.animateTo(1, 5000)
 
       this.titleText = createInlineSentence(
           this,
