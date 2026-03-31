@@ -30,7 +30,7 @@ export default class GameplayScene extends Phaser.Scene {
   create(data) {
     const quizData = RandomQuiz.getQuiz(this.levelMap);
     const textParts = quizData.textParts; //= this.scale.width * 0.8;
-    const answer = quizData.correctAnswers;
+    const answers = quizData.options;
 
     this.easyBtn = this.createButton(this.scale.width / 2, (this.scale.height / 2) + 300, "RETURN", () => {
       this.scene.start('main-menu-scene',{ conveyerNums: 1 })
@@ -47,7 +47,13 @@ export default class GameplayScene extends Phaser.Scene {
           this.scale.width / 2,
           this.scale.height / 2,
           700,
-          400,0x00aa00,1).setOrigin(0.5, 0.5);
+          400,0x525252,1).setOrigin(0.5, 0.5);
+
+      this.add.rectangle(
+          this.scale.width / 2,
+          this.scale.height,
+          this.scale.width,
+          250,0xffffff,1).setOrigin(0.5, 1);
 
       this.titleText = createInlineSentence(
           this,
@@ -63,6 +69,42 @@ export default class GameplayScene extends Phaser.Scene {
           });
 
       this.titleText.setDepth(100);
+
+      const items = answers.map((word) => {
+          const box = this.add.container(0, 0);
+
+          const bg = this.add.rectangle(0, 0, 140, 60, 0xffffff, 0.15)
+              .setStrokeStyle(2, 0xa1a1a1)
+              .setOrigin(0.5);
+
+          const label = this.add.text(0, 0, word, {
+              fontSize: "28px",
+              fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
+              fontStyle: "bold",
+              color: "#000000"
+          }).setOrigin(0.5);
+
+          box.add([bg, label]);
+
+          bg.setInteractive({ draggable: true });
+          this.input.setDraggable(bg);
+
+          bg.on("drag", (pointer, dragX, dragY) => {
+              box.x = dragX;
+              box.y = dragY;
+          });
+
+          return box;
+      });
+
+      Phaser.Actions.GridAlign(items, {
+          width: 3,
+          cellWidth: 200,
+          cellHeight: 120,
+          x: this.scale.width / 2 - 200,
+          y: this.scale.height - 175,
+          position: Phaser.Display.Align.TOP_LEFT
+      });
 
       this.gameplayUI = new GameplayUI(this, 0, 0);
   }
