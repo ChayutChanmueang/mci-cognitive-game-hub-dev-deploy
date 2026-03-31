@@ -32,7 +32,7 @@ export default class GameplayScene extends Phaser.Scene {
     const textParts = quizData.textParts; //= this.scale.width * 0.8;
     const answer = quizData.correctAnswers;
 
-    this.easyBtn = this.createButton(this.scale.width / 2, (this.scale.height / 2) - 100, "RETURN", () => {
+    this.easyBtn = this.createButton(this.scale.width / 2, (this.scale.height / 2) + 300, "RETURN", () => {
       this.scene.start('main-menu-scene',{ conveyerNums: 1 })
     });
 
@@ -43,21 +43,28 @@ export default class GameplayScene extends Phaser.Scene {
           color: "#ffffff",
       };
 
-      this.add.rectangle(300, 300, 300, 50,0x00aa00,1).setOrigin(0, 0.5);
+      this.add.rectangle(
+          this.scale.width / 2,
+          this.scale.height / 2,
+          700,
+          400,0x00aa00,1).setOrigin(0.5, 0.5);
 
-    this.titleText = createInlineSentence(
-        this,
-        250,
-        300,
-        500,
-        50,
-        textParts,
-        BlankWord,
-        textStyle);
+      this.titleText = createInlineSentence(
+          this,
+          this.scale.width / 2,
+          this.scale.height / 2,
+          600,
+          50,
+          textParts,
+          BlankWord,
+          textStyle,
+          {
+            origin: { x: 0.5, y: 0.5 }
+          });
 
-    this.titleText.setDepth(100);
+      this.titleText.setDepth(100);
 
-    this.gameplayUI = new GameplayUI(this, 0, 0);
+      this.gameplayUI = new GameplayUI(this, 0, 0);
   }
 
   createButton(x,y,text,onClick){
