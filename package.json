@@ -31,6 +31,7 @@
         "@mui/material": "^7.3.4",
         "@supabase/supabase-js": "^2.99.1",
         "phaser": "^3.90.0",
-        "phaser3-rex-plugins": "^1.80.18"
+        "phaser3-rex-plugins": "^1.80.18",
+        "@koreez/phaser3-i18n": "^2.0.6"
     }
 }

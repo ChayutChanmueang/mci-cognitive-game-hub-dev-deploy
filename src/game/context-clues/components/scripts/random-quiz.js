@@ -21,10 +21,6 @@ export default class RandomQuiz{
         return result;
     }
 
-    static buildQuiz(textParts) {
-        return textParts.join("");
-    }
-
     static buildAnswer(textParts, answers) {
         return textParts.map((part, i) => part + (answers[i] ?? "")).join("");
     }

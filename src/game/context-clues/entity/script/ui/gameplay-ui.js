@@ -1,6 +1,7 @@
 import StorageManager from "/src/core/storage-manager.js";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
+import { createThaiText, ThaiTextPresets } from "../../../utils/thai-text";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -12,7 +13,7 @@ export default class GameplayUI extends Entity{
 
         // 1. SETTINGS FOR THE UI BAR
         const uiBarHeight = 100; // Adjust based on your 64px font
-        const padding = 20;      // Space from the edges
+        const padding = 0;      // Space from the edges
 
         // 2. DRAW THE BACKGROUND BAR
         // Arguments: x, y, width, height, color, alpha
@@ -23,18 +24,20 @@ export default class GameplayUI extends Entity{
         ).setOrigin(0, 0);
 
         this.scorePreText = "Score : ";
-        this.currentScore = scene.add.text(
+        this.currentScore = createThaiText(
+            scene,
             _LeftScreenAnchor + padding,
             _TopScreenAnchor + padding,
             this.scorePreText + "0",
-            {fontSize: "64px"}
+            ThaiTextPresets.hud
         )
         this.livesPreText = "Level : ";                         
-        this.currentLives = scene.add.text(
+        this.currentLives = createThaiText(
+            scene,
             _RightScreenAnchor - padding,
             _TopScreenAnchor + padding,
             this.livesPreText + scene.level,
-            {fontSize: "64px"}
+            ThaiTextPresets.hud
         ).setOrigin(1,0);
 
         this.TutorialPanel = new TutorialPanel(scene);
