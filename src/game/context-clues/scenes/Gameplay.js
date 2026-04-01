@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import RandomQuiz from "../components/scripts/random-quiz.js";
-import {LevelMap, BlankWord} from "../constants.js";
+import {LevelMap} from "../constants.js";
 import { createThaiText, ThaiTextPresets } from "../utils/thai-text";
-import {createInlineSentence} from "../utils/auto-insert-layout.js";
+import Quiz from "../entity/script/quiz.js";
 import ProgressBar from "../utils/progress-bar.js";
+import QuizGameData from "../data/scripts/quiz-game-data.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -26,94 +27,64 @@ export default class GameplayScene extends Phaser.Scene {
   init(data) {
     this.level = data.level;
     this.levelMap = LevelMap[this.level];
+    this.quizData = [];
+    this.progressBarRefs = [];
+    this.round = 0;
   }
 
   create(data) {
-    const quizData = RandomQuiz.getQuiz(this.levelMap);
-    const textParts = quizData.textParts; //= this.scale.width * 0.8;
-    const answers = quizData.options;
+    let quizData = RandomQuiz.getQuiz(this.levelMap);
+    let textParts = quizData.textParts; //= this.scale.width * 0.8;
+    let answers = quizData.options;
+    let quiz;
 
-    this.easyBtn = this.createButton(this.scale.width / 2, (this.scale.height / 2) + 300, "RETURN", () => {
+    this.easyBtn = this.createButton(this.scale.width / 2 - 175, (this.scale.height) - 350, "Return", () => {
       this.scene.start('main-menu-scene',{ conveyerNums: 1 })
     });
+      this.easyBtn = this.createButton(this.scale.width / 2 + 175, (this.scale.height) - 350, "Next", () => {
+          if (this.round < 10) {
+              this.progressBarRefs[this.round].animateTo(1, 500)
+              this.round++;
+          }
 
-      const textStyle = {
-          fontSize: "48px",
-          fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
-          fontStyle: "bold",
-          color: "#ffffff",
-      };
-
-      this.add.rectangle(
-          this.scale.width / 2,
-          this.scale.height / 2,
-          700,
-          400,0x525252,1).setOrigin(0.5, 0.5);
-
-      this.add.rectangle(
-          this.scale.width / 2,
-          this.scale.height,
-          this.scale.width,
-          250,0xffffff,1).setOrigin(0.5, 1);
-      this.progressBar = new ProgressBar(this, this.scale.width / 2, 500, {
-          width: 500,
-          height: 50,
-      })
-        this.progressBar.setValue(0)
-      this.progressBar.animateTo(1, 5000)
-
-      this.titleText = createInlineSentence(
-          this,
-          this.scale.width / 2,
-          this.scale.height / 2,
-          600,
-          50,
-          textParts,
-          BlankWord,
-          textStyle,
-          {
-            origin: { x: 0.5, y: 0.5 }
-          });
-
-      this.titleText.setDepth(100);
-
-      const items = answers.map((word) => {
-          const box = this.add.container(0, 0);
-
-          const bg = this.add.rectangle(0, 0, 140, 60, 0xffffff, 0.15)
-              .setStrokeStyle(2, 0xa1a1a1)
-              .setOrigin(0.5);
-
-          const label = this.add.text(0, 0, word, {
-              fontSize: "28px",
-              fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
-              fontStyle: "bold",
-              color: "#000000"
-          }).setOrigin(0.5);
-
-          box.add([bg, label]);
-
-          bg.setInteractive({ draggable: true });
-          this.input.setDraggable(bg);
-
-          bg.on("drag", (pointer, dragX, dragY) => {
-              box.x = dragX;
-              box.y = dragY;
-          });
-
-          return box;
+          quiz.destroy();
+          quizData = RandomQuiz.getQuiz(this.levelMap);
+          textParts = quizData.textParts; //= this.scale.width * 0.8;
+          answers = quizData.options;
+          const qData = new QuizGameData();
+          this.quizData.push(qData)
+          quiz = new Quiz(this, 0, 0, textParts, answers, qData, 1);
+          this.quizGame = quiz;
       });
 
-      Phaser.Actions.GridAlign(items, {
-          width: 3,
-          cellWidth: 200,
-          cellHeight: 120,
-          x: this.scale.width / 2 - 200,
-          y: this.scale.height - 175,
+      let dotProgressBars = [];
+      for (let i = 0; i < 10; i++) {
+          const bar = new ProgressBar(this, 0, 0, {
+              width: 50,
+              height: 10
+          });
+
+          bar.setValue(0);
+          //bar.animateTo(1, 5000)
+
+          this.progressBarRefs.push(bar);
+          dotProgressBars.push(bar.getContainer());
+      }
+
+      Phaser.Actions.GridAlign(dotProgressBars, {
+          width: 10,
+          cellWidth: 60,
+          cellHeight: 5,
+          x: this.scale.width / 2 - 275,
+          y: 200,
           position: Phaser.Display.Align.TOP_LEFT
       });
 
-      this.gameplayUI = new GameplayUI(this, 0, 0);
+    const qData = new QuizGameData();
+    this.quizData.push(qData)
+    quiz = new Quiz(this, 0, 0, textParts, answers, qData, 1);
+    this.quizGame = quiz;
+    this.gameplayUI = new GameplayUI(this, 0, 0);
   }
 
   createButton(x,y,text,onClick){

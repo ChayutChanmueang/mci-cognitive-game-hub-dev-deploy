@@ -16,6 +16,8 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const textPaddingBottom = Math.ceil((Number.parseFloat(style.fontSize) || maxHeight) * 0.16);
     const fontSize = Number.parseFloat(style.fontSize) || maxHeight;
     const lineHeight = Math.max(maxHeight, fontSize + textPaddingTop + textPaddingBottom) + 24;
+    const slot = [];
+    const slotLabel = [];
 
     let cursorX = 0;
     let cursorY = 0;
@@ -54,6 +56,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
             textObj.setData("lineIndex", lineIndex);
 
             objects.push(textObj);
+            slotLabel.push(textObj);
             cursorX += chunkWidth;
 
             if (chunkIndex < partChunks.length - 1) {
@@ -98,6 +101,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
             hint.setData("lineIndex", lineIndex);
 
             objects.push(rect, hint);
+            slot.push(rect);
             cursorX += answerWidth + gap;
         }
     }
@@ -105,7 +109,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     container.add(objects);
     applyContainerOrigin(container, objects, origin);
 
-    return container;
+    return {container, slot};
 }
 
 function splitTextForLayout(scene, text, style, maxWidth, startX = 0) {
