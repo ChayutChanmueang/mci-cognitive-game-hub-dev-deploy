@@ -1,5 +1,6 @@
 ﻿import {PresetQuiz} from "../../constants.js";
 import "../../utils/array-helper.js"
+import {removeFirstMatchingValueInPlace} from "../../utils/array-helper.js";
 
 Array.prototype.remove = function(value) {
     const index = this.indexOf(value);
@@ -10,20 +11,24 @@ Array.prototype.remove = function(value) {
 };
 
 export default class RandomQuiz{
-    constructor(){
-        this.shuffled = [];
-    }
-
-    getQuiz(level){
+    constructor(level){
         console.log(level);
         const preset = PresetQuiz[level];
         if (!preset) {
             console.log(`Invalid level: ${level}`);
         }
 
-        this.shuffled = this.shuffle(preset);
+        this.shuffled = this.shuffle(preset)
+    }
+
+    getQuiz(){
+        if (this.shuffled.length <= 0) {
+            return null;
+        }
+
         const quizData = this.shuffled[Math.floor(Math.random() * this.shuffled.length)];
-        this.shuffled.remove(quizData)
+        removeFirstMatchingValueInPlace(this.shuffled, quizData);
+        return quizData;
     }
 
     shuffle(array) {

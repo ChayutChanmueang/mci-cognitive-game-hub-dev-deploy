@@ -30,13 +30,12 @@ export default class GameplayScene extends Phaser.Scene {
     this.quizData = [];
     this.progressBarRefs = [];
     this.round = 0;
+    this.randomQuiz = new RandomQuiz(this.levelMap);
   }
 
   create(data) {
-    let quizData = RandomQuiz.getQuiz(this.levelMap);
-    let textParts = quizData.textParts; //= this.scale.width * 0.8;
-    let answers = quizData.options;
-    let quiz;
+      // Create First Quiz
+      this.getNewQuiz();
 
     this.easyBtn = this.createButton(this.scale.width / 2 - 175, (this.scale.height) - 350, "Return", () => {
       this.scene.start('main-menu-scene',{ conveyerNums: 1 })
@@ -45,16 +44,10 @@ export default class GameplayScene extends Phaser.Scene {
           if (this.round < 10) {
               this.progressBarRefs[this.round].animateTo(1, 500)
               this.round++;
-          }
 
-          quiz.destroy();
-          quizData = RandomQuiz.getQuiz(this.levelMap);
-          textParts = quizData.textParts;
-          answers = quizData.options;
-          const qData = new QuizGameData();
-          this.quizData.push(qData)
-          quiz = new Quiz(this, 0, 0, textParts, answers, qData, 1);
-          this.quizGame = quiz;
+              // Create New Quiz
+              this.getNewQuiz();
+          }
       });
 
       let dotProgressBars = [];
@@ -65,7 +58,6 @@ export default class GameplayScene extends Phaser.Scene {
           });
 
           bar.setValue(0);
-          //bar.animateTo(1, 5000)
 
           this.progressBarRefs.push(bar);
           dotProgressBars.push(bar.getContainer());
@@ -80,11 +72,31 @@ export default class GameplayScene extends Phaser.Scene {
           position: Phaser.Display.Align.TOP_LEFT
       });
 
-    const qData = new QuizGameData();
-    this.quizData.push(qData)
-    quiz = new Quiz(this, 0, 0, textParts, answers, qData, 1);
-    this.quizGame = quiz;
     this.gameplayUI = new GameplayUI(this, 0, 0);
+  }
+
+  getNewQuiz(){
+      const quizData = this.randomQuiz.getQuiz();
+
+      if (quizData == null) {
+          return null;
+      }
+
+      const textParts = quizData.textParts;
+      const options = quizData.options;
+      const answers = quizData.correctAnswers;
+      const qData = new QuizGameData();
+      this.quizData.push(qData)
+
+      if (this.quizGame != null){
+          this.quizGame.destroy();
+      }
+
+      this.quizGame = new Quiz(this, 0, 0, textParts, answers, options, qData, 1);
+
+      this.quizGame.onCreateQuiz();
+
+      return this.quizGame;
   }
 
   createButton(x,y,text,onClick){

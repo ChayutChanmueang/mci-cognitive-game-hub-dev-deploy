@@ -5,14 +5,18 @@ import {createInlineSentence} from "../../utils/auto-insert-layout.js";
 import DragDropManager from "/src/core/drag-drop-manager.js";
 
 export default class Quiz extends Entity{
-    constructor(scene,x,y,textParts,answers, gameData, scale = 1){
+    constructor(scene, x, y, textParts, answers, options, gameData, scale = 1){
         super(scene,x,y,null);
 
         this.scene = scene;
+        this.options = options;
+        this.gameData = gameData;
+        this.textParts = textParts;
+        this.answers = answers;
         this.scale = scale;
         this.ownedContainer = scene.add.container(x, y);
         this.dragDrop = new DragDropManager(scene);
-        this.answerBoxes = [];
+        this.onAnswerCorrect = () => {};
 
         this.setScale(1.5);
         //this.refreshBody();
@@ -26,46 +30,47 @@ export default class Quiz extends Entity{
             color: "#ffffff",
         };
 
-        const quizBG = scene.add.rectangle(
-            scene.scale.width / 2,
-            scene.scale.height / 2,
+        const quizBG = this.scene.add.rectangle(
+            this.scene.scale.width / 2,
+            this.scene.scale.height / 2,
             700,
             400,0x525252,1).setOrigin(0.5, 0.5);
         this.ownedContainer.add(quizBG);
 
-        const bottonBG = scene.add.rectangle(
-            scene.scale.width / 2,
-            scene.scale.height,
-            scene.scale.width,
+        const bottonBG = this.scene.add.rectangle(
+            this.scene.scale.width / 2,
+            this.scene.scale.height,
+            this.scene.scale.width,
             250,0xffffff,1).setOrigin(0.5, 1);
         this.ownedContainer.add(bottonBG);
 
         const { container: quizText, slot: slot, slotLabel: slotLabel } = createInlineSentence(
-            scene,
-            scene.scale.width / 2,
-            scene.scale.height / 2,
+            this.scene,
+            this.scene.scale.width / 2,
+            this.scene.scale.height / 2,
             600,
             50,
-            textParts,
+            this.textParts,
             BlankWord,
             textStyle,
             {
                 origin: { x: 0.5, y: 0.5 }
             });
-        scene.quizText = quizText;
+        this.scene.quizText = quizText;
         this.ownedContainer.add(quizText);
 
-        scene.quizText.setDepth(100);
+        this.scene.quizText.setDepth(100);
+        this.answerBoxes = [];
 
-        const items = answers.map((word) => {
-            const box = scene.add.container(0, 0);
+        const items = this.options.map((word) => {
+            const box = this.scene.add.container(0, 0);
             this.ownedContainer.add(box);
 
-            const bg = scene.add.rectangle(0, 0, 140, 60, 0xffffff, 0.15)
+            const bg = this.scene.add.rectangle(0, 0, 140, 60, 0xffffff, 0.15)
                 .setStrokeStyle(2, 0xa1a1a1)
                 .setOrigin(0.5);
 
-            const label = scene.add.text(0, 0, word, {
+            const label = this.scene.add.text(0, 0, word, {
                 fontSize: "28px",
                 fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
                 fontStyle: "bold",
@@ -75,7 +80,24 @@ export default class Quiz extends Entity{
             box.add([bg, label]);
             box.setSize(140, 60);
 
-            this.answerBoxes.push({ box, bg, label, word });
+            this.dragDrop.registerDraggable({
+                handle: bg,
+                target: box,
+                data: { word: word, handle: bg, draggable: box },
+                returnOnMiss: true,
+                snapOnDrop: false,
+                onDrop: ({ handle }) => {
+
+                },
+                onInvalidDrop: () => {
+                    bg.setStrokeStyle(2, 0xff6666);
+                    this.scene.time.delayedCall(120, () => {
+                        bg.setStrokeStyle(2, 0xa1a1a1);
+                    });
+                }
+            });
+
+            this.answerBoxes.push({ box, bg });
 
             return box;
         });
@@ -84,10 +106,14 @@ export default class Quiz extends Entity{
             width: 3,
             cellWidth: 200,
             cellHeight: 120,
-            x: scene.scale.width / 2 - 200,
-            y: scene.scale.height - 175,
+            x: this.scene.scale.width / 2 - 200,
+            y: this.scene.scale.height - 175,
             position: Phaser.Display.Align.TOP_LEFT
         });
+
+        for (const answerBox of this.answerBoxes) {
+            this.dragDrop.setHome(answerBox.bg, answerBox.box.x, answerBox.box.y);
+        }
 
         for (let i = 0; i < slot.length; i++) {
             this.dragDrop.registerDropZone({
@@ -96,10 +122,21 @@ export default class Quiz extends Entity{
                 snapTarget: slot[i],
                 accepts: () => !slot[i].getData("filled"),
                 onDrop: ({ data }) => {
-                    slotLabel[i].setText(data.word);
-                    slot[i].setData("filled", true);
-                    if (gameData) {
-                        gameData.answer = data.word;
+                    const slotIndex = i;
+
+                    console.log(`Check answer: ${this.answers[slotIndex]} | ${data.word}`);
+                    if (this.answers[slotIndex] === data.word) {
+                        data.draggable.setVisible(false);
+                        data.handle.disableInteractive();
+                        slotLabel[i].setText(data.word);
+                        slot[i].setData("filled", true);
+                        if (this.gameData) {
+                            this.gameData.answer = data.word;
+                        }
+
+                        this.onAnswerCorrect();
+                    }else {
+                        this.dragDrop.moveHome(data.handle);
                     }
                 },
                 onDragEnter: () => {
@@ -107,26 +144,6 @@ export default class Quiz extends Entity{
                 },
                 onDragLeave: () => {
                     slot[i].setStrokeStyle(3, 0xffffff);
-                }
-            });
-        }
-
-        for (const answerBox of this.answerBoxes) {
-            this.dragDrop.registerDraggable({
-                handle: answerBox.bg,
-                target: answerBox.box,
-                data: { word: answerBox.word },
-                returnOnMiss: true,
-                snapOnDrop: false,
-                onDrop: ({ handle }) => {
-                    answerBox.box.setVisible(false);
-                    handle.disableInteractive();
-                },
-                onInvalidDrop: () => {
-                    answerBox.bg.setStrokeStyle(2, 0xff6666);
-                    scene.time.delayedCall(120, () => {
-                        answerBox.bg.setStrokeStyle(2, 0xa1a1a1);
-                    });
                 }
             });
         }
