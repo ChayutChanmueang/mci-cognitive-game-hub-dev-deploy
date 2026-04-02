@@ -1,13 +1,14 @@
 import Phaser from "phaser";
 import Entity from "../entity";
-import {BlankWord} from "../../constants.js";
+import {BlankWord, Config} from "../../constants.js";
 import {createInlineSentence} from "../../utils/auto-insert-layout.js";
 import DragDropManager from "/src/core/drag-drop-manager.js";
 
 export default class Quiz extends Entity{
-    constructor(scene, x, y, textParts, answers, options, gameData, scale = 1){
+    constructor(scene, x, y, id, textParts, answers, options, gameData, scale = 1){
         super(scene,x,y,null);
 
+        this.id = id;
         this.scene = scene;
         this.options = options;
         this.gameData = gameData;
@@ -17,6 +18,7 @@ export default class Quiz extends Entity{
         this.ownedContainer = scene.add.container(x, y);
         this.dragDrop = new DragDropManager(scene);
         this.onAnswerCorrect = () => {};
+        this.onAnswerIncorrect = () => {};
 
         this.setScale(1.5);
         //this.refreshBody();
@@ -123,8 +125,8 @@ export default class Quiz extends Entity{
                 accepts: () => !slot[i].getData("filled"),
                 onDrop: ({ data }) => {
                     const slotIndex = i;
+                    this.gameData.answerLogs.push(data.word);
 
-                    console.log(`Check answer: ${this.answers[slotIndex]} | ${data.word}`);
                     if (this.answers[slotIndex] === data.word) {
                         data.draggable.setVisible(false);
                         data.handle.disableInteractive();
@@ -132,13 +134,18 @@ export default class Quiz extends Entity{
                         slot[i].setData("filled", true);
                         if (this.gameData) {
                             this.gameData.answers.push(data.word);
+                            this.gameData.increaseScore(Config.IncreaseScore[this.scene.levelMap])
                         }
 
                         if (this.gameData.answers.length >= this.answers.length) {
+                            this.gameData.id = this.id;
+                            console.log(`Score: (${this.gameData.score})`);
                             this.onAnswerCorrect();
                         }
                     }else {
+                        this.gameData.decreaseScore(Config.DecreaseScore[this.scene.levelMap])
                         this.dragDrop.moveHome(data.handle);
+                        this.onAnswerIncorrect();
                     }
                 },
                 onDragEnter: () => {

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import RandomQuiz from "../components/scripts/random-quiz.js";
-import {LevelMap} from "../constants.js";
+import {LevelMap, Config} from "../constants.js";
 import { createThaiText, ThaiTextPresets } from "../utils/thai-text";
 import Quiz from "../entity/script/quiz.js";
 import ProgressBar from "../utils/progress-bar.js";
@@ -10,6 +10,11 @@ import QuizGameData from "../data/scripts/quiz-game-data.js";
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
     super("gameplay-scene");
+    this.levelMap = "";
+    this.quizData = [];
+    this.progressBarRefs = [];
+    this.round = 0;
+    this.allScore = 0;
   }
 
   preload() {
@@ -27,21 +32,23 @@ export default class GameplayScene extends Phaser.Scene {
   init(data) {
     this.level = data.level;
     this.levelMap = LevelMap[this.level];
+    this.randomQuiz = new RandomQuiz(this.levelMap);
+    this.allScore = 0;
+    this.round = 0;
     this.quizData = [];
     this.progressBarRefs = [];
-    this.round = 0;
-    this.randomQuiz = new RandomQuiz(this.levelMap);
   }
 
   create(data) {
-      // Create First Quiz
-      this.getNewQuiz();
+    this.gameplayUI = new GameplayUI(this, 0, 0);
+    // Create First Quiz
+    this.getNewQuiz();
 
     this.easyBtn = this.createButton(this.scale.width / 2 - 175, (this.scale.height) - 350, "Return", () => {
       this.scene.start('main-menu-scene',{ conveyerNums: 1 })
     });
       let dotProgressBars = [];
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < Config.MaxRound[this.levelMap]; i++) {
           const bar = new ProgressBar(this, 0, 0, {
               width: 50,
               height: 10
@@ -62,7 +69,7 @@ export default class GameplayScene extends Phaser.Scene {
           position: Phaser.Display.Align.TOP_LEFT
       });
 
-    this.gameplayUI = new GameplayUI(this, 0, 0);
+    this.gameplayUI.setDepth(100);
   }
 
   getNewQuiz(){
@@ -72,6 +79,7 @@ export default class GameplayScene extends Phaser.Scene {
           return null;
       }
 
+      const id = quizData.id;
       const textParts = quizData.textParts;
       const options = quizData.options;
       const answers = quizData.correctAnswers;
@@ -82,20 +90,37 @@ export default class GameplayScene extends Phaser.Scene {
           this.quizGame.destroy();
       }
 
-      this.quizGame = new Quiz(this, 0, 0, textParts, answers, options, qData, 1);
+      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, 1);
       this.quizGame.onAnswerCorrect = () => {
-          if (this.round < 10) {
-              this.progressBarRefs[this.round].animateTo(1, 500)
-              this.round++;
+          this.progressBarRefs[this.round].animateTo(1, 500)
+          this.round++;
+          this.increaseScore(Config.IncreaseScore[this.levelMap]);
 
+          if (this.round < Config.MaxRound[this.levelMap]) {
+              console.log(`All Score: (${this.allScore})`);
               // Create New Quiz
               this.getNewQuiz();
+          }else{
+              this.gameplayUI.setScore(this.allScore);
+              this.gameplayUI.showGameOverPanel(this.allScore);
           }
       }
+      this.quizGame.onAnswerIncorrect = () => {
+          this.decreaseScore(Config.DecreaseScore[this.levelMap]);
+      }
+      this.gameplayUI.setScore(this.allScore);
       this.quizGame.onCreateQuiz();
 
       return this.quizGame;
   }
+
+    increaseScore(score){
+        this.allScore += score;
+    }
+
+    decreaseScore(score){
+        this.allScore -= score;
+    }
 
   createButton(x,y,text,onClick){
         const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});

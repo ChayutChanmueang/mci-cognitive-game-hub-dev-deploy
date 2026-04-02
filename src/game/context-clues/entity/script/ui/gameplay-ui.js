@@ -2,6 +2,7 @@ import StorageManager from "/src/core/storage-manager.js";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
 import { createThaiText, ThaiTextPresets } from "../../../utils/thai-text";
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -28,7 +29,7 @@ export default class GameplayUI extends Entity{
             scene,
             _LeftScreenAnchor + padding,
             _TopScreenAnchor + padding,
-            this.scorePreText + "0",
+            this.scorePreText + scene.allScore,
             ThaiTextPresets.hud
         )
         this.livesPreText = "Level : ";                         
@@ -42,6 +43,8 @@ export default class GameplayUI extends Entity{
 
         this.TutorialPanel = new TutorialPanel(scene);
         this.TutorialPanel.show();
+
+        this.gameoverPanel = new GameOverPanel(scene);
     }
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
@@ -50,14 +53,23 @@ export default class GameplayUI extends Entity{
         this.currentLives.text = this.livesPreText + newLives;
     }
     setGameOverHighscore(score){
-        this.gameoverPanel.setHighscore(score);
+        const currentScore = StorageManager.get('LANG001-highscore');
+        console.log(`Current score: ${currentScore} | Set score: ${score}`);
+
+        if (score > currentScore)
+        {
+            StorageManager.save('LANG001-highscore', score);
+            this.gameoverPanel.setHighscore(score);
+        }
     }
     resetGameOverPanel(){
         this.gameoverPanel.reset();
     }
     showGameOverPanel(finalScore){
         this.gameoverPanel.setFinalScore(finalScore);
-        this.gameoverPanel.setHighscore(StorageManager.get('highscore'));
+        this.setGameOverHighscore(finalScore);
+        this.currentScore.text = this.scorePreText + finalScore;
+        this.gameoverPanel.setHighscore(StorageManager.get('LANG001-highscore'));
         this.gameoverPanel.show();
     }
 }
