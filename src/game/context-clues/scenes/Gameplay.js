@@ -81,7 +81,7 @@ export default class GameplayScene extends Phaser.Scene {
 
       const id = quizData.id;
       const textParts = quizData.textParts;
-      const options = quizData.options;
+      const options = this.randomQuiz.shuffle(quizData.options);
       const answers = quizData.correctAnswers;
       const qData = new QuizGameData();
       this.quizData.push(qData)
