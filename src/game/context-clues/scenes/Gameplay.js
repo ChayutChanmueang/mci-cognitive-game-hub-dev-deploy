@@ -40,16 +40,6 @@ export default class GameplayScene extends Phaser.Scene {
     this.easyBtn = this.createButton(this.scale.width / 2 - 175, (this.scale.height) - 350, "Return", () => {
       this.scene.start('main-menu-scene',{ conveyerNums: 1 })
     });
-      this.easyBtn = this.createButton(this.scale.width / 2 + 175, (this.scale.height) - 350, "Next", () => {
-          if (this.round < 10) {
-              this.progressBarRefs[this.round].animateTo(1, 500)
-              this.round++;
-
-              // Create New Quiz
-              this.getNewQuiz();
-          }
-      });
-
       let dotProgressBars = [];
       for (let i = 0; i < 10; i++) {
           const bar = new ProgressBar(this, 0, 0, {
@@ -93,7 +83,15 @@ export default class GameplayScene extends Phaser.Scene {
       }
 
       this.quizGame = new Quiz(this, 0, 0, textParts, answers, options, qData, 1);
+      this.quizGame.onAnswerCorrect = () => {
+          if (this.round < 10) {
+              this.progressBarRefs[this.round].animateTo(1, 500)
+              this.round++;
 
+              // Create New Quiz
+              this.getNewQuiz();
+          }
+      }
       this.quizGame.onCreateQuiz();
 
       return this.quizGame;

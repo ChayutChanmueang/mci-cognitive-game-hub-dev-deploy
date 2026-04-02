@@ -106,8 +106,8 @@ export default class Quiz extends Entity{
             width: 3,
             cellWidth: 200,
             cellHeight: 120,
-            x: this.scene.scale.width / 2 - 200,
-            y: this.scene.scale.height - 175,
+            x: this.scene.scale.width / 2 - 275,
+            y: this.scene.scale.height - 215,
             position: Phaser.Display.Align.TOP_LEFT
         });
 
@@ -131,10 +131,12 @@ export default class Quiz extends Entity{
                         slotLabel[i].setText(data.word);
                         slot[i].setData("filled", true);
                         if (this.gameData) {
-                            this.gameData.answer = data.word;
+                            this.gameData.answers.push(data.word);
                         }
 
-                        this.onAnswerCorrect();
+                        if (this.gameData.answers.length >= this.answers.length) {
+                            this.onAnswerCorrect();
+                        }
                     }else {
                         this.dragDrop.moveHome(data.handle);
                     }

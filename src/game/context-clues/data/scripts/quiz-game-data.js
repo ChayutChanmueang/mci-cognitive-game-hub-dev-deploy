@@ -4,7 +4,7 @@ export default class QuizGameData extends Struct{
     constructor(){
         super();
         this.score = 0;
-        this.answer = "";
+        this.answers = [];
         this.isCorrect = false;
     }
 }
