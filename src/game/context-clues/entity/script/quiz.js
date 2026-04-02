@@ -1,3 +1,4 @@
+import Phaser from "phaser";
 import Entity from "../entity";
 import {BlankWord} from "../../constants.js";
 import {createInlineSentence} from "../../utils/auto-insert-layout.js";
@@ -7,13 +8,17 @@ export default class Quiz extends Entity{
     constructor(scene,x,y,textParts,answers, gameData, scale = 1){
         super(scene,x,y,null);
 
+        this.scene = scene;
         this.scale = scale;
         this.ownedContainer = scene.add.container(x, y);
-        this.dragDrop = new DragDropManager(this);
+        this.dragDrop = new DragDropManager(scene);
+        this.answerBoxes = [];
 
         this.setScale(1.5);
         //this.refreshBody();
+    }
 
+    onCreateQuiz(){
         const textStyle = {
             fontSize: "48px",
             fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
@@ -59,7 +64,6 @@ export default class Quiz extends Entity{
             const bg = scene.add.rectangle(0, 0, 140, 60, 0xffffff, 0.15)
                 .setStrokeStyle(2, 0xa1a1a1)
                 .setOrigin(0.5);
-            this.ownedContainer.add(box);
 
             const label = scene.add.text(0, 0, word, {
                 fontSize: "28px",
@@ -67,17 +71,11 @@ export default class Quiz extends Entity{
                 fontStyle: "bold",
                 color: "#000000"
             }).setOrigin(0.5);
-            this.ownedContainer.add(label);
 
             box.add([bg, label]);
+            box.setSize(140, 60);
 
-            bg.setInteractive({ draggable: true });
-            scene.input.setDraggable(bg);
-
-            bg.on("drag", (pointer, dragX, dragY) => {
-                box.x = dragX;
-                box.y = dragY;
-            });
+            this.answerBoxes.push({ box, bg, label, word });
 
             return box;
         });
@@ -96,10 +94,13 @@ export default class Quiz extends Entity{
                 zone: slot[i],
                 id: `slot-${i}`,
                 snapTarget: slot[i],
-                accepts: ({ data }) => data.word === "หวาน",
+                accepts: () => !slot[i].getData("filled"),
                 onDrop: ({ data }) => {
                     slotLabel[i].setText(data.word);
-
+                    slot[i].setData("filled", true);
+                    if (gameData) {
+                        gameData.answer = data.word;
+                    }
                 },
                 onDragEnter: () => {
                     slot[i].setStrokeStyle(3, 0x00ff00);
@@ -109,11 +110,39 @@ export default class Quiz extends Entity{
                 }
             });
         }
+
+        for (const answerBox of this.answerBoxes) {
+            this.dragDrop.registerDraggable({
+                handle: answerBox.bg,
+                target: answerBox.box,
+                data: { word: answerBox.word },
+                returnOnMiss: true,
+                snapOnDrop: false,
+                onDrop: ({ handle }) => {
+                    answerBox.box.setVisible(false);
+                    handle.disableInteractive();
+                },
+                onInvalidDrop: () => {
+                    answerBox.bg.setStrokeStyle(2, 0xff6666);
+                    scene.time.delayedCall(120, () => {
+                        answerBox.bg.setStrokeStyle(2, 0xa1a1a1);
+                    });
+                }
+            });
+        }
     }
+
     destroy(){
+        if(this.dragDrop){
+            this.dragDrop.destroy();
+            this.dragDrop = null;
+        }
+        if(this.ownedContainer){
+            this.ownedContainer.destroy(true);
+            this.ownedContainer = null;
+        }
         super.destroy();
         if(this.onDestroy){
-            this.ownedContainer.destroy(true);
             this.onDestroy();
         }
     }

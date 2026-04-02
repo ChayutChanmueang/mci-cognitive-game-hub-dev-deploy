@@ -89,6 +89,27 @@ export default class DragDropManager {
         this.tweenTarget(draggable.target, draggable.homeX, draggable.homeY, duration);
     }
 
+    moveHomeByTarget(target, duration = this.returnDuration) {
+        const draggable = this.findDraggableByTarget(target);
+
+        if (!draggable) {
+            return;
+        }
+
+        this.tweenTarget(draggable.target, draggable.homeX, draggable.homeY, duration);
+    }
+
+    setHome(handle, x, y) {
+        const draggable = this.draggables.get(handle);
+
+        if (!draggable) {
+            return;
+        }
+
+        draggable.homeX = x;
+        draggable.homeY = y;
+    }
+
     destroy() {
         this.scene.input.off("dragstart", this.onDragStart);
         this.scene.input.off("drag", this.onDrag);
@@ -238,6 +259,16 @@ export default class DragDropManager {
         const snapTarget = dropZone.snapTarget;
 
         this.tweenTarget(draggable.target, snapTarget.x, snapTarget.y, this.snapDuration);
+    }
+
+    findDraggableByTarget(target) {
+        for (const draggable of this.draggables.values()) {
+            if (draggable.target === target) {
+                return draggable;
+            }
+        }
+
+        return null;
     }
 
     tweenTarget(target, x, y, duration) {

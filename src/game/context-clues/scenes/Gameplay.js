@@ -49,7 +49,7 @@ export default class GameplayScene extends Phaser.Scene {
 
           quiz.destroy();
           quizData = RandomQuiz.getQuiz(this.levelMap);
-          textParts = quizData.textParts; //= this.scale.width * 0.8;
+          textParts = quizData.textParts;
           answers = quizData.options;
           const qData = new QuizGameData();
           this.quizData.push(qData)

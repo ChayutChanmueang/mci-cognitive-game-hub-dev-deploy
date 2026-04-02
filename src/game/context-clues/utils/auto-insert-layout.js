@@ -56,7 +56,6 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
             textObj.setData("lineIndex", lineIndex);
 
             objects.push(textObj);
-            slotLabel.push(textObj);
             cursorX += chunkWidth;
 
             if (chunkIndex < partChunks.length - 1) {
@@ -102,6 +101,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
 
             objects.push(rect, hint);
             slot.push(rect);
+            slotLabel.push(hint);
             cursorX += answerWidth + gap;
         }
     }
@@ -109,7 +109,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     container.add(objects);
     applyContainerOrigin(container, objects, origin);
 
-    return {container, slot};
+    return {container, slot, slotLabel};
 }
 
 function splitTextForLayout(scene, text, style, maxWidth, startX = 0) {
