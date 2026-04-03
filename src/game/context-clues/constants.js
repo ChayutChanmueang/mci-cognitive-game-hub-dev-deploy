@@ -20,6 +20,14 @@ export const Config = Object.freeze({
     }
 })
 
+export const QuizUI_Setting = Object.freeze({
+    scaleSlot: {x:150, y:75},
+    quizTextSize: 48.0,
+    labelFontSize: 36.0,
+    slotFontSize: 36.0,
+    quizBoxSize: {width: 700, height:450},
+});
+
 export const LevelMap = Object.freeze({
     1: "easy",
     2: "medium",
@@ -27,7 +35,7 @@ export const LevelMap = Object.freeze({
 });
 
 export const BlankWord = Object.freeze({
-    text: "วางคำ",
+    text: " วางคำ ",
     isRender: true
 });
 

@@ -1,5 +1,11 @@
 export function measureTextWidth(scene, text, style) {
-    const temp = scene.add.text(0, 0, text, style).setVisible(false);
+    const textStyle = {
+        fontSize: `${style.labelFontSize + 12}px`,
+        fontFamily: style.fontFamily,
+        fontStyle: style.fontStyle,
+        color: style.color,
+    };
+    const temp = scene.add.text(0, 0, text, textStyle).setVisible(false);
     const width = temp.width;
     temp.destroy();
     return width;
@@ -12,12 +18,18 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const edgePadding = 6;
     const lineLimit = Math.max(1, maxWidth - edgePadding);
     const origin = normalizeOrigin(options.origin, { x: 0, y: 0.5 });
-    const textPaddingTop = Math.ceil((Number.parseFloat(style.fontSize) || maxHeight) * 0.25);
-    const textPaddingBottom = Math.ceil((Number.parseFloat(style.fontSize) || maxHeight) * 0.16);
-    const fontSize = Number.parseFloat(style.fontSize) || maxHeight;
+    const textPaddingTop = Math.ceil((style.quizTextSize || maxHeight) * 0.25);
+    const textPaddingBottom = Math.ceil((style.quizTextSize || maxHeight) * 0.16);
+    const fontSize = style.quizTextSize || maxHeight;
     const lineHeight = Math.max(maxHeight, fontSize + textPaddingTop + textPaddingBottom) + 24;
     const slot = [];
     const slotLabel = [];
+    const quizTextStyle = {
+        fontSize: `${fontSize}px`,
+        fontFamily: style.fontFamily,
+        fontStyle: style.fontStyle,
+        color: style.color,
+    };
 
     let cursorX = 0;
     let cursorY = 0;
@@ -26,7 +38,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     for (let i = 0; i < textParts.length; i++) {
         const part = textParts[i];
         const firstSegment = getWordSegments(part).find((segment) => segment.trim().length > 0) ?? "";
-        const firstSegmentWidth = firstSegment ? measureTextWidth(scene, firstSegment.trimStart(), style) : 0;
+        const firstSegmentWidth = firstSegment ? measureTextWidth(scene, firstSegment.trimStart(), quizTextStyle) : 0;
 
         if (cursorX > 0 && firstSegmentWidth > lineLimit - cursorX) {
             cursorX = 0;
@@ -34,7 +46,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
             lineIndex += 1;
         }
 
-        const partChunks = splitTextForLayout(scene, part, style, lineLimit, cursorX);
+        const partChunks = splitTextForLayout(scene, part, quizTextStyle, lineLimit, cursorX);
 
         for (let chunkIndex = 0; chunkIndex < partChunks.length; chunkIndex++) {
             const chunk = partChunks[chunkIndex];
@@ -50,7 +62,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
                 cursorX + (chunkWidth * origin.x),
                 cursorY + (maxHeight * (origin.y - 0.5)),
                 chunk,
-                style
+                quizTextStyle
             ).setOrigin(origin.x, origin.y);
             textObj.setPadding(0, textPaddingTop, 0, textPaddingBottom);
             textObj.setData("lineIndex", lineIndex);
@@ -90,11 +102,13 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
             rect.setData("slotId", `slot-${i}`);
             rect.setData("lineIndex", lineIndex);
 
-            const hint = scene.add.text(cursorX + (answerWidth / 2), cursorY, blankWord.isRender ? blankWord.text : "", {
-                ...style,
-                fontSize: "28px",
-                color: "#ffff99"
-            }).setOrigin(0.5, 0.5);
+            const textStyle = {
+                fontSize: `${style.labelFontSize}px`,
+                fontFamily: style.fontFamily,
+                fontStyle: style.fontStyle,
+                color: style.color,
+            };
+            const hint = scene.add.text(cursorX + (answerWidth / 2), cursorY, blankWord.isRender ? blankWord.text : "", textStyle).setOrigin(0.5, 0.5);
             hint.setPadding(0, 8, 0, 4);
             hint.setData("slotId", `slot-${i}`);
             hint.setData("lineIndex", lineIndex);

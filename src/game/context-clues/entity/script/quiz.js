@@ -5,7 +5,13 @@ import {createInlineSentence} from "../../utils/auto-insert-layout.js";
 import DragDropManager from "/src/core/drag-drop-manager.js";
 
 export default class Quiz extends Entity{
-    constructor(scene, x, y, id, textParts, answers, options, gameData, scale = 1){
+    constructor(scene, x, y, id, textParts, answers, options, gameData, setting = {
+        scaleSlot: {x:150, y:75},
+        quizTextSize: 48.0,
+        labelFontSize: 36.0,
+        slotFontSize: 36.0,
+        quizBoxSize: {width: 700, height:450},
+    }){
         super(scene,x,y,null);
 
         this.id = id;
@@ -14,7 +20,13 @@ export default class Quiz extends Entity{
         this.gameData = gameData;
         this.textParts = textParts;
         this.answers = answers;
-        this.scale = scale;
+        this.scaleSlotX = setting.scaleSlot.x;
+        this.scaleSlotY = setting.scaleSlot.y;
+        this.slotFontSize = setting.slotFontSize;
+        this.labelFontSize = setting.labelFontSize;
+        this.quizTextSize = setting.quizTextSize;
+        this.boxWidth = setting.quizBoxSize.width;
+        this.boxHeight = setting.quizBoxSize.height;
         this.ownedContainer = scene.add.container(x, y);
         this.dragDrop = new DragDropManager(scene);
         this.onAnswerCorrect = () => {};
@@ -25,18 +37,11 @@ export default class Quiz extends Entity{
     }
 
     onCreateQuiz(){
-        const textStyle = {
-            fontSize: "48px",
-            fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
-            fontStyle: "bold",
-            color: "#ffffff",
-        };
-
         const quizBG = this.scene.add.rectangle(
             this.scene.scale.width / 2,
             this.scene.scale.height / 2,
-            700,
-            400,0x525252,1).setOrigin(0.5, 0.5);
+            this.boxWidth,
+            this.boxHeight,0x525252,1).setOrigin(0.5, 0.5);
         this.ownedContainer.add(quizBG);
 
         const bottonBG = this.scene.add.rectangle(
@@ -46,12 +51,20 @@ export default class Quiz extends Entity{
             250,0xffffff,1).setOrigin(0.5, 1);
         this.ownedContainer.add(bottonBG);
 
+        const textStyle = {
+            quizTextSize: this.quizTextSize,
+            labelFontSize: this.labelFontSize,
+            fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
+            fontStyle: "bold",
+            color: "#ffffff",
+        };
+
         const { container: quizText, slot: slot, slotLabel: slotLabel } = createInlineSentence(
             this.scene,
             this.scene.scale.width / 2,
             this.scene.scale.height / 2,
-            600,
-            50,
+            this.boxWidth - 100,
+            this.scaleSlotY,
             this.textParts,
             BlankWord,
             textStyle,
@@ -68,19 +81,19 @@ export default class Quiz extends Entity{
             const box = this.scene.add.container(0, 0);
             this.ownedContainer.add(box);
 
-            const bg = this.scene.add.rectangle(0, 0, 140, 60, 0xffffff, 0.15)
+            const bg = this.scene.add.rectangle(0, 0, 200, this.scaleSlotY, 0xffffff, 0.15)
                 .setStrokeStyle(2, 0xa1a1a1)
                 .setOrigin(0.5);
 
             const label = this.scene.add.text(0, 0, word, {
-                fontSize: "28px",
+                fontSize: `${this.slotFontSize}px`,
                 fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
                 fontStyle: "bold",
                 color: "#000000"
             }).setOrigin(0.5);
 
             box.add([bg, label]);
-            box.setSize(140, 60);
+            box.setSize(200, this.scaleSlotY);
 
             this.dragDrop.registerDraggable({
                 handle: bg,
@@ -106,10 +119,10 @@ export default class Quiz extends Entity{
 
         Phaser.Actions.GridAlign(items, {
             width: 3,
-            cellWidth: 200,
-            cellHeight: 120,
-            x: this.scene.scale.width / 2 - 275,
-            y: this.scene.scale.height - 215,
+            cellWidth: 250,
+            cellHeight: 110,
+            x: this.scene.scale.width / 2 - 350,
+            y: this.scene.scale.height - 217,
             position: Phaser.Display.Align.TOP_LEFT
         });
 
@@ -132,6 +145,7 @@ export default class Quiz extends Entity{
                         data.handle.disableInteractive();
                         slotLabel[i].setText(data.word);
                         slot[i].setData("filled", true);
+                        slot[i].setStrokeStyle(3, 0x00ff00);
                         if (this.gameData) {
                             this.gameData.answers.push(data.word);
                             this.gameData.increaseScore(Config.IncreaseScore[this.scene.levelMap])
@@ -146,10 +160,11 @@ export default class Quiz extends Entity{
                         this.gameData.decreaseScore(Config.DecreaseScore[this.scene.levelMap])
                         this.dragDrop.moveHome(data.handle);
                         this.onAnswerIncorrect();
+                        slot[i].setStrokeStyle(3, 0xfe0000);
                     }
                 },
                 onDragEnter: () => {
-                    slot[i].setStrokeStyle(3, 0x00ff00);
+                    slot[i].setStrokeStyle(3, 0xfffb00);
                 },
                 onDragLeave: () => {
                     slot[i].setStrokeStyle(3, 0xffffff);
