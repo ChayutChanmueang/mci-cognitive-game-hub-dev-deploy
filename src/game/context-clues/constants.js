@@ -35,7 +35,7 @@ export const LevelMap = Object.freeze({
 });
 
 export const BlankWord = Object.freeze({
-    text: " วางคำ ",
+    text: "    วางคำ    ",
     isRender: true
 });
 

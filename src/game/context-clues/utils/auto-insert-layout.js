@@ -1,11 +1,5 @@
 export function measureTextWidth(scene, text, style) {
-    const textStyle = {
-        fontSize: `${style.labelFontSize + 12}px`,
-        fontFamily: style.fontFamily,
-        fontStyle: style.fontStyle,
-        color: style.color,
-    };
-    const temp = scene.add.text(0, 0, text, textStyle).setVisible(false);
+    const temp = scene.add.text(0, 0, text, normalizeTextStyle(style)).setVisible(false);
     const width = temp.width;
     temp.destroy();
     return width;
@@ -18,18 +12,14 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const edgePadding = 6;
     const lineLimit = Math.max(1, maxWidth - edgePadding);
     const origin = normalizeOrigin(options.origin, { x: 0, y: 0.5 });
-    const textPaddingTop = Math.ceil((style.quizTextSize || maxHeight) * 0.25);
-    const textPaddingBottom = Math.ceil((style.quizTextSize || maxHeight) * 0.16);
-    const fontSize = style.quizTextSize || maxHeight;
+    const quizTextStyle = normalizeTextStyle(style, "quiz");
+    const labelTextStyle = normalizeTextStyle(style, "label");
+    const fontSize = parseFontSize(quizTextStyle.fontSize, maxHeight);
+    const textPaddingTop = Math.ceil(fontSize * 0.25);
+    const textPaddingBottom = Math.ceil(fontSize * 0.16);
     const lineHeight = Math.max(maxHeight, fontSize + textPaddingTop + textPaddingBottom) + 24;
     const slot = [];
     const slotLabel = [];
-    const quizTextStyle = {
-        fontSize: `${fontSize}px`,
-        fontFamily: style.fontFamily,
-        fontStyle: style.fontStyle,
-        color: style.color,
-    };
 
     let cursorX = 0;
     let cursorY = 0;
@@ -50,7 +40,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
 
         for (let chunkIndex = 0; chunkIndex < partChunks.length; chunkIndex++) {
             const chunk = partChunks[chunkIndex];
-            const chunkWidth = measureTextWidth(scene, chunk, style);
+            const chunkWidth = measureTextWidth(scene, chunk, quizTextStyle);
 
             if (cursorX + chunkWidth > lineLimit && cursorX > 0) {
                 cursorX = 0;
@@ -80,7 +70,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
         }
 
         if (i + 1 < textParts.length) {
-            const answerWidth = measureTextWidth(scene, blankWord.text, style);
+            const answerWidth = measureTextWidth(scene, blankWord.text, labelTextStyle);
 
             if (cursorX + answerWidth > lineLimit && cursorX > 0) {
                 cursorX = 0;
@@ -102,13 +92,12 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
             rect.setData("slotId", `slot-${i}`);
             rect.setData("lineIndex", lineIndex);
 
-            const textStyle = {
-                fontSize: `${style.labelFontSize}px`,
-                fontFamily: style.fontFamily,
-                fontStyle: style.fontStyle,
-                color: style.color,
-            };
-            const hint = scene.add.text(cursorX + (answerWidth / 2), cursorY, blankWord.isRender ? blankWord.text : "", textStyle).setOrigin(0.5, 0.5);
+            const hint = scene.add.text(
+                cursorX + (answerWidth / 2),
+                cursorY,
+                blankWord.isRender ? blankWord.text : "",
+                labelTextStyle
+            ).setOrigin(0.5, 0.5);
             hint.setPadding(0, 8, 0, 4);
             hint.setData("slotId", `slot-${i}`);
             hint.setData("lineIndex", lineIndex);
@@ -240,6 +229,32 @@ function normalizeOrigin(origin, fallback) {
     }
 
     return fallback;
+}
+
+function normalizeTextStyle(style, kind = "quiz") {
+    const fallbackFontSize = kind === "label"
+        ? (style.labelFontSize ?? 28)
+        : (style.quizTextSize ?? style.fontSize ?? 48);
+    const fontSize = typeof fallbackFontSize === "number"
+        ? `${fallbackFontSize}px`
+        : `${parseFontSize(fallbackFontSize, kind === "label" ? 28 : 48)}px`;
+
+    return {
+        fontSize,
+        fontFamily: style.fontFamily,
+        fontStyle: style.fontStyle,
+        color: style.color
+    };
+}
+
+function parseFontSize(fontSize, fallback) {
+    if (typeof fontSize === "number") {
+        return fontSize;
+    }
+
+    const parsed = Number.parseFloat(fontSize);
+
+    return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function applyContainerOrigin(container, objects, origin) {
