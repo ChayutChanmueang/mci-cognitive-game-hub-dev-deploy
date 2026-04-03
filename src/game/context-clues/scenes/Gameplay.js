@@ -120,6 +120,31 @@ export default class GameplayScene extends Phaser.Scene {
 
     decreaseScore(score){
         this.allScore -= score;
+
+        const scorePenaltyText = createThaiText(
+            this,
+            this.scale.width / 2,
+            this.scale.height / 2 - 250,
+            `-${score}`,
+            {
+                fontSize: "48px",
+                fontStyle: "bold",
+                color: "#ff4d4d"
+            },
+            { origin: 0.5 }
+        );
+        scorePenaltyText.setDepth(200);
+
+        this.tweens.add({
+            targets: scorePenaltyText,
+            y: scorePenaltyText.y - 40,
+            alpha: 0,
+            duration: 700,
+            ease: "Sine.easeOut",
+            onComplete: () => {
+                scorePenaltyText.destroy();
+            }
+        });
     }
 
   createButton(x,y,text,onClick){
