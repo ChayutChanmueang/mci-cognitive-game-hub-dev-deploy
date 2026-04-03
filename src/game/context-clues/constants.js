@@ -25,7 +25,7 @@ export const QuizUI_Setting = Object.freeze({
     quizTextSize: 48.0,
     labelFontSize: 36.0,
     slotFontSize: 36.0,
-    quizBoxSize: {width: 700, height:450},
+    quizBoxSize: {width: 800, height:450},
 });
 
 export const LevelMap = Object.freeze({

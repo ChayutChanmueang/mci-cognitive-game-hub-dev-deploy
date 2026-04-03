@@ -63,7 +63,7 @@ export default class Quiz extends Entity{
             this.scene,
             this.scene.scale.width / 2,
             this.scene.scale.height / 2,
-            this.boxWidth - 100,
+            this.boxWidth - 225,
             this.scaleSlotY,
             this.textParts,
             BlankWord,

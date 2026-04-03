@@ -24,7 +24,17 @@ export default class NextQuizPanel extends UIPanel{
         this.subContainer1Panel = scene.add.rectangle(0,0,600,450,0x222222,1);
         this.subContainer1Panel.setStrokeStyle(4,0xffffff);
 
-        this.subContainer1.add(this.subContainer1Panel);
+        this.subText = createThaiText(scene, 0, -25, "🤗", {
+            fontSize: "256px",
+            fontStyle: "bold",
+            color:'#ffffff',
+            align: 'center'
+        }, {
+            origin: 0.5,
+            wrapWidth: 680
+        });
+        this.subText.setScale(1);
+        this.subContainer1.add([this.subContainer1Panel,this.subText]);
         this.addElements([this.titleText,...this.homeBtn,this.subContainer1]);
     }
 
