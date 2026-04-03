@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { createThaiText, ThaiTextPresets } from "../utils/thai-text";
+import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {

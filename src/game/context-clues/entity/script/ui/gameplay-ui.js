@@ -1,8 +1,9 @@
 import StorageManager from "/src/core/storage-manager.js";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
-import { createThaiText, ThaiTextPresets } from "../../../utils/thai-text";
+import { createThaiText, ThaiTextPresets } from "../../../../../util/thai-text.js";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
+import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -44,8 +45,16 @@ export default class GameplayUI extends Entity{
         this.TutorialPanel = new TutorialPanel(scene);
         this.TutorialPanel.show();
 
+        this.NextQuizPanel = new NextQuizPanel(scene);
+
         this.gameoverPanel = new GameOverPanel(scene);
     }
+
+    showNextQuizPanel(onNext){
+        this.NextQuizPanel.setNextAction(onNext);
+        this.NextQuizPanel.show();
+    }
+
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
     }

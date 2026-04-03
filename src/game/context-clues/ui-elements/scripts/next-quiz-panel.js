@@ -1,46 +1,35 @@
-import UIPanel from "../core/ui-panel";
-import {TutorialText} from "../../constants";
+import UIPanel from "../core/ui-panel.js";
+import {TutorialText} from "../../constants.js";
 import { createThaiText, ThaiTextPresets } from "../../../../util/thai-text.js";
-export default class TemplatePanel extends UIPanel{
+export default class NextQuizPanel extends UIPanel{
     constructor(scene){
         super(scene,scene.scale.width/2,scene.scale.height/2,800,1000);
 
         //Relative to the main container
+        this.onNextAction = () => {};
 
-        this.titleText = createThaiText(scene, 0, -350, "Tutorial", {
+        this.titleText = createThaiText(scene, 0, -350, "คุณตอบถูก เก่งมาก!", {
             ...ThaiTextPresets.panelTitle,
             color:'#ff4444'
         }, { origin: 0.5 });
         this.titleText.setScale(1.5);
 
-        this.homeBtn = this.createButton(0,350, "START", () => {
-            //this.scene.spawnFruit();
+        this.homeBtn = this.createButton(0,350, "ต่อไป", () => {
+            this.onNextAction();
             this.hide();
         });
 
         //Relative to the sub container 1
-
         this.subContainer1 = scene.add.container(0,0);
         this.subContainer1Panel = scene.add.rectangle(0,0,600,450,0x222222,1);
         this.subContainer1Panel.setStrokeStyle(4,0xffffff);
-        this.subtitleText = createThaiText(scene, 0, -50, "ลากคำศัพท์ไปเติมในช่องว่าง", {
-            ...ThaiTextPresets.panelTitle,
-            color:'#ff4444'
-        }, {
-            origin: 0.5,
-            wrapWidth: 520
-        });
-        this.subText = createThaiText(scene, 0, 50, TutorialText.T1, {
-            ...ThaiTextPresets.panelBody,
-            color:'#ffffff',
-            align: 'center'
-        }, {
-            origin: 0.5,
-            wrapWidth: 520
-        });
-        this.subContainer1.add([this.subContainer1Panel,this.subtitleText,this.subText]);
 
+        this.subContainer1.add(this.subContainer1Panel);
         this.addElements([this.titleText,...this.homeBtn,this.subContainer1]);
+    }
+
+    setNextAction(onNextAction){
+        this.onNextAction = onNextAction;
     }
 
     createButton(x,y,text,onClick){

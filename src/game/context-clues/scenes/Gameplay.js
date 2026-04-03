@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import RandomQuiz from "../components/scripts/random-quiz.js";
 import {LevelMap, Config} from "../constants.js";
-import { createThaiText, ThaiTextPresets } from "../utils/thai-text";
+import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import Quiz from "../entity/script/quiz.js";
 import ProgressBar from "../utils/progress-bar.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
@@ -69,6 +69,7 @@ export default class GameplayScene extends Phaser.Scene {
           position: Phaser.Display.Align.TOP_LEFT
       });
 
+    this.progressBarRefs[this.round].animateTo(1, 500)
     this.gameplayUI.setDepth(100);
   }
 
@@ -92,14 +93,18 @@ export default class GameplayScene extends Phaser.Scene {
 
       this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, 1);
       this.quizGame.onAnswerCorrect = () => {
-          this.progressBarRefs[this.round].animateTo(1, 500)
           this.round++;
+
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
 
           if (this.round < Config.MaxRound[this.levelMap]) {
               console.log(`All Score: (${this.allScore})`);
-              // Create New Quiz
-              this.getNewQuiz();
+              this.progressBarRefs[this.round].animateTo(1, 500)
+
+              this.gameplayUI.showNextQuizPanel(() => {
+                  // Create New Quiz
+                  this.getNewQuiz();
+              })
           }else{
               this.gameplayUI.setScore(this.allScore);
               this.gameplayUI.showGameOverPanel(this.allScore);
