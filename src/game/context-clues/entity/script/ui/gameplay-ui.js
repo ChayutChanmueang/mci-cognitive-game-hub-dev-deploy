@@ -75,6 +75,8 @@ export default class GameplayUI extends Entity{
         this.gameoverPanel.reset();
     }
     showGameOverPanel(finalScore){
+        finalScore = finalScore <= 0 ? 0 : finalScore;
+
         this.gameoverPanel.setFinalScore(finalScore);
         this.setGameOverHighscore(finalScore);
         this.currentScore.text = this.scorePreText + finalScore;
