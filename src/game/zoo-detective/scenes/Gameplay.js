@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
+import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -22,9 +23,14 @@ export default class GameplayScene extends Phaser.Scene {
     this.easyBtn = this.createButton(this.scale.width/2 ,(this.scale.height/2) - 100, "RETURN", () => {
             this.scene.start('main-menu-scene',{ conveyerNums: 1 })
         });
-    this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"GAMEPLAY",{
-            fontSize: '96px', fontStyle: 'bold'
-        }).setOrigin(0.5);
+    this.titleText = createThaiText(
+      this,
+      this.scale.width / 2,
+      this.scale.height / 2 - 250,
+      "GAMEPLAY",
+      ThaiTextPresets.menuTitle,
+      { origin: 0.5 }
+    );
     this.titleText.setDepth(100);
 
     this.level = data.level || 1;
@@ -34,9 +40,7 @@ export default class GameplayScene extends Phaser.Scene {
   createButton(x,y,text,onClick){
         const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});
         bg.setScale(1.5);
-        const label = this.add.text(x,y,text,{
-            fontSize: '28px', fontStyle: 'bold'
-        }).setOrigin(0.5);
+        const label = createThaiText(this, x, y, text, ThaiTextPresets.buttonLabel, { origin: 0.5 });
         label.setScale(1.5);
 
         bg.on('pointerdown',onClick);

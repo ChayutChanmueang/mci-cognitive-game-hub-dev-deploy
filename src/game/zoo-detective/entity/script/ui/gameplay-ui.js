@@ -1,6 +1,7 @@
-import StorageManager from "../../../../core/storage-manager";
-import TemplatePanel from "../../../ui-elements/scripts/template-panel";
+import StorageManager from "../../../../../core/storage-manager";
+import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
+import { createThaiText, ThaiTextPresets } from "../../../../../util/thai-text.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -23,21 +24,23 @@ export default class GameplayUI extends Entity{
         ).setOrigin(0, 0);
 
         this.scorePreText = "Score : ";
-        this.currentScore = scene.add.text(
+        this.currentScore = createThaiText(
+            scene,
             _LeftScreenAnchor + padding,
             _TopScreenAnchor + padding,
             this.scorePreText + "0",
-            {fontSize: "64px"}
+            ThaiTextPresets.hud
         )
         this.livesPreText = "Level : ";                         
-        this.currentLives = scene.add.text(
+        this.currentLives = createThaiText(
+            scene,
             _RightScreenAnchor - padding,
             _TopScreenAnchor + padding,
             this.livesPreText + scene.level,
-            {fontSize: "64px"}
+            ThaiTextPresets.hud
         ).setOrigin(1,0);
 
-        this.TemplatePanel = new TemplatePanel(scene);
+        this.TutorialPanel = new TutorialPanel(scene);
         this.TemplatePanel.show();
     }
     setScore(newScore){
