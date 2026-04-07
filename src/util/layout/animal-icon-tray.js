@@ -7,6 +7,7 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
         this.onSelected = onSelected;
         this.onUnSelected = onUnSelected;
         this.itemSelected = null;
+        this.bgSelected = null;
         this.scene = scene;
         this.items = [];
         this.itemViews = [];
@@ -30,7 +31,8 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
             trayStrokeAlpha: 1,
             trayStrokeWidth: 4,
             itemRadius: 18,
-            itemFillColor: 0xffffff,
+            itemSelectedFillColor: 0xdaefff,
+            itemUnSelectedFillColor: 0xffffff,
             itemFillAlpha: 1,
             itemStrokeColor: 0x5a697e,
             itemStrokeAlpha: 1,
@@ -47,6 +49,49 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
 
         scene.add.existing(this);
         this.setConfig(options);
+    }
+
+    drawItemBackground(graphics, fillColor) {
+        const {
+            itemWidth,
+            itemHeight,
+            itemRadius,
+            itemFillAlpha,
+            itemStrokeColor,
+            itemStrokeAlpha,
+            itemStrokeWidth
+        } = this.options;
+
+        graphics.clear();
+        graphics.fillStyle(fillColor, itemFillAlpha);
+        graphics.lineStyle(itemStrokeWidth, itemStrokeColor, itemStrokeAlpha);
+        graphics.fillRoundedRect(-(itemWidth / 2), -(itemHeight / 2), itemWidth, itemHeight, itemRadius);
+        graphics.strokeRoundedRect(-(itemWidth / 2), -(itemHeight / 2), itemWidth, itemHeight, itemRadius);
+
+        return graphics;
+    }
+
+    setSelectedItem(view = null) {
+        const {
+            itemSelectedFillColor,
+            itemUnSelectedFillColor
+        } = this.options;
+
+        if (this.bgSelected) {
+            this.drawItemBackground(this.bgSelected, itemUnSelectedFillColor);
+        }
+
+        this.bgSelected = view?.background ?? null;
+
+        if (this.bgSelected) {
+            this.drawItemBackground(this.bgSelected, itemSelectedFillColor);
+        }
+
+        this.itemSelected = view
+            ? { id: view.item.id, icon: view.item.icon, index: view.index }
+            : null;
+
+        return this.itemSelected;
     }
 
     setConfig(options = {}) {
@@ -112,7 +157,8 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
             trayStrokeAlpha,
             trayStrokeWidth,
             itemRadius,
-            itemFillColor,
+            itemSelectedFillColor,
+            itemUnSelectedFillColor,
             itemFillAlpha,
             itemStrokeColor,
             itemStrokeAlpha,
@@ -153,10 +199,7 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
                 const itemContainer = this.scene.add.container(centerX, centerY);
                 const itemBackground = this.scene.add.graphics();
 
-                itemBackground.fillStyle(itemFillColor, itemFillAlpha);
-                itemBackground.lineStyle(itemStrokeWidth, itemStrokeColor, itemStrokeAlpha);
-                itemBackground.fillRoundedRect(-(itemWidth / 2), -(itemHeight / 2), itemWidth, itemHeight, itemRadius);
-                itemBackground.strokeRoundedRect(-(itemWidth / 2), -(itemHeight / 2), itemWidth, itemHeight, itemRadius);
+                this.drawItemBackground(itemBackground, itemUnSelectedFillColor);
 
                 itemContainer.add(itemBackground);
 
@@ -178,21 +221,24 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
                 );
                 itemContainer.on("pointerdown", () => {
                     this.emit("itemclick", item, index, itemContainer);
-                    const newData = { id: item.id, icon: item.icon, index: index };
 
-                    if (this.itemSelected != null && this.itemSelected.id !== newData.id){
-                        this.onUnSelected(this.itemSelected);
+                    const previousSelected = this.itemSelected;
+                    const nextView = { index, item, container: itemContainer, background: itemBackground };
+
+                    if (previousSelected && previousSelected.id !== item.id) {
+                        this.onUnSelected?.(previousSelected);
                     }
 
-                    this.itemSelected = newData;
-                    this.onSelected(this.itemSelected);
+                    this.setSelectedItem(nextView);
+                    this.onSelected?.(this.itemSelected);
                 });
 
                 this.add(itemContainer);
                 this.itemViews.push({
                     index,
                     item,
-                    container: itemContainer
+                    container: itemContainer,
+                    background: itemBackground
                 });
             }
         }
