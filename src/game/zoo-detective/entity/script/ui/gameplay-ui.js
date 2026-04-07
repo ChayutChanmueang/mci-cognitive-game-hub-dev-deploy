@@ -13,7 +13,7 @@ export default class GameplayUI extends Entity{
 
         // 1. SETTINGS FOR THE UI BAR
         const uiBarHeight = 100; // Adjust based on your 64px font
-        const padding = 20;      // Space from the edges
+        const padding = 0;      // Space from the edges
 
         // 2. DRAW THE BACKGROUND BAR
         // Arguments: x, y, width, height, color, alpha
