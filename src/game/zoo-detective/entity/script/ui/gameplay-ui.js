@@ -41,7 +41,6 @@ export default class GameplayUI extends Entity{
         ).setOrigin(1,0);
 
         this.TutorialPanel = new TutorialPanel(scene);
-        this.TemplatePanel.show();
     }
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
