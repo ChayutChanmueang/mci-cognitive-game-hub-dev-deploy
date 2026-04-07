@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -18,24 +19,31 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   create(data) {
-    this.lv1Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) - 100, "START LV1", () => {
+    this.lv1Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) - 100, "EASY", () => {
             this.scene.start('gameplay-scene',{ level:1 })
         });
-    this.lv2Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2), "START LV2", () => {
+    this.lv2Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2), "NORMAL", () => {
             this.scene.start('gameplay-scene',{ level:2 })
         });
-    this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"MAIN MENU",{
-            fontSize: '96px', fontStyle: 'bold'
-        }).setOrigin(0.5);
+      this.lv2Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) + 100, "HARD", () => {
+          this.scene.start('gameplay-scene',{ level:3 })
+      });
+
+    this.titleText = createThaiText(
+      this,
+      this.scale.width / 2,
+      this.scale.height / 2 - 250,
+      "Context Clues",
+      ThaiTextPresets.menuTitle,
+      { origin: 0.5 }
+    );
     this.titleText.setDepth(100);
 
   }
   createButton(x,y,text,onClick){
         const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});
         bg.setScale(1.5);
-        const label = this.add.text(x,y,text,{
-            fontSize: '28px', fontStyle: 'bold'
-        }).setOrigin(0.5);
+        const label = createThaiText(this, x, y, text, ThaiTextPresets.buttonLabel, { origin: 0.5 });
         label.setScale(1.5);
 
         bg.on('pointerdown',onClick);

@@ -1,6 +1,9 @@
 import StorageManager from "/src/core/storage-manager.js";
-import TemplatePanel from "../../../ui-elements/scripts/template-panel";
+import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
+import { createThaiText, ThaiTextPresets } from "../../../../../util/thai-text.js";
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
+import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -12,7 +15,7 @@ export default class GameplayUI extends Entity{
 
         // 1. SETTINGS FOR THE UI BAR
         const uiBarHeight = 100; // Adjust based on your 64px font
-        const padding = 20;      // Space from the edges
+        const padding = 0;      // Space from the edges
 
         // 2. DRAW THE BACKGROUND BAR
         // Arguments: x, y, width, height, color, alpha
@@ -23,23 +26,35 @@ export default class GameplayUI extends Entity{
         ).setOrigin(0, 0);
 
         this.scorePreText = "Score : ";
-        this.currentScore = scene.add.text(
+        this.currentScore = createThaiText(
+            scene,
             _LeftScreenAnchor + padding,
             _TopScreenAnchor + padding,
-            this.scorePreText + "0",
-            {fontSize: "64px"}
+            this.scorePreText + scene.allScore,
+            ThaiTextPresets.hud
         )
         this.livesPreText = "Level : ";                         
-        this.currentLives = scene.add.text(
+        this.currentLives = createThaiText(
+            scene,
             _RightScreenAnchor - padding,
             _TopScreenAnchor + padding,
             this.livesPreText + scene.level,
-            {fontSize: "64px"}
+            ThaiTextPresets.hud
         ).setOrigin(1,0);
 
-        this.TemplatePanel = new TemplatePanel(scene);
-        this.TemplatePanel.show();
+        this.TutorialPanel = new TutorialPanel(scene);
+        this.TutorialPanel.show();
+
+        this.NextQuizPanel = new NextQuizPanel(scene);
+
+        this.gameoverPanel = new GameOverPanel(scene);
     }
+
+    showNextQuizPanel(onNext){
+        this.NextQuizPanel.setNextAction(onNext);
+        this.NextQuizPanel.show();
+    }
+
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
     }
@@ -47,14 +62,23 @@ export default class GameplayUI extends Entity{
         this.currentLives.text = this.livesPreText + newLives;
     }
     setGameOverHighscore(score){
-        this.gameoverPanel.setHighscore(score);
+        const currentScore = StorageManager.get('LANG001-highscore');
+        console.log(`Current score: ${currentScore} | Set score: ${score}`);
+
+        if (score > currentScore)
+        {
+            StorageManager.save('LANG001-highscore', score);
+            this.gameoverPanel.setHighscore(score);
+        }
     }
     resetGameOverPanel(){
         this.gameoverPanel.reset();
     }
     showGameOverPanel(finalScore){
         this.gameoverPanel.setFinalScore(finalScore);
-        this.gameoverPanel.setHighscore(StorageManager.get('highscore'));
+        this.setGameOverHighscore(finalScore);
+        this.currentScore.text = this.scorePreText + finalScore;
+        this.gameoverPanel.setHighscore(StorageManager.get('LANG001-highscore'));
         this.gameoverPanel.show();
     }
 }
