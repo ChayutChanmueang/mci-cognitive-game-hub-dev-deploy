@@ -17,9 +17,7 @@ const DEFAULT_ANIMALS = Object.freeze([
     { id: "giraffe", icon: "🦒" },
     { id: "monkey", icon: "🐒" },
     { id: "zebra", icon: "🦓" },
-    { id: "panda", icon: "🐼" },
-    { id: "hippo", icon: "🦛" },
-    { id: "tiger", icon: "🐯" }
+    { id: "panda", icon: "🐼" }
 ]);
 
 export default class GameplayScene extends Phaser.Scene {
@@ -63,7 +61,14 @@ export default class GameplayScene extends Phaser.Scene {
         this.createFrame(sceneWidth, sceneHeight);
         const headerMetrics = this.createHeader(layoutConfig, data);
 
-        this.animalTray = new AnimalIconTray(this, 48, 0, {
+        this.animalTray = new AnimalIconTray(this, 48, 0,
+            (data) => {
+                console.log(`selected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
+            },
+            (data) => {
+                console.log(`unselected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
+            },
+            {
             width: sceneWidth - 96,
             maxItemsPerRow: data.maxAnimalsPerRow ?? 6,
             itemWidth: 132,

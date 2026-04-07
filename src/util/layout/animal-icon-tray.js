@@ -1,9 +1,12 @@
 import Phaser from "phaser";
 
 export default class AnimalIconTray extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, options = {}) {
+    constructor(scene, x, y, onSelected, onUnSelected, options = {}) {
         super(scene, x, y);
 
+        this.onSelected = onSelected;
+        this.onUnSelected = onUnSelected;
+        this.itemSelected = null;
         this.scene = scene;
         this.items = [];
         this.itemViews = [];
@@ -170,11 +173,19 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
 
                 itemContainer.setSize(itemWidth, itemHeight);
                 itemContainer.setInteractive(
-                    new Phaser.Geom.Rectangle(-(itemWidth / 2), -(itemHeight / 2), itemWidth, itemHeight),
+                    new Phaser.Geom.Rectangle(0, 0, itemWidth, itemHeight),
                     Phaser.Geom.Rectangle.Contains
                 );
                 itemContainer.on("pointerdown", () => {
                     this.emit("itemclick", item, index, itemContainer);
+                    const newData = { id: item.id, icon: item.icon, index: index };
+
+                    if (this.itemSelected != null && this.itemSelected.id !== newData.id){
+                        this.onUnSelected(this.itemSelected);
+                    }
+
+                    this.itemSelected = newData;
+                    this.onSelected(this.itemSelected);
                 });
 
                 this.add(itemContainer);
