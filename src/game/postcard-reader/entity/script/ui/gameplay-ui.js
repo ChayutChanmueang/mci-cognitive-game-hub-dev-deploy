@@ -1,4 +1,5 @@
 import StorageManager from "../../../../../core/storage-manager";
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
 import PostcardPanel from "../../../ui-elements/scripts/postcard-panel";
 import TemplatePanel from "../../../ui-elements/scripts/template-panel";
 import Entity from "../../entity";
@@ -17,29 +18,32 @@ export default class GameplayUI extends Entity{
 
         // 2. DRAW THE BACKGROUND BAR
         // Arguments: x, y, width, height, color, alpha
-        this.uiBackground = scene.add.rectangle(
-            0, 0, 
-            scene.scale.width, uiBarHeight, 
-            0x000000, 0.75
-        ).setOrigin(0, 0);
+        // this.uiBackground = scene.add.rectangle(
+        //     0, 0, 
+        //     scene.scale.width, uiBarHeight, 
+        //     0x000000, 0.75
+        // ).setOrigin(0, 0);
 
-        this.scorePreText = "Score : ";
-        this.currentScore = scene.add.text(
-            _LeftScreenAnchor + padding,
-            _TopScreenAnchor + padding,
-            this.scorePreText + "0",
-            {fontSize: "64px"}
-        )
-        this.livesPreText = "Level : ";                         
-        this.currentLives = scene.add.text(
-            _RightScreenAnchor - padding,
-            _TopScreenAnchor + padding,
-            this.livesPreText + scene.level,
-            {fontSize: "64px"}
-        ).setOrigin(1,0);
+        // this.scorePreText = "Score : ";
+        // this.currentScore = scene.add.text(
+        //     _LeftScreenAnchor + padding,
+        //     _TopScreenAnchor + padding,
+        //     this.scorePreText + "0",
+        //     {fontSize: "64px"}
+        // )
+        // this.livesPreText = "Level : ";                         
+        // this.currentLives = scene.add.text(
+        //     _RightScreenAnchor - padding,
+        //     _TopScreenAnchor + padding,
+        //     this.livesPreText + scene.level,
+        //     {fontSize: "64px"}
+        // ).setOrigin(1,0);
 
         //this.TemplatePanel = new TemplatePanel(scene);
         //this.TemplatePanel.show();
+
+        this.gameoverPanel = new GameOverPanel(scene);
+        this.gameoverPanel.forceHide();
 
         this.postcard = new PostcardPanel(scene);
         this.postcard.forceShow();

@@ -1,6 +1,7 @@
 import UIPage from "../core/ui-page";
 import {SampleConstants} from "../../constants";
 import ProgressBar from "../core/progress-bar";
+import { createThaiText } from "../../../../util/thai-text.js";
 export default class PostcardPanel extends UIPage{
     constructor(scene){
         super(scene,scene.scale.width/2,scene.scale.height/2,{
@@ -12,17 +13,39 @@ export default class PostcardPanel extends UIPage{
 
         //Relative to the main container
 
-        this.titleText = scene.add.text(0,0,scene.postcardText,{
-            fontSize: '48px', color:'#ffffff',fontStyle: 'bold'
-        }).setOrigin(0.5);
+        this.titleText = createThaiText(
+                    scene,
+                    0,
+                    0,
+                    scene.postcardText,
+                    {
+                        fontSize: "48px",
+                        fontStyle: "bold",
+                        color: "#ffffff"
+                    },
+                    { origin: 0.5, wrapWidth: 750 });
+        // scene.add.text(0,0,scene.postcardText,{
+        //     fontSize: '48px', color:'#ffffff',fontStyle: 'bold'
+        // }).setOrigin(0.5);
 
         this.timerBar = new ProgressBar(scene,0,-725,{width:800,height:50})
 
-        this.countdownString = "Remember in : ";
+        this.countdownString = "จำให้ได้ภายใน ";
 
-        this.countdownText = scene.add.text(-400,-875,this.countdownString,{
-            fontSize: '48px', color:'#ffffff',fontStyle: 'bold'
-        }).setOrigin(0,0);
+        this.countdownText = createThaiText(
+                    scene,
+                    -400,
+                    -875,
+                    this.countdownString,
+                    {
+                        fontSize: "48px",
+                        fontStyle: "bold",
+                        color: "#ffffff"
+                    },
+                    { origin: 0, wrapWidth: 750 });
+        // scene.add.text(-400,-875,this.countdownString,{
+        //     fontSize: '48px', color:'#ffffff',fontStyle: 'bold'
+        // }).setOrigin(0,0);
 
         this.addElements([this.titleText,this.timerBar.getContainer(),this.countdownText]);
 
