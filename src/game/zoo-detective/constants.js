@@ -52,6 +52,7 @@ export const LevelMap = Object.freeze({
     3: "hard"
 });
 
-export const SampleConstants = Object.freeze({
-    VARIABLE1: "Testing..."
+export const POPUP = Object.freeze({
+    POPUPTITLE: "สวนสัตว์นักสืบ",
+    POPUPTEXT: "ฝึกสมองด้วยปริศนาจัดบ้านสัตว์ สังเกตคำใบ้ แล้ววางสัตว์ให้ถูกที่!"
 })

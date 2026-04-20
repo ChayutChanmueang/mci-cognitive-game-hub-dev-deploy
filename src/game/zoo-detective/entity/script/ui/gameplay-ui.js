@@ -43,6 +43,8 @@ export default class GameplayUI extends Entity{
         ).setOrigin(1,0);
 
         this.TutorialPanel = new TutorialPanel(scene);
+        this.TutorialPanel.show();
+
         this.gameoverPanel = new GameOverPanel(scene);
         this.NextQuizPanel = new NextQuizPanel(scene);
     }
@@ -53,7 +55,14 @@ export default class GameplayUI extends Entity{
         this.currentLives.text = this.livesPreText + newLives;
     }
     setGameOverHighscore(score){
-        this.gameoverPanel.setHighscore(score);
+        const currentScore = StorageManager.get('EXEC001-highscore');
+        console.log(`Current score: ${currentScore} | Set score: ${score}`);
+
+        if (score > currentScore)
+        {
+            StorageManager.save('EXEC001-highscore', score);
+            this.gameoverPanel.setHighscore(score);
+        }
     }
     resetGameOverPanel(){
         this.gameoverPanel.reset();
@@ -65,8 +74,12 @@ export default class GameplayUI extends Entity{
     }
 
     showGameOverPanel(finalScore){
+        finalScore = finalScore <= 0 ? 0 : finalScore;
+
         this.gameoverPanel.setFinalScore(finalScore);
-        this.gameoverPanel.setHighscore(StorageManager.get('highscore'));
+        this.setGameOverHighscore(finalScore);
+        this.currentScore.text = this.scorePreText + finalScore;
+        this.gameoverPanel.setHighscore(StorageManager.get('EXEC001-highscore'));
         this.gameoverPanel.show();
     }
 }

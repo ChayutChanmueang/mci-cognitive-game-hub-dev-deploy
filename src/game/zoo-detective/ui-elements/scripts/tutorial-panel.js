@@ -1,5 +1,5 @@
 import UIPanel from "../core/ui-panel";
-import {SampleConstants} from "../../constants";
+import {POPUP} from "../../constants";
 import { createThaiText, ThaiTextPresets } from "../../../../util/thai-text.js";
 export default class TutorialPanel extends UIPanel{
     constructor(scene){
@@ -7,7 +7,7 @@ export default class TutorialPanel extends UIPanel{
 
         //Relative to the main container
 
-        this.titleText = createThaiText(scene, 0, -350, "POP UP PANEL", {
+        this.titleText = createThaiText(scene, 0, -350, POPUP.POPUPTITLE, {
             ...ThaiTextPresets.panelTitle,
             color:'#ff4444'
         }, { origin: 0.5 });
@@ -23,14 +23,7 @@ export default class TutorialPanel extends UIPanel{
         this.subContainer1 = scene.add.container(0,0);
         this.subContainer1Panel = scene.add.rectangle(0,0,600,450,0x222222,1);
         this.subContainer1Panel.setStrokeStyle(4,0xffffff);
-        this.subtitleText = createThaiText(scene, 0, -50, "YOUR TEXT HERE", {
-            ...ThaiTextPresets.panelTitle,
-            color:'#ff4444'
-        }, {
-            origin: 0.5,
-            wrapWidth: 520
-        });
-        this.subText = createThaiText(scene, 0, 50, SampleConstants.VARIABLE1, {
+        this.subText = createThaiText(scene, 0, 100, POPUP.POPUPTEXT, {
             ...ThaiTextPresets.panelBody,
             color:'#ffffff',
             align: 'center'
@@ -38,7 +31,17 @@ export default class TutorialPanel extends UIPanel{
             origin: 0.5,
             wrapWidth: 520
         });
-        this.subContainer1.add([this.subContainer1Panel,this.subtitleText,this.subText]);
+        this.emoji = createThaiText(scene, 0, -110, "🕵️‍♂️🦁", {
+            fontSize: "148px",
+            fontStyle: "bold",
+            color:'#ffffff',
+            align: 'center'
+        }, {
+            origin: 0.5,
+            wrapWidth: 680
+        });
+        this.emoji.setScale(1);
+        this.subContainer1.add([this.subContainer1Panel,this.subText,this.emoji]);
 
         this.addElements([this.titleText,...this.homeBtn,this.subContainer1]);
     }

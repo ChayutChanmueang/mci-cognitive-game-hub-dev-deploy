@@ -12,6 +12,8 @@ export default class GameplayScene extends Phaser.Scene {
     constructor() {
         super("gameplay-scene");
         this.level = 1;
+        this.allScore = 0;
+        this.roundScore = 0;
         this.puzzleData = null;
         this.puzzleGenerator = null;
         this.sceneData = {};
@@ -28,6 +30,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.lockedCellIndexes = new Set();
         this.lockedAnimalIds = new Set();
         this.onPuzzleCompleted = null;
+        this.onPlacementEvaluated = null;
         this.progressBarRefs = [];
     }
 
@@ -50,6 +53,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.puzzleData = null;
         this.round = 0;
         this.progressBarRefs = [];
+        this.onPlacementEvaluated = data.onPlacementEvaluated ?? null;
     }
 
     create(data) {
@@ -57,6 +61,13 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.onPuzzleCompleted = ()=>{
             this.round++;
+            const addScore = Config.IncreaseScore[this.levelMap] + this.roundScore;
+            this.allScore += (addScore >= 0 ? addScore : 0);
+            this.roundScore = 0;
+
+            this.gameplayUI.setScore(this.allScore);
+
+            console.log(`allScore : ${this.allScore}`)
 
             if (this.round < Config.MaxRound[this.levelMap]) {
                 this.progressBarRefs[this.round].animateTo(1, 500)
@@ -68,8 +79,27 @@ export default class GameplayScene extends Phaser.Scene {
                     })
                 });
             }else{
-                this.gameplayUI.setScore(0);
-                this.gameplayUI.showGameOverPanel(0);
+                this.gameplayUI.setScore(this.allScore);
+                this.gameplayUI.showGameOverPanel(this.allScore);
+            }
+        };
+
+        this.onPlacementEvaluated = (callback = {isCorrect: isCorrectForCurrentHint,
+                 cellIndex,
+                 animal,
+                 previousCellIndex,
+                 currentHintIndex: this.currentHintIndex,
+                 currentHint,
+                 placements: [...this.currentPlacements],
+                 lockedCellIndexes: [...this.lockedCellIndexes],
+                 lockedAnimalIds: [...this.lockedAnimalIds],
+                 puzzleData: this.puzzleData,
+                 level: this.level,
+                 scene: this
+             })=>{
+
+            if (!callback.isCorrect) {
+                this.roundScore -= Config.DecreaseScore[this.levelMap];
             }
         };
 
@@ -240,7 +270,30 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.currentPlacements[cell.index] = this.selectedAnimal;
         this.renderAnimalInCell(cell, this.selectedAnimal);
+        this.emitPlacementEvaluation(cell.index, this.selectedAnimal, previousCellIndex);
         this.evaluateHintProgression();
+    }
+
+    emitPlacementEvaluation(cellIndex, animal, previousCellIndex = -1) {
+        const currentHint = this.puzzleData?.hints?.[this.currentHintIndex] ?? null;
+        const isCorrectForCurrentHint = currentHint
+            ? this.puzzleGenerator?.isHintSatisfied?.(currentHint, this.currentPlacements) ?? false
+            : false;
+
+        this.onPlacementEvaluated?.({
+            isCorrect: isCorrectForCurrentHint,
+            cellIndex,
+            animal,
+            previousCellIndex,
+            currentHintIndex: this.currentHintIndex,
+            currentHint,
+            placements: [...this.currentPlacements],
+            lockedCellIndexes: [...this.lockedCellIndexes],
+            lockedAnimalIds: [...this.lockedAnimalIds],
+            puzzleData: this.puzzleData,
+            level: this.level,
+            scene: this
+        });
     }
 
     findPlacementIndexByAnimalId(animalId) {
@@ -558,6 +611,39 @@ export default class GameplayScene extends Phaser.Scene {
         panel.strokeRoundedRect(x, y, width, height, radius);
 
         return panel;
+    }
+
+    increaseScore(score){
+        this.allScore += score;
+    }
+
+    decreaseScore(score){
+        this.allScore -= score;
+
+        const scorePenaltyText = createThaiText(
+            this,
+            this.scale.width / 2,
+            this.scale.height / 2 - 250,
+            `-${score}`,
+            {
+                fontSize: "48px",
+                fontStyle: "bold",
+                color: "#ff4d4d"
+            },
+            { origin: 0.5 }
+        );
+        scorePenaltyText.setDepth(200);
+
+        this.tweens.add({
+            targets: scorePenaltyText,
+            y: scorePenaltyText.y - 40,
+            alpha: 0,
+            duration: 700,
+            ease: "Sine.easeOut",
+            onComplete: () => {
+                scorePenaltyText.destroy();
+            }
+        });
     }
 
     createButton(x, y, text, onClick) {
