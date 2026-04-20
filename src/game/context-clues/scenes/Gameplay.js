@@ -4,7 +4,7 @@ import RandomQuiz from "../components/scripts/random-quiz.js";
 import {LevelMap, Config, QuizUI_Setting} from "../constants.js";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import Quiz from "../entity/script/quiz.js";
-import ProgressBar from "../utils/progress-bar.js";
+import ProgressBar from "../../../util/layout/progress-bar.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
 
 export default class GameplayScene extends Phaser.Scene {

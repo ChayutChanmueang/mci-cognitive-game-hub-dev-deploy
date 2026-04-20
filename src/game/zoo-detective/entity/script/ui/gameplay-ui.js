@@ -1,9 +1,9 @@
-import StorageManager from "/src/core/storage-manager.js";
+import StorageManager from "../../../../../core/storage-manager";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
 import { createThaiText, ThaiTextPresets } from "../../../../../util/thai-text.js";
-import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
+import GameOverPanel from "../../../../context-clues/ui-elements/scripts/gameover-panel.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -30,7 +30,7 @@ export default class GameplayUI extends Entity{
             scene,
             _LeftScreenAnchor + padding,
             _TopScreenAnchor + padding,
-            this.scorePreText + scene.allScore,
+            this.scorePreText + "0",
             ThaiTextPresets.hud
         )
         this.livesPreText = "Level : ";                         
@@ -43,18 +43,9 @@ export default class GameplayUI extends Entity{
         ).setOrigin(1,0);
 
         this.TutorialPanel = new TutorialPanel(scene);
-        this.TutorialPanel.show();
-
-        this.NextQuizPanel = new NextQuizPanel(scene);
-
         this.gameoverPanel = new GameOverPanel(scene);
+        this.NextQuizPanel = new NextQuizPanel(scene);
     }
-
-    showNextQuizPanel(onNext){
-        this.NextQuizPanel.setNextAction(onNext);
-        this.NextQuizPanel.show();
-    }
-
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
     }
@@ -62,25 +53,20 @@ export default class GameplayUI extends Entity{
         this.currentLives.text = this.livesPreText + newLives;
     }
     setGameOverHighscore(score){
-        const currentScore = StorageManager.get('LANG001-highscore');
-        console.log(`Current score: ${currentScore} | Set score: ${score}`);
-
-        if (score > currentScore)
-        {
-            StorageManager.save('LANG001-highscore', score);
-            this.gameoverPanel.setHighscore(score);
-        }
+        this.gameoverPanel.setHighscore(score);
     }
     resetGameOverPanel(){
         this.gameoverPanel.reset();
     }
-    showGameOverPanel(finalScore){
-        finalScore = finalScore <= 0 ? 0 : finalScore;
 
+    showNextQuizPanel(onNext){
+        this.NextQuizPanel.setNextAction(onNext);
+        this.NextQuizPanel.show();
+    }
+
+    showGameOverPanel(finalScore){
         this.gameoverPanel.setFinalScore(finalScore);
-        this.setGameOverHighscore(finalScore);
-        this.currentScore.text = this.scorePreText + finalScore;
-        this.gameoverPanel.setHighscore(StorageManager.get('LANG001-highscore'));
+        this.gameoverPanel.setHighscore(StorageManager.get('highscore'));
         this.gameoverPanel.show();
     }
 }
