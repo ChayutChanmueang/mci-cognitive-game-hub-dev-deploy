@@ -23,6 +23,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.answerButtonBounds = null;
         this.round = 0;
         this.selectedAnimal = null;
+        this.currentHintIndex = 0;
         this.currentPlacements = [];
         this.lockedCellIndexes = new Set();
         this.lockedAnimalIds = new Set();
@@ -128,7 +129,8 @@ export default class GameplayScene extends Phaser.Scene {
     loadNextPuzzle() {
         this.puzzleData = this.createPuzzleData(this.sceneData);
         this.renderPuzzle();
-        this.hintViewer?.showNextHint();
+        this.currentHintIndex = 0;
+        this.syncHintViewer();
     }
 
     renderPuzzle() {
@@ -138,6 +140,7 @@ export default class GameplayScene extends Phaser.Scene {
         const animals = this.puzzleData.availableAnimals;
 
         this.selectedAnimal = null;
+        this.currentHintIndex = 0;
         this.currentPlacements = Array(this.puzzleData.totalSlots).fill(null);
         this.lockedCellIndexes.clear();
         this.lockedAnimalIds.clear();
@@ -227,41 +230,17 @@ export default class GameplayScene extends Phaser.Scene {
         const previousCellIndex = this.findPlacementIndexByAnimalId(this.selectedAnimal.id);
         const occupyingAnimal = this.currentPlacements[cell.index];
 
-        if (occupyingAnimal && occupyingAnimal.id !== this.selectedAnimal.id && !this.lockedCellIndexes.has(cell.index)) {
+        if (occupyingAnimal && occupyingAnimal.id !== this.selectedAnimal.id) {
             this.currentPlacements[cell.index] = null;
         }
 
-        if (previousCellIndex >= 0 && previousCellIndex !== cell.index && !this.lockedCellIndexes.has(previousCellIndex)) {
+        if (previousCellIndex >= 0 && previousCellIndex !== cell.index) {
             this.clearCellPlacement(previousCellIndex);
         }
 
         this.currentPlacements[cell.index] = this.selectedAnimal;
         this.renderAnimalInCell(cell, this.selectedAnimal);
-
-        const expectedAnimal = this.puzzleData.solution[cell.index];
-        const isCorrect = this.puzzleGenerator?.checkAnswer([expectedAnimal], [this.selectedAnimal]) ?? false;
-
-        if (!isCorrect) {
-            this.setCellState(cell, "default");
-            return;
-        }
-
-        this.lockedCellIndexes.add(cell.index);
-        this.lockedAnimalIds.add(this.selectedAnimal.id);
-        this.setCellState(cell, "locked");
-        cell.container.disableInteractive();
-        this.disableAnimalTrayItem(this.selectedAnimal.id);
-        this.selectedAnimal = null;
-        this.animalTray.setSelectedItem(null);
-        this.tryCompletePuzzle();
-
-        if (this.hintViewer) {
-            const nextHint = this.hintViewer.showNextHint();
-
-            if (nextHint !== null) {
-                return;
-            }
-        }
+        this.evaluateHintProgression();
     }
 
     findPlacementIndexByAnimalId(animalId) {
@@ -307,6 +286,111 @@ export default class GameplayScene extends Phaser.Scene {
         cell.background.strokeRoundedRect(0, 0, cell.size, cell.size, 28);
     }
 
+    resetGridStates() {
+        for (const cell of this.gridBoard?.getCells() ?? []) {
+            this.setCellState(cell, "default");
+        }
+    }
+
+    applyConfirmedLocks(confirmedCellIndexes) {
+        for (const cell of this.gridBoard?.getCells() ?? []) {
+            if (confirmedCellIndexes.has(cell.index)) {
+                cell.container.disableInteractive();
+                continue;
+            }
+
+            if (!cell.container.input) {
+                cell.container.setInteractive(
+                    new Phaser.Geom.Rectangle(cell.size / 2, cell.size / 2, cell.size, cell.size),
+                    Phaser.Geom.Rectangle.Contains
+                );
+            }
+        }
+
+        for (const itemView of this.animalTray?.getItemViews() ?? []) {
+            const isLocked = this.lockedAnimalIds.has(itemView.item.id);
+
+            if (isLocked) {
+                itemView.container.disableInteractive();
+                itemView.container.setAlpha(0.4);
+                continue;
+            }
+
+            if (!itemView.container.input) {
+                itemView.container.setInteractive(
+                    new Phaser.Geom.Rectangle(0, 0, this.animalTray.options.itemWidth, this.animalTray.options.itemHeight),
+                    Phaser.Geom.Rectangle.Contains
+                );
+            }
+            itemView.container.setAlpha(1);
+        }
+
+        if (this.selectedAnimal && this.lockedAnimalIds.has(this.selectedAnimal.id)) {
+            this.selectedAnimal = null;
+            this.animalTray?.setSelectedItem(null);
+        }
+    }
+
+    evaluateHintProgression() {
+        const hints = this.puzzleData?.hints ?? [];
+        const confirmedCellIndexes = new Set();
+        let nextHintIndex = 0;
+
+        this.resetGridStates();
+
+        while (nextHintIndex < hints.length) {
+            const hint = hints[nextHintIndex];
+            const isSatisfied = this.puzzleGenerator?.isHintSatisfied?.(hint, this.currentPlacements) ?? false;
+
+            if (!isSatisfied) {
+                break;
+            }
+
+            for (const cellIndex of this.puzzleGenerator?.getHintRelatedIndexes?.(hint) ?? []) {
+                confirmedCellIndexes.add(cellIndex);
+            }
+
+            nextHintIndex += 1;
+        }
+
+        this.lockedCellIndexes = confirmedCellIndexes;
+        this.lockedAnimalIds = new Set(
+            [...confirmedCellIndexes]
+                .map((cellIndex) => this.currentPlacements[cellIndex]?.id)
+                .filter(Boolean)
+        );
+
+        for (const cellIndex of confirmedCellIndexes) {
+            const confirmedCell = this.gridBoard?.getCell(cellIndex);
+
+            if (confirmedCell) {
+                this.setCellState(confirmedCell, "locked");
+            }
+        }
+
+        this.applyConfirmedLocks(confirmedCellIndexes);
+
+        this.currentHintIndex = nextHintIndex;
+        this.syncHintViewer();
+
+        if (nextHintIndex >= hints.length) {
+            this.tryCompletePuzzle();
+        }
+    }
+
+    syncHintViewer() {
+        if (!this.hintViewer) {
+            return;
+        }
+
+        if (this.currentHintIndex >= (this.puzzleData?.hints?.length ?? 0)) {
+            this.hintViewer.reset(-1);
+            return;
+        }
+
+        this.hintViewer.reset(this.currentHintIndex);
+    }
+
     disableAnimalTrayItem(animalId) {
         const itemView = this.animalTray?.getItemViews().find((view) => view.item.id === animalId);
 
@@ -319,7 +403,7 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     tryCompletePuzzle() {
-        const isComplete = this.lockedCellIndexes.size === this.puzzleData.totalSlots;
+        const isComplete = this.currentHintIndex >= (this.puzzleData?.hints?.length ?? 0);
 
         if (!isComplete) {
             return false;

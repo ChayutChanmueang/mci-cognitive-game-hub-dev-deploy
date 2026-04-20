@@ -57,6 +57,44 @@ export default class RandomPuzzle{
         });
     }
 
+    isHintSatisfied(hint, placements){
+        if(!hint || !Array.isArray(placements)){
+            return false;
+        }
+
+        if(hint.type === "anchor"){
+            return this.checkAnswer(
+                [hint.animal],
+                [placements[hint.targetIndex]]
+            );
+        }
+
+        if(hint.type === "relation"){
+            return this.checkAnswer(
+                [hint.referenceAnimal, hint.animal],
+                [placements[hint.sourceIndex], placements[hint.targetIndex]]
+            );
+        }
+
+        return false;
+    }
+
+    getHintRelatedIndexes(hint){
+        if(!hint){
+            return [];
+        }
+
+        if(hint.type === "anchor"){
+            return [hint.targetIndex];
+        }
+
+        if(hint.type === "relation"){
+            return [hint.sourceIndex, hint.targetIndex];
+        }
+
+        return [];
+    }
+
     getAnimalLabel(animal){
         if(typeof animal === "string"){
             return animal;
