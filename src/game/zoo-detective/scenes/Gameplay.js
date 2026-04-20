@@ -4,7 +4,9 @@ import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import { AnimalIconTray, SquareGridLayout } from "../../../util/layout/index.js";
 import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
-import { DefaultAnimals, GameplayConfig, PuzzleLevelConfig } from "../constants.js";
+import { DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
+import {Config} from "../../zoo-detective/constants.js";
+import ProgressBar from "../../../util/layout/progress-bar.js";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -19,11 +21,13 @@ export default class GameplayScene extends Phaser.Scene {
         this.animalTray = null;
         this.gridBoard = null;
         this.answerButtonBounds = null;
+        this.round = 0;
         this.selectedAnimal = null;
         this.currentPlacements = [];
         this.lockedCellIndexes = new Set();
         this.lockedAnimalIds = new Set();
         this.onPuzzleCompleted = null;
+        this.progressBarRefs = [];
     }
 
     preload() {
@@ -41,24 +45,60 @@ export default class GameplayScene extends Phaser.Scene {
     init(data) {
         this.sceneData = { ...data };
         this.level = data.level ?? 1;
+        this.levelMap = LevelMap[this.level] ?? "easy";
         this.puzzleData = null;
+        this.round = 0;
+        this.progressBarRefs = [];
     }
 
     create(data) {
         this.gameplayUI = new GameplayUI(this, 0, 0);
 
         this.onPuzzleCompleted = ()=>{
-            this.time.delayedCall(500, () => {
-                this.gameplayUI.showNextQuizPanel(() => {
-                    // Create New Puzzle
-                    this.loadNextPuzzle();
-                })
-            });
+            this.round++;
+
+            if (this.round < Config.MaxRound[this.levelMap]) {
+                this.progressBarRefs[this.round].animateTo(1, 500)
+
+                this.time.delayedCall(500, () => {
+                    this.gameplayUI.showNextQuizPanel(() => {
+                        // Create New Puzzle
+                        this.loadNextPuzzle();
+                    })
+                });
+            }else{
+                this.gameplayUI.setScore(0);
+                this.gameplayUI.showGameOverPanel(0);
+            }
         };
 
         this.returnBtn = this.createButton(this.scale.width / 2 - 250, this.scale.height - 150, "RETURN", () => {
             this.scene.start("main-menu-scene", { conveyerNums: 1 });
         });
+
+        let dotProgressBars = [];
+        for (let i = 0; i < Config.MaxRound[this.levelMap]; i++) {
+            const bar = new ProgressBar(this, 0, 0, {
+                width: 50,
+                height: 50
+            });
+
+            bar.setValue(0);
+
+            this.progressBarRefs.push(bar);
+            dotProgressBars.push(bar.getContainer());
+        }
+
+        Phaser.Actions.GridAlign(dotProgressBars, {
+            width: 10,
+            cellWidth: 60,
+            cellHeight: 5,
+            x: this.scale.width / 2 - 275,
+            y: 140,
+            position: Phaser.Display.Align.TOP_LEFT
+        });
+
+        this.progressBarRefs[this.round]?.animateTo(1, 500);
 
         this.returnBtn[0].setDepth(100);
 
@@ -155,7 +195,7 @@ export default class GameplayScene extends Phaser.Scene {
             width: boardWidth,
             height: boardHeight,
             gap: 26,
-            padding: 10,
+            padding: 50,
             cellRadius: 28,
             cellFillColor: 0xe4ebf3,
             cellStrokeColor: 0x5b6c81,
@@ -300,15 +340,15 @@ export default class GameplayScene extends Phaser.Scene {
 
         outer.fillStyle(0xf7f2e6, 1);
         outer.lineStyle(10, 0x475466, 1);
-        outer.fillRoundedRect(12, 112, sceneWidth - 24, sceneHeight - 24, 42);
-        outer.strokeRoundedRect(12, 112, sceneWidth - 24, sceneHeight - 24, 42);
+        outer.fillRoundedRect(12, 186, sceneWidth - 24, sceneHeight - 150, 42);
+        outer.strokeRoundedRect(12, 186, sceneWidth - 24, sceneHeight - 150, 42);
 
         return outer;
     }
 
     createHeader(layoutConfig, data) {
         const left = 52;
-        const top = 136;
+        const top = 222;
         const chipWidth = 240;
         const chipHeight = 112;
         const gap = 22;
@@ -371,7 +411,7 @@ export default class GameplayScene extends Phaser.Scene {
         const promptText = createThaiText(
             this,
             this.scale.width / 2,
-            310,
+            top + chipHeight + 60,
             `${GameplayConfig.defaultPromptFallback}`,
             {
                 fontSize: "42px",
@@ -381,7 +421,7 @@ export default class GameplayScene extends Phaser.Scene {
             { origin: [0.5, 0.5] }
         );
 
-        this.headerElements = [stagePanel, headerIcon, stageText];
+        this.headerElements = [stagePanel, headerIcon, stageText, promptText];
 
         return {
             bottom: top + Math.max(chipHeight, this.hintViewer.height)

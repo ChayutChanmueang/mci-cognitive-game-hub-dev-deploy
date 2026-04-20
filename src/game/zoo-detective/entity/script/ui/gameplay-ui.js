@@ -3,6 +3,7 @@ import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
 import { createThaiText, ThaiTextPresets } from "../../../../../util/thai-text.js";
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
+import GameOverPanel from "../../../../context-clues/ui-elements/scripts/gameover-panel.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -42,7 +43,7 @@ export default class GameplayUI extends Entity{
         ).setOrigin(1,0);
 
         this.TutorialPanel = new TutorialPanel(scene);
-
+        this.gameoverPanel = new GameOverPanel(scene);
         this.NextQuizPanel = new NextQuizPanel(scene);
     }
     setScore(newScore){

@@ -1,8 +1,20 @@
-export const FoodTypes = Object.freeze({
-    VEGETABLE: 'Vegetable',
-    MEAT: 'Meat',
-    JUNK: 'Junk'
-});
+export const Config = Object.freeze({
+    IncreaseScore: {
+        easy: 15,
+        medium: 16,
+        hard: 17,
+    },
+    DecreaseScore: {
+        easy: 5,
+        medium: 6,
+        hard: 7,
+    },
+    MaxRound: {
+        easy: 10,
+        medium: 10,
+        hard: 10,
+    }
+})
 
 export const PuzzleLevelConfig = Object.freeze({
     1: Object.freeze({ rows: 2, columns: 2, name: "Easy" }),
