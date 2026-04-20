@@ -1,0 +1,57 @@
+import UIPanel from "../core/ui-panel.js";
+import { createThaiText, ThaiTextPresets } from "../../../../util/thai-text.js";
+export default class NextQuizPanel extends UIPanel{
+    constructor(scene){
+        super(scene,scene.scale.width/2,scene.scale.height/2,800,1000);
+
+        //Relative to the main container
+        this.onNextAction = () => {};
+
+        this.titleText = createThaiText(scene, 0, -350, "คุณตอบถูก เก่งมาก!", {
+            ...ThaiTextPresets.panelTitle,
+            color:'#ff4444'
+        }, { origin: 0.5 });
+        this.titleText.setScale(1.5);
+
+        this.homeBtn = this.createButton(0,350, "ต่อไป", () => {
+            this.onNextAction();
+            this.hide();
+        });
+
+        //Relative to the sub container 1
+        this.subContainer1 = scene.add.container(0,0);
+        this.subContainer1Panel = scene.add.rectangle(0,0,600,450,0x222222,1);
+        this.subContainer1Panel.setStrokeStyle(4,0xffffff);
+
+        this.subText = createThaiText(scene, 0, -25, "🤗", {
+            fontSize: "256px",
+            fontStyle: "bold",
+            color:'#ffffff',
+            align: 'center'
+        }, {
+            origin: 0.5,
+            wrapWidth: 680
+        });
+        this.subText.setScale(1);
+        this.subContainer1.add([this.subContainer1Panel,this.subText]);
+        this.addElements([this.titleText,...this.homeBtn,this.subContainer1]);
+    }
+
+    setNextAction(onNextAction){
+        this.onNextAction = onNextAction;
+    }
+
+    createButton(x,y,text,onClick){
+        const bg = this.scene.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});
+        bg.setScale(1.5);
+        const label = createThaiText(this.scene, x, y, text, ThaiTextPresets.buttonLabel, { origin: 0.5 });
+        label.setScale(1.5);
+
+        bg.on('pointerdown',onClick);
+
+        bg.on('pointerover', () => bg.setFillStyle(0x00ff00));
+        bg.on('pointerout', () => bg.setFillStyle(0x00aa00));
+
+        return [bg,label];
+    }
+}

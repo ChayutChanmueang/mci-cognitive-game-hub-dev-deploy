@@ -29,9 +29,9 @@ export const DefaultAnimals = Object.freeze([
 ]);
 
 export const GameplayConfig = Object.freeze({
-    stageLabel: "ลำดับ",
+    stageLabel: "เลเวล",
     promptJoiner: "\n",
-    defaultPromptFallback: "วางสัตว์ตามคำใบ้"
+    defaultPromptFallback: "วางสัตว์ตามคำใบ้ลงไปในช่องด้านล่าง"
 });
 
 export const LevelMap = Object.freeze({

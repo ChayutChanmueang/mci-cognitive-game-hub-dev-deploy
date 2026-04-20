@@ -23,6 +23,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.currentPlacements = [];
         this.lockedCellIndexes = new Set();
         this.lockedAnimalIds = new Set();
+        this.onPuzzleCompleted = null;
     }
 
     preload() {
@@ -46,24 +47,20 @@ export default class GameplayScene extends Phaser.Scene {
     create(data) {
         this.gameplayUI = new GameplayUI(this, 0, 0);
 
+        this.onPuzzleCompleted = ()=>{
+            this.time.delayedCall(500, () => {
+                this.gameplayUI.showNextQuizPanel(() => {
+                    // Create New Puzzle
+                    this.loadNextPuzzle();
+                })
+            });
+        };
+
         this.returnBtn = this.createButton(this.scale.width / 2 - 250, this.scale.height - 150, "RETURN", () => {
             this.scene.start("main-menu-scene", { conveyerNums: 1 });
         });
 
-        this.nextBtn = this.createButton(this.scale.width / 2 + 250, this.scale.height - 150, "NEXT", () => {
-            if (this.hintViewer) {
-                const nextHint = this.hintViewer.showNextHint();
-
-                if (nextHint !== null) {
-                    return;
-                }
-            }
-
-            this.loadNextPuzzle();
-        });
-
         this.returnBtn[0].setDepth(100);
-        this.nextBtn[0].setDepth(100);
 
         this.loadNextPuzzle();
     }
@@ -82,18 +79,10 @@ export default class GameplayScene extends Phaser.Scene {
         return {
             rows: data.gridRows ?? puzzle.rows,
             columns: data.gridColumns ?? puzzle.columns,
-            prompt: data.prompt ?? this.buildPromptText(puzzle),
+            prompt: data.prompt,
             stageLabel: data.stageLabel ?? GameplayConfig.stageLabel,
             stageValue: data.stageValue ?? this.level
         };
-    }
-
-    buildPromptText(puzzle) {
-        if (puzzle?.hintTexts?.length) {
-            return puzzle.hintTexts.join(GameplayConfig.promptJoiner);
-        }
-
-        return GameplayConfig.defaultPromptFallback;
     }
 
     loadNextPuzzle() {
@@ -224,6 +213,15 @@ export default class GameplayScene extends Phaser.Scene {
         this.disableAnimalTrayItem(this.selectedAnimal.id);
         this.selectedAnimal = null;
         this.animalTray.setSelectedItem(null);
+        this.tryCompletePuzzle();
+
+        if (this.hintViewer) {
+            const nextHint = this.hintViewer.showNextHint();
+
+            if (nextHint !== null) {
+                return;
+            }
+        }
     }
 
     findPlacementIndexByAnimalId(animalId) {
@@ -278,6 +276,23 @@ export default class GameplayScene extends Phaser.Scene {
 
         itemView.container.disableInteractive();
         itemView.container.setAlpha(0.4);
+    }
+
+    tryCompletePuzzle() {
+        const isComplete = this.lockedCellIndexes.size === this.puzzleData.totalSlots;
+
+        if (!isComplete) {
+            return false;
+        }
+
+        this.onPuzzleCompleted?.({
+            level: this.level,
+            puzzleData: this.puzzleData,
+            placements: [...this.currentPlacements],
+            lockedCellIndexes: [...this.lockedCellIndexes]
+        });
+
+        return true;
     }
 
     createFrame(sceneWidth, sceneHeight) {
@@ -351,6 +366,19 @@ export default class GameplayScene extends Phaser.Scene {
                 color: "#3f5165"
             },
             { origin: [0, 0.5] }
+        );
+
+        const promptText = createThaiText(
+            this,
+            this.scale.width / 2,
+            310,
+            `${GameplayConfig.defaultPromptFallback}`,
+            {
+                fontSize: "42px",
+                fontStyle: "bold",
+                color: "#3f5165"
+            },
+            { origin: [0.5, 0.5] }
         );
 
         this.headerElements = [stagePanel, headerIcon, stageText];
