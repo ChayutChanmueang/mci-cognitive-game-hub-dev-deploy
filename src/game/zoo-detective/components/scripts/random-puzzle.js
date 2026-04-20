@@ -1,20 +1,8 @@
-const DEFAULT_LEVEL_CONFIG = Object.freeze({
-    1: Object.freeze({ rows: 1, columns: 3, name: "Easy" }),
-    2: Object.freeze({ rows: 2, columns: 2, name: "Medium" }),
-    3: Object.freeze({ rows: 2, columns: 3, name: "Hard" })
-});
-
-const DEFAULT_ANIMALS = Object.freeze([
-    "🦁", "🐘", "🦒", "🐒", "🦓",
-    "🐯", "🦛", "🐼", "🦊", "🐨",
-    "🐮", "🐷", "🐸", "🐔", "🐧"
-]);
-
 export default class RandomPuzzle{
-    constructor(level, options = {}){
+    constructor(level, levelConfig, animals, options = {}){
         this.level = level;
-        this.levelConfig = options.levelConfig ?? DEFAULT_LEVEL_CONFIG;
-        this.animals = options.animals ?? DEFAULT_ANIMALS;
+        this.levelConfig = levelConfig;
+        this.animals = animals;
         this.random = options.random ?? Math.random;
 
         const config = this.levelConfig[level];
@@ -54,6 +42,14 @@ export default class RandomPuzzle{
         };
     }
 
+    getAnimalLabel(animal){
+        if(typeof animal === "string"){
+            return animal;
+        }
+
+        return animal?.icon ?? animal?.label ?? animal?.id ?? "?";
+    }
+
     generateHints(solution){
         const totalSlots = solution.length;
         const visited = new Set();
@@ -66,7 +62,7 @@ export default class RandomPuzzle{
             targetIndex: rootIndex,
             animal: solution[rootIndex],
             position: this.getPositionName(rootIndex),
-            text: `${solution[rootIndex]} อยู่ที่ ${this.getPositionName(rootIndex)}`
+            text: `${this.getAnimalLabel(solution[rootIndex])} อยู่ที่ ${this.getPositionName(rootIndex)}`
         });
 
         while(visited.size < totalSlots - 1){
@@ -179,14 +175,16 @@ export default class RandomPuzzle{
     }
 
     getRelationPhrase(direction, animal, referenceAnimal){
+        const animalLabel = this.getAnimalLabel(animal);
+        const referenceLabel = this.getAnimalLabel(referenceAnimal);
         const phrases = {
-            up: `${animal} อยู่บน ${referenceAnimal}`,
-            down: `${animal} อยู่ล่าง ${referenceAnimal}`,
-            left: `${animal} อยู่ซ้ายของ ${referenceAnimal}`,
-            right: `${animal} อยู่ขวาของ ${referenceAnimal}`
+            up: `${animalLabel} อยู่บน ${referenceLabel}`,
+            down: `${animalLabel} อยู่ล่าง ${referenceLabel}`,
+            left: `${animalLabel} อยู่ซ้ายของ ${referenceLabel}`,
+            right: `${animalLabel} อยู่ขวาของ ${referenceLabel}`
         };
 
-        return phrases[direction] ?? `${animal} อยู่ใกล้ ${referenceAnimal}`;
+        return phrases[direction] ?? `${animalLabel} อยู่ใกล้ ${referenceLabel}`;
     }
 
     shuffle(items){

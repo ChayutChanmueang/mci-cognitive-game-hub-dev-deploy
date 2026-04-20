@@ -2,27 +2,13 @@ import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import {createThaiText, ThaiTextPresets} from "../../../util/thai-text.js";
 import { AnimalIconTray, SquareGridLayout } from "../../../util/layout/index.js";
-import {LevelMap} from "../../context-clues/constants.js";
-import RandomQuiz from "../../context-clues/components/scripts/random-quiz.js";
-
-const GRID_PRESETS = Object.freeze({
-    1: { rows: 2, columns: 2 },
-    2: { rows: 2, columns: 3 },
-    3: { rows: 3, columns: 3 }
-});
-
-const DEFAULT_ANIMALS = Object.freeze([
-    { id: "lion", icon: "🦁" },
-    { id: "elephant", icon: "🐘" },
-    { id: "giraffe", icon: "🦒" },
-    { id: "monkey", icon: "🐒" },
-    { id: "zebra", icon: "🦓" },
-    { id: "panda", icon: "🐼" }
-]);
+import RandomPuzzle from "../components/scripts/random-puzzle.js";
+import { DefaultAnimals, GameplayConfig, PuzzleLevelConfig } from "../constants.js";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
         super("gameplay-scene");
+        this.puzzleData = null;
     }
 
     preload() {
@@ -38,10 +24,12 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     init(data) {
-        this.level = data.level;
+        this.level = data.level ?? 1;
+        this.puzzleData = null;
     }
 
     create(data) {
+        this.puzzleData = this.createPuzzleData(data);
         this.gameplayUI = new GameplayUI(this, 0, 0);
 
         this.returnBtn = this.createButton(this.scale.width/2 - 250,(this.scale.height) - 150, "RETURN", () => {
@@ -54,9 +42,8 @@ export default class GameplayScene extends Phaser.Scene {
 
         const sceneWidth = this.scale.width;
         const sceneHeight = this.scale.height;
-        this.level = data.level ?? 1;
         const layoutConfig = this.resolveLayoutConfig(data);
-        const animals = data.animalChoices ?? DEFAULT_ANIMALS;
+        const animals = this.puzzleData.availableAnimals;
 
         this.createFrame(sceneWidth, sceneHeight);
         const headerMetrics = this.createHeader(layoutConfig, data);
@@ -108,16 +95,32 @@ export default class GameplayScene extends Phaser.Scene {
         this.answerButtonBounds = this.animalTray.getFooterBounds(true);
     }
 
+    createPuzzleData(data) {
+        const animalChoices = data.animalChoices ?? DefaultAnimals;
+        const levelConfig = data.levelConfig ?? PuzzleLevelConfig;
+        const puzzleGenerator = new RandomPuzzle(this.level, levelConfig, animalChoices);
+
+        return puzzleGenerator.getPuzzle();
+    }
+
     resolveLayoutConfig(data) {
-        const preset = GRID_PRESETS[data.level] ?? GRID_PRESETS[1];
+        const puzzle = this.puzzleData ?? this.createPuzzleData(data);
 
         return {
-            rows: data.gridRows ?? preset.rows,
-            columns: data.gridColumns ?? preset.columns,
-            prompt: data.prompt ?? "1. อยู่ที่ซ้ายล่าง",
-            stageLabel: data.stageLabel ?? "ลำดับ",
+            rows: data.gridRows ?? puzzle.rows,
+            columns: data.gridColumns ?? puzzle.columns,
+            prompt: data.prompt ?? this.buildPromptText(puzzle),
+            stageLabel: data.stageLabel ?? GameplayConfig.stageLabel,
             stageValue: data.stageValue ?? this.level
         };
+    }
+
+    buildPromptText(puzzle) {
+        if (puzzle?.hintTexts?.length) {
+            return puzzle.hintTexts.join(GameplayConfig.promptJoiner);
+        }
+
+        return GameplayConfig.defaultPromptFallback;
     }
 
     createFrame(sceneWidth, sceneHeight) {
@@ -175,7 +178,7 @@ export default class GameplayScene extends Phaser.Scene {
             this,
             left + 82,
             top + (chipHeight / 2),
-            `${layoutConfig.stageLabel}`,
+            `${layoutConfig.stageLabel} ${layoutConfig.stageValue}`,
             {
                 fontSize: "42px",
                 fontStyle: "bold",
