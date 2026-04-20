@@ -4,9 +4,9 @@ export const TutorialText = Object.freeze({
 
 export const Config = Object.freeze({
     IncreaseScore: {
-        easy: 15,
-        medium: 16,
-        hard: 17,
+        easy: 20,
+        medium: 20,
+        hard: 20,
     },
     DecreaseScore: {
         easy: 5,
@@ -23,8 +23,8 @@ export const Config = Object.freeze({
 export const QuizUI_Setting = Object.freeze({
     scaleSlot: {x:150, y:75},
     quizTextSize: 48.0,
-    labelFontSize: 36.0,
-    slotFontSize: 36.0,
+    labelFontSize: 48.0,
+    slotFontSize: 48.0,
     quizBoxSize: {width: 800, height:450},
 });
 
