@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import { AnimalIconTray, SquareGridLayout } from "../../../util/layout/index.js";
+import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
 import { DefaultAnimals, GameplayConfig, PuzzleLevelConfig } from "../constants.js";
 
@@ -13,6 +14,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.sceneData = {};
         this.frameGraphics = null;
         this.headerElements = [];
+        this.hintViewer = null;
         this.animalTray = null;
         this.gridBoard = null;
         this.answerButtonBounds = null;
@@ -44,6 +46,14 @@ export default class GameplayScene extends Phaser.Scene {
         });
 
         this.nextBtn = this.createButton(this.scale.width / 2 + 250, this.scale.height - 150, "NEXT", () => {
+            if (this.hintViewer) {
+                const nextHint = this.hintViewer.showNextHint();
+
+                if (nextHint !== null) {
+                    return;
+                }
+            }
+
             this.loadNextPuzzle();
         });
 
@@ -84,6 +94,7 @@ export default class GameplayScene extends Phaser.Scene {
     loadNextPuzzle() {
         this.puzzleData = this.createPuzzleData(this.sceneData);
         this.renderPuzzle();
+        this.hintViewer?.showNextHint();
     }
 
     renderPuzzle() {
@@ -95,6 +106,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.frameGraphics?.destroy();
         this.headerElements.forEach((element) => element.destroy());
         this.headerElements = [];
+        this.hintViewer?.destroy();
+        this.hintViewer = null;
         this.animalTray?.destroy();
         this.gridBoard?.destroy();
 
@@ -104,6 +117,9 @@ export default class GameplayScene extends Phaser.Scene {
         this.animalTray = new AnimalIconTray(this, 48, 0,
             (data) => {
                 console.log(`selected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
+                if (this.hintViewer) {
+                    this.hintViewer.showNextHint();
+                }
             },
             (data) => {
                 console.log(`unselected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
@@ -163,22 +179,16 @@ export default class GameplayScene extends Phaser.Scene {
         const chipHeight = 112;
         const gap = 22;
         const cardWidth = this.scale.width - left - 52 - chipWidth - gap;
-        const promptText = createThaiText(
-            this,
-            left + chipWidth + gap + 30,
-            top + 24,
-            data.questionText ?? layoutConfig.prompt,
-            {
-                fontSize: "40px",
-                fontStyle: "bold",
-                color: "#7d7790"
-            },
-            {
-                origin: [0, 0],
-                wrapWidth: cardWidth - 60
-            }
-        );
-        const cardHeight = Math.max(112, promptText.height + 44);
+        const promptX = left + chipWidth + gap;
+        const promptHints = this.getPromptHints(data);
+        const promptStyle = {
+            fontSize: "40px",
+            fontStyle: "bold",
+            color: "#7d7790",
+            align: "left"
+        };
+        const promptWrapWidth = cardWidth - 60;
+        const hintViewerMinHeight = this.measureHintViewerHeight(promptHints, promptStyle, promptWrapWidth);
 
         const stagePanel = this.drawRoundedPanel(left, top, chipWidth, chipHeight, {
             fillColor: 0xffffff,
@@ -186,12 +196,25 @@ export default class GameplayScene extends Phaser.Scene {
             strokeWidth: 8,
             radius: 24
         });
-        const promptPanel = this.drawRoundedPanel(left + chipWidth + gap, top, cardWidth, cardHeight, {
+
+        const hintViewerOptions = {
+            width: cardWidth,
+            minHeight: hintViewerMinHeight,
+            padding: 24,
+            radius: 24,
             fillColor: 0xffffff,
             strokeColor: 0x1fd11a,
             strokeWidth: 8,
-            radius: 24
-        });
+            emptyText: "",
+            textStyle: promptStyle,
+            textOptions: {
+                origin: [0, 0],
+                wrapWidth: promptWrapWidth
+            }
+        };
+
+        this.hintViewer = new HintLineViewer(this, promptX, top, promptHints, hintViewerOptions);
+        this.hintViewer.setDepth(2);
 
         const headerIcon = this.add.text(left + 26, top + (chipHeight / 2), "📝", {
             fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
@@ -210,13 +233,42 @@ export default class GameplayScene extends Phaser.Scene {
             },
             { origin: [0, 0.5] }
         );
-        promptText.setDepth(2);
 
-        this.headerElements = [stagePanel, promptPanel, headerIcon, stageText, promptText];
+        this.headerElements = [stagePanel, headerIcon, stageText];
 
         return {
-            bottom: top + Math.max(chipHeight, cardHeight)
+            bottom: top + Math.max(chipHeight, this.hintViewer.height)
         };
+    }
+
+    getPromptHints(data) {
+        return [...(data.questionHints ?? this.puzzleData?.hintTexts ?? [])];
+    }
+
+    measureHintViewerHeight(hints, textStyle, wrapWidth) {
+        if (!hints.length) {
+            return 112;
+        }
+
+        let maxMeasuredHeight = 112;
+
+        for (const hint of hints) {
+            const measurementText = createThaiText(
+                this,
+                0,
+                0,
+                hint,
+                textStyle,
+                {
+                    origin: [0, 0],
+                    wrapWidth
+                }
+            );
+            maxMeasuredHeight = Math.max(maxMeasuredHeight, measurementText.height + 48);
+            measurementText.destroy();
+        }
+
+        return maxMeasuredHeight;
     }
 
     drawRoundedPanel(x, y, width, height, {

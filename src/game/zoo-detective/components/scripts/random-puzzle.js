@@ -42,12 +42,35 @@ export default class RandomPuzzle{
         };
     }
 
+    checkAnswer(expectedSolution, userSolution){
+        if(!Array.isArray(expectedSolution) || !Array.isArray(userSolution)){
+            return false;
+        }
+
+        if(expectedSolution.length !== userSolution.length){
+            return false;
+        }
+
+        return expectedSolution.every((expectedAnimal, index) => {
+            const userAnimal = userSolution[index];
+            return this.getAnimalKey(expectedAnimal) === this.getAnimalKey(userAnimal);
+        });
+    }
+
     getAnimalLabel(animal){
         if(typeof animal === "string"){
             return animal;
         }
 
         return animal?.icon ?? animal?.label ?? animal?.id ?? "?";
+    }
+
+    getAnimalKey(animal){
+        if(typeof animal === "string"){
+            return animal;
+        }
+
+        return animal?.id ?? animal?.icon ?? animal?.label ?? null;
     }
 
     generateHints(solution){
@@ -65,7 +88,7 @@ export default class RandomPuzzle{
             text: `${this.getAnimalLabel(solution[rootIndex])} อยู่ที่ ${this.getPositionName(rootIndex)}`
         });
 
-        while(visited.size < totalSlots - 1){
+        while(visited.size < totalSlots){
             const candidates = [];
 
             for(const sourceIndex of visited){
@@ -94,11 +117,6 @@ export default class RandomPuzzle{
 
             visited.add(pick.targetIndex);
         }
-
-        hints.push({
-            type: "remaining",
-            text: "ตัวที่เหลือให้วางในช่องว่าง"
-        });
 
         return hints;
     }
