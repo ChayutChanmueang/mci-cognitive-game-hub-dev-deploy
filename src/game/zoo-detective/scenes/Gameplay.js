@@ -11,6 +11,7 @@ export default class GameplayScene extends Phaser.Scene {
         super("gameplay-scene");
         this.level = 1;
         this.puzzleData = null;
+        this.puzzleGenerator = null;
         this.sceneData = {};
         this.frameGraphics = null;
         this.headerElements = [];
@@ -18,6 +19,10 @@ export default class GameplayScene extends Phaser.Scene {
         this.animalTray = null;
         this.gridBoard = null;
         this.answerButtonBounds = null;
+        this.selectedAnimal = null;
+        this.currentPlacements = [];
+        this.lockedCellIndexes = new Set();
+        this.lockedAnimalIds = new Set();
     }
 
     preload() {
@@ -66,9 +71,9 @@ export default class GameplayScene extends Phaser.Scene {
     createPuzzleData(data) {
         const animalChoices = data.animalChoices ?? DefaultAnimals;
         const levelConfig = data.levelConfig ?? PuzzleLevelConfig;
-        const puzzleGenerator = new RandomPuzzle(this.level, levelConfig, animalChoices);
+        this.puzzleGenerator = new RandomPuzzle(this.level, levelConfig, animalChoices);
 
-        return puzzleGenerator.getPuzzle();
+        return this.puzzleGenerator.getPuzzle();
     }
 
     resolveLayoutConfig(data) {
@@ -103,6 +108,11 @@ export default class GameplayScene extends Phaser.Scene {
         const layoutConfig = this.resolveLayoutConfig(this.sceneData);
         const animals = this.puzzleData.availableAnimals;
 
+        this.selectedAnimal = null;
+        this.currentPlacements = Array(this.puzzleData.totalSlots).fill(null);
+        this.lockedCellIndexes.clear();
+        this.lockedAnimalIds.clear();
+
         this.frameGraphics?.destroy();
         this.headerElements.forEach((element) => element.destroy());
         this.headerElements = [];
@@ -117,12 +127,17 @@ export default class GameplayScene extends Phaser.Scene {
         this.animalTray = new AnimalIconTray(this, 48, 0,
             (data) => {
                 console.log(`selected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
-                if (this.hintViewer) {
-                    this.hintViewer.showNextHint();
+                if (this.lockedAnimalIds.has(data.id)) {
+                    return;
                 }
+
+                this.selectedAnimal = data;
             },
             (data) => {
                 console.log(`unselected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
+                if (this.selectedAnimal?.id === data.id) {
+                    this.selectedAnimal = null;
+                }
             },
             {
                 width: sceneWidth - 96,
@@ -157,8 +172,112 @@ export default class GameplayScene extends Phaser.Scene {
             cellStrokeColor: 0x5b6c81,
             cellStrokeWidth: 4
         });
+        this.setupGridInteractions();
 
         this.answerButtonBounds = this.animalTray.getFooterBounds(true);
+    }
+
+    setupGridInteractions() {
+        for (const cell of this.gridBoard.getCells()) {
+            cell.container.setSize(cell.size, cell.size);
+            cell.container.setInteractive(
+                new Phaser.Geom.Rectangle(cell.size / 2, cell.size / 2, cell.size, cell.size),
+                Phaser.Geom.Rectangle.Contains
+            );
+            cell.container.on("pointerdown", () => {
+                this.handleGridCellClick(cell);
+            });
+        }
+    }
+
+    handleGridCellClick(cell) {
+        if (!this.selectedAnimal || this.lockedCellIndexes.has(cell.index)) {
+            return;
+        }
+
+        const previousCellIndex = this.findPlacementIndexByAnimalId(this.selectedAnimal.id);
+        const occupyingAnimal = this.currentPlacements[cell.index];
+
+        if (occupyingAnimal && occupyingAnimal.id !== this.selectedAnimal.id && !this.lockedCellIndexes.has(cell.index)) {
+            this.currentPlacements[cell.index] = null;
+        }
+
+        if (previousCellIndex >= 0 && previousCellIndex !== cell.index && !this.lockedCellIndexes.has(previousCellIndex)) {
+            this.clearCellPlacement(previousCellIndex);
+        }
+
+        this.currentPlacements[cell.index] = this.selectedAnimal;
+        this.renderAnimalInCell(cell, this.selectedAnimal);
+
+        const expectedAnimal = this.puzzleData.solution[cell.index];
+        const isCorrect = this.puzzleGenerator?.checkAnswer([expectedAnimal], [this.selectedAnimal]) ?? false;
+
+        if (!isCorrect) {
+            this.setCellState(cell, "default");
+            return;
+        }
+
+        this.lockedCellIndexes.add(cell.index);
+        this.lockedAnimalIds.add(this.selectedAnimal.id);
+        this.setCellState(cell, "locked");
+        cell.container.disableInteractive();
+        this.disableAnimalTrayItem(this.selectedAnimal.id);
+        this.selectedAnimal = null;
+        this.animalTray.setSelectedItem(null);
+    }
+
+    findPlacementIndexByAnimalId(animalId) {
+        return this.currentPlacements.findIndex((animal) => animal?.id === animalId);
+    }
+
+    clearCellPlacement(cellIndex) {
+        const cell = this.gridBoard?.getCell(cellIndex);
+
+        if (!cell) {
+            return;
+        }
+
+        this.currentPlacements[cellIndex] = null;
+        this.gridBoard.clearCell(cellIndex, true);
+        this.setCellState(cell, "default");
+    }
+
+    renderAnimalInCell(cell, animal) {
+        const emojiText = this.add.text(0, 0, animal.icon ?? animal.label ?? "?", {
+            fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
+            fontSize: `${Math.floor(cell.size * 0.45)}px`
+        }).setOrigin(0.5);
+
+        this.gridBoard.clearCell(cell.index, true);
+        this.gridBoard.addToCell(cell.index, emojiText);
+    }
+
+    setCellState(cell, state = "default") {
+        const strokeColorMap = {
+            default: 0x5b6c81,
+            locked: 0x2aa84a
+        };
+        const fillColorMap = {
+            default: 0xe4ebf3,
+            locked: 0xd9f4df
+        };
+
+        cell.background.clear();
+        cell.background.fillStyle(fillColorMap[state] ?? fillColorMap.default, 1);
+        cell.background.lineStyle(4, strokeColorMap[state] ?? strokeColorMap.default, 1);
+        cell.background.fillRoundedRect(0, 0, cell.size, cell.size, 28);
+        cell.background.strokeRoundedRect(0, 0, cell.size, cell.size, 28);
+    }
+
+    disableAnimalTrayItem(animalId) {
+        const itemView = this.animalTray?.getItemViews().find((view) => view.item.id === animalId);
+
+        if (!itemView) {
+            return;
+        }
+
+        itemView.container.disableInteractive();
+        itemView.container.setAlpha(0.4);
     }
 
     createFrame(sceneWidth, sceneHeight) {
