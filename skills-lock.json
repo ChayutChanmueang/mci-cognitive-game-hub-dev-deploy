@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "skills": {
+    "Writing Phaser 3 Games": {
+      "source": "tomcoolpxl/sugar-splat",
+      "sourceType": "github",
+      "computedHash": "b0fd09950905daaf3309ee8975f27c40766c4ea7beefa2ab1d9f21d1ca771266"
+    },
+    "javascript-mastery": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "8aa63cb1fa3113a884f51d9be617a06cd7d91729c7335c9253f9a8f4dd857541"
+    },
+    "phaser": {
+      "source": "opusgamelabs/game-creator",
+      "sourceType": "github",
+      "computedHash": "db2dacd817400cb9f5f87132081909ed8d3a11663c0ee126562b8d7204b097c2"
+    },
+    "phaser-best-practices": {
+      "source": "onmax/nuxt-skills",
+      "sourceType": "github",
+      "computedHash": "da5012faabdfa9cebf589dc089acb6d06c97cdf0b440f072382de678a66c2733"
+    },
+    "phaser-gamedev": {
+      "source": "chongdashu/phaserjs-tinyswords",
+      "sourceType": "github",
+      "computedHash": "7c189dc3905cea3c83b593bdeaba32d134dd3e3da70e7b7663c1e1612def64bf"
+    }
+  }
+}
