@@ -16,6 +16,10 @@ export default class SocketComponent extends Component{
     }
     attach(targetEntity) {
         this.occupant = targetEntity;
+
+        if (this.entity.parentContainer) {
+            this.entity.parentContainer.add(targetEntity);
+        }
         
         // Snap the target entity to the center of this socket's entity
         targetEntity.setPosition(this.entity.x, this.entity.y);

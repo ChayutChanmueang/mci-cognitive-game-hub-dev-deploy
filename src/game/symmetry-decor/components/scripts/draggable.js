@@ -9,11 +9,15 @@ export default class DraggableComponent extends Component {
         this.currentSocket = null;
         this.startX = this.entity.x;
         this.startY = this.entity.y;
+
+        this.baseDepth = 10;
     }
     awake() {
         // Enable interaction and dragging on the parent entity
         this.entity.setInteractive();
         this.scene.input.setDraggable(this.entity);
+
+        this.entity.setDepth(this.baseDepth);
 
         this.setupDragEvents();
     }
@@ -22,7 +26,7 @@ export default class DraggableComponent extends Component {
             // Save starting coordinates in case of rejection
             this.startX = this.entity.x;
             this.startY = this.entity.y;
-            this.entity.setDepth(1); // Bring to front
+            this.entity.setDepth(1000); // Bring to front
 
             // Safely disable physics collisions while being dragged by the mouse
             if (this.entity.body) {
@@ -57,7 +61,7 @@ export default class DraggableComponent extends Component {
         });
 
         this.entity.on('dragend', (pointer, dragX, dragY, dropped) => {
-            this.entity.setDepth(0); // Reset depth
+            this.entity.setDepth(this.baseDepth);
 
             // Re-enable physics collisions now that the drag is over
             if (this.entity.body) {
