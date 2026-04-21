@@ -2,6 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
+const USER_EVENT_LOG_TABLE = "user_event_log";
+const USER_PATIENT_DATA_TABLE = "user_patient_data";
+const DEFAULT_GAME_PAGE_SIZE = 10;
+const EVENT_IDS = Object.freeze({
+    OPEN_APP: "OPAPP",
+    START_PLAY_GAME: "SPG",
+});
 
 class Database {
     constructor() {
@@ -134,6 +141,113 @@ class Database {
         return session?.user || null;
     }
 
+    async getPatientByHn(hn) {
+        const parsedHn = String(hn || "").trim();
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_PATIENT_DATA_TABLE)
+            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .eq("hn", parsedHn)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || null;
+    }
+
+    async patientExists(hn) {
+        const patient = await this.getPatientByHn(hn);
+        return Boolean(patient);
+    }
+
+    async createPatientProfile({
+        hn,
+        firstname,
+        lastname,
+        age,
+        gender,
+        educationLevel = null,
+        startedProgram,
+    }) {
+        const session = await this.initAuth();
+        const user = session?.user || (await this.getCurrentUser());
+        const parsedHn = String(hn || "").trim();
+        const parsedFirstname = String(firstname || "").trim();
+        const parsedLastname = String(lastname || "").trim();
+        const parsedGender = String(gender || "").trim();
+        const parsedAge = Number(age);
+        const normalizedStartedProgram = new Date(startedProgram);
+
+        if (!parsedHn) {
+            throw new Error("Missing patient ID");
+        }
+
+        if (!parsedFirstname) {
+            throw new Error("กรุณากรอกชื่อ");
+        }
+
+        if (!parsedLastname) {
+            throw new Error("กรุณากรอกนามสกุล");
+        }
+
+        if (!Number.isInteger(parsedAge) || parsedAge <= 0 || parsedAge > 130) {
+            throw new Error("กรุณากรอกอายุให้ถูกต้อง");
+        }
+
+        if (!parsedGender) {
+            throw new Error("กรุณาเลือกเพศ");
+        }
+
+        if (Number.isNaN(normalizedStartedProgram.getTime())) {
+            throw new Error("กรุณาเลือกวันที่เริ่มโปรแกรม");
+        }
+
+        if (!user?.id) {
+            throw new Error("Missing authenticated user");
+        }
+
+        const parsedEducationLevel =
+            educationLevel == null || String(educationLevel).trim() === ""
+                ? null
+                : Number(educationLevel);
+
+        const payload = {
+            uid: user.id,
+            hn: parsedHn,
+            firstname: parsedFirstname,
+            lastname: parsedLastname,
+            age: parsedAge,
+            gender: parsedGender,
+            education_level: Number.isFinite(parsedEducationLevel) ? parsedEducationLevel : null,
+            started_program: normalizedStartedProgram.toISOString(),
+        };
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_PATIENT_DATA_TABLE)
+            .insert([payload])
+            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .maybeSingle();
+
+        if (error) {
+            if (error.code === "23505") {
+                throw new Error("Patient ID นี้ถูกใช้งานแล้ว");
+            }
+
+            throw error;
+        }
+
+        return data || payload;
+    }
+
     async getGameList() {
         await this.initAuth();
 
@@ -148,6 +262,43 @@ class Database {
         }
 
         return data || [];
+    }
+
+    async getGamesByMciGroup(mciGroup, options = {}) {
+        const parsedGroup = String(mciGroup || "").trim();
+        const pageSize = Math.max(1, Number(options.pageSize) || DEFAULT_GAME_PAGE_SIZE);
+        const offset = Math.max(0, Number(options.offset) || 0);
+
+        if (!parsedGroup) {
+            throw new Error("Invalid mciGroup");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const rangeEnd = offset + pageSize - 1;
+        const { data, error, count } = await client
+            .from(GAME_LIST_TABLE)
+            .select("id, gid, name, mci_group, max_score, created_at", { count: "exact" })
+            .eq("mci_group", parsedGroup)
+            .order("created_at", { ascending: true })
+            .range(offset, rangeEnd);
+
+        if (error) {
+            throw error;
+        }
+
+        const items = data || [];
+        const total = Number(count) || 0;
+
+        return {
+            items,
+            total,
+            offset,
+            pageSize,
+            nextOffset: offset + items.length,
+            hasMore: offset + items.length < total,
+        };
     }
 
     async getGameByGid(gid) {
@@ -240,6 +391,45 @@ class Database {
             startedAt,
             endedAt,
         });
+    }
+
+    async logUserEvent(eventId, gid = null) {
+        const session = await this.initAuth();
+        const user = session?.user || (await this.getCurrentUser());
+        const parsedEventId = String(eventId || "").trim().toUpperCase();
+        const parsedGid = gid == null ? null : String(gid).trim();
+
+        if (!parsedEventId) {
+            throw new Error("Invalid eventId");
+        }
+
+        if (!Object.values(EVENT_IDS).includes(parsedEventId)) {
+            throw new Error(`Unsupported eventId: ${parsedEventId}`);
+        }
+
+        if (parsedGid === "") {
+            throw new Error("Invalid gid");
+        }
+
+        if (!user?.id) {
+            throw new Error("Missing authenticated user");
+        }
+
+        const payload = {
+            eventid: parsedEventId,
+            gid: parsedGid,
+        };
+
+        const client = this.getClient();
+        const { error } = await client
+            .from(USER_EVENT_LOG_TABLE)
+            .insert([payload]);
+
+        if (error) {
+            throw error;
+        }
+
+        return payload;
     }
 }
 

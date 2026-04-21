@@ -1,4 +1,4 @@
-import StorageManager from "../../../../core/storage-manager";
+import StorageManager from "../../../../../core/storage-manager";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
 import Entity from "../../entity";

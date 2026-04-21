@@ -44,7 +44,7 @@ const config = {
     }
 };
 
-const StartGame = (parent) => {
+export const StartGame = (parent) => {
 
     return new Game({ ...config, parent });
 
