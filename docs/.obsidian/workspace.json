@@ -11,10 +11,14 @@
             "id": "bdb3b4468a6a311c",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Progress Logs/Tasks/US-E3-03.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "US-E3-03"
             }
           }
         ]
@@ -170,12 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Progress Logs/Tasks/US-E3-03.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of US-E3-03"
             }
           }
         ],
@@ -204,6 +209,8 @@
     "Progress Logs/Tasks/US-E1-03.md",
     "Progress Logs/Tasks/US-E1-02.md",
     "Progress Logs/Tasks/US-E1-01.md",
+    "Progress Logs/Tasks/US-E3-03.md",
+    "Progress Logs/Kanban_Board.md",
     "Progress Logs/Tasks",
     "Design Document/Detail Design/README.md",
     "Design Document/Detail Design/gdd_zoo_feeder.md",
@@ -232,8 +239,6 @@
     "Meeting Logs/Templates",
     "Meeting Logs/MeetingNotes-260422.md",
     "Idea.canvas",
-    "Design Document/wiki/README.md",
-    "Design Document/wiki/gdd_zoo_feeder.md",
     "Design Document/wiki",
     "Design Document/Template",
     "Untitled.canvas",
