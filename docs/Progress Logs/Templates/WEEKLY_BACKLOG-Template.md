@@ -1,27 +1,31 @@
-# Weekly Backlog - [Project Name]
+# Weekly Backlog - \[Project Name]
 
-**Project:** [Project Name]
-**Week:** [Number]
+**Project:** \[Project Name]
+**Week:** \[Number]
 **Version:** 1.0
-**Last Updated:** [YYYY-MM-DD]
+**Last Updated:** \[YYYY-MM-DD]
 
----
+\---
 
-## 1. Weekly Overview
-- **Sprint:** [Sprint Name]
-- **Focus:** [Main focus]
+## 1\. Weekly Overview
 
-## 2. Team Assignments
-| Role | Task Code | Task Description | Status |
-| :--- | :--- | :--- | :---: |
-| [Role] | [Code] | [Description] | [ ] |
+* **Sprint:** \[Sprint Name]
+* **Focus:** \[Main focus]
 
----
+## 2\. Team Assignments
+
+|Role|Task Code|Task Description|Status|
+|-|-|-|:-:|
+|\[Role]|\[Code]|\[Description]|\[ ]|
+
+\---
 
 ## 📊 Weekly Metrics
-| Metric | Value |
-| :--- | :--- |
-| **Completion Rate** | 0% |
-| **Hours Worked** | [Number] |
 
----
+|Metric|Value|
+|-|-|
+|**Completion Rate**|0%|
+|**Hours Worked**|\[Number]|
+
+\---
+
