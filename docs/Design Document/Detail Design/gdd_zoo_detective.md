@@ -43,3 +43,10 @@
 *   **Framework:** Phaser Game Engine.
 *   **Language:** JavaScript/TypeScript.
 *   **จุดเด่นด้านเทคนิค:** มีการจัดการหน่วยความจำที่ดีด้วย **Object Pooling** ในส่วนของยูทิลิตี้ เพื่อรองรับการสร้างและทำลายวัตถุในเกมซ้ำๆ อย่างมีประสิทธิภาพ.
+
+---
+
+## 🚀 Development Status
+- **Core Logic:** [[US-E1-01]] (Done)
+- **UI & Feedback:** [[US-E1-02]] (In Progress)
+- **Weekly Tracking:** [[S2-W03-Weekly-Backlog]]
