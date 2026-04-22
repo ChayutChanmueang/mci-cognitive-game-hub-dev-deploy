@@ -67,6 +67,7 @@ export default class MainMenuScene extends Phaser.Scene {
 
     createBackground() {
         this.add.rectangle(0, 0, HUB_VIEW.width, HUB_VIEW.height, HUB_COLORS.background).setOrigin(0);
+
         HUB_BACKGROUND_DECORATIONS.forEach(({ x, y, radius, color, alpha }) => {
             this.add.circle(x, y, radius, color, alpha);
         });
@@ -93,7 +94,6 @@ export default class MainMenuScene extends Phaser.Scene {
         const hnLabel = hnCode ? `HN${hnCode}` : HUB_TEXT.defaultHn;
 
         const title = this.add.text(HUB_TOP_BAR.titleX, HUB_TOP_BAR.titleY, HUB_TEXT.title, HUB_TEXT_STYLES.title);
-
         this.progressText = this.add.text(HUB_TOP_BAR.progressTextX, HUB_TOP_BAR.progressTextY, "", HUB_TEXT_STYLES.progress);
 
         const progressTrack = this.add.graphics();
@@ -115,12 +115,11 @@ export default class MainMenuScene extends Phaser.Scene {
             HUB_TEXT.adminIcon,
             HUB_TEXT.adminLabel,
             () => {
-            this.options.onAdmin?.();
+                this.options.onAdmin?.();
             },
         );
 
         const patient = this.add.text(HUB_TOP_BAR.hnX, HUB_TOP_BAR.hnY, hnLabel, HUB_TEXT_STYLES.hn).setOrigin(0.5);
-
         const name = this.add.text(HUB_TOP_BAR.nameX, HUB_TOP_BAR.nameY, patientLabel, HUB_TEXT_STYLES.playerName).setOrigin(0, 0.5);
 
         topBar.add([panel, title, this.progressText, progressTrack, this.progressFill, ...admin, patient, name]);
@@ -128,27 +127,28 @@ export default class MainMenuScene extends Phaser.Scene {
 
     createMapPath() {
         const startY = HUB_LAYOUT.topBarHeight + HUB_LAYOUT.nodeStartOffsetY;
-        const gapY = HUB_LAYOUT.nodeGapY;
-        const xs = HUB_NODE_PATH_XS;
         const nodePositions = this.games.map((game, index) => ({
-            x: xs[index % xs.length],
-            y: startY + index * gapY,
+            x: HUB_NODE_PATH_XS[index % HUB_NODE_PATH_XS.length],
+            y: startY + index * HUB_LAYOUT.nodeGapY,
             game,
         }));
 
         const path = this.add.graphics();
         path.lineStyle(HUB_NODE.pathWidth, HUB_COLORS.path, HUB_NODE.pathAlpha);
-        path.beginPath();
         nodePositions.forEach((node, index) => {
             if (index === 0) {
-                path.moveTo(node.x, node.y);
-            } else {
-                const prev = nodePositions[index - 1];
-                const controlX = (prev.x + node.x) / 2;
-                path.quadraticCurveTo(controlX, prev.y + HUB_LAYOUT.nodeStartOffsetY, node.x, node.y);
+                return;
             }
+
+            const previousNode = nodePositions[index - 1];
+            const controlX = (previousNode.x + node.x) / 2;
+            const curve = new Phaser.Curves.QuadraticBezier(
+                new Phaser.Math.Vector2(previousNode.x, previousNode.y),
+                new Phaser.Math.Vector2(controlX, previousNode.y + HUB_LAYOUT.nodeStartOffsetY),
+                new Phaser.Math.Vector2(node.x, node.y),
+            );
+            curve.draw(path, 32);
         });
-        path.strokePath();
         this.content.add(path);
 
         nodePositions.forEach((node, index) => {

@@ -217,8 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.classList.remove("game-mode");
+        document.body.classList.remove("hub-mode");
         document.body.classList.add("landing-mode");
         app?.classList.remove("game-mode");
+        app?.classList.remove("hub-mode");
         app?.classList.add("landing-mode");
         destroyActiveGame();
         gameContainer.classList.add("game-container--hidden");
@@ -269,8 +271,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.classList.add("game-mode");
+        document.body.classList.add("hub-mode");
         document.body.classList.remove("landing-mode");
         app?.classList.add("game-mode");
+        app?.classList.add("hub-mode");
         app?.classList.remove("landing-mode");
         destroyActiveGame();
         uiRoot.innerHTML = "";
@@ -398,8 +402,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.classList.add("game-mode");
+        document.body.classList.remove("hub-mode");
         document.body.classList.remove("landing-mode");
         app?.classList.add("game-mode");
+        app?.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
         uiRoot.innerHTML = "";
         destroyActiveGame();
@@ -411,8 +417,10 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error(`Unable to start game ${parsedName}:`, error);
             document.body.classList.remove("game-mode");
+            document.body.classList.remove("hub-mode");
             document.body.classList.remove("landing-mode");
             app?.classList.remove("game-mode");
+            app?.classList.remove("hub-mode");
             app?.classList.remove("landing-mode");
             gameContainer.classList.add("game-container--hidden");
             destroyActiveGame();
@@ -430,7 +438,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const showSignup = ({ patientCode = "" } = {}) => {
         document.body.classList.remove("landing-mode");
+        document.body.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
+        app?.classList.remove("hub-mode");
         renderSignupScreen(uiRoot, {
             initialHn: patientCode,
             onBack: () => navigateTo(ROUTES.login),
@@ -459,7 +469,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const showLogin = ({ patientCode = "" } = {}) => {
         document.body.classList.remove("landing-mode");
+        document.body.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
+        app?.classList.remove("hub-mode");
         renderLoginScreen(uiRoot, {
             initialPatientCode: patientCode,
             onAccept: async ({ patientId: acceptedId }) => {

@@ -1,12 +1,8 @@
-import Phaser from "phaser";
-
 export const HUB_VIEW = Object.freeze({
     width: 1100,
     height: 2000,
     backgroundColor: "#f8f1dc",
     sceneBackgroundColor: "#f7efd6",
-    scaleMode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
 });
 
 export const HUB_LAYOUT = Object.freeze({
@@ -39,10 +35,10 @@ export const HUB_COLORS = Object.freeze({
     currentLabelStroke: 0xeac36b,
     button: 0x2f6f5b,
     controlPanel: 0xf6efe2,
+    controlStroke: 0x2c2f2c,
     shadow: 0x000000,
     lockedIcon: "#3e423e",
     nodeIcon: "#ffffff",
-    controlStroke: 0x2c2f2c,
 });
 
 export const HUB_BACKGROUND_DECORATIONS = Object.freeze([
@@ -67,11 +63,11 @@ export const HUB_SPARKLE_DECORATION = Object.freeze({
 });
 
 export const HUB_TOP_BAR = Object.freeze({
-    x: 36,
-    y: 34,
-    widthInset: 72,
+    x: 0,
+    y: 0,
+    widthInset: 0,
     height: 280,
-    radius: 38,
+    radius: 0,
     strokeWidth: 3,
     alpha: 0.94,
     titleX: 84,
@@ -129,6 +125,8 @@ export const HUB_BOTTOM_ACTION = Object.freeze({
     panelWidthInset: 108,
     panelHeight: 104,
     panelRadius: 34,
+    panelAlpha: 0.92,
+    strokeWidth: 3,
     buttonX: 624,
     buttonBottomOffset: 132,
     buttonWidth: 360,
@@ -139,8 +137,6 @@ export const HUB_BOTTOM_ACTION = Object.freeze({
     gameTitleX: 92,
     gameTitleBottomOffset: 99,
     gameTitleWrapWidth: 500,
-    panelAlpha: 0.92,
-    strokeWidth: 3,
 });
 
 export const HUB_ICON_BUTTON = Object.freeze({
