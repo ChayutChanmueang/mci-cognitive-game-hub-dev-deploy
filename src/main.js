@@ -8,11 +8,12 @@ import {
     buildPatientSession,
     clearPatientSessionCookie,
     getPatientSessionCookie,
+    getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
 import StringUtil from "./util/string-util.js";
 
-const gameModuleLoaders = import.meta.glob("./game/*/main.js");
+const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
 const ROUTES = Object.freeze({
     home: "#/home",
@@ -26,6 +27,8 @@ const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
 const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
+const HUB_CATEGORY_ORDER = ["Attention", "Memory", "Language", "Visuospatial", "Executive"];
+const HUB_DAILY_TARGET = 10;
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
@@ -225,23 +228,67 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    const loadGameHubProgram = async () => {
+        const loadedGames = [];
+
+        for (const categoryId of HUB_CATEGORY_ORDER) {
+            if (loadedGames.length >= HUB_DAILY_TARGET) {
+                break;
+            }
+
+            try {
+                const result = await db.getGamesByMciGroup(categoryId, {
+                    offset: 0,
+                    pageSize: HUB_DAILY_TARGET,
+                });
+
+                loadedGames.push(...(result?.items || []));
+            } catch (error) {
+                console.warn(`Unable to load hub games for ${categoryId}:`, error);
+            }
+        }
+
+        const uniqueGames = [];
+        const seenGids = new Set();
+        for (const game of loadedGames) {
+            const gid = String(game?.gid || "").trim();
+            if (!gid || seenGids.has(gid)) {
+                continue;
+            }
+
+            seenGids.add(gid);
+            uniqueGames.push(game);
+        }
+
+        return uniqueGames.slice(0, HUB_DAILY_TARGET);
+    };
+
     const showHub = async (options = {}) => {
         if (!uiRoot || !gameContainer) {
             return;
         }
 
-        document.body.classList.remove("game-mode");
+        document.body.classList.add("game-mode");
         document.body.classList.remove("landing-mode");
-        app?.classList.remove("game-mode");
+        app?.classList.add("game-mode");
         app?.classList.remove("landing-mode");
         destroyActiveGame();
-        gameContainer.classList.add("game-container--hidden");
+        uiRoot.innerHTML = "";
+        gameContainer.classList.remove("game-container--hidden");
 
-        await renderGameHubScreen(uiRoot, {
-            loadGamesByCategory: (mciGroup, options) => db.getGamesByMciGroup(mciGroup, options),
-            initialScene: options.initialScene || DEFAULT_HUB_SCENE,
-            initialCategory: options.initialCategory || DEFAULT_HUB_CATEGORY,
-            sharedState: hubUiState,
+        const rememberedPatient = getPatientSessionCookie();
+        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
+        const games = await loadGameHubProgram();
+        const gameHubModule = await import("./game/game-hub/main.js");
+        const startGameHub = gameHubModule?.StartGame || gameHubModule?.default;
+
+        activeGameInstance = startGameHub("game-container", {
+            games,
+            dailyTarget: HUB_DAILY_TARGET,
+            completedCount: 0,
+            patientCode,
+            patientLabel,
             onLaunchGame: async (selectedGame) => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการเข้าเกม",
@@ -258,6 +305,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 persistSelectedGame(selectedGame);
                 sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, String(selectedGame?.gid || "").trim());
                 navigateTo(getGameRouteHash(selectedGame));
+            },
+            onAdmin: async () => {
+                await showPopup({
+                    title: "โหมดผู้ดูแล",
+                    message: "หน้าเข้าสู่ระบบผู้ดูแลจะถูกเชื่อมในขั้นตอนถัดไป",
+                    confirmText: "รับทราบ",
+                    icon: "admin_panel_settings",
+                });
             },
             onLogout: async () => {
                 const hasConfirmed = await showPopup({
@@ -282,12 +337,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
-            },
-            onStateChange: ({ scene, activeCategory }) => {
-                navigateTo(getHubRouteHash({
-                    scene,
-                    category: activeCategory,
-                }));
             },
         });
     };
