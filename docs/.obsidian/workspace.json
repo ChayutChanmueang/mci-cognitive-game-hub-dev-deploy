@@ -4,24 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "7b9fa5da75ae0601",
+        "id": "d07205e0e82e41c8",
         "type": "tabs",
         "children": [
           {
-            "id": "29498f0564187749",
+            "id": "660e05f38b4371f7",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Idea.canvas",
-                "viewState": {
-                  "x": -185.33731996192535,
-                  "y": 41.90505908782376,
-                  "zoom": -1.1102230246251565e-16
-                }
+                "file": "Design Document/GDD-Project.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "Idea"
+              "icon": "lucide-file",
+              "title": "GDD-Project"
             }
           }
         ]
@@ -97,17 +94,17 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Untitled 1.md",
-                "collapseAll": false,
-                "extraContext": false,
+                "file": "Design Document/GDD-Project.md",
+                "collapseAll": true,
+                "extraContext": true,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
                 "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
+                "unlinkedCollapsed": false
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Untitled 1"
+              "title": "Backlinks for GDD-Project"
             }
           },
           {
@@ -159,21 +156,21 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Untitled 1.md",
+                "file": "Design Document/GDD-Project.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Untitled 1"
+              "title": "Outline of GDD-Project"
             }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -186,8 +183,13 @@
       "bases:Create new base": false
     }
   },
-  "active": "b80327e6fc02f4b7",
+  "active": "660e05f38b4371f7",
   "lastOpenFiles": [
+    "Design Document/GameLoop-Project.md",
+    "Design Document/DatabaseSchema-Project.md",
+    "Design Document/ClassDiagram-Project.md",
+    "Design Document/PROJECT_SUMMARY.md",
+    "Idea.canvas",
     "Design Document/Template/DatabaseSchema-Template.md",
     "Design Document/DatabaseSchema-Template.md",
     "Progress Logs/Templates/WEEKLY_BACKLOG-Template.md",
@@ -204,7 +206,6 @@
     "Design Document/Template",
     "Design Document/New folder",
     "Meeting Logs/2026-04-22.md",
-    "Idea.canvas",
     "Meeting Logs",
     "Note.md",
     "Untitled 1.md",
@@ -212,8 +213,6 @@
     "2026-04-21.md",
     "Design Document/GDD-Project.md",
     "Progress Logs/WEEKLY_BACKLOG-Template.md",
-    "Progress Logs/SPRINT_BACKLOG-Template.md",
-    "Design Document/ClassDiagram-Project.md",
-    "Design Document/DatabaseSchema-Project.md"
+    "Progress Logs/SPRINT_BACKLOG-Template.md"
   ]
 }
