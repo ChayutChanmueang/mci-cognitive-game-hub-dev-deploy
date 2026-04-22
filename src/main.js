@@ -58,6 +58,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    const showUiRoot = () => {
+        if (uiRoot) {
+            uiRoot.hidden = false;
+        }
+    };
+
+    const hideUiRoot = () => {
+        if (uiRoot) {
+            uiRoot.hidden = true;
+            uiRoot.innerHTML = "";
+        }
+    };
+
     const resolveGameModuleLoader = (gameName) => {
         const parsedName = String(gameName || "").trim();
         const slug = StringUtil.toSlug(parsedName);
@@ -224,6 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
         app?.classList.add("landing-mode");
         destroyActiveGame();
         gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
 
         renderLandingScreen(uiRoot, {
             onLogin: () => navigateTo(ROUTES.login),
@@ -277,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
         app?.classList.add("hub-mode");
         app?.classList.remove("landing-mode");
         destroyActiveGame();
-        uiRoot.innerHTML = "";
+        hideUiRoot();
         gameContainer.classList.remove("game-container--hidden");
 
         const rememberedPatient = getPatientSessionCookie();
@@ -407,7 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
         app?.classList.add("game-mode");
         app?.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
-        uiRoot.innerHTML = "";
+        hideUiRoot();
         destroyActiveGame();
         gameContainer.classList.remove("game-container--hidden");
 
@@ -441,6 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
         app?.classList.remove("hub-mode");
+        showUiRoot();
         renderSignupScreen(uiRoot, {
             initialHn: patientCode,
             onBack: () => navigateTo(ROUTES.login),
@@ -472,6 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
         app?.classList.remove("hub-mode");
+        showUiRoot();
         renderLoginScreen(uiRoot, {
             initialPatientCode: patientCode,
             onAccept: async ({ patientId: acceptedId }) => {
