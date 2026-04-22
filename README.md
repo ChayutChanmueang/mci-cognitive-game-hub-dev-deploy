@@ -1,6 +1,6 @@
 # MCI Cognitive Games
 
-A web-based cognitive training games platform for MCI (Mild Cognitive Impairment) patients and elderly users. Built with Phaser 3 and Vite, featuring a modular architecture and AI-assisted development workflow.
+A web-based cognitive training games platform for MCI (Mild Cognitive Impairment) patients and elderly users. Built with Phaser 3 and Vite, featuring a modular architecture and an advanced **Agentic AI-assisted development workflow**.
 
 ## 🎮 Game Overview
 
@@ -13,6 +13,21 @@ This project contains 5 mini-games designed to train different cognitive skills:
 | **Context Clues** | คำใบ้บริบท | Language | Contextual learning and word association |
 | **Symmetry Decor** | ตกแต่งสมมาตร | Spatial Reasoning | Mirroring and symmetry-based object placement |
 | **Postcard Reader** | ผู้อ่านไปรษณีย์ | Reading | Information sequencing and comparison |
+
+## 🤖 Agentic AI & Development Workflow
+
+This project leverages cutting-edge AI orchestration for both development and documentation:
+
+- **AI Agents:** 
+  - **OpenCode:** Primary agent for code generation, refactoring, and complex logic implementation.
+  - **Gemini CLI:** Specialized interactive agent for project orchestration, research, and task automation.
+- **Content Management:** 
+  - Primary content and documentation are managed using **Markdown** for portability and AI readability.
+  - **VS Code Extensions:**
+    - **Markdown for Human:** Enhanced visualization and editing for documentation.
+    - **Obsidian Canvas Viewer:** Integration with Obsidian Canvas (`.canvas`) files directly within VS Code for visual project mapping.
+- **Visual Design & Mapping:** 
+  - **Obsidian:** Used for knowledge management and visual logic mapping via Obsidian Canvas (found in `docs/Idea.canvas`).
 
 ## 🛠️ Technology Stack
 
