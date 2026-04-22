@@ -13,131 +13,119 @@ export function renderSignupScreen(root, options = {}) {
         onSubmit = () => {},
     } = options;
 
+    const hnLabel = initialHn ? `HN${initialHn}` : "-";
+
     root.innerHTML = `
-        <section class="auth-screen">
-            <div class="auth-shell auth-shell--signup">
-                <div class="auth-card auth-card--wide">
-                    <div class="auth-card__header auth-card__header--spread">
-                        <div class="auth-card__header-group">
-                            <md-outlined-button id="signup-back-button" type="button">
-                                <span slot="icon" class="material-symbols-rounded">arrow_back</span>
-                                Back
-                            </md-outlined-button>
-                            <div>
-                                <p class="auth-eyebrow">Patient Registration</p>
-                                <h2>กรอกข้อมูลผู้ป่วย</h2>
-                                <p>หน้านี้เป็น mockup สำหรับลงทะเบียนผู้ป่วยใหม่ก่อนเริ่มโปรแกรม</p>
-                            </div>
-                        </div>
+        <section class="signup-screen" aria-labelledby="signup-title">
+            <div class="signup-card">
+                <div class="signup-card__header">
+                    <md-icon-button id="signup-back-button" type="button" aria-label="กลับ">
+                        <span class="material-symbols-rounded">arrow_back</span>
+                    </md-icon-button>
+                    <h1 id="signup-title">ข้อมูลผู้เล่น</h1>
+                </div>
+
+                <form id="patient-signup-form" class="signup-form" novalidate>
+                    <div class="signup-row signup-row--hn">
+                        <label>หมายเลข HN :</label>
+                        <div class="signup-hn-value">${hnLabel}</div>
                     </div>
 
-                    <form id="patient-signup-form" class="signup-form" novalidate>
-                        <section class="signup-section">
-                            <div class="signup-section__heading">
-                                <h3>ข้อมูลผู้ป่วย</h3>
-                                <p>กรอกข้อมูลทั่วไปของผู้ป่วยให้ครบก่อนเริ่มโปรแกรมฝึกสมอง</p>
-                            </div>
+                    <div class="signup-fields">
+                        <label class="signup-row">
+                            <span>ชื่อ :</span>
+                            <md-outlined-text-field
+                                id="signup-firstname"
+                                placeholder="เช่น สมชาย"
+                                aria-label="ชื่อ"
+                                required
+                                no-asterisk
+                            ></md-outlined-text-field>
+                        </label>
 
-                            <div class="signup-context">
-                                <span class="signup-context__label">Patient Code</span>
-                                <strong class="signup-context__value">${initialHn || "-"}</strong>
-                            </div>
+                        <label class="signup-row">
+                            <span>นามสกุล :</span>
+                            <md-outlined-text-field
+                                id="signup-lastname"
+                                placeholder="เช่น ใจดี"
+                                aria-label="นามสกุล"
+                                required
+                                no-asterisk
+                            ></md-outlined-text-field>
+                        </label>
 
-                            <div class="signup-grid signup-grid--two">
-                                <md-outlined-text-field
-                                    id="signup-firstname"
-                                    class="auth-field"
-                                    label="ชื่อ"
-                                    required
-                                ></md-outlined-text-field>
-                                <md-outlined-text-field
-                                    id="signup-lastname"
-                                    class="auth-field"
-                                    label="นามสกุล"
-                                    required
-                                ></md-outlined-text-field>
-                            </div>
+                        <label class="signup-row">
+                            <span>อายุ :</span>
+                            <md-outlined-text-field
+                                id="signup-age"
+                                placeholder="เช่น 65"
+                                aria-label="อายุ"
+                                type="number"
+                                min="1"
+                                required
+                                no-asterisk
+                            ></md-outlined-text-field>
+                        </label>
 
-                            <div class="signup-grid signup-grid--three">
-                                <md-outlined-text-field
-                                    id="signup-age"
-                                    class="auth-field"
-                                    label="อายุ"
-                                    type="number"
-                                    min="1"
-                                    required
-                                ></md-outlined-text-field>
+                        <label class="signup-row">
+                            <span>เพศ :</span>
+                            <md-outlined-select
+                                id="signup-gender"
+                                aria-label="เพศ"
+                                required
+                            >
+                                <md-select-option value="male">
+                                    <div slot="headline">ชาย</div>
+                                </md-select-option>
+                                <md-select-option value="female">
+                                    <div slot="headline">หญิง</div>
+                                </md-select-option>
+                                <md-select-option value="other">
+                                    <div slot="headline">อื่น ๆ</div>
+                                </md-select-option>
+                                <md-select-option value="unknown">
+                                    <div slot="headline">ยังไม่ระบุ</div>
+                                </md-select-option>
+                            </md-outlined-select>
+                        </label>
 
-                                <md-outlined-select
-                                    id="signup-gender"
-                                    class="auth-field"
-                                    label="เพศ"
-                                    required
-                                >
-                                    <md-select-option value="male">
-                                        <div slot="headline">ชาย</div>
-                                    </md-select-option>
-                                    <md-select-option value="female">
-                                        <div slot="headline">หญิง</div>
-                                    </md-select-option>
-                                    <md-select-option value="other">
-                                        <div slot="headline">อื่น ๆ</div>
-                                    </md-select-option>
-                                    <md-select-option value="unknown">
-                                        <div slot="headline">ยังไม่ระบุ</div>
-                                    </md-select-option>
-                                </md-outlined-select>
+                        <label class="signup-row">
+                            <span>การศึกษา :</span>
+                            <md-outlined-select
+                                id="signup-education-level"
+                                aria-label="การศึกษา"
+                            >
+                                <md-select-option value="placeholder-1">
+                                    <div slot="headline">ตัวเลือกตัวอย่าง 1</div>
+                                </md-select-option>
+                                <md-select-option value="placeholder-2">
+                                    <div slot="headline">ตัวเลือกตัวอย่าง 2</div>
+                                </md-select-option>
+                                <md-select-option value="placeholder-3">
+                                    <div slot="headline">ตัวเลือกตัวอย่าง 3</div>
+                                </md-select-option>
+                            </md-outlined-select>
+                        </label>
 
-                                <md-outlined-select
-                                    id="signup-education-level"
-                                    class="auth-field"
-                                    label="ระดับการศึกษา"
-                                >
-                                    <md-select-option value="placeholder-1">
-                                        <div slot="headline">ตัวเลือกตัวอย่าง 1</div>
-                                    </md-select-option>
-                                    <md-select-option value="placeholder-2">
-                                        <div slot="headline">ตัวเลือกตัวอย่าง 2</div>
-                                    </md-select-option>
-                                    <md-select-option value="placeholder-3">
-                                        <div slot="headline">ตัวเลือกตัวอย่าง 3</div>
-                                    </md-select-option>
-                                </md-outlined-select>
-                            </div>
+                        <label class="signup-row signup-row--date">
+                            <span>วันที่เริ่มโปรแกรม :</span>
+                            <md-outlined-text-field
+                                id="signup-started-program"
+                                aria-label="วันที่เริ่มโปรแกรม"
+                                type="date"
+                                value="${createDateValue()}"
+                                required
+                                no-asterisk
+                            ></md-outlined-text-field>
+                        </label>
+                    </div>
 
-                            <div class="signup-note">
-                                ฟิลด์ระดับการศึกษาเป็น mockup ชั่วคราว และจะเปลี่ยนเป็นตัวเลือกจริงภายหลัง
-                            </div>
-                        </section>
+                    <p id="signup-feedback" class="signup-feedback" aria-live="polite"></p>
 
-                        <section class="signup-section signup-section--program">
-                            <div class="signup-section__heading">
-                                <h3>ข้อมูลเริ่มโปรแกรม</h3>
-                                <p>กำหนดวันที่เริ่มโปรแกรมฝึกสมอง โดยใช้ปฏิทินของ browser</p>
-                            </div>
-
-                            <div class="signup-grid signup-grid--program-row">
-                                <md-outlined-text-field
-                                    id="signup-started-program"
-                                    class="auth-field"
-                                    label="วันที่เริ่มโปรแกรม"
-                                    type="date"
-                                    value="${createDateValue()}"
-                                    required
-                                ></md-outlined-text-field>
-
-                                <div class="signup-submit-wrap">
-                                    <md-filled-button id="signup-submit-button" type="submit">
-                                        <span slot="icon" class="material-symbols-rounded">how_to_reg</span>
-                                        ยืนยันข้อมูลคนไข้
-                                    </md-filled-button>
-                                </div>
-                            </div>
-
-                            <p id="signup-feedback" class="auth-feedback" aria-live="polite"></p>
-                        </section>
-                    </form>
-                </div>
+                    <md-filled-button id="signup-submit-button" class="signup-submit-button" type="submit">
+                        ยืนยันข้อมูลผู้เล่น
+                    </md-filled-button>
+                </form>
             </div>
         </section>
     `;
@@ -173,7 +161,12 @@ export function renderSignupScreen(root, options = {}) {
         feedback.textContent = "กำลังบันทึกข้อมูลผู้ป่วย...";
 
         try {
-            await onSubmit(formData);
+            const submitted = await onSubmit(formData);
+            if (submitted === false) {
+                feedback.textContent = "";
+                submitButton.disabled = false;
+                return;
+            }
         } catch (error) {
             console.error("Patient signup flow failed:", error);
             feedback.textContent = error?.message || "ไม่สามารถบันทึกข้อมูลผู้ป่วยได้";

@@ -1,5 +1,6 @@
 import db from "./core/database.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
+import { renderLandingScreen } from "./ui/landing-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
@@ -14,6 +15,7 @@ import StringUtil from "./util/string-util.js";
 const gameModuleLoaders = import.meta.glob("./game/*/main.js");
 
 const ROUTES = Object.freeze({
+    home: "#/home",
     login: "#/login",
     signup: "#/signup",
     hub: "#/hub",
@@ -98,7 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 : `/${hashWithoutMarker}`
             : "/";
 
-        if (normalizedPath === "/" || normalizedPath === "/login") {
+        if (normalizedPath === "/" || normalizedPath === "/home") {
+            return { name: "home" };
+        }
+
+        if (normalizedPath === "/login") {
             return { name: "login" };
         }
 
@@ -202,13 +208,32 @@ document.addEventListener("DOMContentLoaded", () => {
         gameContainer.classList.add("game-container--hidden");
     }
 
+    const showLanding = () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.add("landing-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.add("landing-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+
+        renderLandingScreen(uiRoot, {
+            onLogin: () => navigateTo(ROUTES.login),
+        });
+    };
+
     const showHub = async (options = {}) => {
         if (!uiRoot || !gameContainer) {
             return;
         }
 
         document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
         app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
         destroyActiveGame();
         gameContainer.classList.add("game-container--hidden");
 
@@ -324,7 +349,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.classList.add("game-mode");
+        document.body.classList.remove("landing-mode");
         app?.classList.add("game-mode");
+        app?.classList.remove("landing-mode");
         uiRoot.innerHTML = "";
         destroyActiveGame();
         gameContainer.classList.remove("game-container--hidden");
@@ -335,7 +362,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error(`Unable to start game ${parsedName}:`, error);
             document.body.classList.remove("game-mode");
+            document.body.classList.remove("landing-mode");
             app?.classList.remove("game-mode");
+            app?.classList.remove("landing-mode");
             gameContainer.classList.add("game-container--hidden");
             destroyActiveGame();
 
@@ -351,10 +380,25 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const showSignup = ({ patientCode = "" } = {}) => {
+        document.body.classList.remove("landing-mode");
+        app?.classList.remove("landing-mode");
         renderSignupScreen(uiRoot, {
             initialHn: patientCode,
             onBack: () => navigateTo(ROUTES.login),
             onSubmit: async (formData) => {
+                const patientCodeLabel = `HN${String(formData?.hn || "").trim()}`;
+                const shouldCreatePatient = await showPopup({
+                    title: "ยืนยันการลงทะเบียน",
+                    message: `ต้องการสร้างข้อมูลผู้เล่นรหัส ${patientCodeLabel} ใช่หรือไม่`,
+                    confirmText: "ยืนยัน",
+                    cancelText: "ยกเลิก",
+                    icon: "how_to_reg",
+                });
+
+                if (!shouldCreatePatient) {
+                    return false;
+                }
+
                 const createdPatient = await db.createPatientProfile(formData);
                 await rememberPatientSession(createdPatient);
                 sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
@@ -365,6 +409,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const showLogin = ({ patientCode = "" } = {}) => {
+        document.body.classList.remove("landing-mode");
+        app?.classList.remove("landing-mode");
         renderLoginScreen(uiRoot, {
             initialPatientCode: patientCode,
             onAccept: async ({ patientId: acceptedId }) => {
@@ -376,6 +422,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
                     navigateTo(ROUTES.hub);
                     return;
+                }
+
+                const patientCodeLabel = `HN${acceptedId}`;
+                const shouldCreatePatient = await showPopup({
+                    title: "ไม่พบรหัส HN",
+                    message: `ไม่พบข้อมูลผู้เล่นรหัส ${patientCodeLabel} ต้องการลงทะเบียนผู้เล่นใหม่หรือไม่`,
+                    confirmText: "สร้างผู้เล่นใหม่",
+                    cancelText: "ยกเลิก",
+                    icon: "person_add",
+                });
+
+                if (!shouldCreatePatient) {
+                    return false;
                 }
 
                 navigateTo(ROUTES.signup);
@@ -393,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "unknown") {
-            navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
+            navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.home, { replace: true });
             return;
         }
 
@@ -403,8 +462,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name !== "login" && route.name !== "signup" && !rememberedPatient) {
+            if (route.name === "home") {
+                showLanding();
+                return;
+            }
+
             clearPatientClientState();
-            navigateTo(ROUTES.login, { replace: true });
+            navigateTo(ROUTES.home, { replace: true });
+            return;
+        }
+
+        if (route.name === "home") {
+            showLanding();
             return;
         }
 
@@ -509,7 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const rememberedPatient = getPatientSessionCookie();
     if (!window.location.hash) {
-        navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
+        navigateTo(ROUTES.home, { replace: true });
         return;
     }
 
