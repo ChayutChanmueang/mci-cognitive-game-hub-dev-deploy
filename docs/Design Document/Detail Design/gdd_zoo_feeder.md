@@ -45,4 +45,11 @@
 ## 🛠️ ข้อสังเกตด้านการพัฒนา (Development Notes)
 
 *   เป็นเกมที่มีองค์ประกอบของ Simulation สูง ทำให้เน้นที่ Timing และ Logic การตอบสนอง
-*   การใช้ Object Pooling เป็นสิ่งสำคัญมากเพื่อให้ประสิทธิภาพการทำงานสูงเมื่อมีวัตถุเคลื่อนไหวจำนวนมาก.
+*   **การใช้ Object Pooling** เป็นสิ่งสำคัญมากเพื่อให้ประสิทธิภาพการทำงานสูงเมื่อมีวัตถุเคลื่อนไหวจำนวนมาก.
+
+---
+
+## 🚀 Development Status
+- **Physics & Conveyor:** [[US-E1-03]] (Done)
+- **Interaction Logic:** [[US-E1-04]] (In Progress)
+- **Weekly Tracking:** [[S2-W03-Weekly-Backlog]]

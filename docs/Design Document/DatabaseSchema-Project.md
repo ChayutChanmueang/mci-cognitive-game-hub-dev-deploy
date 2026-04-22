@@ -420,6 +420,13 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
 ---
 
+## 9. Implementation Reference
+- **Schema Setup:** [[US-E2-01]] (Supabase Table Setup)
+- **Authentication:** [[US-E2-02]] (Patient Auth Integration)
+- **Data Flow:** [[US-E2-03]] (Score & Time API)
+
+---
+
 ## Notes
 
 - ใช้ Supabase เป็น Backend-as-a-Service

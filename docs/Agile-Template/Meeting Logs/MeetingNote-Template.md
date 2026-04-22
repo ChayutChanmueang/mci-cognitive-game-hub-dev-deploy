@@ -42,30 +42,19 @@
 
 ## 4. Discussion Notes
 
-### 4.1 [Topic 1]
+### 4.1 Sprint Review (Demo & Feedback)
+- **What was demoed:** [List features]
+- **Stakeholder Feedback:** [What they liked/wanted changed]
 
-- **ความคืบหน้า:**
-  - [Task 1]: [Progress %]
-  - [Task 2]: [Progress %]
+### 4.2 Sprint Retrospective (Team Improvement)
+- **What went well?** [Successes]
+- **What could be improved?** [Pain points]
+- **Action Items for next Sprint:** [Specific improvements]
 
-- **Decisions:** [Any decisions made]
-
-- **Action Items:**
-  - [Owner]: [Task]
-
-### 4.2 [Topic 2]
-
-- **ปัญหา:** [Issue description]
-  - **Impact:** [Impact description]
-  - **Resolution:** [Resolution description]
-
-- **Action Items:**
-  - [Owner]: [Task]
-
-### 4.3 [Topic 3]
-
-- **Key Points:** [Summary]
-- **Decisions:** [Any decisions made]
+### 4.3 Operational Issues & Blockers
+- **Issue:** [Description]
+  - **Impact:** [Low/Med/High]
+  - **Resolution:** [Who will do what]
 
 ---
 
