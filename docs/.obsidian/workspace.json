@@ -15,9 +15,9 @@
               "state": {
                 "file": "Idea.canvas",
                 "viewState": {
-                  "x": -315,
-                  "y": 40,
-                  "zoom": 0
+                  "x": -185.33731996192535,
+                  "y": 41.90505908782376,
+                  "zoom": -1.1102230246251565e-16
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -188,14 +188,19 @@
   },
   "active": "b80327e6fc02f4b7",
   "lastOpenFiles": [
+    "Design Document/Template/DatabaseSchema-Template.md",
+    "Design Document/DatabaseSchema-Template.md",
+    "Progress Logs/Templates/WEEKLY_BACKLOG-Template.md",
+    "Progress Logs/Templates/SPRINT_BACKLOG-Template.md",
+    "Progress Logs/Templates",
+    "Design Document/Template/ProjectPlan-Template.md",
+    "Design Document/Template/GDD-Template.md",
+    "Design Document/Template/GameLoop-Template.md",
+    "Design Document/Template/ClassDiagram-Template.md",
     "Design Document/ProjectPlan-Template.md",
     "Design Document/GDD-Template.md",
     "Design Document/GameLoop-Template.md",
     "Design Document/ClassDiagram-Template.md",
-    "Design Document/Template/GDD-Template.md",
-    "Design Document/Template/GameLoop-Template.md",
-    "Design Document/Template/ClassDiagram-Template.md",
-    "Design Document/Template/ProjectPlan-Template.md",
     "Design Document/Template",
     "Design Document/New folder",
     "Meeting Logs/2026-04-22.md",
