@@ -1,10 +1,10 @@
-# Database Schema Diagram - MCI Cognitive Games
+# Database Schema Diagram - Template
 
 ---
-
-## *Document Version: 1.0*  
-*Project: MCI Cognitive Games*  
-*Last Updated: 2026-04-21*
+*Document Version: 1.0*  
+*Project: [Project Name]*  
+*Last Updated: YYYY-MM-DD*
+---
 
 ## 1. Database Overview
 
@@ -95,9 +95,9 @@ erDiagram
 | Column     | Type      | Constraints | Description                   |
 | ---------- | --------- | ----------- | ----------------------------- |
 | id         | int       | PK          | Primary Key                   |
-| gid        | string    | UK          | Game ID (เช่น ZOO001, CTX001) |
+| gid        | string    | UK          | Game ID                       |
 | name       | string    | NOT NULL    | ชื่อเกม                       |
-| mci_group  | string    | NOT NULL    | กลุ่ม MCI                     |
+| mci_group  | string    | NOT NULL    | กลุ่ม                         |
 | max_score  | int       | NULLABLE    | คะแนนสูงสุด                   |
 | created_at | timestamp | DEFAULT     | วันที่สร้าง                   |
 
@@ -107,11 +107,7 @@ erDiagram
 
 | gid    | name            | mci_group |
 | ------ | --------------- | --------- |
-| ZOO001 | Zoo Detective   | ATTENTION |
-| ZOO002 | Zoo Feeder      | ATTENTION |
-| CTX001 | Context Clues   | MEMORY    |
-| SYM001 | Symmetry Decor  | EXECUTIVE |
-| POS001 | Postcard Reader | MEMORY    |
+|        |                 |           |
 
 
 ---
@@ -258,13 +254,9 @@ classDiagram
 **Mapping:**
 
 
-| Game            | MCI Group | Skill Trained               |
-| --------------- | --------- | --------------------------- |
-| Zoo Detective   | ATTENTION | Logical thinking, Deduction |
-| Zoo Feeder      | ATTENTION | Decision making, Timing     |
-| Context Clues   | MEMORY    | Language comprehension      |
-| Symmetry Decor  | EXECUTIVE | Spatial reasoning           |
-| Postcard Reader | MEMORY    | Reading comprehension       |
+| Game | MCI Group | Skill Trained |
+| ---- | --------- | ------------- |
+|      |           |               |
 
 
 ---
@@ -417,13 +409,6 @@ CREATE POLICY "Users can insert own events"
 VITE_SUPABASE_URL=https://xxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
-
----
-
-## 9. Implementation Reference
-- **Schema Setup:** [[US-E2-01]] (Supabase Table Setup)
-- **Authentication:** [[US-E2-02]] (Patient Auth Integration)
-- **Data Flow:** [[US-E2-03]] (Score & Time API)
 
 ---
 

@@ -265,6 +265,20 @@ npm run build-nolog # Build without logging
 * **Normal:** ไปรษณีย์ยาวขึ้น, เนื้อหาซับซ้อน
 * **Hard:** เนื้อหายาวมาก, ต้องจำรายละเอียด
 
+---
+
+## 8. Traceability Matrix (Design to Progress)
+
+| Game / Module | Design Doc (GDD) | Related User Stories |
+| :--- | :--- | :--- |
+| **Zoo Detective** | [[gdd_zoo_detective]] | [[US-E1-01]], [[US-E1-02]] |
+| **Zoo Feeder** | [[gdd_zoo_feeder]] | [[US-E1-03]], [[US-E1-04]] |
+| **Context Clues** | [[gdd_zoo_detective|Wiki-ContextClues]] | [[US-E1-05]], [[US-E1-06]] |
+| **Symmetry Decor** | [[gdd_symmetry_decor]] | [[US-E1-07]] |
+| **Postcard Reader** | [[gdd_symmetry_decor|Wiki-Postcard]] | [[US-E1-08]] |
+| **Database System** | [[DatabaseSchema-Project]] | [[US-E2-01]], [[US-E2-02]], [[US-E2-03]] |
+| **UI & Accessibility** | [[ClassDiagram-Project]] | [[US-E3-01]], [[US-E3-02]] |
+
 \---
 
 *End of GDD*

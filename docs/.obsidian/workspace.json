@@ -170,13 +170,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Progress Logs/Sprint Planning.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Sprint Planning"
+              "title": "Outline"
             }
           }
         ],
@@ -188,19 +187,41 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "obsidian-kanban:Create new board": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
       "bases:Create new base": false,
-      "obsidian-git:Open Git source control": false,
-      "obsidian-kanban:Create new board": false,
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false
     }
   },
-  "active": "b80327e6fc02f4b7",
+  "active": "bdb3b4468a6a311c",
   "lastOpenFiles": [
+    "Progress Logs/Tasks/US-E1-05.md",
+    "Progress Logs/Tasks/US-E1-04.md",
+    "Progress Logs/Tasks/US-E1-03.md",
+    "Progress Logs/Tasks/US-E1-02.md",
+    "Progress Logs/Tasks/US-E1-01.md",
+    "Progress Logs/Tasks",
+    "Design Document/Detail Design/README.md",
+    "Design Document/Detail Design/gdd_zoo_feeder.md",
+    "Design Document/Detail Design/gdd_zoo_detective.md",
+    "Design Document/Detail Design/gdd_symmetry_decor.md",
+    "Design Document/Detail Design",
+    "Agile-Template/Progress Logs/WEEKLY_BACKLOG-Template.md",
+    "Agile-Template/Progress Logs/SPRINT_BACKLOG-Template.md",
+    "Agile-Template/Meeting Logs/MeetingNote-Template.md",
+    "Agile-Template/Design Documents/ProjectPlan-Template.md",
+    "Agile-Template/Design Documents/GDD-Template.md",
+    "Agile-Template/Design Documents/GameLoop-Template.md",
+    "Agile-Template/Design Documents/DatabaseSchema-Template.md",
+    "Agile-Template/Design Documents/ClassDiagram-Template.md",
+    "Agile-Template/Progress Logs",
+    "Agile-Template/Meeting Logs",
+    "Agile-Template/Design Documents",
+    "Agile-Template",
     "Progress Logs/WEEKLY_BACKLOG-WB01.md",
     "Progress Logs/Templates/WEEKLY_BACKLOG-Template.md",
     "Progress Logs/Templates/SPRINT_BACKLOG-Template.md",
@@ -213,32 +234,9 @@
     "Idea.canvas",
     "Design Document/wiki/README.md",
     "Design Document/wiki/gdd_zoo_feeder.md",
-    "Design Document/wiki/gdd_zoo_detective.md",
-    "Design Document/wiki/gdd_symmetry_decor.md",
-    "Design Document/wiki/core_database_summary.md",
     "Design Document/wiki",
-    "Design Document/Template/ProjectPlan-Template.md",
-    "Design Document/Template/GDD-Template.md",
-    "Design Document/Template/GameLoop-Template.md",
-    "Design Document/Template/DatabaseSchema-Template.md",
-    "Design Document/Template/ClassDiagram-Template.md",
     "Design Document/Template",
-    "Progress Logs/Product Backlog.md",
-    "Progress Logs/Kanban_Board.md",
-    "Progress Logs/Tasks/US-E1-05.md",
-    "Progress Logs/Tasks/US-E1-04.md",
-    "Progress Logs/Tasks/US-E1-01.md",
-    "Progress Logs/Tasks/US-E1-02.md",
-    "Progress Logs/Tasks/US-E1-03.md",
-    "Design Document/GDD-Project.md",
-    "Design Document/Detail Design/README.md",
-    "raw",
-    "Design Document/Detail Design",
-    "Agile-Template/Meeting Logs",
-    "Agile-Template/Design Documents",
-    "Untitled.base",
     "Untitled.canvas",
-    "Progress Logs/Tasks",
     "Untitled 1.canvas"
   ]
 }
