@@ -57,6 +57,139 @@ body.game-mode {
     padding: 0;
 }
 
+#ui-root {
+    width: 95%;
+}
+
+#app.landing-mode {
+    display: block;
+    padding: 0;
+}
+
+.landing-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: minmax(96px, 1fr) auto minmax(128px, 0.9fr) auto;
+    justify-items: center;
+    padding: clamp(32px, 6vh, 72px) clamp(20px, 6vw, 72px) clamp(36px, 8vh, 84px);
+}
+
+.landing-screen__logo {
+    grid-row: 2;
+    width: min(72vw, 420px);
+    aspect-ratio: 1.1;
+    display: grid;
+    place-items: center;
+    border-radius: clamp(48px, 10vw, 88px);
+    background: #dddddd;
+    color: #1f1f1f;
+}
+
+.landing-screen__logo h1 {
+    margin: 0;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    line-height: 1;
+}
+
+.landing-screen__actions {
+    grid-row: 4;
+    width: min(100%, clamp(280px, 44vw, 420px));
+}
+
+.landing-login-button {
+    width: 100%;
+}
+
+.login-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: clamp(24px, 6vh, 72px) clamp(16px, 5vw, 72px);
+}
+
+.login-card {
+    width: min(100%, clamp(320px, 56vw, 520px));
+    display: grid;
+    gap: 28px;
+    padding: clamp(28px, 5vw, 48px);
+    border-radius: clamp(28px, 7vw, 54px);
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(183, 176, 168, 0.72);
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.login-card h1 {
+    margin: 0;
+    color: #151515;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(2rem, 5vw, 2.85rem);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+}
+
+.login-form {
+    display: grid;
+    gap: 20px;
+}
+
+.login-field,
+.login-submit-button {
+    width: 100%;
+}
+
+.login-field {
+    --md-outlined-text-field-input-text-prefix-trailing-space: 7px;
+}
+
+.login-feedback {
+    min-height: 1.4em;
+    margin: -8px 0 0;
+    color: var(--md-sys-color-error);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.admin-login-screen {
+    align-items: center;
+}
+
+.admin-login-form {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px 12px;
+    align-items: center;
+}
+
+.admin-login-label {
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.admin-login-field {
+    width: 100%;
+}
+
+.admin-login-feedback {
+    grid-column: 1 / -1;
+    margin: -10px 0 -8px;
+}
+
+.admin-login-submit {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+}
+
 .auth-screen {
     width: min(100%, 1120px);
 }
@@ -255,6 +388,297 @@ md-text-button {
     font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: 1.4rem;
     line-height: 1;
+}
+
+.signup-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: clamp(20px, 4vh, 48px) clamp(14px, 4vw, 56px);
+}
+
+.signup-card {
+    width: min(100%, 1080px);
+    display: grid;
+    gap: 22px;
+    padding: clamp(24px, 4vw, 44px);
+    border-radius: clamp(28px, 5vw, 48px);
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(183, 176, 168, 0.72);
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.signup-card__header {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
+    align-items: center;
+    gap: 8px;
+}
+
+.signup-card__header h1 {
+    grid-column: 2;
+    margin: 0;
+    color: #151515;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+}
+
+.signup-form {
+    display: grid;
+    gap: clamp(14px, 2.5vw, 20px);
+}
+
+.signup-fields {
+    display: grid;
+    gap: clamp(14px, 2.5vw, 20px);
+}
+
+.signup-row {
+    display: grid;
+    grid-template-columns: minmax(108px, 0.42fr) minmax(0, 1fr);
+    gap: clamp(10px, 2vw, 18px);
+    align-items: center;
+}
+
+.signup-row > span,
+.signup-row > label,
+.signup-row--hn > label {
+    color: #1f1f1f;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(1.25rem, 3vw, 1.65rem);
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: right;
+}
+
+.signup-row md-outlined-text-field,
+.signup-row md-outlined-select {
+    width: 100%;
+}
+
+.signup-hn-value {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: rgba(53, 104, 89, 0.12);
+    color: #1e1b18;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    font-weight: 600;
+}
+
+.signup-feedback {
+    min-height: 1.4em;
+    margin: 0;
+    color: var(--md-sys-color-error);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.signup-submit-button {
+    width: 100%;
+}
+
+@media (max-width: 420px) {
+    #app:has(.signup-screen) {
+        padding: 0;
+    }
+
+    .signup-screen {
+        padding-inline: 0;
+    }
+
+    .signup-card {
+        width: 100%;
+        padding-inline: 18px;
+        border-inline: 0;
+        border-radius: 28px;
+    }
+
+    .signup-card__header {
+        grid-template-columns: 40px minmax(0, 1fr) 40px;
+    }
+
+    .signup-row {
+        grid-template-columns: minmax(84px, 0.34fr) minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .signup-row > span,
+    .signup-row > label,
+    .signup-row--hn > label {
+        font-size: clamp(1rem, 5vw, 1.25rem);
+    }
+
+    .signup-hn-value {
+        padding-inline: 12px;
+        font-size: clamp(1rem, 4.8vw, 1.25rem);
+    }
+}
+
+@media (min-width: 760px) {
+    .signup-card {
+        gap: 28px;
+    }
+
+    .signup-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: clamp(24px, 4vw, 52px);
+        row-gap: 24px;
+    }
+
+    .signup-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        align-items: start;
+    }
+
+    .signup-row > span,
+    .signup-row > label,
+    .signup-row--hn > label {
+        text-align: left;
+        font-size: 1.08rem;
+    }
+
+    .signup-row--hn {
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+    }
+
+    .signup-row--hn > label {
+        white-space: nowrap;
+    }
+
+    .signup-row--date {
+        grid-column: 1 / -1;
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .signup-submit-button {
+        width: min(100%, 520px);
+        justify-self: center;
+    }
+}
+
+@media (min-width: 1080px) {
+    .signup-card {
+        padding-inline: clamp(44px, 5vw, 72px);
+    }
+}
+
+.player-info-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: clamp(20px, 4vh, 48px) clamp(14px, 4vw, 56px);
+}
+
+.player-info-card {
+    width: min(100%, 640px);
+    display: grid;
+    gap: 18px;
+    padding: clamp(22px, 4vw, 34px);
+    border-radius: clamp(28px, 5vw, 48px);
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(183, 176, 168, 0.72);
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.player-info-card h1 {
+    margin: 0;
+    color: #151515;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+}
+
+.player-info-form {
+    display: grid;
+    gap: 12px;
+}
+
+.player-info-row {
+    display: grid;
+    grid-template-columns: minmax(132px, auto) minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+}
+
+.player-info-row > span {
+    color: #1f1f1f;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(1.15rem, 3vw, 1.55rem);
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: right;
+}
+
+.player-info-row md-outlined-text-field {
+    width: 100%;
+}
+
+.player-info-row--date {
+    grid-template-columns: minmax(168px, auto) minmax(0, 0.72fr);
+}
+
+.player-info-feedback {
+    min-height: 1.4em;
+    margin: 0;
+    color: var(--md-sys-color-error);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.player-info-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.player-info-actions md-filled-button,
+.player-info-export-button {
+    width: 100%;
+}
+
+@media (max-width: 420px) {
+    #app:has(.player-info-screen) {
+        padding: 0;
+    }
+
+    .player-info-screen {
+        padding-inline: 0;
+    }
+
+    .player-info-card {
+        width: 100%;
+        padding-inline: 18px;
+        border-inline: 0;
+        border-radius: 28px;
+    }
+
+    .player-info-row,
+    .player-info-row--date {
+        grid-template-columns: minmax(98px, auto) minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .player-info-row > span {
+        font-size: clamp(1rem, 4.8vw, 1.25rem);
+    }
 }
 
 .auth-field {
@@ -833,6 +1257,15 @@ md-outlined-select {
         align-items: stretch;
     }
 
+    .admin-login-form {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .admin-login-label {
+        text-align: left;
+    }
+
     .signup-submit-wrap md-filled-button,
     .auth-actions md-filled-button,
     .auth-actions md-outlined-button,
@@ -886,5 +1319,1300 @@ md-outlined-select {
         min-height: 0;
         overflow-y: auto;
         padding-right: 4px;
+    }
+}
+
+body.hub-mode {
+    overflow: hidden;
+    color: #111111;
+    background: #f8f8f4;
+}
+
+#app.hub-mode {
+    min-height: 100dvh;
+    height: 100dvh;
+    display: block;
+    padding: 0;
+    overflow: hidden;
+}
+
+#app.hub-mode #ui-root {
+    width: 100%;
+    height: 100%;
+}
+
+.hub-map-screen {
+    width: 100%;
+    height: 100dvh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 14% 18%, rgba(255, 192, 183, 0.32), transparent 24%),
+        radial-gradient(circle at 86% 74%, rgba(183, 217, 168, 0.32), transparent 25%),
+        #f8f8f4;
+}
+
+.hub-map-shell {
+    position: relative;
+    width: min(100%, 1100px);
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.hub-map-topbar {
+    position: absolute;
+    z-index: 20;
+    top: clamp(18px, 3vh, 40px);
+    left: clamp(16px, 4vw, 42px);
+    right: clamp(16px, 4vw, 42px);
+    min-height: clamp(176px, 14vw, 285px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(92px, 13vw, 150px);
+    gap: clamp(18px, 4vw, 42px);
+    align-items: center;
+    padding: clamp(22px, 4vw, 42px) clamp(22px, 5vw, 56px);
+    border-radius: clamp(24px, 4vw, 34px);
+    background: #d6d6d6;
+    color: #111111;
+    box-shadow: 0 22px 52px rgba(17, 17, 17, 0.12);
+}
+
+.hub-map-topbar__main {
+    display: grid;
+    gap: clamp(8px, 1.4vw, 18px);
+    min-width: 0;
+}
+
+.hub-map-eyebrow,
+.hub-map-topbar h1,
+.hub-map-topbar__summary {
+    margin: 0;
+}
+
+.hub-map-eyebrow {
+    color: #4b4b4b;
+    font-size: clamp(0.95rem, 2.6vw, 1.25rem);
+    font-weight: 700;
+}
+
+.hub-map-topbar h1 {
+    font-family: "Noto Sans Thai", sans-serif;
+    font-size: clamp(2rem, 7vw, 4.5rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+}
+
+.hub-map-topbar__summary {
+    color: #262626;
+    font-size: clamp(1.05rem, 4.4vw, 3rem);
+    line-height: 1.2;
+}
+
+.hub-map-progress {
+    position: relative;
+    height: clamp(34px, 5vw, 56px);
+    overflow: hidden;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 3px solid rgba(255, 255, 255, 0.78);
+}
+
+.hub-map-progress__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: inherit;
+    background: #a9a9a9;
+    transition: width 240ms ease;
+}
+
+.hub-map-progress__label {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #3e3e3e;
+    font-size: clamp(1rem, 3.4vw, 2.1rem);
+    font-weight: 800;
+}
+
+.hub-map-profile-button {
+    display: grid;
+    place-items: center;
+    gap: 8px;
+    min-width: 0;
+    width: 100%;
+    aspect-ratio: 1 / 1.28;
+    border: 0;
+    border-left: 4px solid #1e1e1e;
+    background: transparent;
+    color: #1a1a1a;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.hub-map-profile-button__icon {
+    display: grid;
+    place-items: center;
+    width: clamp(58px, 10vw, 106px);
+    height: clamp(58px, 10vw, 106px);
+    border-radius: clamp(16px, 2.6vw, 22px);
+    background: #eeeeee;
+    font-family: Arial, sans-serif;
+    font-size: clamp(2.2rem, 7vw, 4.6rem);
+    line-height: 1;
+}
+
+.hub-map-stage {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+}
+
+.hub-map-scroll {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(17, 17, 17, 0.24) transparent;
+}
+
+.hub-map-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.hub-map-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(17, 17, 17, 0.24);
+}
+
+.hub-map-content {
+    position: relative;
+    min-height: calc(100dvh + 900px);
+    padding: clamp(350px, 32vh, 430px) clamp(16px, 4vw, 56px) 220px;
+}
+
+.hub-map-day-divider {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(18px, 5vw, 56px);
+    margin: 0 0 clamp(80px, 12vw, 150px);
+    color: #111111;
+    font-size: clamp(1.35rem, 4.2vw, 2.75rem);
+    font-weight: 900;
+}
+
+.hub-map-day-divider span {
+    height: clamp(4px, 1vw, 8px);
+    border-radius: 999px;
+    background: #111111;
+}
+
+.hub-map-level-list {
+    position: relative;
+    display: grid;
+    gap: clamp(74px, 13vw, 122px);
+    max-width: 900px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+}
+
+.hub-map-level-list::before {
+    content: "";
+    position: absolute;
+    top: 48px;
+    bottom: 48px;
+    left: clamp(116px, 23vw, 260px);
+    width: clamp(8px, 1.5vw, 14px);
+    border-radius: 999px;
+    background: rgba(18, 18, 18, 0.16);
+}
+
+.hub-map-level-node {
+    position: relative;
+    display: grid;
+    grid-template-columns: clamp(158px, 24vw, 260px) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(20px, 5vw, 64px);
+    margin-left: var(--level-offset);
+    animation: hub-node-rise 260ms ease both;
+}
+
+.hub-map-level-node__circle {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: clamp(128px, 22vw, 196px);
+    height: clamp(128px, 22vw, 196px);
+    border: clamp(7px, 1.3vw, 10px) solid #121212;
+    border-radius: 999px;
+    background: #9c9c9c;
+    color: #202020;
+    box-shadow: 0 18px 0 rgba(18, 18, 18, 0.08);
+    font: inherit;
+    font-size: clamp(2.5rem, 8vw, 4.8rem);
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.hub-map-level-node.is-current .hub-map-level-node__circle {
+    width: clamp(166px, 28vw, 260px);
+    height: clamp(166px, 28vw, 260px);
+    background: #ffc0b7;
+    font-size: clamp(4rem, 10vw, 6rem);
+}
+
+.hub-map-level-node.is-done .hub-map-level-node__circle {
+    background: #b7d9a8;
+}
+
+.hub-map-level-node.is-locked .hub-map-level-node__circle {
+    cursor: not-allowed;
+    opacity: 0.68;
+}
+
+.hub-map-level-node__card-slot {
+    min-width: 0;
+}
+
+.hub-map-launch-card {
+    width: min(100%, 470px);
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    padding: clamp(20px, 4vw, 32px);
+    border: 4px solid #ffffff;
+    border-radius: 28px;
+    background: #d8d8d8;
+    color: #151515;
+    box-shadow: 0 18px 36px rgba(17, 17, 17, 0.1);
+}
+
+.hub-map-launch-card__copy {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.hub-map-launch-card p,
+.hub-map-launch-card h2,
+.hub-map-launch-card span {
+    margin: 0;
+}
+
+.hub-map-launch-card p,
+.hub-map-launch-card span {
+    color: #363636;
+    font-size: clamp(1rem, 3.2vw, 1.7rem);
+}
+
+.hub-map-launch-card h2 {
+    font-family: "Noto Sans Thai", sans-serif;
+    font-size: clamp(1.75rem, 5.2vw, 2.9rem);
+    font-weight: 900;
+    line-height: 1.05;
+}
+
+.hub-map-start-button,
+.hub-map-logout-button,
+.hub-map-scroll-top {
+    font-family: "Noto Sans Thai", sans-serif;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.hub-map-start-button {
+    min-width: min(100%, 270px);
+    min-height: clamp(60px, 9vw, 74px);
+    border: 5px solid #bcbcbc;
+    border-radius: 20px;
+    background: #ffffff;
+    color: #111111;
+    font-size: clamp(1.65rem, 5vw, 3rem);
+}
+
+.hub-map-level-node__label {
+    width: min(100%, 360px);
+    margin: 0;
+    padding: 14px 18px;
+    border: 3px solid rgba(18, 18, 18, 0.12);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #303030;
+    font-size: clamp(1rem, 3.2vw, 1.35rem);
+    font-weight: 800;
+}
+
+.hub-map-empty {
+    display: grid;
+    place-items: center;
+    gap: 8px;
+    width: min(100%, 560px);
+    margin: 48px auto 0;
+    padding: 24px;
+    border: 2px dashed rgba(18, 18, 18, 0.2);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.72);
+    text-align: center;
+}
+
+.hub-map-empty h2,
+.hub-map-empty p {
+    margin: 0;
+}
+
+.hub-map-empty .material-symbols-rounded {
+    font-size: 42px;
+}
+
+.hub-map-scroll-top {
+    position: absolute;
+    right: clamp(20px, 5vw, 46px);
+    bottom: clamp(22px, 4vh, 70px);
+    z-index: 30;
+    width: clamp(72px, 12vw, 112px);
+    height: clamp(72px, 12vw, 112px);
+    display: grid;
+    place-items: center;
+    border: 5px solid #121212;
+    border-radius: 24px;
+    background: #efefef;
+    color: #111111;
+    font-size: clamp(3rem, 8vw, 5.4rem);
+    line-height: 1;
+    opacity: 0;
+    transform: translateY(18px);
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.hub-map-scroll-top.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.hub-map-logout-button {
+    position: absolute;
+    left: clamp(16px, 4vw, 42px);
+    bottom: clamp(18px, 4vh, 42px);
+    z-index: 30;
+    min-height: 54px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 18px;
+    background: #ba1a1a;
+    color: #ffffff;
+    box-shadow: 0 16px 36px rgba(186, 26, 26, 0.24);
+    font-size: clamp(1rem, 3.2vw, 1.25rem);
+}
+
+@keyframes hub-node-rise {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 720px) {
+    .hub-map-topbar {
+        grid-template-columns: minmax(0, 1fr) 86px;
+    }
+
+    .hub-map-profile-button {
+        font-size: 0.9rem;
+    }
+
+    .hub-map-content {
+        padding-top: 280px;
+        padding-inline: 16px;
+    }
+
+    .hub-map-level-list {
+        gap: 78px;
+    }
+
+    .hub-map-level-list::before {
+        left: 72px;
+    }
+
+    .hub-map-level-node {
+        grid-template-columns: 146px minmax(0, 1fr);
+        gap: 12px;
+        margin-left: 0;
+    }
+
+    .hub-map-level-node.is-current {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .hub-map-level-node.is-current .hub-map-level-node__circle {
+        margin-left: 0;
+    }
+
+    .hub-map-launch-card {
+        width: 100%;
+    }
+
+    .hub-map-logout-button {
+        min-height: 48px;
+        padding-inline: 16px;
+    }
+}
+
+/* Material Web hub layout override. Keep the hub in a fixed mobile-width frame on larger screens. */
+body.hub-mode {
+    background: #f8f8f4;
+}
+
+#app.hub-mode {
+    display: grid;
+    place-items: center;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+}
+
+#app.hub-mode #ui-root {
+    width: min(100vw, 420px);
+    height: 100dvh;
+}
+
+.hub-map-screen {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 14% 18%, rgba(255, 235, 225, 0.8), transparent 30%),
+        radial-gradient(circle at 88% 74%, rgba(229, 241, 220, 0.85), transparent 30%),
+        #f8f8f4;
+}
+
+.hub-map-shell {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.hub-map-topbar {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    min-height: 110px;
+    grid-template-columns: minmax(0, 1fr) 82px;
+    gap: 12px;
+    padding: 15px 15px 14px 20px;
+    border-radius: 14px;
+    background: #d7d7d7;
+    box-shadow: 0 10px 24px rgba(17, 17, 17, 0.08);
+}
+
+.hub-map-topbar__main {
+    gap: 4px;
+}
+
+.hub-map-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.hub-map-topbar h1 {
+    font-size: clamp(1.7rem, 7vw, 2rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.hub-map-topbar__summary {
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.hub-map-progress-row {
+    position: relative;
+    width: min(100%, 210px);
+    margin-top: 4px;
+}
+
+.hub-map-progress-row md-linear-progress {
+    width: 100%;
+    height: 24px;
+    border-radius: 999px;
+    overflow: hidden;
+    --md-linear-progress-track-height: 24px;
+    --md-linear-progress-active-indicator-height: 24px;
+    --md-linear-progress-track-shape: 999px;
+    --md-linear-progress-active-indicator-color: #a8a8a8;
+    --md-linear-progress-track-color: #ffffff;
+}
+
+.hub-map-progress__label {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #6e6e6e;
+    font-size: 0.95rem;
+    font-weight: 900;
+    pointer-events: none;
+}
+
+.hub-map-profile-button {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7px;
+    height: 100%;
+    min-width: 0;
+    border-left: 3px solid #202020;
+    color: #202020;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.hub-map-profile-button md-filled-tonal-icon-button {
+    --md-filled-tonal-icon-button-container-width: 48px;
+    --md-filled-tonal-icon-button-container-height: 48px;
+    --md-filled-tonal-icon-button-container-shape: 12px;
+    --md-filled-tonal-icon-button-container-color: #f7f7f7;
+    --md-filled-tonal-icon-button-icon-color: #202020;
+}
+
+.hub-map-profile-button md-icon {
+    --md-icon-font: "Material Symbols Rounded";
+    font-size: 27px;
+}
+
+.hub-map-stage {
+    inset: 0;
+}
+
+.hub-map-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.hub-map-content {
+    min-height: calc(100dvh + 620px);
+    padding: 138px 20px 120px;
+}
+
+.hub-map-day-divider {
+    gap: 18px;
+    margin: 0 0 10px;
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.hub-map-day-divider span {
+    height: 3px;
+}
+
+.hub-map-level-list {
+    max-width: 100%;
+    gap: 62px;
+    margin: 0;
+    padding: 8px 0 110px;
+}
+
+.hub-map-level-list::before {
+    top: 42px;
+    bottom: 30px;
+    left: 68px;
+    width: 4px;
+    background: rgba(0, 0, 0, 0.13);
+}
+
+.hub-map-level-node {
+    grid-template-columns: 136px minmax(0, 1fr);
+    gap: 14px;
+    min-height: 86px;
+    margin-left: 0;
+}
+
+.hub-map-level-node__circle {
+    justify-self: center;
+    width: 80px;
+    height: 80px;
+    border: 4px solid #1a1a1a;
+    box-shadow: none;
+    background: #a6a6a6;
+    font-size: 2rem;
+}
+
+.hub-map-level-node.is-current {
+    align-items: start;
+    min-height: 186px;
+}
+
+.hub-map-level-node.is-current .hub-map-level-node__circle {
+    width: 108px;
+    height: 108px;
+    margin-top: 0;
+    background: #ffc0b7;
+    font-size: 2.9rem;
+}
+
+.hub-map-level-node.is-done .hub-map-level-node__circle {
+    background: #b7d9a8;
+}
+
+.hub-map-level-node.is-locked .hub-map-level-node__circle {
+    opacity: 1;
+}
+
+.hub-map-launch-card {
+    width: 100%;
+    min-height: 164px;
+    gap: 8px;
+    align-self: start;
+    padding: 18px 16px;
+    border: 2px solid #ffffff;
+    border-radius: 22px;
+    background: #d7d7d7;
+    box-shadow: none;
+}
+
+.hub-map-launch-card__copy {
+    gap: 3px;
+}
+
+.hub-map-launch-card p {
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.hub-map-launch-card h2 {
+    font-size: clamp(1.42rem, 6vw, 1.72rem);
+    line-height: 1;
+}
+
+.hub-map-launch-card span {
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.hub-map-start-button {
+    width: min(100%, 150px);
+    --md-outlined-button-container-height: 48px;
+    --md-outlined-button-container-shape: 14px;
+    --md-outlined-button-label-text-size: 1.28rem;
+    --md-outlined-button-label-text-weight: 900;
+    --md-outlined-button-outline-width: 3px;
+    --md-outlined-button-outline-color: #bcbcbc;
+    --md-outlined-button-label-text-color: #111111;
+    --md-outlined-button-container-color: #ffffff;
+}
+
+.hub-map-level-node__label {
+    width: min(100%, 184px);
+    padding: 13px 16px;
+    border: 2px solid rgba(18, 18, 18, 0.1);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 0.86rem;
+    font-weight: 900;
+}
+
+.hub-map-scroll-top {
+    right: 22px;
+    bottom: 18px;
+    width: auto;
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: inherit;
+    --md-fab-container-width: 56px;
+    --md-fab-container-height: 56px;
+    --md-fab-container-shape: 16px;
+    --md-fab-container-color: #ffffff;
+    --md-fab-icon-color: #111111;
+    --md-fab-lowered-container-elevation: 0;
+    --md-fab-container-elevation: 0;
+}
+
+.hub-map-scroll-top md-icon {
+    font-size: 32px;
+}
+
+.hub-map-logout-button {
+    left: 24px;
+    bottom: 18px;
+    min-height: auto;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    --md-filled-button-container-height: 42px;
+    --md-filled-button-container-shape: 12px;
+    --md-filled-button-container-color: #d42020;
+    --md-filled-button-label-text-color: #ffffff;
+    --md-filled-button-label-text-size: 0.9rem;
+    --md-filled-button-label-text-weight: 900;
+}
+
+@media (min-width: 421px) {
+    .hub-map-shell {
+        border-inline: 1px solid rgba(0, 0, 0, 0.08);
+    }
+}
+
+/* Hub frame correction: full-screen background, fixed-width game UI. */
+#app.hub-mode #ui-root {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+}
+
+.hub-map-screen {
+    width: 100vw;
+    height: 100dvh;
+    display: grid;
+    place-items: center;
+}
+
+.hub-map-shell {
+    width: min(100vw, 420px);
+    max-width: 420px;
+    border-inline: 0;
+}
+
+.hub-map-start-button {
+    width: 148px;
+    min-width: 0;
+    min-height: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    font-size: 1rem;
+    --md-outlined-button-container-height: 46px;
+    --md-outlined-button-container-shape: 14px;
+    --md-outlined-button-label-text-size: 1.08rem;
+    --md-outlined-button-label-text-weight: 900;
+    --md-outlined-button-outline-width: 3px;
+}
+
+.hub-map-launch-card h2 {
+    font-size: 1.35rem;
+}
+
+.hub-map-launch-card p {
+    font-size: 0.76rem;
+}
+
+.hub-map-launch-card span {
+    font-size: 0.72rem;
+}
+
+.hub-map-level-node__label {
+    font-size: 0.78rem;
+}
+
+.hub-map-logout-button {
+    font-size: 0.88rem;
+    --md-filled-button-label-text-size: 0.84rem;
+}
+
+@media (min-width: 421px) {
+    .hub-map-shell {
+        border-inline: 0;
+    }
+}
+
+/* Final Material Web cleanup: use component visuals, only control placement and size. */
+.hub-map-content {
+    padding-top: 164px;
+}
+
+.hub-map-day-divider {
+    margin-bottom: 24px;
+}
+
+.hub-map-screen md-icon {
+    --md-icon-font: "Material Symbols Rounded";
+    font-family: "Material Symbols Rounded";
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+}
+
+.hub-map-start-button {
+    width: 148px;
+    min-width: 0;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+    font-size: inherit;
+    --md-outlined-button-container-height: 44px;
+    --md-outlined-button-container-shape: 12px;
+    --md-outlined-button-label-text-size: 1rem;
+    --md-outlined-button-label-text-weight: 700;
+}
+
+.hub-map-logout-button {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+    font-size: inherit;
+    --md-filled-button-container-height: 40px;
+    --md-filled-button-container-shape: 10px;
+    --md-filled-button-label-text-size: 0.84rem;
+}
+
+.hub-map-scroll-top {
+    width: auto;
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+    font-size: inherit;
+    --md-fab-container-width: 56px;
+    --md-fab-container-height: 56px;
+    --md-fab-container-shape: 16px;
+}
+
+.hub-map-scroll-top md-icon {
+    display: inline-flex;
+    font-size: 30px;
+}
+
+/* Material button reset: leave visuals to Material Web components. */
+.hub-map-start-button {
+    width: 148px;
+    min-width: 0;
+    min-height: 0;
+    border: revert;
+    border-radius: revert;
+    background: revert;
+    box-shadow: revert;
+    color: revert;
+    font: revert;
+    --md-outlined-button-container-height: initial;
+    --md-outlined-button-container-shape: initial;
+    --md-outlined-button-label-text-size: initial;
+    --md-outlined-button-label-text-weight: initial;
+    --md-outlined-button-outline-width: initial;
+    --md-outlined-button-outline-color: initial;
+    --md-outlined-button-label-text-color: initial;
+    --md-outlined-button-container-color: initial;
+}
+
+.hub-map-logout-button {
+    min-height: 0;
+    padding: 0;
+    border: revert;
+    border-radius: revert;
+    background: revert;
+    box-shadow: revert;
+    color: revert;
+    font: revert;
+    --md-filled-button-container-height: initial;
+    --md-filled-button-container-shape: initial;
+    --md-filled-button-container-color: initial;
+    --md-filled-button-label-text-color: initial;
+    --md-filled-button-label-text-size: initial;
+    --md-filled-button-label-text-weight: initial;
+}
+
+.hub-map-level-node__circle {
+    cursor: default;
+}
+
+.hub-map-level-node.is-locked .hub-map-level-node__circle {
+    cursor: default;
+}
+
+/* Clean HTML Game Hub. Material Web components keep their native button styling. */
+body.hub-mode {
+    color: var(--md-sys-color-on-surface);
+    background:
+        radial-gradient(circle at top left, rgba(210, 234, 223, 0.9), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(255, 214, 153, 0.35), transparent 28%),
+        linear-gradient(180deg, #f8f5ef 0%, #f2ede4 100%);
+    overflow: hidden;
+}
+
+#app.hub-mode {
+    display: block;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: hidden;
+}
+
+#app.hub-mode #ui-root {
+    width: 100%;
+    height: 100%;
+}
+
+.hub-clean-screen {
+    width: 100%;
+    height: 100dvh;
+    display: grid;
+    justify-items: center;
+    overflow: hidden;
+}
+
+.hub-clean-shell {
+    position: relative;
+    width: min(100%, 420px);
+    height: 100%;
+    overflow: hidden;
+}
+
+.hub-clean-topbar {
+    position: absolute;
+    z-index: 20;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 82px;
+    gap: 12px;
+    min-height: 112px;
+    padding: 16px 14px 14px 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(183, 176, 168, 0.6);
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.hub-clean-goal {
+    display: grid;
+    align-content: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.hub-clean-eyebrow,
+.hub-clean-goal h1,
+.hub-clean-goal p {
+    margin: 0;
+}
+
+.hub-clean-eyebrow {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.hub-clean-goal h1 {
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+}
+
+.hub-clean-goal p {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.hub-clean-progress {
+    position: relative;
+    width: min(100%, 210px);
+    margin-top: 5px;
+}
+
+.hub-clean-progress md-linear-progress {
+    width: 100%;
+    height: 20px;
+    border-radius: 999px;
+    overflow: hidden;
+    --md-linear-progress-track-height: 20px;
+    --md-linear-progress-active-indicator-height: 20px;
+}
+
+.hub-clean-progress span {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 13px;
+    font-weight: 800;
+    pointer-events: none;
+}
+
+.hub-clean-profile {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 7px;
+    min-width: 0;
+    border-left: 3px solid var(--md-sys-color-on-surface);
+    cursor: pointer;
+}
+
+.hub-clean-profile strong {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.hub-clean-stage {
+    position: absolute;
+    inset: 0;
+}
+
+.hub-clean-scroll {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 96, 90, 0.34) transparent;
+}
+
+.hub-clean-content {
+    min-height: calc(100dvh + 640px);
+    padding: 152px 20px 112px;
+}
+
+.hub-clean-day-divider {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 24px;
+    color: var(--md-sys-color-on-surface);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.hub-clean-day-divider span {
+    height: 3px;
+    border-radius: 999px;
+    background: var(--md-sys-color-on-surface);
+}
+
+.hub-clean-levels {
+    position: relative;
+    display: grid;
+    gap: 64px;
+    padding-bottom: 96px;
+}
+
+.hub-clean-levels::before {
+    content: "";
+    position: absolute;
+    top: 44px;
+    bottom: 24px;
+    left: 68px;
+    width: 4px;
+    border-radius: 999px;
+    background: rgba(183, 176, 168, 0.62);
+}
+
+.hub-clean-level {
+    position: relative;
+    display: grid;
+    grid-template-columns: 136px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    min-height: 84px;
+}
+
+.hub-clean-level.is-current {
+    align-items: start;
+    min-height: 178px;
+}
+
+.hub-clean-level__node {
+    position: relative;
+    z-index: 1;
+    justify-self: center;
+    width: 80px;
+    height: 80px;
+    display: grid;
+    place-items: center;
+    border: 4px solid var(--md-sys-color-on-surface);
+    border-radius: 999px;
+    background: #a6a6a6;
+    color: var(--md-sys-color-on-surface);
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.hub-clean-level.is-current .hub-clean-level__node {
+    width: 104px;
+    height: 104px;
+    background: #ffc0b7;
+    font-size: 42px;
+}
+
+.hub-clean-level.is-done .hub-clean-level__node {
+    background: #b7d9a8;
+}
+
+.hub-clean-level__side {
+    min-width: 0;
+}
+
+.hub-clean-current-card {
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+    width: 100%;
+    min-height: 160px;
+    padding: 17px 15px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(183, 176, 168, 0.65);
+    box-shadow: 0 14px 30px rgba(53, 104, 89, 0.12);
+    text-align: center;
+}
+
+.hub-clean-current-card p,
+.hub-clean-current-card h2,
+.hub-clean-current-card span {
+    margin: 0;
+}
+
+.hub-clean-current-card p {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.hub-clean-current-card h2 {
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 0.98;
+}
+
+.hub-clean-current-card span {
+    max-width: 170px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.hub-clean-current-card md-outlined-button {
+    width: 148px;
+    margin-top: 5px;
+}
+
+.hub-clean-game-pill {
+    width: min(100%, 178px);
+    padding: 13px 16px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(183, 176, 168, 0.62);
+    box-shadow: 0 8px 20px rgba(53, 104, 89, 0.08);
+    color: var(--md-sys-color-on-surface);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.hub-clean-fab {
+    position: absolute;
+    z-index: 30;
+    right: 24px;
+    bottom: 18px;
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.hub-clean-fab.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.hub-clean-logout {
+    position: absolute;
+    z-index: 30;
+    left: 24px;
+    bottom: 18px;
+}
+
+.hub-clean-empty {
+    display: grid;
+    place-items: center;
+    gap: 10px;
+    margin-top: 24px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 14px;
+}
+
+@media (max-width: 380px) {
+    .hub-clean-topbar {
+        left: 10px;
+        right: 10px;
+        grid-template-columns: minmax(0, 1fr) 76px;
+        padding-left: 16px;
+    }
+
+    .hub-clean-content {
+        padding-inline: 14px;
+    }
+
+    .hub-clean-level {
+        grid-template-columns: 122px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .hub-clean-levels::before {
+        left: 61px;
     }
 }

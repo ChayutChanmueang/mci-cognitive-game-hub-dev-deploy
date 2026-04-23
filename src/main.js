@@ -1,20 +1,27 @@
 import db from "./core/database.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
+import { renderAdminLoginScreen } from "./ui/admin-login-screen.js";
+import { renderLandingScreen } from "./ui/landing-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
+import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
     getPatientSessionCookie,
+    getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
 import StringUtil from "./util/string-util.js";
 
-const gameModuleLoaders = import.meta.glob("./game/*/main.js");
+const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
 const ROUTES = Object.freeze({
+    home: "#/home",
     login: "#/login",
+    adminLogin: "#/admin-login",
+    playerInfo: "#/player-info",
     signup: "#/signup",
     hub: "#/hub",
 });
@@ -24,6 +31,8 @@ const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
 const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
+const HUB_DAILY_TARGET = 14;
+const HUB_DEFAULT_START_GAME_GID = "ATTN001";
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
@@ -50,6 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (gameContainer) {
             gameContainer.innerHTML = "";
+        }
+    };
+
+    const showUiRoot = () => {
+        if (uiRoot) {
+            uiRoot.hidden = false;
+        }
+    };
+
+    const hideUiRoot = () => {
+        if (uiRoot) {
+            uiRoot.hidden = true;
+            uiRoot.innerHTML = "";
         }
     };
 
@@ -98,8 +120,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 : `/${hashWithoutMarker}`
             : "/";
 
-        if (normalizedPath === "/" || normalizedPath === "/login") {
+        if (normalizedPath === "/" || normalizedPath === "/home") {
+            return { name: "home" };
+        }
+
+        if (normalizedPath === "/login") {
             return { name: "login" };
+        }
+
+        if (normalizedPath === "/admin-login") {
+            return { name: "admin-login" };
+        }
+
+        if (normalizedPath === "/player-info") {
+            return { name: "player-info" };
         }
 
         if (normalizedPath === "/signup") {
@@ -176,6 +210,33 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.setItem(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
     };
 
+    const getPersistedSelectedGame = () => {
+        const gid = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.gid) || "").trim();
+        const name = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.name) || "").trim();
+        const mciGroup = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.group) || "").trim();
+
+        if (!gid || !name) {
+            return null;
+        }
+
+        return {
+            gid,
+            name,
+            mci_group: mciGroup || "Attention",
+        };
+    };
+
+    const getPersistedSelectedGameByGid = (gid) => {
+        const parsedGid = String(gid || "").trim();
+        const selectedGame = getPersistedSelectedGame();
+
+        if (!parsedGid || selectedGame?.gid !== parsedGid) {
+            return null;
+        }
+
+        return selectedGame;
+    };
+
     const clearSelectedGameState = () => {
         sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.gid);
@@ -202,21 +263,64 @@ document.addEventListener("DOMContentLoaded", () => {
         gameContainer.classList.add("game-container--hidden");
     }
 
+    const showLanding = () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("hub-mode");
+        document.body.classList.add("landing-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("hub-mode");
+        app?.classList.add("landing-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        renderLandingScreen(uiRoot, {
+            onLogin: () => navigateTo(ROUTES.login),
+        });
+    };
+
     const showHub = async (options = {}) => {
         if (!uiRoot || !gameContainer) {
             return;
         }
 
         document.body.classList.remove("game-mode");
+        document.body.classList.add("hub-mode");
+        document.body.classList.remove("landing-mode");
         app?.classList.remove("game-mode");
+        app?.classList.add("hub-mode");
+        app?.classList.remove("landing-mode");
         destroyActiveGame();
         gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const rememberedPatient = getPatientSessionCookie();
+        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         await renderGameHubScreen(uiRoot, {
-            loadGamesByCategory: (mciGroup, options) => db.getGamesByMciGroup(mciGroup, options),
-            initialScene: options.initialScene || DEFAULT_HUB_SCENE,
-            initialCategory: options.initialCategory || DEFAULT_HUB_CATEGORY,
+            loadGamesByCategory: (categoryId, pagingOptions) => db.getGamesByMciGroup(categoryId, pagingOptions),
+            dailyTarget: HUB_DAILY_TARGET,
+            completedCount: 0,
+            preferredGameGid: HUB_DEFAULT_START_GAME_GID,
+            patientCode,
+            patientLabel,
+            initialScene: options.initialScene,
+            initialCategory: options.initialCategory,
             sharedState: hubUiState,
+            onStateChange: ({ scene, activeCategory }) => {
+                navigateTo(getHubRouteHash({
+                    scene,
+                    category: activeCategory,
+                }), { replace: true });
+            },
+            onProfile: () => {
+                navigateTo(ROUTES.adminLogin);
+            },
             onLaunchGame: async (selectedGame) => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการเข้าเกม",
@@ -257,12 +361,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
-            },
-            onStateChange: ({ scene, activeCategory }) => {
-                navigateTo(getHubRouteHash({
-                    scene,
-                    category: activeCategory,
-                }));
             },
         });
     };
@@ -324,8 +422,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.classList.add("game-mode");
+        document.body.classList.remove("hub-mode");
+        document.body.classList.remove("landing-mode");
         app?.classList.add("game-mode");
-        uiRoot.innerHTML = "";
+        app?.classList.remove("hub-mode");
+        app?.classList.remove("landing-mode");
+        hideUiRoot();
         destroyActiveGame();
         gameContainer.classList.remove("game-container--hidden");
 
@@ -335,7 +437,11 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error(`Unable to start game ${parsedName}:`, error);
             document.body.classList.remove("game-mode");
+            document.body.classList.remove("hub-mode");
+            document.body.classList.remove("landing-mode");
             app?.classList.remove("game-mode");
+            app?.classList.remove("hub-mode");
+            app?.classList.remove("landing-mode");
             gameContainer.classList.add("game-container--hidden");
             destroyActiveGame();
 
@@ -351,10 +457,28 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const showSignup = ({ patientCode = "" } = {}) => {
+        document.body.classList.remove("landing-mode");
+        document.body.classList.remove("hub-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.remove("hub-mode");
+        showUiRoot();
         renderSignupScreen(uiRoot, {
             initialHn: patientCode,
             onBack: () => navigateTo(ROUTES.login),
             onSubmit: async (formData) => {
+                const patientCodeLabel = `HN${String(formData?.hn || "").trim()}`;
+                const shouldCreatePatient = await showPopup({
+                    title: "ยืนยันการลงทะเบียน",
+                    message: `ต้องการสร้างข้อมูลผู้เล่นรหัส ${patientCodeLabel} ใช่หรือไม่`,
+                    confirmText: "ยืนยัน",
+                    cancelText: "ยกเลิก",
+                    icon: "how_to_reg",
+                });
+
+                if (!shouldCreatePatient) {
+                    return false;
+                }
+
                 const createdPatient = await db.createPatientProfile(formData);
                 await rememberPatientSession(createdPatient);
                 sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
@@ -365,6 +489,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const showLogin = ({ patientCode = "" } = {}) => {
+        document.body.classList.remove("landing-mode");
+        document.body.classList.remove("hub-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.remove("hub-mode");
+        showUiRoot();
         renderLoginScreen(uiRoot, {
             initialPatientCode: patientCode,
             onAccept: async ({ patientId: acceptedId }) => {
@@ -378,7 +507,114 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
+                const patientCodeLabel = `HN${acceptedId}`;
+                const shouldCreatePatient = await showPopup({
+                    title: "ไม่พบรหัส HN",
+                    message: `ไม่พบข้อมูลผู้เล่นรหัส ${patientCodeLabel} ต้องการลงทะเบียนผู้เล่นใหม่หรือไม่`,
+                    confirmText: "สร้างผู้เล่นใหม่",
+                    cancelText: "ยกเลิก",
+                    icon: "person_add",
+                });
+
+                if (!shouldCreatePatient) {
+                    return false;
+                }
+
                 navigateTo(ROUTES.signup);
+            },
+        });
+    };
+
+    const showAdminLogin = () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("hub-mode");
+        document.body.classList.remove("landing-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("hub-mode");
+        app?.classList.remove("landing-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const bypassAdminLogin = async () => {
+            navigateTo(ROUTES.playerInfo);
+            return true;
+        };
+
+        renderAdminLoginScreen(uiRoot, {
+            onSubmit: bypassAdminLogin,
+        });
+    };
+
+    const showPlayerInfo = async () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("hub-mode");
+        document.body.classList.remove("landing-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("hub-mode");
+        app?.classList.remove("landing-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const rememberedPatient = getPatientSessionCookie();
+        let player = rememberedPatient || {};
+
+        if (rememberedPatient?.patientCode) {
+            try {
+                const patient = await db.getPatientByHn(rememberedPatient.patientCode);
+                if (patient) {
+                    player = patient;
+                }
+            } catch (error) {
+                console.warn("Unable to load player info:", error);
+            }
+        }
+
+        renderPlayerInfoScreen(uiRoot, {
+            player,
+            onEndProgram: async () => {
+                await showPopup({
+                    title: "จบโปรแกรม",
+                    message: "ฟังก์ชันจบโปรแกรมจะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    confirmText: "รับทราบ",
+                    icon: "flag",
+                });
+            },
+            onLogout: async () => {
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการออกจากระบบ",
+                    message: "ต้องการออกจากระบบและกลับไปยังหน้าเข้าสู่ระบบใช่หรือไม่",
+                    confirmText: "ออกจากระบบ",
+                    cancelText: "ยกเลิก",
+                    icon: "logout",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                clearPatientClientState();
+                navigateTo(ROUTES.login);
+            },
+            onExport: async () => {
+                await showPopup({
+                    title: "ส่งออกข้อมูล",
+                    message: "ฟังก์ชันส่งออกข้อมูลจะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    confirmText: "รับทราบ",
+                    icon: "download",
+                });
+
+                return false;
             },
         });
     };
@@ -393,7 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "unknown") {
-            navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
+            navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.home, { replace: true });
             return;
         }
 
@@ -402,9 +638,25 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        if (route.name !== "login" && route.name !== "signup" && !rememberedPatient) {
+        if (
+            route.name !== "login"
+            && route.name !== "signup"
+            && route.name !== "admin-login"
+            && route.name !== "player-info"
+            && !rememberedPatient
+        ) {
+            if (route.name === "home") {
+                showLanding();
+                return;
+            }
+
             clearPatientClientState();
-            navigateTo(ROUTES.login, { replace: true });
+            navigateTo(ROUTES.home, { replace: true });
+            return;
+        }
+
+        if (route.name === "home") {
+            showLanding();
             return;
         }
 
@@ -412,6 +664,16 @@ document.addEventListener("DOMContentLoaded", () => {
             showLogin({
                 patientCode: sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "",
             });
+            return;
+        }
+
+        if (route.name === "admin-login") {
+            showAdminLogin();
+            return;
+        }
+
+        if (route.name === "player-info") {
+            await showPlayerInfo();
             return;
         }
 
@@ -454,6 +716,8 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (error) {
                 console.error(`Unable to fetch game by gid ${route.gid}:`, error);
             }
+
+            selectedGame = selectedGame || getPersistedSelectedGameByGid(route.gid);
 
             if (currentRenderVersion !== routeRenderVersion) {
                 return;
@@ -509,7 +773,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const rememberedPatient = getPatientSessionCookie();
     if (!window.location.hash) {
-        navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
+        navigateTo(ROUTES.home, { replace: true });
         return;
     }
 

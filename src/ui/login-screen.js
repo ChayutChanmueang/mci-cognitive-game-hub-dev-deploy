@@ -21,47 +21,27 @@ export function renderLoginScreen(root, options = {}) {
     } = options;
 
     root.innerHTML = `
-        <section class="auth-screen">
-            <div class="auth-shell auth-shell--login">
-                <div class="auth-brand">
-                    <p class="auth-eyebrow">Brain Training Setup</p>
-                    <h1>Setup Patient</h1>
-                    <p class="auth-copy">
-                        กรุณากรอก Patient Code ที่ได้รับจากแพทย์ก่อนเริ่มใช้งานระบบฝึกสมอง
-                    </p>
-                </div>
+        <section class="login-screen" aria-labelledby="login-title">
+            <div class="login-card">
+                <h1 id="login-title">ลงชื่อเข้าใช้</h1>
 
-                <div class="auth-card">
-                    <div class="auth-card__header">
-                        <span class="material-symbols-rounded auth-card__icon" aria-hidden="true">badge</span>
-                        <div>
-                            <h2>Patient Login</h2>
-                            <p>หน้านี้เป็น mockup สำหรับ flow login ด้วยรหัสผู้ป่วย</p>
-                        </div>
-                    </div>
+                <form id="patient-login-form" class="login-form" novalidate>
+                    <md-outlined-text-field
+                        id="patient-id-input"
+                        class="login-field"
+                        label="กรอกหมายเลข HN"
+                        prefix-text="HN  |"
+                        required
+                        no-asterisk
+                        error-text="กรุณากรอกรหัสผู้ป่วย"
+                    ></md-outlined-text-field>
 
-                    <form id="patient-login-form" class="auth-form" novalidate>
-                        <md-outlined-text-field
-                            id="patient-id-input"
-                            class="auth-field"
-                            label="Patient Code"
-                            placeholder="เช่น PID007"
-                            required
-                            supporting-text="กรอกรหัสผู้ป่วยเพื่อดำเนินการต่อ"
-                        ></md-outlined-text-field>
+                    <p id="patient-login-feedback" class="login-feedback" aria-live="polite"></p>
 
-                        <p id="patient-login-feedback" class="auth-feedback" aria-live="polite">
-                            กรอกรหัสผู้ป่วยก่อนกด Accept ID
-                        </p>
-
-                        <div class="auth-actions auth-actions--login-only">
-                            <md-filled-button id="patient-login-submit" type="submit" disabled>
-                                <span slot="icon" class="material-symbols-rounded">arrow_forward</span>
-                                Accept ID
-                            </md-filled-button>
-                        </div>
-                    </form>
-                </div>
+                    <md-filled-button id="patient-login-submit" class="login-submit-button" type="submit" disabled>
+                        ยืนยัน
+                    </md-filled-button>
+                </form>
             </div>
         </section>
     `;
@@ -84,9 +64,8 @@ export function renderLoginScreen(root, options = {}) {
         const hasValue = value.length > 0;
 
         submitButton.disabled = !hasValue;
-        feedback.textContent = hasValue
-            ? "กด Accept ID เพื่อไปยังขั้นตอนถัดไป"
-            : "กรอกรหัสผู้ป่วยก่อนกด Accept ID";
+        feedback.textContent = "";
+        input.errorText = "กรุณากรอกรหัสผู้ป่วย";
 
         toggleFieldError(input, false);
     };
@@ -98,8 +77,9 @@ export function renderLoginScreen(root, options = {}) {
 
         const patientId = String(input.value || "").trim();
         if (!patientId) {
+            input.errorText = "กรุณากรอกรหัสผู้ป่วย";
             toggleFieldError(input, true);
-            feedback.textContent = "กรุณากรอกรหัสผู้ป่วย";
+            feedback.textContent = "";
             submitButton.disabled = true;
             return;
         }
@@ -107,16 +87,23 @@ export function renderLoginScreen(root, options = {}) {
         sessionStorage.setItem("patient_login_id", patientId);
         submitButton.disabled = true;
         input.disabled = true;
-        feedback.textContent = "กำลังตรวจสอบรหัสผู้ป่วย...";
+        feedback.textContent = "กำลังตรวจสอบข้อมูล...";
+
+        console.log("Accept");
 
         try {
-            await onAccept({ patientId });
+            const accepted = await onAccept({ patientId });
+            if (accepted === false) {
+                input.disabled = false;
+                updateState();
+            }
         } catch (error) {
             console.error("Patient login flow failed:", error);
             toggleFieldError(input, true);
-            feedback.textContent = error?.message || "ไม่สามารถตรวจสอบรหัสผู้ป่วยได้";
+            input.errorText = error?.message || "ไม่สามารถตรวจสอบรหัสผู้ป่วยได้";
+            feedback.textContent = "";
             input.disabled = false;
-            updateState();
+            submitButton.disabled = false;
         }
     });
 

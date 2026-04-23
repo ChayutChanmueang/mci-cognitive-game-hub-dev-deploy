@@ -1,153 +1,129 @@
-# Phaser Vite Template
+# MCI Cognitive Games
 
-This is a Phaser 3 project template that uses Vite for bundling. It supports hot-reloading for quick development workflow and includes scripts to generate production-ready builds.
+A web-based cognitive training games platform for MCI (Mild Cognitive Impairment) patients and elderly users. Built with Phaser 3 and Vite, featuring a modular architecture and an advanced **Agentic AI-assisted development workflow**.
 
-**[This Template is also available as a TypeScript version.](https://github.com/phaserjs/template-vite-ts)**
+## 🎮 Game Overview
 
-### Versions
+This project contains 5 mini-games designed to train different cognitive skills:
 
-This template has been updated for:
+| Game | Thai Name | Skill Trained | Core Mechanism |
+|------|-----------|---------------|----------------|
+| **Zoo Detective** | นักสืบสวนสัตว์ | Logical Thinking | Logical deduction by placing animals based on hints |
+| **Zoo Feeder** | คนเลี้ยงสัตว์ | Decision Making | Timing and resource management in a feeding simulation |
+| **Context Clues** | คำใบ้บริบท | Language | Contextual learning and word association |
+| **Symmetry Decor** | ตกแต่งสมมาตร | Spatial Reasoning | Mirroring and symmetry-based object placement |
+| **Postcard Reader** | ผู้อ่านไปรษณีย์ | Reading | Information sequencing and comparison |
 
-- [Phaser 3.90.0](https://github.com/phaserjs/phaser)
-- [Vite 6.3.1](https://github.com/vitejs/vite)
+## 🤖 Agentic AI & Development Workflow
 
-![screenshot](screenshot.png)
+This project leverages cutting-edge AI orchestration for both development and documentation:
 
-## Requirements
+- **AI Agents:** 
+  - **OpenCode:** Primary agent for code generation, refactoring, and complex logic implementation.
+  - **Gemini CLI:** Specialized interactive agent for project orchestration, research, and task automation.
+- **Content Management:** 
+  - Primary content and documentation are managed using **Markdown** for portability and AI readability.
+  - **VS Code Extensions:**
+    - **Markdown for Human:** Enhanced visualization and editing for documentation.
+    - **Obsidian Canvas Viewer:** Integration with Obsidian Canvas (`.canvas`) files directly within VS Code for visual project mapping.
+- **Visual Design & Mapping:** 
+  - **Obsidian:** Used for knowledge management and visual logic mapping via Obsidian Canvas (found in `docs/Idea.canvas`).
 
-[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
+## 🛠️ Technology Stack
 
-## Available Commands
+- **Game Engine:** [Phaser 3.90.0](https://phaser.io/)
+- **Build Tool:** [Vite 6.3.1](https://vitejs.dev/)
+- **Database & Auth:** [Supabase](https://supabase.com/)
+- **UI Libraries:**
+  - Material UI (MUI) @mui/material 7.3.4
+  - Material Web Components @material/web 2.4.1
+- **Phaser Plugins:**
+  - [Rex Rainbow Plugins](https://rexrainbow.github.io/phaser3-rex-notes/docs/site/index.html) (UI, Gestures)
+  - [@koreez/phaser3-i18n](https://github.com/koreez/phaser3-i18n) (Internationalization)
+- **Language:** JavaScript (ES Modules)
 
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Launch a development web server |
-| `npm run build` | Create a production build in the `dist` folder |
-| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
-| `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
+## 📂 Project Structure
 
-
-## Writing Code
-
-After cloning the repo, run `npm install` from your project directory. Then, you can start the local development server by running `npm run dev`.
-
-The local development server runs on `http://localhost:8080` by default. Please see the Vite documentation if you wish to change this, or add SSL support.
-
-Once the server is running you can edit any of the files in the `src` folder. Vite will automatically recompile your code and then reload the browser.
-
-## Template Project Structure
-
-We have provided a default project structure to get you started. This is as follows:
-
-| Path                         | Description                                                |
-|------------------------------|------------------------------------------------------------|
-| `index.html`                 | A basic HTML page to contain the game.                     |
-| `public/assets`              | Game sprites, audio, etc. Served directly at runtime.      |
-| `public/style.css`           | Global layout styles.                                      |
-| `src/main.js`                | Application bootstrap.                                     |
-| `src/game`                   | Folder containing the game code.                           |
-| `src/game/main.js`           | Game entry point: configures and starts the game.          |
-| `src/game/scenes`            | Folder with all Phaser game scenes.                        | 
-
-## Handling Assets
-
-Vite supports loading assets via JavaScript module `import` statements.
-
-This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
-
-```js
-import logoImg from './assets/logo.png'
+```text
+├── .agents/                # AI Agent skills and specialized instructions
+├── docs/                   # Documentation and Project Logs
+│   ├── Agentic AI/         # AI-assisted development docs
+│   ├── Design Document/    # GDD, Class Diagrams, Database Schema, Wiki
+│   ├── Meeting Logs/       # Development meeting notes
+│   └── Progress Logs/      # Sprint and Weekly backlogs
+├── public/                 # Static assets (images, audio, CSS)
+├── src/
+│   ├── core/               # Core systems (Database, Storage, Managers)
+│   ├── game/               # Game modules
+│   │   └── [game-name]/    # Individual game implementation
+│   │       ├── components/ # Reusable game components
+│   │       ├── data/       # Game-specific data structures
+│   │       ├── entity/     # Game objects and entities
+│   │       ├── scenes/     # Phaser Scenes (Boot, Preloader, MainMenu, Gameplay)
+│   │       └── ui-elements/# Game-specific UI
+│   ├── ui/                 # React/MUI screen components (Login, Hub, Dialogs)
+│   ├── ui-element/         # Reusable global UI elements
+│   └── util/               # Utility functions
+│       ├── layout/         # UI layout helpers (Grid, Progress Bar)
+│       └── object-pool/    # Performance optimization utilities
+├── AGENTS.md               # Guidelines for AI development agents
+└── SETUP.md                # Environment setup and configuration
 ```
 
-To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
+## 📖 Documentation
 
-```js
-preload ()
-{
-    //  This is an example of an imported bundled image.
-    //  Remember to import it at the top of this file
-    this.load.image('logo', logoImg);
+### Design & Architecture
+- [**Project Summary**](docs/Design%20Document/Summary-Project.md) - High-level project goals
+- [**Game Design Document (GDD)**](docs/Design%20Document/GDD-Project.md) - Full game mechanics specification
+- [**Wiki Overview**](docs/Design%20Document/wiki/README.md) - Technical knowledge base for developers
+- [**Database Schema**](docs/Design%20Document/DatabaseSchema-Project.md) - Supabase table structures
 
-    //  This is an example of loading a static image
-    //  from the public/assets folder:
-    this.load.image('background', 'assets/bg.png');
-}
-```
+### Project Management
+- [**Sprint Backlog**](docs/Progress%20Logs/SPRINT_BACKLOG-SB01.md) - Active tasks and milestones
+- [**Meeting Notes**](docs/Meeting%20Logs/MeetingNotes-260422.md) - Latest decision logs
 
-When you issue the `npm run build` command, all static assets are automatically copied to the `dist/assets` folder.
+### AI & Agents
+- [**Agent Guidelines**](AGENTS.md) - Essential commands and project rules for AI agents
+- [**AI Skill Usage**](docs/Agentic%20AI/PROJECT_AGENT_SKILL_USING.md) - How specialized AI skills are utilized
 
-## Deploying to Production
+## 🚀 Quick Start
 
-After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
+2. **Configure environment:**
+   Create `.env` file from `.env.example` and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your-supabase-url
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
 
-## Customizing the Template
+3. **Run development server:**
+   ```bash
+   npm run dev
+   ```
 
-### Vite
+4. **Build for production:**
+   ```bash
+   npm run build
+   ```
 
-If you want to customize your build, such as adding plugin (i.e. for loading CSS or fonts), you can modify the `vite/config.*.mjs` file for cross-project changes, or you can modify and/or create new configuration files and target them in specific npm tasks inside of `package.json`. Please see the [Vite documentation](https://vitejs.dev/) for more information.
+## 📈 Game Features
 
-## About log.js
+### Difficulty Scaling
+Each game features 3 difficulty levels (Easy, Medium, Hard) with balanced scoring and penalty systems:
+- **Easy:** 10 rounds, +15-20 score, -5 penalty
+- **Medium:** 10 rounds, +16-20 score, -6 penalty  
+- **Hard:** 10 rounds, +17-20 score, -7 penalty
 
-If you inspect our node scripts you will see there is a file called `log.js`. This file makes a single silent API call to a domain called `gryzor.co`. This domain is owned by Phaser Studio Inc. The domain name is a homage to one of our favorite retro games.
+### Data Tracking
+The system automatically tracks patient progress and engagement via Supabase:
+- Patient profiles (HN, Age, Gender, Education)
+- Game performance (Scores, Levels, Completion times)
+- Event logging (Application lifecycle, Game session starts)
 
-We send the following 3 pieces of data to this API: The name of the template being used (vue, react, etc). If the build was 'dev' or 'prod' and finally the version of Phaser being used.
+## 📄 License
 
-At no point is any personal data collected or sent. We don't know about your project files, device, browser or anything else. Feel free to inspect the `log.js` file to confirm this.
-
-Why do we do this? Because being open source means we have no visible metrics about which of our templates are being used. We work hard to maintain a large and diverse set of templates for Phaser developers and this is our small anonymous way to determine if that work is actually paying off, or not. In short, it helps us ensure we're building the tools for you.
-
-However, if you don't want to send any data, you can use these commands instead:
-
-Dev:
-
-```bash
-npm run dev-nolog
-```
-
-Build:
-
-```bash
-npm run build-nolog
-```
-
-Or, to disable the log entirely, simply delete the file `log.js` and remove the call to it in the `scripts` section of `package.json`:
-
-Before:
-
-```json
-"scripts": {
-    "dev": "node log.js dev & dev-template-script",
-    "build": "node log.js build & build-template-script"
-},
-```
-
-After:
-
-```json
-"scripts": {
-    "dev": "dev-template-script",
-    "build": "build-template-script"
-},
-```
-
-Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
-
-## Join the Phaser Community!
-
-We love to see what developers like you create with Phaser! It really motivates us to keep improving. So please join our community and show-off your work 😄
-
-**Visit:** The [Phaser website](https://phaser.io) and follow on [Phaser Twitter](https://twitter.com/phaser_)<br />
-**Play:** Some of the amazing games [#madewithphaser](https://twitter.com/search?q=%23madewithphaser&src=typed_query&f=live)<br />
-**Learn:** [API Docs](https://newdocs.phaser.io), [Support Forum](https://phaser.discourse.group/) and [StackOverflow](https://stackoverflow.com/questions/tagged/phaser-framework)<br />
-**Discord:** Join us on [Discord](https://discord.gg/phaser)<br />
-**Code:** 2000+ [Examples](https://labs.phaser.io)<br />
-**Read:** The [Phaser World](https://phaser.io/community/newsletter) Newsletter<br />
-
-Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
-
-The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
-
-All rights reserved.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

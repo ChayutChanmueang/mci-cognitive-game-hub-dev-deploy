@@ -10,6 +10,8 @@ export default class ProgressBar{
         this.innerColor = settings.innerColor || 0x00ff00;
         this.backgroundColor = settings.backgroundColor || 0xffffff;
         this.borderColor = settings.borderColor || 0x000000;
+        this.borderWidth = settings.borderWidth ?? 4;
+        this.borderRadius = settings.borderRadius ?? 0;
         this.value = settings.value || 0.5;
         this.enableProgressText = settings.enableProgressText || false;
         this.animationDuration = settings.animationDuration || 250;
@@ -18,11 +20,8 @@ export default class ProgressBar{
         
         this.container = scene.add.container(x,y);
 
-        this.bgPanel = scene.add.rectangle(0,0,this.width,this.height,this.backgroundColor,1);
-        this.bgPanel.setStrokeStyle(4,this.borderColor);
-
-        this.fillPanel = scene.add.rectangle(-this.width/2,0,this.width,this.height,this.innerColor,1);
-        this.fillPanel.setOrigin(0,0.5);
+        this.bgPanel = scene.add.graphics();
+        this.fillPanel = scene.add.graphics();
 
         if(this.enableProgressText){
             this.progressText = scene.add.text(0,0,"0%",{
@@ -38,10 +37,48 @@ export default class ProgressBar{
         this.setValue(this.value);
     }
 
+    redraw(){
+        const radius = Math.max(0, Math.min(this.borderRadius, this.height / 2));
+        const fillWidth = this.maxWidth * this.value;
+
+        this.bgPanel.clear();
+        this.bgPanel.fillStyle(this.backgroundColor, 1);
+
+        if (radius > 0) {
+            this.bgPanel.fillRoundedRect(-this.width / 2, -this.height / 2, this.width, this.height, radius);
+        } else {
+            this.bgPanel.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        }
+
+        if (this.borderWidth > 0) {
+            this.bgPanel.lineStyle(this.borderWidth, this.borderColor, 1);
+            if (radius > 0) {
+                this.bgPanel.strokeRoundedRect(-this.width / 2, -this.height / 2, this.width, this.height, radius);
+            } else {
+                this.bgPanel.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
+            }
+        }
+
+        this.fillPanel.clear();
+        if (fillWidth <= 0) {
+            return this;
+        }
+
+        this.fillPanel.fillStyle(this.innerColor, 1);
+        const fillRadius = Math.min(radius, fillWidth / 2);
+        if (fillRadius > 0) {
+            this.fillPanel.fillRoundedRect(-this.width / 2, -this.height / 2, fillWidth, this.height, fillRadius);
+        } else {
+            this.fillPanel.fillRect(-this.width / 2, -this.height / 2, fillWidth, this.height);
+        }
+
+        return this;
+    }
+
     setValue(value){
         this.value = Math.max(0,Math.min(1,value));
 
-        this.fillPanel.width = this.maxWidth * this.value;
+        this.redraw();
 
         if(this.enableProgressText){
             this.progressText.setText(`${Math.floor(this.value * 100)}%`)
@@ -94,19 +131,17 @@ export default class ProgressBar{
     setColors({ innerColor, backgroundColor, borderColor } = {}){
         if (innerColor !== undefined) {
             this.innerColor = innerColor;
-            this.fillPanel.setFillStyle(innerColor, 1);
         }
 
         if (backgroundColor !== undefined) {
             this.backgroundColor = backgroundColor;
-            this.bgPanel.setFillStyle(backgroundColor, 1);
         }
 
         if (borderColor !== undefined) {
             this.borderColor = borderColor;
-            this.bgPanel.setStrokeStyle(4, borderColor);
         }
 
+        this.redraw();
         return this;
     }
 
