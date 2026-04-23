@@ -95,6 +95,6 @@
 
 ## 🔗 Related Documents
 - [**Design Document**](../Design-Documents/GDD-Template.md)
-- [**Meeting History**](MEETING_HISTORY-Template.md)
+- [**Meeting History**](Meeting-History-Template.md)
 
 ---

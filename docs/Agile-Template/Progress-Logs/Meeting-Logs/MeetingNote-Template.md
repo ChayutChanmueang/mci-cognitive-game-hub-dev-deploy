@@ -74,7 +74,7 @@
 ---
 
 ## 🔗 Traceability
-- **Weekly Backlog:** [[../WEEKLY_BACKLOG_HISTORY-Template|Weekly Backlog History]]
+- **Weekly Backlog:** [[Weekly-Backlog-History-Template|Weekly Backlog History]]
 - **Full Roadmap:** [[../Product-Backlog-Template|Product Backlog]]
 
 ---

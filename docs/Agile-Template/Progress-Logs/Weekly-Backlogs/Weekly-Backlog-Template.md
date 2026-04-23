@@ -47,7 +47,7 @@
 
 ## 🔗 Related Links
 - [**Product Backlog**](../Product-Backlog-Template.md)
-- [**Weekly History**](../WEEKLY_BACKLOG_HISTORY-Template.md)
+- [**Weekly History**](Weekly-Backlog-History-Template.md)
 - [**Latest Meeting Note**](../Meeting-Logs/MeetingNote-Template.md)
 
 ---
