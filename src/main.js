@@ -31,8 +31,7 @@ const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
 const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
-const HUB_CATEGORY_ORDER = ["Attention", "Memory", "Language", "Visuospatial", "Executive"];
-const HUB_DAILY_TARGET = 10;
+const HUB_DAILY_TARGET = 14;
 const HUB_DEFAULT_START_GAME_GID = "ATTN001";
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
@@ -282,41 +281,6 @@ document.addEventListener("DOMContentLoaded", () => {
         renderLandingScreen(uiRoot, {
             onLogin: () => navigateTo(ROUTES.login),
         });
-    };
-
-    const loadGameHubProgram = async () => {
-        const loadedGames = [];
-
-        for (const categoryId of HUB_CATEGORY_ORDER) {
-            if (loadedGames.length >= HUB_DAILY_TARGET) {
-                break;
-            }
-
-            try {
-                const result = await db.getGamesByMciGroup(categoryId, {
-                    offset: 0,
-                    pageSize: HUB_DAILY_TARGET,
-                });
-
-                loadedGames.push(...(result?.items || []));
-            } catch (error) {
-                console.warn(`Unable to load hub games for ${categoryId}:`, error);
-            }
-        }
-
-        const uniqueGames = [];
-        const seenGids = new Set();
-        for (const game of loadedGames) {
-            const gid = String(game?.gid || "").trim();
-            if (!gid || seenGids.has(gid)) {
-                continue;
-            }
-
-            seenGids.add(gid);
-            uniqueGames.push(game);
-        }
-
-        return uniqueGames.slice(0, HUB_DAILY_TARGET);
     };
 
     const showHub = async (options = {}) => {
