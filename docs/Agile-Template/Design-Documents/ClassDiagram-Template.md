@@ -1,9 +1,12 @@
 # Class Diagram - [Game Title]
 
 ---
-*Document Version: 1.0*  
-*Project: [Game Title]*  
-*Last Updated: YYYY-MM-DD*
+
+**Project:** [Project Name]
+**Version:** 1.0
+**Status:** [Draft/Review/Final]
+**Last Updated:** [YYYY-MM-DD]
+
 ---
 
 ## 1. Game Architecture
