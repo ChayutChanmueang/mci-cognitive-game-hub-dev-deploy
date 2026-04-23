@@ -12,7 +12,7 @@
 ---
 
 ## 🔗 Related Resources
-- [**Sprint Planning**](../Progress%20Logs/SPRINT_PLANNING-Template.md)
+- [**Sprint Planning**](../Progress-Logs/SPRINT_PLANNING-Template.md)
 - [**Dashboard**](../DASHBOARD-Template.md)
 
 ---

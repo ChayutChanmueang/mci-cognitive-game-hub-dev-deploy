@@ -34,7 +34,7 @@
 ---
 
 ## 🔗 Related Documents
-- [**Design Document**](Design%20Documents/GDD-Template.md)
-- [**Meeting Notes**](Meeting%20Logs/MeetingNote-Template.md)
+- [**Design Document**](Design-Documents/GDD-Template.md)
+- [**Meeting Notes**](Meeting-Logs/MeetingNote-Template.md)
 
 ---

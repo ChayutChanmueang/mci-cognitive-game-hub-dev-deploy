@@ -31,6 +31,6 @@
 
 ## 🔗 Related Links
 - [**Sprint Backlog**](SPRINT_BACKLOG-Template.md)
-- [**Latest Meeting Note**](../Meeting%20Logs/MeetingNote-Template.md)
+- [**Latest Meeting Note**](../Meeting-Logs/MeetingNote-Template.md)
 
 ---
