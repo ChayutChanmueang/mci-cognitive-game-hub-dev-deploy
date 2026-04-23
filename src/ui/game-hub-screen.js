@@ -6,7 +6,6 @@ const CATEGORY_META = Object.freeze({
         nameTh: "ความจำ",
         nameEn: "Memory",
         icon: "memory",
-        tone: "peach",
         description: "ฝึกการจดจำข้อมูล ลำดับ และรายละเอียดที่เพิ่งเห็นหรือได้ยิน",
     },
     Visuospatial: {
@@ -14,7 +13,6 @@ const CATEGORY_META = Object.freeze({
         nameTh: "มิติสัมพันธ์",
         nameEn: "Visuospatial",
         icon: "crop_free",
-        tone: "sky",
         description: "ฝึกการสังเกตรูปทรง พื้นที่ และความสัมพันธ์ของวัตถุ",
     },
     Attention: {
@@ -22,7 +20,6 @@ const CATEGORY_META = Object.freeze({
         nameTh: "สมาธิ",
         nameEn: "Attention",
         icon: "center_focus_strong",
-        tone: "sun",
         description: "ฝึกการจดจ่อ คัดแยกสิ่งรบกวน และตอบสนองต่อเป้าหมายให้แม่นยำ",
     },
     Language: {
@@ -30,7 +27,6 @@ const CATEGORY_META = Object.freeze({
         nameTh: "ภาษา",
         nameEn: "Language",
         icon: "translate",
-        tone: "mint",
         description: "ฝึกการเข้าใจคำศัพท์ ความหมาย และการใช้ภาษาในบริบทต่าง ๆ",
     },
     Executive: {
@@ -38,25 +34,26 @@ const CATEGORY_META = Object.freeze({
         nameTh: "บริหารสมอง",
         nameEn: "Executive",
         icon: "account_tree",
-        tone: "rose",
         description: "ฝึกการวางแผน ตัดสินใจ จัดลำดับ และควบคุมการทำงานหลายขั้นตอน",
     },
 });
 
-const CATEGORY_ORDER = ["Memory", "Visuospatial", "Attention", "Language", "Executive"];
+const CATEGORY_ORDER = ["Attention", "Memory", "Language", "Visuospatial", "Executive"];
 const PAGE_SIZE = 10;
-const FALLBACK_GAMES = Object.freeze({
-    Attention: [
-        {
-            id: "fallback-attn-001",
-            gid: "ATTN001",
-            name: "Zoo Feeder",
-            mci_group: "Attention",
-            max_score: null,
-            created_at: null,
-        },
-    ],
-});
+const DEFAULT_DAILY_TARGET = 10;
+const DEFAULT_START_GAME_GID = "ATTN001";
+const FALLBACK_GAMES = Object.freeze([
+    { id: "fallback-attn-001", gid: "ATTN001", name: "Zoo Feeder", mci_group: "Attention" },
+    { id: "fallback-lang-001", gid: "LANG001", name: "เกมนักสืบเติมคำ", mci_group: "Language" },
+    { id: "fallback-mem-001", gid: "MEM001", name: "จำภาพโปสการ์ด", mci_group: "Memory" },
+    { id: "fallback-attn-002", gid: "ATTN002", name: "ค้นหาสัตว์", mci_group: "Attention" },
+    { id: "fallback-exec-001", gid: "EXEC001", name: "จัดลำดับงาน", mci_group: "Executive" },
+    { id: "fallback-vis-001", gid: "VIS001", name: "ต่อภาพเส้นทาง", mci_group: "Visuospatial" },
+    { id: "fallback-lang-002", gid: "LANG002", name: "เลือกคำให้ถูก", mci_group: "Language" },
+    { id: "fallback-mem-002", gid: "MEM002", name: "จับคู่ความจำ", mci_group: "Memory" },
+    { id: "fallback-attn-003", gid: "ATTN003", name: "แยกสีให้ไว", mci_group: "Attention" },
+    { id: "fallback-exec-002", gid: "EXEC002", name: "วางแผนซื้อของ", mci_group: "Executive" },
+]);
 
 function escapeHtml(value) {
     return String(value || "")
@@ -67,12 +64,14 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
-function normalizeGame(item, index, categoryId) {
+function normalizeGame(item, index, categoryId = "Attention") {
+    const parsedCategory = String(item?.mci_group || categoryId || "Attention").trim();
+
     return {
-        id: item?.id ?? `${categoryId}-${index}`,
-        gid: String(item?.gid || `${categoryId}-${index}`).trim(),
+        id: item?.id ?? `${parsedCategory}-${index}`,
+        gid: String(item?.gid || `${parsedCategory}-${index}`).trim(),
         name: String(item?.name || "Untitled Game").trim(),
-        mci_group: String(item?.mci_group || categoryId).trim(),
+        mci_group: parsedCategory,
         max_score: item?.max_score ?? null,
         created_at: item?.created_at ?? null,
     };
@@ -101,6 +100,11 @@ function createCategoryStates() {
 export function createGameHubState() {
     return {
         categoryStates: createCategoryStates(),
+        programGames: [],
+        programInitialized: false,
+        programLoading: false,
+        programError: "",
+        scrollTop: 0,
     };
 }
 
@@ -129,204 +133,339 @@ function getPatientLabel() {
     return loginId;
 }
 
-function getSummaryText(state) {
-    if (state.loading && !state.initialized) {
-        return "กำลังโหลด...";
-    }
-
-    if (state.total === 0) {
-        return "ยังไม่มีเกม";
-    }
-
-    if (typeof state.total === "number" && state.total > 0) {
-        return `${state.total} เกม`;
-    }
-
-    if (state.usedFallback && state.items.length) {
-        return `${state.items.length} เกมตัวอย่าง`;
-    }
-
-    return "แตะเพื่อดูรายการเกม";
+function getCategoryLabel(categoryId) {
+    return CATEGORY_META[categoryId]?.nameTh || "ฝึกสมอง";
 }
 
-function buildIntroMarkup() {
-    return `
-        <section class="hub-screen hub-screen--intro">
-            <div class="hub-hero">
-                <div class="hub-hero__icon">
-                    <span class="material-symbols-rounded">neurology</span>
+function getCategoryDescription(categoryId) {
+    return CATEGORY_META[categoryId]?.description || "เกมฝึกสมองประจำวัน";
+}
+
+class HubElement {
+    constructor(options = {}) {
+        this.options = options;
+        this.element = null;
+        this.cleanups = [];
+    }
+
+    html() {
+        return "";
+    }
+
+    render() {
+        const template = document.createElement("template");
+        template.innerHTML = this.html().trim();
+        this.element = template.content.firstElementChild;
+        this.bind();
+        return this.element;
+    }
+
+    on(target, eventName, handler, options) {
+        target?.addEventListener(eventName, handler, options);
+        this.cleanups.push(() => target?.removeEventListener(eventName, handler, options));
+    }
+
+    bind() {}
+
+    destroy() {
+        this.cleanups.forEach((cleanup) => cleanup());
+        this.cleanups = [];
+        this.element?.remove();
+        this.element = null;
+    }
+}
+
+class DailyGoalTopBar extends HubElement {
+    html() {
+        const completedCount = Math.max(0, Number(this.options.completedCount) || 0);
+        const dailyTarget = Math.max(1, Number(this.options.dailyTarget) || DEFAULT_DAILY_TARGET);
+        const progressPercent = Math.min(100, Math.round((completedCount / dailyTarget) * 100));
+        const patientLabel = this.options.patientLabel || "ผู้เล่น";
+
+        return `
+            <header class="hub-map-topbar">
+                <div class="hub-map-topbar__main">
+                    <p class="hub-map-eyebrow">${escapeHtml(patientLabel)}</p>
+                    <h1>เป้าหมายของวันนี้</h1>
+                    <p class="hub-map-topbar__summary">เล่น ${dailyTarget} เกม เพื่อฝึกสมอง</p>
+                    <div class="hub-map-progress" aria-label="เล่นแล้ว ${completedCount} จาก ${dailyTarget} เกม">
+                        <span class="hub-map-progress__fill" style="width: ${progressPercent}%"></span>
+                        <span class="hub-map-progress__label">${completedCount}/${dailyTarget}</span>
+                    </div>
                 </div>
-                <p class="auth-eyebrow">Game Hub</p>
-                <h1>Brain Boost Hub</h1>
-                <p class="hub-hero__copy">
-                    ศูนย์กลางสำหรับเลือกหมวด MCI และเข้าสู่เกมฝึกสมองแต่ละด้านจากหน้าเดียว
-                </p>
-                <md-filled-button id="hub-start-button" type="button">
-                    <span slot="icon" class="material-symbols-rounded">play_arrow</span>
-                    เริ่มเลือกเกม
-                </md-filled-button>
-                <md-filled-button id="hub-logout-button" class="hub-logout-button" type="button">
-                    <span slot="icon" class="material-symbols-rounded">logout</span>
-                    ออกจากระบบ
-                </md-filled-button>
-            </div>
-        </section>
-    `;
+                <button class="hub-map-profile-button" type="button" aria-label="เปิดโปรไฟล์ผู้เล่น">
+                    <span class="hub-map-profile-button__icon">♙</span>
+                    <span>โปรไฟล์</span>
+                </button>
+            </header>
+        `;
+    }
+
+    bind() {
+        this.on(this.element?.querySelector(".hub-map-profile-button"), "click", () => {
+            this.options.onProfile?.();
+        });
+    }
 }
 
-function buildCategoryButton(category, state, isActive) {
-    return `
-        <button
-            type="button"
-            class="hub-category-chip${isActive ? " is-active" : ""}"
-            data-category-id="${category.id}"
-        >
-            <span class="hub-category-chip__name">${escapeHtml(category.nameTh)}</span>
-            <span class="hub-category-chip__en">${escapeHtml(category.nameEn)}</span>
-            <span class="hub-category-chip__meta">${escapeHtml(getSummaryText(state))}</span>
-        </button>
-    `;
-}
+class GameLaunchCard extends HubElement {
+    html() {
+        const game = this.options.gameData || {};
+        const categoryId = game.mci_group || "Attention";
 
-function buildGameCard(game, category) {
-    return `
-        <article class="hub-game-card">
-            <div class="hub-game-card__icon">
-                <span class="material-symbols-rounded">${category.icon}</span>
-            </div>
-            <div class="hub-game-card__body">
-                <div class="hub-game-card__titles">
-                    <h3>${escapeHtml(game.name)}</h3>
-                    <p>${escapeHtml(category.nameTh)} · ${escapeHtml(category.nameEn)} · ${escapeHtml(game.gid)}</p>
+        return `
+            <article class="hub-map-launch-card">
+                <div class="hub-map-launch-card__copy">
+                    <p>${escapeHtml(getCategoryLabel(categoryId))}</p>
+                    <h2>${escapeHtml(game.name || "เกมฝึกสมอง")}</h2>
+                    <span>${escapeHtml(getCategoryDescription(categoryId))}</span>
                 </div>
-                <div class="hub-game-card__actions">
-                    <span class="hub-status-chip hub-status-chip--playable">
-                        พร้อมเล่น
-                    </span>
-                    <md-filled-icon-button
-                        aria-label="เล่น ${escapeHtml(game.name)}"
-                        data-game-gid="${escapeHtml(game.gid)}"
-                    >
-                        <span class="material-symbols-rounded">play_arrow</span>
-                    </md-filled-icon-button>
-                </div>
+                <button class="hub-map-start-button" type="button">
+                    เริ่มเกม
+                </button>
+            </article>
+        `;
+    }
+
+    bind() {
+        this.on(this.element?.querySelector(".hub-map-start-button"), "click", () => {
+            this.options.onLaunch?.(this.options.gameData, this);
+        });
+    }
+}
+
+class LevelNode extends HubElement {
+    html() {
+        const index = Math.max(0, Number(this.options.index) || 0);
+        const game = this.options.gameData || {};
+        const isDone = Boolean(this.options.isDone);
+        const isCurrent = Boolean(this.options.isCurrent);
+        const isLocked = Boolean(this.options.isLocked);
+        const classes = [
+            "hub-map-level-node",
+            isDone ? "is-done" : "",
+            isCurrent ? "is-current" : "",
+            isLocked ? "is-locked" : "",
+        ].filter(Boolean).join(" ");
+        const nodeIcon = isDone ? "✓" : isCurrent ? "🧑" : String(index + 1);
+
+        return `
+            <div class="${classes}" style="--level-offset: ${index % 2 === 0 ? "0px" : "190px"}">
+                <button class="hub-map-level-node__circle" type="button" ${isLocked ? "disabled" : ""}>
+                    <span>${nodeIcon}</span>
+                </button>
+                ${isCurrent ? `<div class="hub-map-level-node__card-slot"></div>` : ""}
+                ${!isCurrent ? `<p class="hub-map-level-node__label">${escapeHtml(game.name || `เกมที่ ${index + 1}`)}</p>` : ""}
             </div>
-        </article>
-    `;
-}
+        `;
+    }
 
-function buildLoadingMarkup() {
-    return `
-        <div class="hub-empty-state">
-            <span class="material-symbols-rounded">progress_activity</span>
-            <h3>กำลังโหลดรายการเกม</h3>
-            <p>กำลังดึงข้อมูลเกมของหมวดนี้จากฐานข้อมูล</p>
-        </div>
-    `;
-}
+    bind() {
+        this.on(this.element?.querySelector(".hub-map-level-node__circle"), "click", () => {
+            if (!this.options.isLocked) {
+                this.options.onLaunch?.(this.options.gameData, this);
+            }
+        });
 
-function buildErrorMarkup() {
-    return `
-        <div class="hub-empty-state">
-            <span class="material-symbols-rounded">cloud_off</span>
-            <h3>ยังโหลดรายการเกมไม่ได้</h3>
-            <p>ลองแตะหมวดนี้อีกครั้งในภายหลัง</p>
-        </div>
-    `;
-}
-
-function buildEmptyMarkup() {
-    return `
-        <div class="hub-empty-state">
-            <span class="material-symbols-rounded">upcoming</span>
-            <h3>เกมจะตามมาในภายหลัง</h3>
-            <p>หมวดนี้ยังไม่มีเกมในระบบตอนนี้ แต่จะมีเกมเพิ่มเข้ามาเร็ว ๆ นี้</p>
-        </div>
-    `;
-}
-
-function buildLoadMoreMarkup() {
-    return `
-        <div class="hub-load-more">
-            <md-outlined-button id="hub-load-more-button" type="button">
-                <span slot="icon" class="material-symbols-rounded">expand_more</span>
-                โหลดเพิ่มอีก 10 เกม
-            </md-outlined-button>
-        </div>
-    `;
-}
-
-function buildSelectionMarkup({ activeCategory, categoryStates, patientLabel }) {
-    const currentCategory = CATEGORY_META[activeCategory];
-    const currentState = categoryStates[activeCategory];
-
-    const categoriesHtml = CATEGORY_ORDER.map((categoryId) =>
-        buildCategoryButton(
-            CATEGORY_META[categoryId],
-            categoryStates[categoryId],
-            categoryId === activeCategory,
-        ),
-    ).join("");
-
-    let gamesHtml = "";
-    if (currentState.loading && !currentState.initialized) {
-        gamesHtml = buildLoadingMarkup();
-    } else if (currentState.error && !currentState.items.length) {
-        gamesHtml = buildErrorMarkup();
-    } else if (!currentState.items.length) {
-        gamesHtml = buildEmptyMarkup();
-    } else {
-        gamesHtml = currentState.items
-            .map((game) => buildGameCard(game, currentCategory))
-            .join("");
-
-        if (currentState.hasMore) {
-            gamesHtml += buildLoadMoreMarkup();
+        if (this.options.isCurrent) {
+            const card = new GameLaunchCard({
+                gameData: this.options.gameData,
+                onLaunch: this.options.onLaunch,
+            });
+            this.options.registerChild?.(card);
+            this.element?.querySelector(".hub-map-level-node__card-slot")?.append(card.render());
         }
     }
+}
 
-    return `
-        <section class="hub-screen hub-screen--selection">
-            <div class="hub-shell">
-                <header class="hub-header">
-                    <md-outlined-icon-button id="hub-back-button" aria-label="กลับ">
-                        <span class="material-symbols-rounded">arrow_back_ios_new</span>
-                    </md-outlined-icon-button>
-                    <div class="hub-header__copy">
-                        <h2>เลือกหมวดหมู่</h2>
-                        <p>${patientLabel ? `ผู้ใช้งาน: ${escapeHtml(patientLabel)}` : "เลือกหมวดที่ต้องการแล้วเริ่มเกมได้ทันที"}</p>
+class LevelMap extends HubElement {
+    constructor(options = {}) {
+        super(options);
+        this.children = [];
+    }
+
+    html() {
+        const games = this.options.games || [];
+        const isLoading = Boolean(this.options.isLoading);
+        const hasError = Boolean(this.options.error);
+
+        return `
+            <section class="hub-map-stage">
+                <div class="hub-map-scroll" data-hub-map-scroll>
+                    <div class="hub-map-content">
+                        <div class="hub-map-day-divider">
+                            <span></span>
+                            <strong>วันที่ 1</strong>
+                            <span></span>
+                        </div>
+                        <div class="hub-map-level-list"></div>
+                        ${isLoading ? this.loadingHtml() : ""}
+                        ${hasError ? this.errorHtml() : ""}
                     </div>
-                </header>
-
-                <div class="hub-layout">
-                    <aside class="hub-panel hub-panel--categories">
-                        <div class="hub-panel__heading">
-                            <span class="material-symbols-rounded">category</span>
-                            <h3>หมวด MCI</h3>
-                        </div>
-                        <div class="hub-category-rail">
-                            ${categoriesHtml}
-                        </div>
-                    </aside>
-
-                    <section class="hub-panel hub-panel--games tone-${currentCategory.tone}">
-                        <div class="hub-panel__heading hub-panel__heading--games">
-                            <div class="hub-panel__heading-copy">
-                                <span class="hub-panel__marker"></span>
-                                <div>
-                                    <h3>เกม${escapeHtml(currentCategory.nameTh)}</h3>
-                                    <p>${escapeHtml(currentCategory.description)}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="hub-game-list">
-                            ${gamesHtml}
-                        </div>
-                    </section>
                 </div>
+                <button class="hub-map-scroll-top" type="button" aria-label="เลื่อนกลับด้านบน">↑</button>
+            </section>
+        `;
+    }
+
+    loadingHtml() {
+        return `
+            <div class="hub-map-empty">
+                <span class="material-symbols-rounded">progress_activity</span>
+                <h2>กำลังโหลดรายการเกม</h2>
+                <p>กำลังดึงข้อมูลเกมจากฐานข้อมูล</p>
             </div>
-        </section>
-    `;
+        `;
+    }
+
+    errorHtml() {
+        return `
+            <div class="hub-map-empty">
+                <span class="material-symbols-rounded">cloud_off</span>
+                <h2>ใช้รายการเกมตัวอย่าง</h2>
+                <p>ยังโหลดข้อมูลจากฐานข้อมูลไม่ได้ ระบบจึงแสดงรายการทดสอบก่อน</p>
+            </div>
+        `;
+    }
+
+    bind() {
+        const scrollArea = this.element?.querySelector("[data-hub-map-scroll]");
+        const scrollTopButton = this.element?.querySelector(".hub-map-scroll-top");
+        const updateScrollTopButton = () => {
+            scrollTopButton?.classList.toggle("is-visible", (scrollArea?.scrollTop || 0) > 160);
+            this.options.onScrollChange?.(scrollArea?.scrollTop || 0);
+        };
+
+        this.on(scrollArea, "scroll", updateScrollTopButton, { passive: true });
+        this.on(scrollTopButton, "click", () => {
+            scrollArea?.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        this.renderNodes();
+
+        requestAnimationFrame(() => {
+            if (scrollArea) {
+                scrollArea.scrollTop = Math.max(0, Number(this.options.initialScrollTop) || 0);
+                updateScrollTopButton();
+            }
+        });
+    }
+
+    renderNodes() {
+        const games = this.options.games || [];
+        const completedCount = Math.max(0, Number(this.options.completedCount) || 0);
+        const currentGameIndex = Math.min(completedCount, Math.max(0, games.length - 1));
+        const list = this.element?.querySelector(".hub-map-level-list");
+
+        games.forEach((game, index) => {
+            const node = new LevelNode({
+                gameData: game,
+                index,
+                isDone: index < completedCount,
+                isCurrent: index === currentGameIndex,
+                isLocked: index > currentGameIndex,
+                onLaunch: this.options.onLaunch,
+                registerChild: (child) => this.children.push(child),
+            });
+            this.children.push(node);
+            list?.append(node.render());
+        });
+    }
+
+    destroy() {
+        this.children.forEach((child) => child.destroy());
+        this.children = [];
+        super.destroy();
+    }
+}
+
+class HubMapScreen extends HubElement {
+    constructor(options = {}) {
+        super(options);
+        this.children = [];
+    }
+
+    html() {
+        return `
+            <section class="hub-screen hub-map-screen">
+                <div class="hub-map-shell">
+                    <div class="hub-map-topbar-slot"></div>
+                    <div class="hub-map-stage-slot"></div>
+                    <button class="hub-map-logout-button" type="button">ออกจากระบบ</button>
+                </div>
+            </section>
+        `;
+    }
+
+    bind() {
+        const topBar = new DailyGoalTopBar({
+            dailyTarget: this.options.dailyTarget,
+            completedCount: this.options.completedCount,
+            patientLabel: this.options.patientLabel,
+            onProfile: this.options.onProfile,
+        });
+        const levelMap = new LevelMap({
+            games: this.options.games,
+            completedCount: this.options.completedCount,
+            isLoading: this.options.isLoading,
+            error: this.options.error,
+            initialScrollTop: this.options.initialScrollTop,
+            onScrollChange: this.options.onScrollChange,
+            onLaunch: this.options.onLaunch,
+        });
+
+        this.children.push(topBar, levelMap);
+        this.element?.querySelector(".hub-map-topbar-slot")?.append(topBar.render());
+        this.element?.querySelector(".hub-map-stage-slot")?.append(levelMap.render());
+        this.on(this.element?.querySelector(".hub-map-logout-button"), "click", () => {
+            this.options.onLogout?.();
+        });
+    }
+
+    destroy() {
+        this.children.forEach((child) => child.destroy());
+        this.children = [];
+        super.destroy();
+    }
+}
+
+function mergeUniqueGames(items, dailyTarget, preferredGameGid) {
+    const merged = [...items, ...FALLBACK_GAMES];
+    const seen = new Set();
+    const uniqueGames = [];
+
+    for (const item of merged) {
+        const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
+        if (!game.gid || seen.has(game.gid)) {
+            continue;
+        }
+
+        seen.add(game.gid);
+        uniqueGames.push(game);
+    }
+
+    if (preferredGameGid) {
+        uniqueGames.sort((firstGame, secondGame) => {
+            const firstMatches = firstGame.gid === preferredGameGid;
+            const secondMatches = secondGame.gid === preferredGameGid;
+            if (firstMatches === secondMatches) {
+                return 0;
+            }
+
+            return firstMatches ? -1 : 1;
+        });
+    }
+
+    while (uniqueGames.length < dailyTarget) {
+        const nextIndex = uniqueGames.length + 1;
+        uniqueGames.push(normalizeGame({
+            gid: `MOCK${String(nextIndex).padStart(3, "0")}`,
+            name: `เกมตัวอย่าง ${nextIndex}`,
+            mci_group: "Attention",
+        }, nextIndex, "Attention"));
+    }
+
+    return uniqueGames.slice(0, dailyTarget);
 }
 
 export async function renderGameHubScreen(root, options = {}) {
@@ -336,164 +475,117 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const {
         loadGamesByCategory,
-        initialScene = "intro",
-        initialCategory = "Attention",
+        dailyTarget = DEFAULT_DAILY_TARGET,
+        completedCount = 0,
+        preferredGameGid = DEFAULT_START_GAME_GID,
         onLaunchGame = () => {},
         onLogout = () => {},
+        onProfile = () => {},
         onStateChange = () => {},
         sharedState = null,
     } = options;
 
-    const patientLabel = getPatientLabel();
-    const categoryStates = sharedState?.categoryStates || createCategoryStates();
-
-    if (sharedState && !sharedState.categoryStates) {
-        sharedState.categoryStates = categoryStates;
+    const state = sharedState || createGameHubState();
+    if (!state.categoryStates) {
+        state.categoryStates = createCategoryStates();
+    }
+    if (!Array.isArray(state.programGames)) {
+        state.programGames = [];
     }
 
-    let scene = initialScene === "selection" ? "selection" : "intro";
-    let activeCategory = CATEGORY_META[initialCategory] ? initialCategory : "Attention";
+    let activeScreen = null;
+    const patientLabel = getPatientLabel();
 
     const render = () => {
-        root.innerHTML = scene === "intro"
-            ? buildIntroMarkup()
-            : buildSelectionMarkup({
-                activeCategory,
-                categoryStates,
-                patientLabel,
-            });
-
-        if (scene === "intro") {
-            root.querySelector("#hub-start-button")?.addEventListener("click", async () => {
-                scene = "selection";
-                render();
-                onStateChange({ scene, activeCategory });
-                await ensureCategoryLoaded(activeCategory);
-            });
-
-            root.querySelector("#hub-logout-button")?.addEventListener("click", async () => {
-                try {
-                    await onLogout();
-                } catch (error) {
-                    console.error("Unable to logout from hub:", error);
-                }
-            });
-
-            return;
-        }
-
-        root.querySelector("#hub-back-button")?.addEventListener("click", () => {
-            scene = "intro";
-            render();
-            onStateChange({ scene, activeCategory });
-        });
-
-        root.querySelectorAll("[data-category-id]").forEach((button) => {
-            button.addEventListener("click", async () => {
-                activeCategory = button.getAttribute("data-category-id") || activeCategory;
-                render();
-                onStateChange({ scene, activeCategory });
-                await ensureCategoryLoaded(activeCategory);
-            });
-        });
-
-        root.querySelector("#hub-load-more-button")?.addEventListener("click", async () => {
-            await loadCategoryPage(activeCategory, true);
-        });
-
-        root.querySelectorAll("[data-game-gid]").forEach((button) => {
-            button.addEventListener("click", async () => {
-                const gid = String(button.getAttribute("data-game-gid") || "").trim();
-                const selectedGame = categoryStates[activeCategory].items.find((game) => game.gid === gid);
-
-                if (!selectedGame) {
-                    return;
-                }
-
+        activeScreen?.destroy();
+        root.innerHTML = "";
+        activeScreen = new HubMapScreen({
+            games: state.programGames,
+            dailyTarget,
+            completedCount,
+            patientLabel,
+            isLoading: state.programLoading && !state.programInitialized,
+            error: state.programError,
+            initialScrollTop: state.scrollTop,
+            onScrollChange: (scrollTop) => {
+                state.scrollTop = scrollTop;
+            },
+            onProfile,
+            onLogout,
+            onLaunch: async (selectedGame) => {
                 try {
                     await onLaunchGame(selectedGame);
                 } catch (error) {
                     console.error("Unable to launch selected game:", error);
                 }
-            });
+            },
         });
+        root.append(activeScreen.render());
     };
 
-    const applyFallbackData = (categoryId) => {
-        const fallbackItems = (FALLBACK_GAMES[categoryId] || []).map((item, index) =>
-            normalizeGame(item, index, categoryId),
-        );
-        const state = categoryStates[categoryId];
+    const loadCategoryPage = async (categoryId) => {
+        const categoryState = state.categoryStates[categoryId] || createCategoryState();
+        state.categoryStates[categoryId] = categoryState;
 
-        state.items = fallbackItems;
-        state.total = fallbackItems.length;
-        state.nextOffset = fallbackItems.length;
-        state.hasMore = false;
-        state.initialized = true;
-        state.loading = false;
-        state.error = "";
-        state.usedFallback = fallbackItems.length > 0;
-    };
-
-    const loadCategoryPage = async (categoryId, append = false) => {
-        const state = categoryStates[categoryId];
-        if (state.loading) {
-            return;
+        if (categoryState.initialized || categoryState.loading) {
+            return categoryState.items;
         }
 
-        state.loading = true;
-        state.error = "";
-        render();
+        categoryState.loading = true;
+        categoryState.error = "";
 
         try {
-            if (typeof loadGamesByCategory !== "function") {
-                applyFallbackData(categoryId);
-                render();
-                return;
-            }
+            const result = typeof loadGamesByCategory === "function"
+                ? await loadGamesByCategory(categoryId, { offset: 0, pageSize: PAGE_SIZE })
+                : null;
+            const items = (result?.items || []).map((item, index) => normalizeGame(item, index, categoryId));
 
-            const result = await loadGamesByCategory(categoryId, {
-                offset: append ? state.nextOffset : 0,
-                pageSize: PAGE_SIZE,
-            });
-            const items = (result?.items || []).map((item, index) =>
-                normalizeGame(item, index + (append ? state.nextOffset : 0), categoryId),
-            );
+            categoryState.items = items;
+            categoryState.total = Number.isFinite(result?.total) ? Number(result.total) : items.length;
+            categoryState.nextOffset = Number(result?.nextOffset) || items.length;
+            categoryState.hasMore = Boolean(result?.hasMore);
+            categoryState.initialized = true;
+            categoryState.loading = false;
+            categoryState.usedFallback = false;
 
-            state.items = append ? [...state.items, ...items] : items;
-            state.total = Number.isFinite(result?.total) ? Number(result.total) : state.items.length;
-            state.nextOffset = Number(result?.nextOffset) || state.items.length;
-            state.hasMore = Boolean(result?.hasMore);
-            state.initialized = true;
-            state.loading = false;
-            state.error = "";
-            state.usedFallback = false;
+            return items;
         } catch (error) {
             console.warn(`Unable to load games for ${categoryId}:`, error);
-
-            if (!state.initialized) {
-                applyFallbackData(categoryId);
-            } else {
-                state.loading = false;
-                state.error = error?.message || "Unable to load games";
-            }
+            categoryState.loading = false;
+            categoryState.error = error?.message || "Unable to load games";
+            categoryState.initialized = true;
+            return [];
         }
-
-        render();
     };
 
-    const ensureCategoryLoaded = async (categoryId) => {
-        const state = categoryStates[categoryId];
-        if (state.initialized || state.loading) {
+    const loadProgramGames = async () => {
+        if (state.programInitialized || state.programLoading) {
             return;
         }
 
-        await loadCategoryPage(categoryId, false);
+        state.programLoading = true;
+        state.programError = "";
+        state.programGames = mergeUniqueGames([], dailyTarget, preferredGameGid);
+        render();
+
+        const loadedGames = [];
+        for (const categoryId of CATEGORY_ORDER) {
+            if (loadedGames.length >= dailyTarget) {
+                break;
+            }
+
+            const categoryGames = await loadCategoryPage(categoryId);
+            loadedGames.push(...categoryGames);
+        }
+
+        state.programGames = mergeUniqueGames(loadedGames, dailyTarget, preferredGameGid);
+        state.programInitialized = true;
+        state.programLoading = false;
+        state.programError = loadedGames.length ? "" : "Unable to load program games";
+        onStateChange({ scene: "intro", activeCategory: "Attention" });
+        render();
     };
 
     render();
-
-    if (scene === "selection") {
-        await ensureCategoryLoaded(activeCategory);
-    }
+    await loadProgramGames();
 }
