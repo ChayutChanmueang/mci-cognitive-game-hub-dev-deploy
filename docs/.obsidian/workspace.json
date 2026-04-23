@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Agile-Template/DASHBOARD-Template.md",
+                "file": "Agile-Template/Meeting Logs/MeetingNote-Template.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DASHBOARD-Template"
+              "title": "MeetingNote-Template"
             }
           }
         ]
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Agile-Template/DASHBOARD-Template.md",
+                "file": "Agile-Template/Meeting Logs/MeetingNote-Template.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of DASHBOARD-Template"
+              "title": "Outline of MeetingNote-Template"
             }
           }
         ],
@@ -204,12 +204,13 @@
   },
   "active": "1c2e46387e3ab7d0",
   "lastOpenFiles": [
-    "Agile-Template/Meeting Logs/MeetingNote-Template.md",
-    "Agile-Template/DASHBOARD-Template.md",
+    "Agile-Template/Meeting Logs/WEEKLY_BACKLOG-Template.md",
     "Agile-Template/Progress Logs/SPRINT_PLANNING-Template.md",
+    "Agile-Template/DASHBOARD-Template.md",
+    "Agile-Template/Design Documents/GDD-Template.md",
+    "Agile-Template/Meeting Logs/MeetingNote-Template.md",
     "Agile-Template/Meeting Logs/MEETING_HISTORY-Template.md",
     "dashboard.md",
-    "Agile-Template/Progress Logs/WEEKLY_BACKLOG-Template.md",
     "Agile-Template/Progress Logs/SPRINT_BACKLOG-Template.md",
     "Agile-Template/Meeting Logs/WeeklyNote-Template.md",
     "Agile-Template/Meeting Logs/WeeklyMeetingNote-Template.md",
@@ -222,7 +223,6 @@
     "Meeting Logs/2026-04-21.md",
     "Meeting Logs/S2-W03-Weekly-Backlog.md",
     "Progress Logs/Kanban_Board.md",
-    "Agile-Template/Design Documents/GDD-Template.md",
     "Agile-Template/Design Documents/GameLoop-Template.md",
     "Agile-Template/Design Documents/DatabaseSchema-Template.md",
     "Agile-Template/Design Documents/ClassDiagram-Template.md",

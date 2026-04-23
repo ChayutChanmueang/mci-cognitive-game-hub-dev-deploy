@@ -20,7 +20,7 @@
 ## 🚀 Progress & Planning
 - [**Sprint Planning**](Progress%20Logs/SPRINT_PLANNING-Template.md) - Roadmap and milestones.
 - [**Product/Sprint Backlog**](Progress%20Logs/SPRINT_BACKLOG-Template.md) - User stories and task tracking.
-- [**Weekly Backlog**](Progress%20Logs/WEEKLY_BACKLOG-Template.md) - Short-term goals.
+- [**Weekly Backlog**](WEEKLY_BACKLOG-Template.md) - Short-term goals.
 
 ---
 
