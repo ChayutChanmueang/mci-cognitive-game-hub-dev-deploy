@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Agile-Template/DASHBOARD-Template.md",
+                "file": "Agile-Template/Design-Documents/GDD-Template.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DASHBOARD-Template"
+              "title": "GDD-Template"
             }
           }
         ]
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Agile-Template/DASHBOARD-Template.md",
+                "file": "Agile-Template/Design-Documents/GDD-Template.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of DASHBOARD-Template"
+              "title": "Outline of GDD-Template"
             }
           }
         ],
@@ -205,14 +205,16 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
-    "Agile-Template/Progress-Logs/WEEKLY_BACKLOG_HISTORY-Template.md",
-    "Agile-Template/Progress-Logs/Product-Backlog-Template.md",
-    "Agile-Template/Progress-Logs/MEETING_HISTORY-Template.md",
+    "Agile-Template/Guideline.md",
     "Agile-Template/DASHBOARD-Template.md",
+    "Agile-Template/Design-Documents/ClassDiagram-Template.md",
+    "Agile-Template/Progress-Logs/Weekly-Backlog-History-Template.md",
+    "Agile-Template/Progress-Logs/Meeting-History-Template.md",
+    "Agile-Template/Progress-Logs/Product-Backlog-Template.md",
+    "dashboard.md",
     "SPRINT_PLANNING-Template.md",
     "Agile-Template/Design-Documents/GameLoop-Template.md",
     "Agile-Template/Design-Documents/DatabaseSchema-Template.md",
-    "Agile-Template/Design-Documents/ClassDiagram-Template.md",
     "Agile-Template/Design-Documents/GDD-Template.md",
     "Agile-Template/Progress-Logs/Meeting-Logs/MeetingNote-Template.md",
     "Agile-Template/Progress-Logs/User-Storys/User-Story-Template.md",
@@ -224,7 +226,7 @@
     "YYYY-MM-DD.md",
     "Progress-Logs/Meeting-Logs/2026-04-23.md",
     "ProjectPlan-Template.md",
-    "Meeting-Logs/2026-04-21.md",
+    "Progress-Logs/Meeting-Logs/2026-04-21.md",
     "Agile-Template/Design-Documents/ProjectPlan-Template.md",
     "Progress-Logs/Meeting-Logs",
     "Current Sprint.md",
@@ -232,8 +234,6 @@
     "Progress-Logs/Weekly-Backlogs/WB-ID.md",
     "Progress-Logs/Weekly-Backlogs",
     "Agile-Template/Progress-Logs/SPRINT_PLANNING-Template.md",
-    "Progress-Logs/User-Storys/US-01.md",
-    "Agile-Template/Progress-Logs/User-Storys/User Story-Template.md",
     "User-Storys",
     "Agile-Template/Progress-Logs/Weekly-Backlogs",
     "Design Documents",
