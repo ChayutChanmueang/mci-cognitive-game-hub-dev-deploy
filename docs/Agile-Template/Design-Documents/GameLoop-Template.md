@@ -1,9 +1,12 @@
 # Game Loop Diagram
 
 ---
-*Document Version: 1.0*  
-*Project: [Game Title]*  
-*Last Updated: YYYY-MM-DD*
+
+**Project:** [Project Name]
+**Version:** 1.0
+**Status:** [Draft/Review/Final]
+**Last Updated:** [YYYY-MM-DD]
+
 ---
 
 ## 1. Main Game Loop
@@ -228,3 +231,7 @@ flowchart LR
 - **Delta Time**: [Delta Time strategy]
 - **Render**: [Render strategy]
 - **Input**: [Input handling strategy]
+
+---
+
+*Last Updated: [YYYY-MM-DD]*

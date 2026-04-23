@@ -1,9 +1,12 @@
 # Database Schema Diagram - Template
 
 ---
-*Document Version: 1.0*  
-*Project: [Project Name]*  
-*Last Updated: YYYY-MM-DD*
+
+**Project:** [Project Name]
+**Version:** 1.0
+**Status:** [Draft/Review/Final]
+**Last Updated:** [YYYY-MM-DD]
+
 ---
 
 ## 1. Database Overview

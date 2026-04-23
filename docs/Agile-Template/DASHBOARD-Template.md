@@ -1,4 +1,11 @@
-# 🚀 Project Dashboard - [Project Name]
+# 🚀 Project Dashboard
+
+---
+
+**Project:** [Project Name]
+**Version:** 1.0
+**Status:** [Draft/Review/Final]
+**Last Updated:** [YYYY-MM-DD]
 
 ---
 ## 📋 Project Summary
@@ -7,7 +14,6 @@
 - **Status:** [Active / On-Hold / Completed]
 
 ---
-
 ## 🏗️ Design Documents
 - [**Game Design Document (GDD)**](Design-Documents/GDD-Template.md) - Core design and mechanics.
 - [**Class Diagram**](Design-Documents/ClassDiagram-Template.md) - System architecture.
@@ -15,25 +21,17 @@
 - [**Game Loop**](Design-Documents/GameLoop-Template.md) - Gameplay cycle.
 
 ---
-
 ## 🚀 Progress & Planning
-- [**Product/Sprint Backlog**](Progress-Logs/Product-Backlog-Template.md) - User stories and task tracking.
-- [**Sprint Planning**](Progress-Logs/SPRINT_PLANNING-Template.md) - Roadmap and milestones.
+- [**Product/Sprint Backlog**](Progress-Logs/Product-Backlog-Template.md) - Product Vision, Roadmap , milestones and User stories.
 - [**All Weekly Backlog History**](Progress-Logs/WEEKLY_BACKLOG_HISTORY-Template.md) - History index.
-- [**Weekly Backlog**](Progress-Logs/Weekly-Backlogs/WEEKLY_BACKLOG-Template.md) - Short-term goals.
 
 ---
-
 ## 📝 Meeting Logs
-- [**Latest Meeting Note**](Meeting-Logs/MeetingNote-Template.md) - General meeting note.
-- [**All Meeting History**](Meeting-Logs/MEETING_HISTORY-Template.md) - History index.
+- [**All Meeting History**](Progress-Logs/MEETING_HISTORY-Template.md) - History index.
 
 ---
 
 ## 🛠️ Development Resources
-- [**Environment Setup**](../Agentic-AI/PROJECT_AGENT_SKILL_USING.md) (Example: AI/Agent instructions)
-- [**Coding Standards**](Design-Documents/GDD-Template.md#6-development-guidelines)
+- [**Coding Standards**](Design-Documents/GDD-Template.md#6-development-guidelines) - Development Information.
 
 ---
-
-*Last Updated: [YYYY-MM-DD]*

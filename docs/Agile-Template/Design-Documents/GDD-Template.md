@@ -1,5 +1,7 @@
 # Game Design Document (GDD) - [Project Name]
 
+---
+
 **Project:** [Project Name]
 **Version:** 1.0
 **Status:** [Draft/Review/Final]
@@ -109,6 +111,12 @@ src/
 | Module | Design Doc (Wiki) | Related User Stories |
 | :--- | :--- | :--- |
 | [Module Name] | [[Template-Link]] | [[US-01]], [[US-02]] |
+
+---
+
+## 🔗 Related Resources
+- [**Product Backlog**](../Progress-Logs/Product-Backlog-Template.md)
+- [**Dashboard**](../DASHBOARD-Template.md)
 
 ---
 
