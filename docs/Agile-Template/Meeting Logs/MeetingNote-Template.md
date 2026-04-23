@@ -1,10 +1,10 @@
-# Meeting Note - [Project Name]
+# Meeting Note: [Sprint/Week/Topic]
 
 ---
 
 **Project:** [Project Name]
 **Meeting Date:** [YYYY-MM-DD]
-**Week:** [Number]
+**Week/Sprint:** [Week # / Sprint #]
 **Attendees:** [Names]
 **Note Taker:** [Name]
 **Version:** 1.0
@@ -16,10 +16,10 @@
 
 | Item | Detail |
 |------|--------|
-| **Meeting Type** | [Daily/Weekly/Sprint/Ad-hoc] |
+| **Meeting Type** | [Sync / Review / Retro / Planning] |
 | **Time** | [HH:MM - HH:MM] |
-| **Location** | [Room/Online Link] |
-| **Sprint** | [Sprint Name] |
+| **Location** | [Room / Online Link] |
+| **Sprint** | [[Sprint Planning-Template|Current Sprint]] |
 
 ---
 
@@ -28,77 +28,54 @@
 | Name | Role | Present |
 |------|------|---------|
 | [Name] | [Role] | [✓/✗] |
-| [Name] | [Role] | [✓/✗] |
 
 ---
 
 ## 3. Agenda
 
-1. [Topic 1]
-2. [Topic 2]
-3. [Topic 3]
+1. [Agenda Item 1]
+2. [Agenda Item 2]
 
 ---
 
 ## 4. Discussion Notes
 
-### 4.1 Sprint Review (Demo & Feedback)
-- **What was demoed:** [List features]
-- **Stakeholder Feedback:** [What they liked/wanted changed]
+### 4.1 Review & Demo
+- **What was demoed:** [List features/tasks]
+- **Feedback:** [Stakeholder/Team feedback]
 
-### 4.2 Sprint Retrospective (Team Improvement)
+### 4.2 Retrospective
 - **What went well?** [Successes]
 - **What could be improved?** [Pain points]
-- **Action Items for next Sprint:** [Specific improvements]
+- **Action Plan:** [Steps for improvement]
 
 ### 4.3 Operational Issues & Blockers
 - **Issue:** [Description]
-  - **Impact:** [Low/Med/High]
-  - **Resolution:** [Who will do what]
+- **Resolution:** [Who will do what]
 
 ---
 
 ## 5. Action Items
 
-| # | Task | Owner | Due Date | Status |
-|---|------|-------|----------|--------|
-| 1 | [Task] | [Name] | [Date] | [ ] |
-| 2 | [Task] | [Name] | [Date] | [ ] |
-| 3 | [Task] | [Name] | [Date] | [ ] |
+| #   | Task | Owner | Due Date | Status |
+| --- | ---- | ----- | -------- | ------ |
+| 1   | [Task Description] | [Owner] | [Date] | [ ] |
 
 ---
 
-## 6. Blockers & Risks
-
-| Issue | Impact | Resolution |
-|-------|--------|------------|
-| [Issue] | [Impact] | [Resolution] |
-
----
-
-## 7. Next Meeting
-
-| Item | Detail |
-|------|--------|
-| **Date** | [YYYY-MM-DD] |
-| **Time** | [HH:MM] |
-| **Agenda** | [Topics to discuss] |
-
----
-
-## 8. Metrics Summary
+## 6. Metrics Summary
 
 | Metric | Value | Notes |
-|--------|-------|-------|
-| **Tasks Completed** | [Number] | จากทั้งหมด [Total] |
-| **Tasks In Progress** | [Number] | |
-| **Blockers** | [Number] | [List] |
+| --- | --- | --- |
+| **Tasks Completed** | [Number] | [List Story IDs] |
+| **Tasks In Progress** | [Number] | [List Story IDs] |
+| **Blockers** | [Number] | [Description] |
 
 ---
 
-## Notes
-
-- [Additional notes]
+## 🔗 Traceability
+- **Weekly Backlog:** [[WEEKLY_BACKLOG-Template]]
+- **Full Roadmap:** [[ProjectPlan-Template]]
 
 ---
 

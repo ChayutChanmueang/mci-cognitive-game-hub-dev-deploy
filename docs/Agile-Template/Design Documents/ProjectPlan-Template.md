@@ -1,43 +1,46 @@
-# Project Plan - [Project Name]
-
-**Project:** [Project Name]
-**Version:** 1.0
-**Status:** Draft
-**Last Updated:** [YYYY-MM-DD]
+# Agile Project Roadmap - [Project Name]
 
 ---
 
-## 1. Project Overview
+## 📅 Sprint Schedule Overview ([N]-Week Cycles)
 
-### 1.1 Game Information
-
-| Item | Detail |
-| :--- | :--- |
-| **Game Title** | [Game Title] |
-| **Genre** | [Genre] |
-| **Engine** | [Engine + Version] |
-| **Target Platform** | [Platform] |
-| **Timeline** | [Total Months/Weeks] |
-
-### 1.2 Project Goals
-- [Goal 1]
-- [Goal 2]
+| Sprint | Timeline | Focus Area | Key Deliverables |
+|:---|:---|:---|:---|
+| **Sprint 1** | Week 1-2 | [Foundation] | [Core Logic & Setup] |
+| **Sprint 2** | Week 3-4 | [Development] | [Main Features] |
+| **Sprint 3** | Week 5-6 | [Integration] | [Systems Connection] |
+| **Sprint 4** | Week 7-8 | [Polish & QA] | [Final Optimization] |
 
 ---
 
-## 2. Milestones
-[Insert Gantt Chart or Timeline]
+## 🚀 Sprint Breakdown
+
+### Sprint 1: [Name]
+**Goal:** [Goal description]
+- [ ] [[US-ID]] [Task Description]
+- [ ] [[US-ID]] [Task Description]
+
+### Sprint 2: [Name]
+**Goal:** [Goal description]
+- [ ] [[US-ID]] [Task Description]
 
 ---
 
-## 3. Sprint Overview
-[Summary of Monthly/Sprint Goals]
+## 📈 Epic Completeness Strategy (Alignment)
+
+### 🎮 [Epic 1 Name]
+- [Strategy for Sprint 1-2]
+- [Strategy for Sprint 3-4]
+- **Target:** [Completion Target]
+
+### 📊 [Epic 2 Name]
+- [Strategy]
+- **Target:** [Completion Target]
 
 ---
 
-## 4. Schedule Summary
-| Month | Milestone | Focus | Weeks |
-| :--- | :--- | :--- | :--- |
-| [Month] | M1 | [Focus] | 1-4 |
+## 🔗 Related Documents
+- [**Product Backlog**](SPRINT_BACKLOG-Template.md)
+- [**Dashboard**](../DASHBOARD-Template.md)
 
 ---

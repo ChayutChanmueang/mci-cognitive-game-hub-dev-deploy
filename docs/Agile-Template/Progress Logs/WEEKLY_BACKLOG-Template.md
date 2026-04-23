@@ -27,5 +27,10 @@
 |**Completion Rate**|0%|
 |**Hours Worked**|\[Number]|
 
-\---
+---
 
+## 🔗 Related Links
+- [**Sprint Backlog**](SPRINT_BACKLOG-Template.md)
+- [**Latest Meeting Note**](../Meeting%20Logs/MeetingNote-Template.md)
+
+---
