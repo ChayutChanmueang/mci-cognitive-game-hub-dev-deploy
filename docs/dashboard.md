@@ -1,18 +1,26 @@
 # 🎮 MCI Cognitive Games Project Dashboard
 
-ยินดีต้อนรับสู่ Dashboard ของโปรเจค MCI Cognitive Games สรุปและเชื่อมโยงเนื้อหาสำคัญในส่วนต่างๆ ไว้ที่นี่
+**Project:** MCI Cognitive Games
+**Version:** 1.0
+**Status:** Active
+**Last Updated:** 2026-04-23
 
 ---
 
-## 📋 ข้อมูลโครงการและการออกแบบ (Design Document)
-ภาพรวมและการออกแบบทางเทคนิคของระบบ
-- [**Summary-Project**](Design-Documents/Summary-Project.md) - สรุปภาพรวมโครงการ
-- [**Game Design Document (GDD)**](Design-Documents/GDD-Project.md) - เอกสารการออกแบบเกมหลัก
-- [**Game Loop**](Design-Documents/GameLoop-Project.md) - รายละเอียดวงจรการเล่นเกม
-- [**Class Diagram**](Design-Documents/ClassDiagram-Project.md) - โครงสร้างคลาสของระบบ
-- [**Database Schema**](Design-Documents/DatabaseSchema-Project.md) - ผังโครงสร้างฐานข้อมูล
+## 📋 Project Summary
+- **Vision:** Develop cognitive training games for MCI (Mild Cognitive Impairment) assessment and intervention
+- **Current Sprint:** S2-W03
+- **Status:** Active
 
-### 🕹️ รายละเอียดการออกแบบรายเกม (Detail Design)
+---
+
+## 🏗️ Design Documents
+- [**Game Design Document (GDD)**](Design-Documents/GDD-Project.md) - Core design and mechanics.
+- [**Game Loop**](Design-Documents/GameLoop-Project.md) - Gameplay cycle.
+- [**Class Diagram**](Design-Documents/ClassDiagram-Project.md) - System architecture.
+- [**Database Schema**](Design-Documents/DatabaseSchema-Project.md) - Data structure and flows.
+
+### 🕹️ Detail Game Design
 - [**Overview README**](Design-Documents/Detail-Design/README.md) - ภาพรวมการออกแบบย่อย
 - [**Symmetry Decor**](Design-Documents/Detail-Design/gdd_symmetry_decor.md) - เกมตกแต่งสมมาตร
 - [**Zoo Detective**](Design-Documents/Detail-Design/gdd_zoo_detective.md) - เกมนักสืบสวนสัตว์
@@ -20,9 +28,11 @@
 
 ---
 
-## 🚀 การติดตามความคืบหน้า (Progress Logs)
-- [**Product Backlog**](Progress-Logs/Sprint_Backlog.md) - รายการงานทั้งหมดของโปรเจค
+## 🚀 Progress & Planning
+- [**Product Backlog**](Product-Backlog.md) - Product Vision, Roadmap, milestones and User stories.
 - [**Sprint Planning**](Progress-Logs/Sprint-Planning.md) - แผนการดำเนินงานในแต่ละ Sprint
+- [**All Weekly Backlog History**](Progress-Logs/Weekly-Backlogs/) - History index.
+- [**All Meeting History**](Progress-Logs/Meeting-Logs/) - History index.
 - [**Kanban Board**](Progress-Logs/Kanban_Board.md) - กระดานติดตามสถานะงาน
 
 ### 🛠️ User Stories & Tasks
@@ -35,14 +45,15 @@
 
 ---
 
-## 📝 บันทึกการประชุม (Meeting Logs)
+## 📝 Meeting Logs
 - [**2026-04-21**](Progress-Logs/Meeting-Logs/2026-04-21.md) - บันทึกการประชุมล่าสุด
-- [**Weekly Backlog (S2-W03)**](Progress-Logs/S2-W03-Weekly-Backlog.md) - บันทึกงานประจำสัปดาห์
+- [**Weekly Backlog (S2-W03)**](S2-W03-Weekly-Backlog.md) - บันทึกงานประจำสัปดาห์
 
 ---
 
-## 🤖 ระบบตัวแทนอัจฉริยะ (Agentic AI)
+## 🤖 Agentic AI System
 - [**Project Agent Skill Using**](wiki/Agentic-AI/PROJECT_AGENT_SKILL_USING.md) - แนวทางการใช้งาน Agent ในโปรเจค
 
 ---
+
 *หมายเหตุ: Dashboard นี้รวบรวมข้อมูลล่าสุด ณ วันที่ 23 เมษายน 2026*
