@@ -57,6 +57,105 @@ body.game-mode {
     padding: 0;
 }
 
+#ui-root {
+    width: 95%;
+}
+
+#app.landing-mode {
+    display: block;
+    padding: 0;
+}
+
+.landing-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: minmax(96px, 1fr) auto minmax(128px, 0.9fr) auto;
+    justify-items: center;
+    padding: clamp(32px, 6vh, 72px) clamp(20px, 6vw, 72px) clamp(36px, 8vh, 84px);
+}
+
+.landing-screen__logo {
+    grid-row: 2;
+    width: min(72vw, 420px);
+    aspect-ratio: 1.1;
+    display: grid;
+    place-items: center;
+    border-radius: clamp(48px, 10vw, 88px);
+    background: #dddddd;
+    color: #1f1f1f;
+}
+
+.landing-screen__logo h1 {
+    margin: 0;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    line-height: 1;
+}
+
+.landing-screen__actions {
+    grid-row: 4;
+    width: min(100%, clamp(280px, 44vw, 420px));
+}
+
+.landing-login-button {
+    width: 100%;
+}
+
+.login-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: clamp(24px, 6vh, 72px) clamp(16px, 5vw, 72px);
+}
+
+.login-card {
+    width: min(100%, clamp(320px, 56vw, 520px));
+    display: grid;
+    gap: 28px;
+    padding: clamp(28px, 5vw, 48px);
+    border-radius: clamp(28px, 7vw, 54px);
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(183, 176, 168, 0.72);
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.login-card h1 {
+    margin: 0;
+    color: #151515;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(2rem, 5vw, 2.85rem);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+}
+
+.login-form {
+    display: grid;
+    gap: 20px;
+}
+
+.login-field,
+.login-submit-button {
+    width: 100%;
+}
+
+.login-field {
+    --md-outlined-text-field-input-text-prefix-trailing-space: 7px;
+}
+
+.login-feedback {
+    min-height: 1.4em;
+    margin: -8px 0 0;
+    color: var(--md-sys-color-error);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
 .auth-screen {
     width: min(100%, 1120px);
 }
@@ -255,6 +354,191 @@ md-text-button {
     font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: 1.4rem;
     line-height: 1;
+}
+
+.signup-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: clamp(20px, 4vh, 48px) clamp(14px, 4vw, 56px);
+}
+
+.signup-card {
+    width: min(100%, 1080px);
+    display: grid;
+    gap: 22px;
+    padding: clamp(24px, 4vw, 44px);
+    border-radius: clamp(28px, 5vw, 48px);
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(183, 176, 168, 0.72);
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(10px);
+}
+
+.signup-card__header {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
+    align-items: center;
+    gap: 8px;
+}
+
+.signup-card__header h1 {
+    grid-column: 2;
+    margin: 0;
+    color: #151515;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+}
+
+.signup-form {
+    display: grid;
+    gap: clamp(14px, 2.5vw, 20px);
+}
+
+.signup-fields {
+    display: grid;
+    gap: clamp(14px, 2.5vw, 20px);
+}
+
+.signup-row {
+    display: grid;
+    grid-template-columns: minmax(108px, 0.42fr) minmax(0, 1fr);
+    gap: clamp(10px, 2vw, 18px);
+    align-items: center;
+}
+
+.signup-row > span,
+.signup-row > label,
+.signup-row--hn > label {
+    color: #1f1f1f;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(1.25rem, 3vw, 1.65rem);
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: right;
+}
+
+.signup-row md-outlined-text-field,
+.signup-row md-outlined-select {
+    width: 100%;
+}
+
+.signup-hn-value {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: rgba(53, 104, 89, 0.12);
+    color: #1e1b18;
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    font-weight: 600;
+}
+
+.signup-feedback {
+    min-height: 1.4em;
+    margin: 0;
+    color: var(--md-sys-color-error);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.signup-submit-button {
+    width: 100%;
+}
+
+@media (max-width: 420px) {
+    #app:has(.signup-screen) {
+        padding: 0;
+    }
+
+    .signup-screen {
+        padding-inline: 0;
+    }
+
+    .signup-card {
+        width: 100%;
+        padding-inline: 18px;
+        border-inline: 0;
+        border-radius: 28px;
+    }
+
+    .signup-card__header {
+        grid-template-columns: 40px minmax(0, 1fr) 40px;
+    }
+
+    .signup-row {
+        grid-template-columns: minmax(84px, 0.34fr) minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .signup-row > span,
+    .signup-row > label,
+    .signup-row--hn > label {
+        font-size: clamp(1rem, 5vw, 1.25rem);
+    }
+
+    .signup-hn-value {
+        padding-inline: 12px;
+        font-size: clamp(1rem, 4.8vw, 1.25rem);
+    }
+}
+
+@media (min-width: 760px) {
+    .signup-card {
+        gap: 28px;
+    }
+
+    .signup-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: clamp(24px, 4vw, 52px);
+        row-gap: 24px;
+    }
+
+    .signup-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        align-items: start;
+    }
+
+    .signup-row > span,
+    .signup-row > label,
+    .signup-row--hn > label {
+        text-align: left;
+        font-size: 1.08rem;
+    }
+
+    .signup-row--hn {
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+    }
+
+    .signup-row--hn > label {
+        white-space: nowrap;
+    }
+
+    .signup-row--date {
+        grid-column: 1 / -1;
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .signup-submit-button {
+        width: min(100%, 520px);
+        justify-self: center;
+    }
+}
+
+@media (min-width: 1080px) {
+    .signup-card {
+        padding-inline: clamp(44px, 5vw, 72px);
+    }
 }
 
 .auth-field {

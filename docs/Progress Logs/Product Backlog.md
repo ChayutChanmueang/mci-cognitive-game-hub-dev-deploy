@@ -33,5 +33,6 @@
 |---|---|---|---|---|
 | [[US-E3-01]] | ปรับแต่งขนาด Font และปุ่มสำหรับผู้สูงอายุ (Standard) | High | S2 | ⚪ Not Started |
 | [[US-E3-02]] | ระบบ Voice Over คำแนะนำการเล่นเกม | Low | S4 | ⚪ Not Started |
+| [[US-E3-03]] | ระบบ Game Hub และการนำทาง (Navigation) | High | S2 | 🔵 In Progress |
 
 ---
