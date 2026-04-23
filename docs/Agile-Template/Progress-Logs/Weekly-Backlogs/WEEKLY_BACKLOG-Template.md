@@ -30,7 +30,7 @@
 ---
 
 ## 🔗 Related Links
-- [**Sprint Backlog**](../SPRINT_BACKLOG-Template.md)
+- [**Sprint Backlog**](../Product-Backlog-Template.md)
 - [**Latest Meeting Note**](../../Meeting-Logs/MeetingNote-Template.md)
 
 ---

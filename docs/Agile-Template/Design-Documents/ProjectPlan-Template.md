@@ -4,10 +4,10 @@
 
 ## 📅 Sprint Schedule Overview ([N]-Week Cycles)
 
-| Sprint | Timeline | Focus Area | Key Deliverables |
-|:---|:---|:---|:---|
-| **Sprint 1** | Week 1-2 | [Foundation] | [Core Logic & Setup] |
-| **Sprint 2** | Week 3-4 | [Development] | [Main Features] |
+| Sprint       | Timeline | Focus Area    | Key Deliverables     |
+| :----------- | :------- | :------------ | :------------------- |
+| **Sprint 1** | Week 1-2 | [Foundation]  | [Core Logic & Setup] |
+| **Sprint 2** | Week 3-4 | [Development] | [Main Features]      |
 | **Sprint 3** | Week 5-6 | [Integration] | [Systems Connection] |
 | **Sprint 4** | Week 7-8 | [Polish & QA] | [Final Optimization] |
 
@@ -40,7 +40,7 @@
 ---
 
 ## 🔗 Related Documents
-- [**Product Backlog**](../Progress-Logs/SPRINT_BACKLOG-Template.md)
+- [**Product Backlog**](../Progress-Logs/Product-Backlog-Template.md)
 - [**Dashboard**](../DASHBOARD-Template.md)
 
 ---

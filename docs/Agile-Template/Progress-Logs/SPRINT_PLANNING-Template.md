@@ -4,12 +4,12 @@
 
 ## 📅 Sprint Schedule Overview ([N]-Week Cycles)
 
-| Sprint | Timeline | Focus Area | Key Deliverables |
-|:---|:---|:---|:---|
-| **Sprint 1** | Week [Start]-[End] | [Focus Area] | [Key Deliverables] |
-| **Sprint 2** | Week [Start]-[End] | [Focus Area] | [Key Deliverables] |
-| **Sprint 3** | Week [Start]-[End] | [Focus Area] | [Key Deliverables] |
-| **Sprint 4** | Week [Start]-[End] | [Focus Area] | [Key Deliverables] |
+| Sprint       | Timeline           | Focus Area    | Key Deliverables     |
+| :----------- | :----------------- | :------------ | :------------------- |
+| **Sprint 1** | Week [Start]-[End] | [Foundation]  | [Core Logic & Setup] |
+| **Sprint 2** | Week [Start]-[End] | [Development] | [Main Features]      |
+| **Sprint 3** | Week [Start]-[End] | [Integration] | [Systems Connection] |
+| **Sprint 4** | Week [Start]-[End] | [Polish & QA] | [Final Optimization] |
 
 ---
 
