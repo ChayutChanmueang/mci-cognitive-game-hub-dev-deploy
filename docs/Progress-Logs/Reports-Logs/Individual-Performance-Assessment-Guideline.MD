@@ -44,20 +44,20 @@
 
 ## 📊 รูปแบบการส่งรายงานผล (Report Format)
 
-การประเมินจะถูกบันทึกเป็นไฟล์ **.csv** เพื่อความสะดวกในการนำไปประมวลผลต่อ โดยกำหนดโครงสร้างคอลัมน์และข้อกำหนดดังนี้:
+การประเมินจะถูกบันทึกเป็นไฟล์ **.csv** หรือ **.md** โดยกำหนดโครงสร้างคอลัมน์และข้อกำหนดดังนี้:
 
 | **คอลัมน์ (Header)** | **คำอธิบาย** |
 | :--- | :--- |
 | **Assessment_Date** | วันที่ทำการประเมิน (รูปแบบ YYYY-MM-DD) |
-| **Assessor_Name** | ชื่อผู้ประเมิน |
 | **Author_Name** | ชื่อนักศึกษา/ผู้รับการประเมิน (**หากพบชื่อใน Git Log ซ้ำซ้อนหรือคล้ายกัน ให้ผู้ประเมินรวมเป็นชื่อเดียว**) |
-| **Contribution_Score** | คะแนนด้าน Contribution (1-5) |
+| **Contribution_Score** | Contribution (1-5) |
+| **Traceability_Score** | Traceability (1-5) |
+| **Assets_Org_Score** | Assets & Organization (1-5) |
+| **Total_Score** | Total (15) |
 | **Contribution_Reason**| **เหตุผลที่ให้คะแนนในด้าน Contribution** (เช่น ความถี่ หรือคุณภาพของ Message) |
-| **Traceability_Score** | คะแนนด้าน Traceability (1-5) |
 | **Traceability_Reason** | **เหตุผลที่ให้คะแนนในด้าน Traceability** (เช่น ความเชื่อมโยงของ ID) |
-| **Assets_Org_Score** | คะแนนด้าน Assets & Organization (1-5) |
 | **Assets_Org_Reason**  | **เหตุผลที่ให้คะแนนในด้าน Assets & Org** (เช่น ระเบียบของโค้ดและไฟล์) |
-| **Total_Score** | คะแนนรวมในรอบนั้น (รวมจาก 3 ด้าน - คะแนนเต็ม 15) |
+
 
 
 > **💡 ข้อแนะนำ:** การรวมชื่อ (Author Consolidation) เป็นสิ่งสำคัญมากในการตรวจงานผ่าน Git เพื่อป้องกันการสับสนหากนักศึกษาใช้ Email หรือ Username หลายชื่อในการ Commit งาน
