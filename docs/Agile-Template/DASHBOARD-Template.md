@@ -1,7 +1,6 @@
 # 🚀 Project Dashboard - [Project Name]
 
 ---
-
 ## 📋 Project Summary
 - **Vision:** [High-level goal]
 - **Current Sprint:** [Sprint #]
@@ -20,8 +19,8 @@
 ## 🚀 Progress & Planning
 - [**Product/Sprint Backlog**](Progress-Logs/SPRINT_BACKLOG-Template.md) - User stories and task tracking.
 - [**Sprint Planning**](Progress-Logs/SPRINT_PLANNING-Template.md) - Roadmap and milestones.
-- [**Weekly Backlog**](Progress-Logs/Weekly-Backlogs/WEEKLY_BACKLOG-Template.md) - Short-term goals.
 - [**All Weekly Backlog History**](Progress-Logs/WEEKLY_BACKLOG_HISTORY-Template.md) - History index.
+- [**Weekly Backlog**](Progress-Logs/Weekly-Backlogs/WEEKLY_BACKLOG-Template.md) - Short-term goals.
 
 ---
 
