@@ -89,6 +89,8 @@ export function renderLoginScreen(root, options = {}) {
         input.disabled = true;
         feedback.textContent = "กำลังตรวจสอบข้อมูล...";
 
+        console.log("Accept");
+
         try {
             const accepted = await onAccept({ patientId });
             if (accepted === false) {
