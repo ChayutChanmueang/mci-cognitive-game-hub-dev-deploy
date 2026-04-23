@@ -6,17 +6,17 @@
 
 ## 📋 ข้อมูลโครงการและการออกแบบ (Design Document)
 ภาพรวมและการออกแบบทางเทคนิคของระบบ
-- [**Summary-Project**](Design-Document/Summary-Project.md) - สรุปภาพรวมโครงการ
-- [**Game Design Document (GDD)**](Design-Document/GDD-Project.md) - เอกสารการออกแบบเกมหลัก
-- [**Game Loop**](Design-Document/GameLoop-Project.md) - รายละเอียดวงจรการเล่นเกม
-- [**Class Diagram**](Design-Document/ClassDiagram-Project.md) - โครงสร้างคลาสของระบบ
-- [**Database Schema**](Design-Document/DatabaseSchema-Project.md) - ผังโครงสร้างฐานข้อมูล
+- [**Summary-Project**](Design-Documents/Summary-Project.md) - สรุปภาพรวมโครงการ
+- [**Game Design Document (GDD)**](Design-Documents/GDD-Project.md) - เอกสารการออกแบบเกมหลัก
+- [**Game Loop**](Design-Documents/GameLoop-Project.md) - รายละเอียดวงจรการเล่นเกม
+- [**Class Diagram**](Design-Documents/ClassDiagram-Project.md) - โครงสร้างคลาสของระบบ
+- [**Database Schema**](Design-Documents/DatabaseSchema-Project.md) - ผังโครงสร้างฐานข้อมูล
 
 ### 🕹️ รายละเอียดการออกแบบรายเกม (Detail Design)
-- [**Overview README**](Design-Document/Detail-Design/README.md) - ภาพรวมการออกแบบย่อย
-- [**Symmetry Decor**](Design-Document/Detail-Design/gdd_symmetry_decor.md) - เกมตกแต่งสมมาตร
-- [**Zoo Detective**](Design-Document/Detail-Design/gdd_zoo_detective.md) - เกมนักสืบสวนสัตว์
-- [**Zoo Feeder**](Design-Document/Detail-Design/gdd_zoo_feeder.md) - เกมให้อาหารสัตว์
+- [**Overview README**](Design-Documents/Detail-Design/README.md) - ภาพรวมการออกแบบย่อย
+- [**Symmetry Decor**](Design-Documents/Detail-Design/gdd_symmetry_decor.md) - เกมตกแต่งสมมาตร
+- [**Zoo Detective**](Design-Documents/Detail-Design/gdd_zoo_detective.md) - เกมนักสืบสวนสัตว์
+- [**Zoo Feeder**](Design-Documents/Detail-Design/gdd_zoo_feeder.md) - เกมให้อาหารสัตว์
 
 ---
 
@@ -36,13 +36,13 @@
 ---
 
 ## 📝 บันทึกการประชุม (Meeting Logs)
-- [**2026-04-21**](Meeting-Logs/2026-04-21.md) - บันทึกการประชุมล่าสุด
+- [**2026-04-21**](Progress-Logs/Meeting-Logs/2026-04-21.md) - บันทึกการประชุมล่าสุด
 - [**Weekly Backlog (S2-W03)**](Progress-Logs/S2-W03-Weekly-Backlog.md) - บันทึกงานประจำสัปดาห์
 
 ---
 
 ## 🤖 ระบบตัวแทนอัจฉริยะ (Agentic AI)
-- [**Project Agent Skill Using**](Agentic-AI/PROJECT_AGENT_SKILL_USING.md) - แนวทางการใช้งาน Agent ในโปรเจค
+- [**Project Agent Skill Using**](wiki/Agentic-AI/PROJECT_AGENT_SKILL_USING.md) - แนวทางการใช้งาน Agent ในโปรเจค
 
 ---
 *หมายเหตุ: Dashboard นี้รวบรวมข้อมูลล่าสุด ณ วันที่ 23 เมษายน 2026*
