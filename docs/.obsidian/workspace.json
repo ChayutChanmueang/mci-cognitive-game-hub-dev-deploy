@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Progress Logs/Tasks/US-E3-03.md",
+                "file": "dashboard.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "US-E3-03"
+              "title": "dashboard"
             }
           }
         ]
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Progress Logs/Tasks/US-E3-03.md",
+                "file": "dashboard.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of US-E3-03"
+              "title": "Outline of dashboard"
             }
           }
         ],
@@ -192,25 +192,34 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "obsidian-kanban:Create new board": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
       "bases:Create new base": false,
       "canvas:Create new canvas": false,
-      "daily-notes:Open today's daily note": false
+      "daily-notes:Open today's daily note": false,
+      "obsidian-kanban:Create new board": false
     }
   },
   "active": "bdb3b4468a6a311c",
   "lastOpenFiles": [
+    "Agile-Template/Design Documents/DatabaseSchema-Template.md",
+    "dashboard.md",
+    "Agile-Template/Design Documents/GDD-Template.md",
+    "Agile-Template/Design Documents/GameLoop-Template.md",
+    "Agile-Template/Design Documents/ClassDiagram-Template.md",
+    "Progress Logs/Sprint Planning.md",
+    "Progress Logs/Product Backlog.md",
+    "Progress Logs/Kanban_Board.md",
+    "Meeting Logs/S2-W03-Weekly-Backlog.md",
+    "Meeting Logs/2026-04-21.md",
+    "Progress Logs/Tasks/US-E3-03.md",
     "Progress Logs/Tasks/US-E1-05.md",
     "Progress Logs/Tasks/US-E1-04.md",
     "Progress Logs/Tasks/US-E1-03.md",
     "Progress Logs/Tasks/US-E1-02.md",
     "Progress Logs/Tasks/US-E1-01.md",
-    "Progress Logs/Tasks/US-E3-03.md",
-    "Progress Logs/Kanban_Board.md",
     "Progress Logs/Tasks",
     "Design Document/Detail Design/README.md",
     "Design Document/Detail Design/gdd_zoo_feeder.md",
@@ -221,23 +230,14 @@
     "Agile-Template/Progress Logs/SPRINT_BACKLOG-Template.md",
     "Agile-Template/Meeting Logs/MeetingNote-Template.md",
     "Agile-Template/Design Documents/ProjectPlan-Template.md",
-    "Agile-Template/Design Documents/GDD-Template.md",
-    "Agile-Template/Design Documents/GameLoop-Template.md",
-    "Agile-Template/Design Documents/DatabaseSchema-Template.md",
-    "Agile-Template/Design Documents/ClassDiagram-Template.md",
     "Agile-Template/Progress Logs",
     "Agile-Template/Meeting Logs",
     "Agile-Template/Design Documents",
     "Agile-Template",
     "Progress Logs/WEEKLY_BACKLOG-WB01.md",
     "Progress Logs/Templates/WEEKLY_BACKLOG-Template.md",
-    "Progress Logs/Templates/SPRINT_BACKLOG-Template.md",
     "Progress Logs/Templates",
-    "Progress Logs/SPRINT_BACKLOG-SB01.md",
-    "Note.md",
-    "Meeting Logs/Templates/MeetingNote-Template.md",
     "Meeting Logs/Templates",
-    "Meeting Logs/MeetingNotes-260422.md",
     "Idea.canvas",
     "Design Document/wiki",
     "Design Document/Template",
