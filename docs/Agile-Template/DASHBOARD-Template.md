@@ -20,13 +20,14 @@
 ## 🚀 Progress & Planning
 - [**Product/Sprint Backlog**](Progress-Logs/SPRINT_BACKLOG-Template.md) - User stories and task tracking.
 - [**Sprint Planning**](Progress-Logs/SPRINT_PLANNING-Template.md) - Roadmap and milestones.
+- [**Weekly Backlog**](Progress-Logs/Weekly-Backlogs/WEEKLY_BACKLOG-Template.md) - Short-term goals.
 - [**All Weekly Backlog History**](Progress-Logs/WEEKLY_BACKLOG_HISTORY-Template.md) - History index.
-- [**Weekly Backlog**](Progress-Logs/WEEKLY_BACKLOG-Template.md) - Short-term goals.
+
 ---
 
 ## 📝 Meeting Logs
-- [**All Meeting History**](Meeting-Logs/MEETING_HISTORY-Template.md) - History index.
 - [**Latest Meeting Note**](Meeting-Logs/MeetingNote-Template.md) - General meeting note.
+- [**All Meeting History**](Meeting-Logs/MEETING_HISTORY-Template.md) - History index.
 
 ---
 

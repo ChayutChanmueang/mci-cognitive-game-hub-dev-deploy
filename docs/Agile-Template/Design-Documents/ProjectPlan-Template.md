@@ -40,7 +40,7 @@
 ---
 
 ## 🔗 Related Documents
-- [**Product Backlog**](SPRINT_BACKLOG-Template.md)
+- [**Product Backlog**](../Progress-Logs/SPRINT_BACKLOG-Template.md)
 - [**Dashboard**](../DASHBOARD-Template.md)
 
 ---

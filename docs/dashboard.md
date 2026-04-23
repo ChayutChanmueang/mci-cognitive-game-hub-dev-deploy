@@ -21,28 +21,28 @@
 ---
 
 ## 🚀 การติดตามความคืบหน้า (Progress Logs)
-- [**Product Backlog**](Progress-Logs/Product%20Backlog.md) - รายการงานทั้งหมดของโปรเจค
-- [**Sprint Planning**](Progress-Logs/Sprint%20Planning.md) - แผนการดำเนินงานในแต่ละ Sprint
+- [**Product Backlog**](Progress-Logs/Sprint_Backlog.md) - รายการงานทั้งหมดของโปรเจค
+- [**Sprint Planning**](Progress-Logs/Sprint-Planning.md) - แผนการดำเนินงานในแต่ละ Sprint
 - [**Kanban Board**](Progress-Logs/Kanban_Board.md) - กระดานติดตามสถานะงาน
 
 ### 🛠️ User Stories & Tasks
-- [US-E1-01: User Login & Profile](Progress-Logs/Tasks/US-E1-01.md)
-- [US-E1-02: Game Selection Menu](Progress-Logs/Tasks/US-E1-02.md)
-- [US-E1-03: Score Tracking System](Progress-Logs/Tasks/US-E1-03.md)
-- [US-E1-04: Admin Dashboard](Progress-Logs/Tasks/US-E1-04.md)
-- [US-E1-05: Basic Game Interaction](Progress-Logs/Tasks/US-E1-05.md)
-- [US-E3-03: Advanced Level Generation](Progress-Logs/Tasks/US-E3-03.md)
+- [US-E1-01: User Login & Profile](Progress-Logs/User-Storys/US-E1-01.md)
+- [US-E1-02: Game Selection Menu](Progress-Logs/User-Storys/US-E1-02.md)
+- [US-E1-03: Score Tracking System](Progress-Logs/User-Storys/US-E1-03.md)
+- [US-E1-04: Admin Dashboard](Progress-Logs/User-Storys/US-E1-04.md)
+- [US-E1-05: Basic Game Interaction](Progress-Logs/User-Storys/US-E1-05.md)
+- [US-E3-03: Advanced Level Generation](Progress-Logs/User-Storys/US-E3-03.md)
 
 ---
 
 ## 📝 บันทึกการประชุม (Meeting Logs)
 - [**2026-04-21**](Meeting-Logs/2026-04-21.md) - บันทึกการประชุมล่าสุด
-- [**Weekly Backlog (S2-W03)**](Meeting-Logs/S2-W03-Weekly-Backlog.md) - บันทึกงานประจำสัปดาห์
+- [**Weekly Backlog (S2-W03)**](Progress-Logs/S2-W03-Weekly-Backlog.md) - บันทึกงานประจำสัปดาห์
 
 ---
 
 ## 🤖 ระบบตัวแทนอัจฉริยะ (Agentic AI)
-- [**Project Agent Skill Using**](wiki/Agentic-AI/PROJECT_AGENT_SKILL_USING.md) - แนวทางการใช้งาน Agent ในโปรเจค
+- [**Project Agent Skill Using**](Agentic-AI/PROJECT_AGENT_SKILL_USING.md) - แนวทางการใช้งาน Agent ในโปรเจค
 
 ---
 *หมายเหตุ: Dashboard นี้รวบรวมข้อมูลล่าสุด ณ วันที่ 23 เมษายน 2026*

@@ -6,7 +6,7 @@
 
 | Week | Date Range | Sprint | Link |
 | :--- | :--- | :--- | :--- |
-| [Week #] | [YYYY-MM-DD] - [YYYY-MM-DD] | [[Sprint #]] | [[WEEKLY_BACKLOG-Template]] |
+| [Week #] | [YYYY-MM-DD] - [YYYY-MM-DD] | [[Sprint #]] | [[Weekly-Backlogs/WEEKLY_BACKLOG-Template]] |
 | | | | |
 
 ---
