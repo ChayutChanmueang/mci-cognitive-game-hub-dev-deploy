@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Progress-Logs/Sprint-Planning.md",
+                "file": "dashboard.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Sprint-Planning"
+              "title": "dashboard"
             }
           }
         ]
@@ -33,7 +33,7 @@
       {
         "id": "325a5901e53fb8ec",
         "type": "tabs",
-        "dimension": 68.57142857142857,
+        "dimension": 73.7583395107487,
         "children": [
           {
             "id": "b80327e6fc02f4b7",
@@ -80,7 +80,7 @@
       {
         "id": "32f3ad212bd9a38b",
         "type": "tabs",
-        "dimension": 31.428571428571427,
+        "dimension": 26.241660489251295,
         "children": [
           {
             "id": "d38b6c8f78515a24",
@@ -174,13 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Progress-Logs/Sprint-Planning.md",
+                "file": "dashboard.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Sprint-Planning"
+              "title": "Outline of dashboard"
             }
           }
         ],
@@ -205,11 +205,17 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
+    "Design-Documents/Detail-Design/README.md",
     "dashboard.md",
+    "Progress-Logs/User-Storys/US-E1-02.md",
+    "Progress-Logs/User-Storys/US-E1-01.md",
+    "Progress-Logs/User-Storys/US-E1-04.md",
+    "Progress-Logs/User-Storys/US-E1-05.md",
+    "Progress-Logs/User-Storys/US-E3-03.md",
+    "Progress-Logs/Sprint-Planning.md",
     "Design-Documents/GameLoop-Project.md",
     "Design-Documents/GDD-Project.md",
     "DASHBOARD-Template.md",
-    "Progress-Logs/Sprint-Planning.md",
     "Progress-Logs/Product-Backlog.md",
     "Progress-Logs/Kanban_Board.md",
     "Progress-Logs/Weekly-Backlogs/S2-W03-Weekly-Backlog.md",
@@ -225,12 +231,6 @@
     "Agile-Template/DASHBOARD-Template.md",
     "Agile-Template/Design-Documents/ClassDiagram-Template.md",
     "Agile-Template/Progress-Logs/Weekly-Backlog-History-Template.md",
-    "Agile-Template/Progress-Logs/Meeting-History-Template.md",
-    "Agile-Template/Progress-Logs/Product-Backlog-Template.md",
-    "SPRINT_PLANNING-Template.md",
-    "Agile-Template/Design-Documents/GameLoop-Template.md",
-    "Agile-Template/Design-Documents/DatabaseSchema-Template.md",
-    "Agile-Template/Progress-Logs/Meeting-Logs/MeetingNote-Template.md",
     "Design-Documents",
     "Progress-Logs/Meeting-Logs",
     "Progress-Logs/Weekly-Backlogs",

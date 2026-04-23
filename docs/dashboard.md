@@ -29,7 +29,7 @@
 ---
 
 ## 🚀 Progress & Planning
-- [**Product Backlog**](Product-Backlog.md) - Product Vision, Roadmap, milestones and User stories.
+- [**Product Backlog**](Progress-Logs/Product-Backlog.md) - Product Vision, Roadmap, milestones and User stories.
 - [**Sprint Planning**](Progress-Logs/Sprint-Planning.md) - แผนการดำเนินงานในแต่ละ Sprint
 - [**All Weekly Backlog History**](Progress-Logs/Weekly-Backlogs/) - History index.
 - [**All Meeting History**](Progress-Logs/Meeting-Logs/) - History index.
@@ -47,7 +47,7 @@
 
 ## 📝 Meeting Logs
 - [**2026-04-21**](Progress-Logs/Meeting-Logs/2026-04-21.md) - บันทึกการประชุมล่าสุด
-- [**Weekly Backlog (S2-W03)**](S2-W03-Weekly-Backlog.md) - บันทึกงานประจำสัปดาห์
+- [**Weekly Backlog (S2-W03)**](Progress-Logs/Weekly-Backlogs/S2-W03-Weekly-Backlog.md) - บันทึกงานประจำสัปดาห์
 
 ---
 
