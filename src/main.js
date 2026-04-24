@@ -303,10 +303,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         await renderGameHubScreen(uiRoot, {
-            loadGamesByCategory: (categoryId, pagingOptions) => db.getGamesByMciGroup(categoryId, pagingOptions),
+            loadGameList: () => db.getGameList(),
+            loadPlayedGameGids: ({ hn, gids, playedFrom, playedTo }) =>
+                db.getPlayedGameGidsByHn({ hn, gids, playedFrom, playedTo }),
             dailyTarget: HUB_DAILY_TARGET,
             completedCount: 0,
             preferredGameGid: HUB_DEFAULT_START_GAME_GID,
+            patientHn: patientCode,
             patientCode,
             patientLabel,
             initialScene: options.initialScene,
@@ -332,6 +335,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!hasConfirmed) {
                     return;
+                }
+
+                try {
+                    // TODO: Keep this launch-time history write as a temporary test flow.
+                    // Later, move to preset/day flow and attach user_game_data_id after game completion.
+                    await db.addUserGameHistory({
+                        hn: patientCode,
+                        gid: String(selectedGame?.gid || "").trim(),
+                        playedAt: new Date().toISOString(),
+                        userGameDataId: null,
+                    });
+                } catch (error) {
+                    console.warn("Unable to write launch history:", error);
                 }
 
                 persistSelectedGame(selectedGame);

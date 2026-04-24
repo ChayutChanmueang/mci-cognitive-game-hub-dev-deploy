@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
+const USER_GAME_HISTORY_TABLE = "user_game_history";
 const USER_EVENT_LOG_TABLE = "user_event_log";
 const USER_PATIENT_DATA_TABLE = "user_patient_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
@@ -154,6 +155,28 @@ class Database {
             .from(USER_PATIENT_DATA_TABLE)
             .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
             .eq("hn", parsedHn)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || null;
+    }
+
+    async getPatientByUid(uid) {
+        const parsedUid = String(uid || "").trim();
+        if (!parsedUid) {
+            throw new Error("Invalid uid");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_PATIENT_DATA_TABLE)
+            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .eq("uid", parsedUid)
             .maybeSingle();
 
         if (error) {
@@ -369,15 +392,128 @@ class Database {
         };
 
         const client = this.getClient();
-        const { error } = await client
+        const { data, error } = await client
             .from(USER_GAME_DATA_TABLE)
-            .insert([payload]);
+            .insert([payload])
+            .select("id, gid, started_at, ended_at")
+            .maybeSingle();
 
         if (error) {
             throw error;
         }
 
-        return payload;
+        return data || payload;
+    }
+
+    async addUserGameHistory({
+        hn,
+        gid,
+        playedAt = new Date().toISOString(),
+        userGameDataId = null,
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedGid = String(gid || "").trim();
+        const parsedPlayedAt = new Date(playedAt);
+        const parsedUserGameDataId = userGameDataId == null ? null : Number(userGameDataId);
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (!parsedGid) {
+            throw new Error("Invalid gid");
+        }
+
+        if (Number.isNaN(parsedPlayedAt.getTime())) {
+            throw new Error("Invalid playedAt");
+        }
+
+        if (parsedUserGameDataId != null && !Number.isInteger(parsedUserGameDataId)) {
+            throw new Error("Invalid userGameDataId");
+        }
+
+        await this.initAuth();
+
+        const payload = {
+            hn: parsedHn,
+            gid: parsedGid,
+            played_at: parsedPlayedAt.toISOString(),
+            user_game_data_id: parsedUserGameDataId,
+        };
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_GAME_HISTORY_TABLE)
+            .insert([payload])
+            .select("id, hn, gid, played_at, user_game_data_id")
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || payload;
+    }
+
+    async getPlayedGameGidsByHn({
+        hn,
+        gids = [],
+        playedFrom = null,
+        playedTo = null,
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedGids = Array.isArray(gids)
+            ? gids.map((gid) => String(gid || "").trim()).filter(Boolean)
+            : [];
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (!parsedGids.length) {
+            return [];
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        let query = client
+            .from(USER_GAME_HISTORY_TABLE)
+            .select("gid, played_at")
+            .eq("hn", parsedHn)
+            .in("gid", parsedGids);
+
+        if (playedFrom) {
+            const parsedFrom = new Date(playedFrom);
+            if (Number.isNaN(parsedFrom.getTime())) {
+                throw new Error("Invalid playedFrom");
+            }
+            query = query.gte("played_at", parsedFrom.toISOString());
+        }
+
+        if (playedTo) {
+            const parsedTo = new Date(playedTo);
+            if (Number.isNaN(parsedTo.getTime())) {
+                throw new Error("Invalid playedTo");
+            }
+            query = query.lt("played_at", parsedTo.toISOString());
+        }
+
+        const { data, error } = await query.order("played_at", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        const seen = new Set();
+        (data || []).forEach((item) => {
+            const gid = String(item?.gid || "").trim();
+            if (gid) {
+                seen.add(gid);
+            }
+        });
+
+        return [...seen];
     }
 
     async submitHighScore(score, playtime = 0, gid = "ATTN001", level = null) {

@@ -1,7 +1,5 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
 
-const CATEGORY_ORDER = ["Attention", "Memory", "Language", "Visuospatial", "Executive"];
-const PAGE_SIZE = 10;
 const DEFAULT_DAILY_TARGET = 14;
 const DEFAULT_START_GAME_GID = "ATTN001";
 
@@ -38,6 +36,13 @@ const FALLBACK_GAMES = Object.freeze([
     { id: "fallback-vis-002", gid: "VIS002", name: "ต่อภาพเส้นทาง", mci_group: "Visuospatial" },
     { id: "fallback-lang-002", gid: "LANG002", name: "เลือกคำให้ถูก", mci_group: "Language" },
 ]);
+const DAY_ONE_PRESET_GIDS_MOCK = Object.freeze([
+    "ATTN001",
+    "LANG001",
+    "MEM001",
+    "EXEC001",
+    "VSP001",
+]);
 
 function escapeHtml(value) {
     return String(value || "")
@@ -61,33 +66,15 @@ function normalizeGame(item, index, fallbackCategory = "Attention") {
     };
 }
 
-function createCategoryState() {
-    return {
-        items: [],
-        total: null,
-        nextOffset: 0,
-        hasMore: false,
-        initialized: false,
-        loading: false,
-        error: "",
-        usedFallback: false,
-    };
-}
-
-function createCategoryStates() {
-    return CATEGORY_ORDER.reduce((states, categoryId) => {
-        states[categoryId] = createCategoryState();
-        return states;
-    }, {});
-}
-
 export function createGameHubState() {
     return {
-        categoryStates: createCategoryStates(),
         programGames: [],
+        playedGameGids: [],
         programInitialized: false,
         programLoading: false,
+        historyLoading: false,
         programError: "",
+        historyError: "",
         scrollTop: 0,
     };
 }
@@ -124,17 +111,65 @@ function getCategoryDescription(categoryId) {
     return CATEGORY_META[categoryId]?.description || "เกมฝึกสมองประจำวัน";
 }
 
-function mergeUniqueGames(items, dailyTarget, preferredGameGid) {
-    const merged = [...items, ...FALLBACK_GAMES];
-    const seen = new Set();
+function getProgramDateRange(programDate = null) {
+    // TODO: Replace this mock "day window" with preset date window from DB when preset scheduling is implemented.
+    const anchor = programDate ? new Date(programDate) : new Date();
+    const safeAnchor = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+    const start = new Date(safeAnchor);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    return {
+        playedFrom: start.toISOString(),
+        playedTo: end.toISOString(),
+    };
+}
+
+function getSequentialCompletedCount(games, playedGids) {
+    const playedSet = new Set((playedGids || []).map((gid) => String(gid || "").trim()).filter(Boolean));
+    let completedCount = 0;
+
+    for (const game of games || []) {
+        const gid = String(game?.gid || "").trim();
+        if (!gid || !playedSet.has(gid)) {
+            break;
+        }
+        completedCount += 1;
+    }
+
+    return completedCount;
+}
+
+function buildProgramGamesFromPreset(gameListItems, dailyTarget, preferredGameGid) {
+    // TODO: Replace this mock preset GID set (derived from CSV day-1 sample) with DB preset data when preset table is ready.
+    const presetGids = DAY_ONE_PRESET_GIDS_MOCK;
+    const normalizedGameList = (gameListItems || []).map((item, index) =>
+        normalizeGame(item, index, item?.mci_group || "Attention"),
+    );
+    const gameMapByGid = new Map();
+
+    normalizedGameList.forEach((game) => {
+        if (game.gid) {
+            gameMapByGid.set(game.gid, game);
+        }
+    });
+
+    const selectedGames = presetGids
+        .map((gid) => gameMapByGid.get(gid))
+        .filter(Boolean);
+
+    const selectedGids = new Set(selectedGames.map((game) => game.gid));
+    const remainingGames = normalizedGameList.filter((game) => !selectedGids.has(game.gid));
+    const merged = [...selectedGames, ...remainingGames, ...FALLBACK_GAMES];
     const uniqueGames = [];
+    const seen = new Set();
 
     for (const item of merged) {
         const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
         if (!game.gid || seen.has(game.gid)) {
             continue;
         }
-
         seen.add(game.gid);
         uniqueGames.push(game);
     }
@@ -151,16 +186,9 @@ function mergeUniqueGames(items, dailyTarget, preferredGameGid) {
         });
     }
 
-    while (uniqueGames.length < dailyTarget) {
-        const nextIndex = uniqueGames.length + 1;
-        uniqueGames.push(normalizeGame({
-            gid: `MOCK${String(nextIndex).padStart(3, "0")}`,
-            name: `เกมตัวอย่าง ${nextIndex}`,
-            mci_group: "Attention",
-        }, nextIndex));
-    }
-
-    return uniqueGames.slice(0, dailyTarget);
+    const requestedTarget = Math.max(1, Number(dailyTarget) || presetGids.length || DEFAULT_DAILY_TARGET);
+    const target = Math.min(requestedTarget, presetGids.length || requestedTarget);
+    return uniqueGames.slice(0, target);
 }
 
 class HubElement {
@@ -366,8 +394,11 @@ class LevelMap extends HubElement {
 
     renderNodes() {
         const games = this.options.games || [];
-        const completedCount = Math.max(0, Number(this.options.completedCount) || 0);
-        const currentGameIndex = Math.min(completedCount, Math.max(0, games.length - 1));
+        const completedCount = Math.min(
+            games.length,
+            Math.max(0, Number(this.options.completedCount) || 0),
+        );
+        const currentGameIndex = completedCount >= games.length ? -1 : completedCount;
         const list = this.element?.querySelector("[data-level-list]");
 
         games.forEach((game, index) => {
@@ -375,7 +406,7 @@ class LevelMap extends HubElement {
                 gameData: game,
                 index,
                 isDone: index < completedCount,
-                isCurrent: index === currentGameIndex,
+                isCurrent: currentGameIndex >= 0 && index === currentGameIndex,
                 onLaunch: this.options.onLaunch,
             }), list);
         });
@@ -426,7 +457,10 @@ export async function renderGameHubScreen(root, options = {}) {
     }
 
     const {
-        loadGamesByCategory,
+        loadGameList,
+        loadPlayedGameGids = null,
+        patientHn = "",
+        programDate = null,
         dailyTarget = DEFAULT_DAILY_TARGET,
         completedCount = 0,
         preferredGameGid = DEFAULT_START_GAME_GID,
@@ -438,25 +472,29 @@ export async function renderGameHubScreen(root, options = {}) {
     } = options;
 
     const state = sharedState || createGameHubState();
-    if (!state.categoryStates) {
-        state.categoryStates = createCategoryStates();
-    }
     if (!Array.isArray(state.programGames)) {
         state.programGames = [];
+    }
+    if (!Array.isArray(state.playedGameGids)) {
+        state.playedGameGids = [];
     }
 
     let activeScreen = null;
     const patientLabel = getPatientLabel();
+    const parsedPatientHn = String(patientHn || "").trim();
 
     const render = () => {
         activeScreen?.destroy();
         root.innerHTML = "";
+        const derivedCompletedCount = getSequentialCompletedCount(state.programGames, state.playedGameGids);
+        const resolvedCompletedCount = Math.max(0, Number(completedCount) || 0, derivedCompletedCount);
+        const resolvedDailyTarget = Math.max(1, state.programGames.length || dailyTarget);
         activeScreen = new HubMapScreen({
             games: state.programGames,
-            dailyTarget,
-            completedCount,
+            dailyTarget: resolvedDailyTarget,
+            completedCount: resolvedCompletedCount,
             patientLabel,
-            isLoading: state.programLoading && !state.programInitialized,
+            isLoading: (state.programLoading && !state.programInitialized) || state.historyLoading,
             initialScrollTop: state.scrollTop,
             onScrollChange: (scrollTop) => {
                 state.scrollTop = scrollTop;
@@ -474,66 +512,75 @@ export async function renderGameHubScreen(root, options = {}) {
         root.append(activeScreen.render());
     };
 
-    const loadCategoryPage = async (categoryId) => {
-        const categoryState = state.categoryStates[categoryId] || createCategoryState();
-        state.categoryStates[categoryId] = categoryState;
-
-        if (categoryState.initialized || categoryState.loading) {
-            return categoryState.items;
-        }
-
-        categoryState.loading = true;
-        categoryState.error = "";
-
-        try {
-            const result = typeof loadGamesByCategory === "function"
-                ? await loadGamesByCategory(categoryId, { offset: 0, pageSize: PAGE_SIZE })
-                : null;
-            const items = (result?.items || []).map((item, index) => normalizeGame(item, index, categoryId));
-
-            categoryState.items = items;
-            categoryState.total = Number.isFinite(result?.total) ? Number(result.total) : items.length;
-            categoryState.nextOffset = Number(result?.nextOffset) || items.length;
-            categoryState.hasMore = Boolean(result?.hasMore);
-            categoryState.initialized = true;
-            categoryState.loading = false;
-            categoryState.usedFallback = false;
-
-            return items;
-        } catch (error) {
-            console.warn(`Unable to load games for ${categoryId}:`, error);
-            categoryState.loading = false;
-            categoryState.error = error?.message || "Unable to load games";
-            categoryState.initialized = true;
-            return [];
-        }
-    };
-
     const loadProgramGames = async () => {
-        if (state.programInitialized || state.programLoading) {
+        if (state.programLoading) {
             return;
         }
 
-        state.programLoading = true;
-        state.programGames = mergeUniqueGames([], dailyTarget, preferredGameGid);
-        render();
+        if (!state.programInitialized) {
+            state.programLoading = true;
+            state.programGames = [];
+            render();
 
-        const loadedGames = [];
-        for (const categoryId of CATEGORY_ORDER) {
-            if (loadedGames.length >= dailyTarget) {
-                break;
+            try {
+                const gameListItems = typeof loadGameList === "function"
+                    ? await loadGameList()
+                    : [];
+                state.programGames = buildProgramGamesFromPreset(gameListItems, dailyTarget, preferredGameGid);
+                state.programError = "";
+            } catch (error) {
+                console.warn("Unable to load game list:", error);
+                state.programGames = buildProgramGamesFromPreset([], dailyTarget, preferredGameGid);
+                state.programError = error?.message || "Unable to load game list";
             }
 
-            loadedGames.push(...await loadCategoryPage(categoryId));
+            state.programInitialized = true;
+            state.programLoading = false;
+            onStateChange({ scene: "intro", activeCategory: "Attention" });
+            render();
+        }
+    };
+
+    const loadPlayedHistory = async () => {
+        if (state.historyLoading) {
+            return;
         }
 
-        state.programGames = mergeUniqueGames(loadedGames, dailyTarget, preferredGameGid);
-        state.programInitialized = true;
-        state.programLoading = false;
-        onStateChange({ scene: "intro", activeCategory: "Attention" });
+        if (!state.programGames.length || !parsedPatientHn || typeof loadPlayedGameGids !== "function") {
+            state.playedGameGids = [];
+            state.historyError = "";
+            render();
+            return;
+        }
+
+        state.historyLoading = true;
+        render();
+
+        try {
+            const gids = state.programGames
+                .map((game) => String(game?.gid || "").trim())
+                .filter(Boolean);
+            const { playedFrom, playedTo } = getProgramDateRange(programDate);
+            const playedGameGids = await loadPlayedGameGids({
+                hn: parsedPatientHn,
+                gids,
+                playedFrom,
+                playedTo,
+            });
+
+            state.playedGameGids = Array.isArray(playedGameGids) ? playedGameGids : [];
+            state.historyError = "";
+        } catch (error) {
+            console.warn("Unable to load played game history:", error);
+            state.playedGameGids = [];
+            state.historyError = error?.message || "Unable to load played game history";
+        }
+
+        state.historyLoading = false;
         render();
     };
 
     render();
     await loadProgramGames();
+    await loadPlayedHistory();
 }
