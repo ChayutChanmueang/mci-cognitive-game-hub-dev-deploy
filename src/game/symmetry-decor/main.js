@@ -24,7 +24,7 @@ const config = {
         default: 'arcade', 
         arcade: {
             gravity: { y: 0 }, // 0 for top-down, 300 for platformers
-            debug: true       // Keep this true while debugging!
+            debug: false      // Keep this true while debugging!
         }
     },
     scene: [

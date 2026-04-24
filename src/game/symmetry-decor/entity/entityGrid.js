@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 
-export default class EntityGrid extends Phaser.GameObjects.Container{
+export default class EntityGrid extends Phaser.GameObjects.Container {
     constructor(scene, x, y, config = {}) {
         super(scene, x, y);
 
         this.scene = scene;
-        
+
         // 1. Define the total bounds and grid dimensions
         this.gridWidth = config.width || 1000;
         this.gridHeight = config.height || 1000;
@@ -20,6 +20,13 @@ export default class EntityGrid extends Phaser.GameObjects.Container{
         this.gridEntities = [];
 
         scene.add.existing(this);
+
+        this.drawGridBackground();
+
+        // 3. Draw the symmetry line if configured
+        if (config.showSymmetryLine) {
+            this.drawSymmetryLine(config.symmetryType || 'vertical');
+        }
     }
 
     _calculateCellDimensions() {
@@ -77,4 +84,132 @@ export default class EntityGrid extends Phaser.GameObjects.Container{
         }
         return entity;
     }
+
+    //VISUAL STUFF
+
+    drawSymmetryLine(orientation) {
+        const graphics = this.scene.add.graphics();
+        const lineColor = 0xe06666;
+        const lineThickness = 4;
+        const lineAlpha = 1.0;
+
+        graphics.lineStyle(lineThickness, lineColor, lineAlpha);
+        graphics.beginPath();
+
+        const midX = this.gridWidth / 2;
+        const midY = this.gridHeight / 2;
+        const dashLength = 10;
+        const gapLength = 10;
+
+        // L-R or R-L (Vertical Line)
+        if (['L-R', 'R-L', 'FOUR_WAY', 'QUADRANT'].includes(orientation)) {
+            this._drawDashedLine(graphics, midX, -10, midX, this.gridHeight + 10, dashLength, gapLength);
+        }
+
+        // T-B or B-T (Horizontal Line)
+        if (['T-B', 'B-T', 'FOUR_WAY', 'QUADRANT'].includes(orientation)) {
+            this._drawDashedLine(graphics, -10, midY, this.gridWidth + 10, midY, dashLength, gapLength);
+        }
+
+        // DIAGONAL (Top-Left to Bottom-Right)
+        if (orientation === 'DIAGONAL') {
+            this._drawDashedLine(graphics, -10, -10, this.gridWidth + 10, this.gridHeight + 10, dashLength, gapLength);
+        }
+
+        graphics.strokePath();
+
+        // Draw the solid intersection dot in the center for multi-quadrant modes
+        if (['FOUR_WAY', 'QUADRANT'].includes(orientation)) {
+            graphics.fillStyle(lineColor, lineAlpha);
+            graphics.fillCircle(midX, midY, 6);
+        }
+
+        graphics.setDepth(50);
+        this.add(graphics);
+    }
+
+    // --- NEW HELPER METHOD ---
+    _drawDashedLine(graphics, x1, y1, x2, y2, dashLength, gapLength) {
+        // 1. Calculate the total distance between the two points
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // 2. Calculate the normalized direction vector (length of 1)
+        const dirX = dx / distance;
+        const dirY = dy / distance;
+
+        let currentDist = 0;
+        let isDrawing = true;
+
+        // Move to the starting point
+        graphics.moveTo(x1, y1);
+
+        // 3. Loop through the distance, alternating between drawing and skipping
+        while (currentDist < distance) {
+            const step = isDrawing ? dashLength : gapLength;
+            currentDist += step;
+
+            // Clamp the distance so we don't draw past the endpoint
+            if (currentDist > distance) {
+                currentDist = distance;
+            }
+
+            const currentX = x1 + (dirX * currentDist);
+            const currentY = y1 + (dirY * currentDist);
+
+            if (isDrawing) {
+                graphics.lineTo(currentX, currentY); // Draw the dash
+            } else {
+                graphics.moveTo(currentX, currentY); // Skip the gap
+            }
+
+            // Toggle the state for the next loop iteration
+            isDrawing = !isDrawing;
+        }
+    }
+
+    drawGridBackground() {
+        const graphics = this.scene.add.graphics();
+
+        // --- Styling (Tweak these to match your aesthetic) ---
+        const bgColor = 0xffffff;       // White background
+        const borderColor = 0xd5d0c8;   // Soft tan/grey for borders (from your image)
+        const outerBorderThickness = 6;
+        const innerBorderThickness = 2;
+        const cornerRadius = 16;        // How round the outer corners are
+
+        // 1. Draw the main outer rounded rectangle
+        graphics.fillStyle(bgColor, 1.0);
+        graphics.lineStyle(outerBorderThickness, borderColor, 1.0);
+
+        // fillRoundedRect and strokeRoundedRect are built right into Phaser 3!
+        graphics.fillRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
+        graphics.strokeRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
+
+        // 2. Draw the inner cell borders
+        graphics.lineStyle(innerBorderThickness, borderColor, 0.6);
+        graphics.beginPath();
+
+        // Draw vertical inner lines
+        for (let i = 1; i < this.cols; i++) {
+            const x = i * (this.cellWidth + this.padding);
+            graphics.moveTo(x, 0);
+            graphics.lineTo(x, this.gridHeight);
+        }
+
+        // Draw horizontal inner lines
+        for (let j = 1; j < this.rows; j++) {
+            const y = j * (this.cellHeight + this.padding);
+            graphics.moveTo(0, y);
+            graphics.lineTo(this.gridWidth, y);
+        }
+
+        graphics.strokePath();
+
+        // Put it at a negative depth so it sits behind everything else in the container
+        graphics.setDepth(-10);
+        this.add(graphics);
+    }
+
 }
