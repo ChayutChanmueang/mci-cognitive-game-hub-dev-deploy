@@ -303,10 +303,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         await renderGameHubScreen(uiRoot, {
-            loadGamesByCategory: (categoryId, pagingOptions) => db.getGamesByMciGroup(categoryId, pagingOptions),
+            loadGameList: () => db.getGameList(),
+            loadPlayedGameGids: ({ hn, gids, playedFrom, playedTo }) =>
+                db.getPlayedGameGidsByHn({ hn, gids, playedFrom, playedTo }),
             dailyTarget: HUB_DAILY_TARGET,
             completedCount: 0,
             preferredGameGid: HUB_DEFAULT_START_GAME_GID,
+            patientHn: patientCode,
             patientCode,
             patientLabel,
             initialScene: options.initialScene,
@@ -332,6 +335,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!hasConfirmed) {
                     return;
+                }
+
+                try {
+                    // TODO: Keep this launch-time history write as a temporary test flow.
+                    // Later, move to preset/day flow and attach user_game_data_id after game completion.
+                    await db.addUserGameHistory({
+                        hn: patientCode,
+                        gid: String(selectedGame?.gid || "").trim(),
+                        playedAt: new Date().toISOString(),
+                        userGameDataId: null,
+                    });
+                } catch (error) {
+                    console.warn("Unable to write launch history:", error);
                 }
 
                 persistSelectedGame(selectedGame);
@@ -456,14 +472,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const showSignup = ({ patientCode = "" } = {}) => {
+    const showSignup = async ({ patientCode = "" } = {}) => {
         document.body.classList.remove("landing-mode");
         document.body.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
         app?.classList.remove("hub-mode");
         showUiRoot();
+
+        let educationLevels = [];
+        let educationLevelsError = "";
+
+        try {
+            educationLevels = await db.getEducationLevels();
+            if (!educationLevels.length) {
+                educationLevelsError = "ไม่พบข้อมูลระดับการศึกษา";
+            }
+        } catch (error) {
+            console.error("Unable to load education levels:", error);
+            educationLevelsError = "ไม่สามารถโหลดรายการระดับการศึกษาได้";
+        }
+
         renderSignupScreen(uiRoot, {
             initialHn: patientCode,
+            educationLevels,
+            educationLevelsError,
             onBack: () => navigateTo(ROUTES.login),
             onSubmit: async (formData) => {
                 const patientCodeLabel = `HN${String(formData?.hn || "").trim()}`;
@@ -684,7 +716,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            showSignup({
+            await showSignup({
                 patientCode: pendingPatientCode,
             });
             return;

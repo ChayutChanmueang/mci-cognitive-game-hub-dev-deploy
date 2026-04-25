@@ -2,8 +2,10 @@ import { createClient } from "@supabase/supabase-js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
+const USER_GAME_HISTORY_TABLE = "user_game_history";
 const USER_EVENT_LOG_TABLE = "user_event_log";
 const USER_PATIENT_DATA_TABLE = "user_patient_data";
+const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
 const DEFAULT_GAME_PAGE_SIZE = 10;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
@@ -152,8 +154,30 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
             .eq("hn", parsedHn)
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || null;
+    }
+
+    async getPatientByUid(uid) {
+        const parsedUid = String(uid || "").trim();
+        if (!parsedUid) {
+            throw new Error("Invalid uid");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_PATIENT_DATA_TABLE)
+            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
+            .eq("uid", parsedUid)
             .maybeSingle();
 
         if (error) {
@@ -168,13 +192,30 @@ class Database {
         return Boolean(patient);
     }
 
+    async getEducationLevels() {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_EDUCATION_LEVEL_TABLE)
+            .select("id, eduid, name, dropdown_index")
+            .order("dropdown_index", { ascending: true, nullsFirst: false })
+            .order("id", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
+    }
+
     async createPatientProfile({
         hn,
         firstname,
         lastname,
-        age,
+        birthDate,
         gender,
-        educationLevel = null,
+        educationLevel,
         startedProgram,
     }) {
         const session = await this.initAuth();
@@ -183,8 +224,10 @@ class Database {
         const parsedFirstname = String(firstname || "").trim();
         const parsedLastname = String(lastname || "").trim();
         const parsedGender = String(gender || "").trim();
-        const parsedAge = Number(age);
+        const parsedEducation = String(educationLevel || "").trim();
         const normalizedStartedProgram = new Date(startedProgram);
+        const parsedBirthDate = String(birthDate || "").trim();
+        const normalizedBirthDate = new Date(parsedBirthDate);
 
         if (!parsedHn) {
             throw new Error("Missing patient ID");
@@ -198,12 +241,20 @@ class Database {
             throw new Error("กรุณากรอกนามสกุล");
         }
 
-        if (!Number.isInteger(parsedAge) || parsedAge <= 0 || parsedAge > 130) {
-            throw new Error("กรุณากรอกอายุให้ถูกต้อง");
+        if (!parsedBirthDate || Number.isNaN(normalizedBirthDate.getTime())) {
+            throw new Error("กรุณาเลือกวันเกิด");
+        }
+
+        if (normalizedBirthDate > new Date()) {
+            throw new Error("วันเกิดต้องไม่เป็นวันในอนาคต");
         }
 
         if (!parsedGender) {
             throw new Error("กรุณาเลือกเพศ");
+        }
+
+        if (!parsedEducation) {
+            throw new Error("กรุณาเลือกระดับการศึกษา");
         }
 
         if (Number.isNaN(normalizedStartedProgram.getTime())) {
@@ -214,27 +265,22 @@ class Database {
             throw new Error("Missing authenticated user");
         }
 
-        const parsedEducationLevel =
-            educationLevel == null || String(educationLevel).trim() === ""
-                ? null
-                : Number(educationLevel);
-
         const payload = {
             uid: user.id,
             hn: parsedHn,
             firstname: parsedFirstname,
             lastname: parsedLastname,
-            age: parsedAge,
             gender: parsedGender,
-            education_level: Number.isFinite(parsedEducationLevel) ? parsedEducationLevel : null,
+            education_level: parsedEducation,
             started_program: normalizedStartedProgram.toISOString(),
+            date: parsedBirthDate,
         };
 
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
             .maybeSingle();
 
         if (error) {
@@ -369,15 +415,128 @@ class Database {
         };
 
         const client = this.getClient();
-        const { error } = await client
+        const { data, error } = await client
             .from(USER_GAME_DATA_TABLE)
-            .insert([payload]);
+            .insert([payload])
+            .select("id, gid, started_at, ended_at")
+            .maybeSingle();
 
         if (error) {
             throw error;
         }
 
-        return payload;
+        return data || payload;
+    }
+
+    async addUserGameHistory({
+        hn,
+        gid,
+        playedAt = new Date().toISOString(),
+        userGameDataId = null,
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedGid = String(gid || "").trim();
+        const parsedPlayedAt = new Date(playedAt);
+        const parsedUserGameDataId = userGameDataId == null ? null : Number(userGameDataId);
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (!parsedGid) {
+            throw new Error("Invalid gid");
+        }
+
+        if (Number.isNaN(parsedPlayedAt.getTime())) {
+            throw new Error("Invalid playedAt");
+        }
+
+        if (parsedUserGameDataId != null && !Number.isInteger(parsedUserGameDataId)) {
+            throw new Error("Invalid userGameDataId");
+        }
+
+        await this.initAuth();
+
+        const payload = {
+            hn: parsedHn,
+            gid: parsedGid,
+            played_at: parsedPlayedAt.toISOString(),
+            user_game_data_id: parsedUserGameDataId,
+        };
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_GAME_HISTORY_TABLE)
+            .insert([payload])
+            .select("id, hn, gid, played_at, user_game_data_id")
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || payload;
+    }
+
+    async getPlayedGameGidsByHn({
+        hn,
+        gids = [],
+        playedFrom = null,
+        playedTo = null,
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedGids = Array.isArray(gids)
+            ? gids.map((gid) => String(gid || "").trim()).filter(Boolean)
+            : [];
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (!parsedGids.length) {
+            return [];
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        let query = client
+            .from(USER_GAME_HISTORY_TABLE)
+            .select("gid, played_at")
+            .eq("hn", parsedHn)
+            .in("gid", parsedGids);
+
+        if (playedFrom) {
+            const parsedFrom = new Date(playedFrom);
+            if (Number.isNaN(parsedFrom.getTime())) {
+                throw new Error("Invalid playedFrom");
+            }
+            query = query.gte("played_at", parsedFrom.toISOString());
+        }
+
+        if (playedTo) {
+            const parsedTo = new Date(playedTo);
+            if (Number.isNaN(parsedTo.getTime())) {
+                throw new Error("Invalid playedTo");
+            }
+            query = query.lt("played_at", parsedTo.toISOString());
+        }
+
+        const { data, error } = await query.order("played_at", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        const seen = new Set();
+        (data || []).forEach((item) => {
+            const gid = String(item?.gid || "").trim();
+            if (gid) {
+                seen.add(gid);
+            }
+        });
+
+        return [...seen];
     }
 
     async submitHighScore(score, playtime = 0, gid = "ATTN001", level = null) {

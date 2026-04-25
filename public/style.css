@@ -126,8 +126,31 @@ body.hub-mode {
     width: min(100%, clamp(280px, 44vw, 420px));
 }
 
-.landing-login-button {
-    width: 100%;
+.landing-screen__logo h1,
+.login-card h1,
+.signup-card__header h1,
+.player-info-card h1,
+.admin-login-label,
+.signup-row > span,
+.signup-row > label,
+.signup-row--hn > label,
+.signup-hn-value,
+.player-info-row > span,
+.app-popup__copy h2,
+.hub-clean-goal h1,
+.hub-clean-level__node,
+.hub-clean-current-card h2 {
+    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
+}
+
+.hub-clean-eyebrow,
+.app-popup__copy p,
+.hub-clean-goal p,
+.hub-clean-progress span,
+.hub-clean-current-card p,
+.hub-clean-current-card span,
+.hub-clean-empty {
+    color: var(--md-sys-color-on-surface-variant);
 }
 
 .login-screen,
@@ -170,7 +193,6 @@ body.hub-mode {
 .player-info-card h1 {
     margin: 0;
     color: #151515;
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-weight: 700;
     line-height: 1;
     text-align: center;
@@ -188,7 +210,11 @@ body.hub-mode {
 .login-field,
 .login-submit-button,
 .admin-login-field,
-.admin-login-submit {
+.admin-login-submit,
+.landing-login-button,
+.signup-submit-button,
+.player-info-actions md-filled-button,
+.player-info-export-button {
     width: 100%;
 }
 
@@ -222,7 +248,6 @@ body.hub-mode {
 }
 
 .admin-login-label {
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-weight: 700;
     line-height: 1.2;
     text-align: right;
@@ -280,7 +305,6 @@ body.hub-mode {
 .signup-row > label,
 .signup-row--hn > label {
     color: #1f1f1f;
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: clamp(1.25rem, 3vw, 1.65rem);
     font-weight: 600;
     line-height: 1.1;
@@ -300,7 +324,6 @@ body.hub-mode {
     border-radius: 12px;
     background: rgba(53, 104, 89, 0.12);
     color: #1e1b18;
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: clamp(1.3rem, 3vw, 1.7rem);
     font-weight: 600;
 }
@@ -308,10 +331,6 @@ body.hub-mode {
 .signup-feedback,
 .player-info-feedback {
     margin: 0;
-}
-
-.signup-submit-button {
-    width: 100%;
 }
 
 .player-info-card {
@@ -340,7 +359,6 @@ body.hub-mode {
 
 .player-info-row > span {
     color: #1f1f1f;
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: clamp(1.15rem, 3vw, 1.55rem);
     font-weight: 600;
     line-height: 1.1;
@@ -359,11 +377,6 @@ body.hub-mode {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
-}
-
-.player-info-actions md-filled-button,
-.player-info-export-button {
-    width: 100%;
 }
 
 .app-popup {
@@ -432,14 +445,12 @@ body.hub-mode {
 
 .app-popup__copy h2 {
     margin: 0;
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: 1.8rem;
     line-height: 1;
 }
 
 .app-popup__copy p {
     margin: 0;
-    color: var(--md-sys-color-on-surface-variant);
     line-height: 1.6;
 }
 
@@ -479,7 +490,7 @@ body.hub-mode {
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(183, 176, 168, 0.6);
-    box-shadow: var(--app-shadow);
+    box-shadow: none;
     backdrop-filter: blur(10px);
 }
 
@@ -497,14 +508,12 @@ body.hub-mode {
 }
 
 .hub-clean-eyebrow {
-    color: var(--md-sys-color-on-surface-variant);
     font-size: 11px;
     font-weight: 800;
     line-height: 1.1;
 }
 
 .hub-clean-goal h1 {
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: 27px;
     font-weight: 800;
     line-height: 0.98;
@@ -512,7 +521,6 @@ body.hub-mode {
 }
 
 .hub-clean-goal p {
-    color: var(--md-sys-color-on-surface-variant);
     font-size: 14px;
     font-weight: 700;
     line-height: 1.2;
@@ -538,7 +546,6 @@ body.hub-mode {
     inset: 0;
     display: grid;
     place-items: center;
-    color: var(--md-sys-color-on-surface-variant);
     font-size: 13px;
     font-weight: 800;
     pointer-events: none;
@@ -576,8 +583,8 @@ body.hub-mode {
 }
 
 .hub-clean-content {
-    min-height: calc(100dvh + 640px);
-    padding: 152px 20px 112px;
+    min-height: 100%;
+    padding: 170px 20px 0;
 }
 
 .hub-clean-day-divider {
@@ -608,7 +615,7 @@ body.hub-mode {
     content: "";
     position: absolute;
     top: 44px;
-    bottom: 24px;
+    bottom: 0;
     left: 68px;
     width: 4px;
     border-radius: 999px;
@@ -641,7 +648,6 @@ body.hub-mode {
     border-radius: 999px;
     background: #a6a6a6;
     color: var(--md-sys-color-on-surface);
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: 32px;
     font-weight: 800;
     line-height: 1;
@@ -684,13 +690,11 @@ body.hub-mode {
 }
 
 .hub-clean-current-card p {
-    color: var(--md-sys-color-on-surface-variant);
     font-size: 12px;
     font-weight: 800;
 }
 
 .hub-clean-current-card h2 {
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
     font-size: 27px;
     font-weight: 800;
     line-height: 0.98;
@@ -698,7 +702,6 @@ body.hub-mode {
 
 .hub-clean-current-card span {
     max-width: 170px;
-    color: var(--md-sys-color-on-surface-variant);
     font-size: 12px;
     line-height: 1.35;
 }
@@ -750,7 +753,6 @@ body.hub-mode {
     place-items: center;
     gap: 10px;
     margin-top: 24px;
-    color: var(--md-sys-color-on-surface-variant);
     font-size: 14px;
 }
 
