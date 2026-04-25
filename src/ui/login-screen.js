@@ -10,6 +10,10 @@ function toggleFieldError(input, hasError) {
     }
 }
 
+function normalizePatientId(value) {
+    return String(value || "").replaceAll(/\D/g, "");
+}
+
 export function renderLoginScreen(root, options = {}) {
     if (!root) {
         return;
@@ -31,6 +35,10 @@ export function renderLoginScreen(root, options = {}) {
                         class="login-field"
                         label="กรอกหมายเลข HN"
                         prefix-text="HN  |"
+                        type="number"
+                        inputmode="numeric"
+                        min="0"
+                        step="1"
                         required
                         no-asterisk
                         error-text="กรุณากรอกรหัสผู้ป่วย"
@@ -56,11 +64,12 @@ export function renderLoginScreen(root, options = {}) {
     }
 
     if (initialPatientCode) {
-        input.value = initialPatientCode;
+        input.value = normalizePatientId(initialPatientCode);
     }
 
     const updateState = () => {
-        const value = String(input.value || "").trim();
+        input.value = normalizePatientId(input.value);
+        const value = input.value;
         const hasValue = value.length > 0;
 
         submitButton.disabled = !hasValue;
@@ -75,7 +84,7 @@ export function renderLoginScreen(root, options = {}) {
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const patientId = String(input.value || "").trim();
+        const patientId = normalizePatientId(input.value);
         if (!patientId) {
             input.errorText = "กรุณากรอกรหัสผู้ป่วย";
             toggleFieldError(input, true);

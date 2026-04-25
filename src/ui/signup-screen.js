@@ -2,6 +2,15 @@ function createDateValue() {
     return new Date().toISOString().slice(0, 10);
 }
 
+function escapeHtml(value) {
+    return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 export function renderSignupScreen(root, options = {}) {
     if (!root) {
         return;
@@ -9,11 +18,22 @@ export function renderSignupScreen(root, options = {}) {
 
     const {
         initialHn = "",
+        educationLevels = [],
+        educationLevelsError = "",
         onBack = () => {},
         onSubmit = () => {},
     } = options;
 
     const hnLabel = initialHn ? `HN${initialHn}` : "-";
+    const educationOptionsMarkup = educationLevels
+        .map((level) => `
+                                <md-select-option value="${escapeHtml(level?.eduid || "")}">
+                                    <div slot="headline">${escapeHtml(level?.name || "")}</div>
+                                </md-select-option>
+        `)
+        .join("");
+    const isEducationLevelAvailable = educationLevels.length > 0 && !educationLevelsError;
+    const initialFeedback = educationLevelsError || "";
 
     root.innerHTML = `
         <section class="signup-screen" aria-labelledby="signup-title">
@@ -55,13 +75,12 @@ export function renderSignupScreen(root, options = {}) {
                         </label>
 
                         <label class="signup-row">
-                            <span>อายุ :</span>
+                            <span>วันเกิด :</span>
                             <md-outlined-text-field
-                                id="signup-age"
-                                placeholder="เช่น 65"
-                                aria-label="อายุ"
-                                type="number"
-                                min="1"
+                                id="signup-birth-date"
+                                aria-label="วันเกิด"
+                                type="date"
+                                lang="en-GB"
                                 required
                                 no-asterisk
                             ></md-outlined-text-field>
@@ -94,16 +113,13 @@ export function renderSignupScreen(root, options = {}) {
                             <md-outlined-select
                                 id="signup-education-level"
                                 aria-label="การศึกษา"
+                                required
+                                ${isEducationLevelAvailable ? "" : "disabled"}
                             >
-                                <md-select-option value="placeholder-1">
-                                    <div slot="headline">ตัวเลือกตัวอย่าง 1</div>
+                                <md-select-option value="">
+                                    <div slot="headline">เลือกระดับการศึกษา</div>
                                 </md-select-option>
-                                <md-select-option value="placeholder-2">
-                                    <div slot="headline">ตัวเลือกตัวอย่าง 2</div>
-                                </md-select-option>
-                                <md-select-option value="placeholder-3">
-                                    <div slot="headline">ตัวเลือกตัวอย่าง 3</div>
-                                </md-select-option>
+                                ${educationOptionsMarkup}
                             </md-outlined-select>
                         </label>
 
@@ -113,6 +129,7 @@ export function renderSignupScreen(root, options = {}) {
                                 id="signup-started-program"
                                 aria-label="วันที่เริ่มโปรแกรม"
                                 type="date"
+                                lang="en-GB"
                                 value="${createDateValue()}"
                                 required
                                 no-asterisk
@@ -120,9 +137,9 @@ export function renderSignupScreen(root, options = {}) {
                         </label>
                     </div>
 
-                    <p id="signup-feedback" class="signup-feedback" aria-live="polite"></p>
+                    <p id="signup-feedback" class="signup-feedback" aria-live="polite">${escapeHtml(initialFeedback)}</p>
 
-                    <md-filled-button id="signup-submit-button" class="signup-submit-button" type="submit">
+                    <md-filled-button id="signup-submit-button" class="signup-submit-button" type="submit" ${isEducationLevelAvailable ? "" : "disabled"}>
                         ยืนยันข้อมูลผู้เล่น
                     </md-filled-button>
                 </form>
@@ -150,7 +167,7 @@ export function renderSignupScreen(root, options = {}) {
             hn: String(initialHn || "").trim(),
             firstname: String(root.querySelector("#signup-firstname")?.value || "").trim(),
             lastname: String(root.querySelector("#signup-lastname")?.value || "").trim(),
-            age: String(root.querySelector("#signup-age")?.value || "").trim(),
+            birthDate: String(root.querySelector("#signup-birth-date")?.value || "").trim(),
             gender: String(root.querySelector("#signup-gender")?.value || "").trim(),
             educationLevel: String(root.querySelector("#signup-education-level")?.value || "").trim(),
             startedProgram: String(root.querySelector("#signup-started-program")?.value || "").trim(),

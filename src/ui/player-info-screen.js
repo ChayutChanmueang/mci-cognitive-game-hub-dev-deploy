@@ -2,6 +2,15 @@ function createDateValue() {
     return new Date().toISOString().slice(0, 10);
 }
 
+function escapeHtml(value) {
+    return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 function formatDisplayDate(value) {
     if (!value) {
         return "";
@@ -32,6 +41,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
     } = options;
 
     const hn = String(player.hn || player.patientCode || "").trim();
+    const birthDate = player.date || player.birthDate || "";
     const startedProgram = player.started_program || player.startedProgram || createDateValue();
     const endedProgram = programEndedAt || createDateValue();
 
@@ -43,82 +53,42 @@ export function renderPlayerInfoScreen(root, options = {}) {
                 <form id="player-info-form" class="player-info-form" novalidate>
                     <label class="player-info-row">
                         <span>หมายเลข HN :</span>
-                        <md-outlined-text-field
-                            id="player-info-hn"
-                            value="${hn}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <div id="player-info-hn" class="player-info-value">${escapeHtml(hn)}</div>
                     </label>
 
                     <label class="player-info-row">
                         <span>ชื่อ :</span>
-                        <md-outlined-text-field
-                            id="player-info-firstname"
-                            value="${player.firstname || ""}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <div id="player-info-firstname" class="player-info-value">${escapeHtml(player.firstname || "")}</div>
                     </label>
 
                     <label class="player-info-row">
                         <span>นามสกุล :</span>
-                        <md-outlined-text-field
-                            id="player-info-lastname"
-                            value="${player.lastname || ""}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <div id="player-info-lastname" class="player-info-value">${escapeHtml(player.lastname || "")}</div>
                     </label>
 
                     <label class="player-info-row">
-                        <span>อายุ :</span>
-                        <md-outlined-text-field
-                            id="player-info-age"
-                            value="${player.age || ""}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <span>วันเกิด :</span>
+                        <div id="player-info-birth-date" class="player-info-value">${escapeHtml(formatDisplayDate(birthDate))}</div>
                     </label>
 
                     <label class="player-info-row">
                         <span>เพศ :</span>
-                        <md-outlined-text-field
-                            id="player-info-gender"
-                            value="${player.gender || ""}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <div id="player-info-gender" class="player-info-value">${escapeHtml(player.gender || "")}</div>
                     </label>
 
                     <label class="player-info-row">
                         <span>การศึกษา :</span>
-                        <md-outlined-text-field
-                            id="player-info-education"
-                            value="${player.education_level || player.educationLevel || ""}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <div id="player-info-education" class="player-info-value">${escapeHtml(player.educationName || player.education_level || player.educationLevel || "")}</div>
                     </label>
 
                     <label class="player-info-row player-info-row--date">
                         <span>วันที่เริ่มโปรแกรม :</span>
-                        <md-outlined-text-field
-                            id="player-info-started"
-                            value="${formatDisplayDate(startedProgram)}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <div id="player-info-started" class="player-info-value">${escapeHtml(formatDisplayDate(startedProgram))}</div>
                     </label>
 
                     <label class="player-info-row player-info-row--date">
                         <span>วันที่จบโปรแกรม :</span>
-                        <md-outlined-text-field
-                            id="player-info-ended"
-                            value="${formatDisplayDate(endedProgram)}"
-                            readonly
-                            no-asterisk
-                        ></md-outlined-text-field>
+                        <div id="player-info-ended" class="player-info-value">${escapeHtml(formatDisplayDate(endedProgram))}</div>
                     </label>
 
                     <p id="player-info-feedback" class="player-info-feedback" aria-live="polite"></p>
