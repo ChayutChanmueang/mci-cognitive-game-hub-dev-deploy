@@ -197,7 +197,7 @@ class Database {
         lastname,
         age,
         gender,
-        educationLevel = null,
+        educationLevel,
         startedProgram,
     }) {
         const session = await this.initAuth();
@@ -207,6 +207,7 @@ class Database {
         const parsedLastname = String(lastname || "").trim();
         const parsedGender = String(gender || "").trim();
         const parsedAge = Number(age);
+        const parsedEducation = String(educationLevel || "").trim();
         const normalizedStartedProgram = new Date(startedProgram);
 
         if (!parsedHn) {
@@ -227,6 +228,10 @@ class Database {
 
         if (!parsedGender) {
             throw new Error("กรุณาเลือกเพศ");
+        }
+
+        if (!parsedEducation) {
+            throw new Error("กรุณาเลือกระดับการศึกษา");
         }
 
         if (Number.isNaN(normalizedStartedProgram.getTime())) {
