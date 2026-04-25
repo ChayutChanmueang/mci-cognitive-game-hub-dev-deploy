@@ -11,14 +11,10 @@
             "id": "3e42e5dc7d4ff18f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Progress-Logs/Reports-Logs/Report Guildline.MD",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Report Guildline"
+              "title": "New tab"
             }
           }
         ]
@@ -174,13 +170,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Progress-Logs/Reports-Logs/Report Guildline.MD",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Report Guildline"
+              "title": "Outline"
             }
           }
         ],
