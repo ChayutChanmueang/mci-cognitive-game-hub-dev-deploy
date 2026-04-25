@@ -5,6 +5,7 @@ const USER_GAME_DATA_TABLE = "user_game_data";
 const USER_GAME_HISTORY_TABLE = "user_game_history";
 const USER_EVENT_LOG_TABLE = "user_event_log";
 const USER_PATIENT_DATA_TABLE = "user_patient_data";
+const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
 const DEFAULT_GAME_PAGE_SIZE = 10;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
@@ -191,6 +192,23 @@ class Database {
         return Boolean(patient);
     }
 
+    async getEducationLevels() {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_EDUCATION_LEVEL_TABLE)
+            .select("id, eduid, name, dropdown_index")
+            .order("dropdown_index", { ascending: true, nullsFirst: false })
+            .order("id", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
+    }
+
     async createPatientProfile({
         hn,
         firstname,
@@ -242,11 +260,6 @@ class Database {
             throw new Error("Missing authenticated user");
         }
 
-        const parsedEducationLevel =
-            educationLevel == null || String(educationLevel).trim() === ""
-                ? null
-                : Number(educationLevel);
-
         const payload = {
             uid: user.id,
             hn: parsedHn,
@@ -254,7 +267,7 @@ class Database {
             lastname: parsedLastname,
             age: parsedAge,
             gender: parsedGender,
-            education_level: Number.isFinite(parsedEducationLevel) ? parsedEducationLevel : null,
+            education_level: parsedEducation,
             started_program: normalizedStartedProgram.toISOString(),
         };
 

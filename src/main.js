@@ -472,14 +472,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const showSignup = ({ patientCode = "" } = {}) => {
+    const showSignup = async ({ patientCode = "" } = {}) => {
         document.body.classList.remove("landing-mode");
         document.body.classList.remove("hub-mode");
         app?.classList.remove("landing-mode");
         app?.classList.remove("hub-mode");
         showUiRoot();
+
+        let educationLevels = [];
+        let educationLevelsError = "";
+
+        try {
+            educationLevels = await db.getEducationLevels();
+            if (!educationLevels.length) {
+                educationLevelsError = "ไม่พบข้อมูลระดับการศึกษา";
+            }
+        } catch (error) {
+            console.error("Unable to load education levels:", error);
+            educationLevelsError = "ไม่สามารถโหลดรายการระดับการศึกษาได้";
+        }
+
         renderSignupScreen(uiRoot, {
             initialHn: patientCode,
+            educationLevels,
+            educationLevelsError,
             onBack: () => navigateTo(ROUTES.login),
             onSubmit: async (formData) => {
                 const patientCodeLabel = `HN${String(formData?.hn || "").trim()}`;
@@ -700,7 +716,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            showSignup({
+            await showSignup({
                 patientCode: pendingPatientCode,
             });
             return;
