@@ -365,8 +365,24 @@ body.hub-mode {
     text-align: right;
 }
 
-.player-info-row md-outlined-text-field {
+.player-info-row md-outlined-text-field,
+.player-info-row .player-info-value {
     width: 100%;
+}
+
+.player-info-value {
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border: 1px solid rgba(121, 116, 126, 0.56);
+    border-radius: 4px;
+    background: #fff;
+    color: #1f1f1f;
+    font-size: 1rem;
+    line-height: 1.5;
+    box-sizing: border-box;
+    user-select: text;
 }
 
 .player-info-row--date {

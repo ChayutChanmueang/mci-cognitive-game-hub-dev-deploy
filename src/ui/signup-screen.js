@@ -80,6 +80,7 @@ export function renderSignupScreen(root, options = {}) {
                                 id="signup-birth-date"
                                 aria-label="วันเกิด"
                                 type="date"
+                                lang="en-GB"
                                 required
                                 no-asterisk
                             ></md-outlined-text-field>
@@ -128,6 +129,7 @@ export function renderSignupScreen(root, options = {}) {
                                 id="signup-started-program"
                                 aria-label="วันที่เริ่มโปรแกรม"
                                 type="date"
+                                lang="en-GB"
                                 value="${createDateValue()}"
                                 required
                                 no-asterisk
