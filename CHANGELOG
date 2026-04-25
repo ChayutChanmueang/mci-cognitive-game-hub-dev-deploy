@@ -1,0 +1,184 @@
+# Development Log (Changelog)
+
+## [2026-04-25]
+- **Kong-Nobara**:
+  - change age field to date
+  - add edu dropdown
+  - add push edu player to db
+
+## [2026-04-24]
+- **ChayutChanmueang**:
+  - Update Grid, Level Generation based on Difficulty, Link up Game state and Panel
+- **Kongphai Wutthichaiya**:
+  - update game hub can check game daily
+  - fix bug game hub ui
+
+## [2026-04-23]
+- **Kongphai wutthichaiya**:
+  - clean style.css
+  - update gamehub ui
+  - re-make gamehub & change Phaser to html
+
+## [2026-04-22]
+- **Kong-Ubuntu**:
+  - fix style.css
+  - fix game hub back screen
+  - create gamehub
+  - add gamehub & new login/signup ui
+
+## [2026-04-21]
+- **Chayut Chanmueang**:
+  - Add Socket Grid and Non-Movable Entity
+
+## [2026-04-20]
+- **ChayutChanmueang**:
+  - Drag and Drop
+- **Kong-BazzitOS**:
+  - update popup ui & score calculation
+  - fix game flow can place other answer
+  - fix score
+  - add game-over panel
+  - move progress-bar.js
+  - update flow game
+  - show selected emoji to grid
+  - show hint in one line
+  - implement random function in next button
+  - move to constant.js
+  - test commit
+
+## [2026-04-08]
+- **Chayut Chanmueang**:
+  - Add Thai Text and More Game Level
+
+## [2026-04-07]
+- **Kongphai wutthichaiya**:
+  - add random puzzle system
+  - add button to animals icon
+  - add game layout
+  - add object pool class
+- **Chayut Chanmueang**:
+  - Update Game
+
+## [2026-04-03]
+- **Kongphai wutthichaiya**:
+  - update tutorials
+  - add zoo detective
+  - fix negative value
+  - fix auto insert layout script
+  - add smlie emoji
+  - add game config
+  - add next quiz ui
+  - add effect decrease score
+
+## [2026-04-02]
+- **Kongphai wutthichaiya**:
+  - shuffle option
+  - update game flow
+  - update check answer system
+  - add check answer function
+  - update drag-drop function
+
+## [2026-04-01]
+- **Kongphai wutthichaiya**:
+  - add drag/drop system
+
+## [2026-03-31]
+- **Kongphai wutthichaiya**:
+  - add progress bar
+  - add answer grid
+  - update game ui
+  - add auto insert layout script
+  - add ramdom word function
+
+## [2026-03-30]
+- **Kongphai wutthichaiya**:
+  - update tutorial ui
+  - update flow game hub
+  - add context clues game & add auto import game function
+- **Chayut Chanmueang**:
+  - Move Zoo Feeder into it own folder
+
+## [2026-03-27]
+- **Kongphai wutthichaiya**:
+  - connect game hub to database
+  - update game hub ui
+  - add game hub ui
+
+## [2026-03-26]
+- **Chayut Chanmueang**:
+  - add tutorial
+- **Kongphai wutthichaiya**:
+  - update signup ui
+  - add function write user data to db
+  - fix bug
+  - update signup ui
+  - add login / signup ui
+
+## [2026-03-25]
+- **Kongphai wutthichaiya**:
+  - fix level to conveyerNums
+  - save level ans score to database
+  - update database table
+- **Chayut Chanmueang**:
+  - Scale Up UI
+  - Update food size
+
+## [2026-03-23]
+- **Chayut Chanmueang**:
+  - add main menu
+
+## [2026-03-20]
+- **Kongphai wutthichaiya**:
+  - add top 10 scoreboard
+- **Chayut Chanmueang**:
+  - Add 2 and 3 belts mode + Change Foods Spawning Logic + minor changes on UIs
+  - update 3 belts
+
+## [2026-03-19]
+- **Kongphai wutthichaiya**:
+  - fix can't save high score
+  - add anon login
+  - change database flow to client to supabase
+  - setup for supabase
+
+## [2026-03-17]
+- **Chayut Chanmueang**:
+  - Update Package-Lock
+
+## [2026-03-12]
+- **Kongphai wutthichaiya**:
+  - update database script
+
+## [2026-03-06]
+- **Kongphai wutthichaiya**:
+  - update database script for client
+
+## [2026-03-05]
+- **Kongphai wutthichaiya**:
+  - update database.js
+  - fix function url
+
+## [2026-02-27]
+- **Kongphai wutthichaiya**:
+  - try write data to database
+  - add database function
+
+## [2026-02-26]
+- **Kongphai-CAMT**:
+  - try get hello function
+- **Kongphai wutthichaiya**:
+  - test connect supabase
+  - setup package for database
+  - ignore .env file
+
+## [2026-02-24]
+- **Chayut Chanmueang**:
+  - Add ExpressJS server, Supabase, and add highscore fuction (localstorage)
+  - Update Game UI
+  - Update UI
+
+## [2026-02-23]
+- **Chayut Chanmueang**:
+  - add current game
+- **ChayutChanmueang**:
+  - Initial commit
