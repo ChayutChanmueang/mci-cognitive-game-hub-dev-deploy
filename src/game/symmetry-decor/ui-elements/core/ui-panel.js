@@ -1,7 +1,5 @@
-import Phaser from "phaser";
-
 export default class UIPanel{
-    constructor(scene,x,y,sizeX,sizeY){
+    constructor(scene,x,y,setting = {}){
         this.scene = scene;
         this.x = x;
         this.y = y;
@@ -9,48 +7,25 @@ export default class UIPanel{
         this.container = scene.add.container(x,y);
         this.container.setDepth(1000);
 
-        this.overlay = scene.add.rectangle(
-            0,0,
-            scene.scale.width,scene.scale.height,
-            0x000000, 0.7
-        );
+        const _size = setting.size || {x:500, y:500};
+        const _color = setting.primaryColor || 0x222222;
+        this.panelBg = scene.add.rectangle(0,0,_size.x,_size.y,_color,1);
+        const _strokeEnable = setting.strokeEnable || false;
+        if(_strokeEnable){
+            const _strokeColor = setting.strokeColor || 0xffffff;
+            const _strokeSize = setting.strokeSize || 4;
 
-        this.overlay.setInteractive();
-        
-        this.panelBg = scene.add.rectangle(0,0,sizeX,sizeY,0x222222,1);
-        this.panelBg.setStrokeStyle(4,0xffffff);
+            this.panelBg.setStrokeStyle(_strokeSize,_strokeColor);
+        }
 
-        this.container.add([this.overlay, this.panelBg]);
+        this.container.add([this.panelBg]);
 
-        this.forceHide();
     }
     addElements(elements){
         this.container.add(elements);
     }
-    show(){
+    forceShow(){
         this.container.setVisible(true);
-        this.scene.tweens.add({
-            targets: this.container,
-            scaleX: {from: 0, to: 1},
-            scaleY: {from: 0, to: 1},
-            duration: 200,
-            ease: 'Back.out'
-        });
-    }
-    hide(){
-        this.scene.tweens.add({
-            targets: this.container,
-            scaleX: {from: 1, to: 0},
-            scaleY: {from: 1, to: 0},
-            duration: 200,
-            ease: 'Back.out',
-            onComplete: () =>{
-                //console.log("test");
-                if(this.onHide){
-                    this.onHide();
-                }
-            }
-        });
     }
     forceHide(){
         this.container.setVisible(false);

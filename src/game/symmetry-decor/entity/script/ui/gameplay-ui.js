@@ -1,4 +1,6 @@
 import StorageManager from "../../../../../core/storage-manager";
+import GameEndPanel from "../../../ui-elements/scripts/gameend-panel";
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
 import TemplatePanel from "../../../ui-elements/scripts/template-panel";
 import Entity from "../../entity";
 
@@ -22,7 +24,7 @@ export default class GameplayUI extends Entity{
             0x000000, 0.75
         ).setOrigin(0, 0);
 
-        this.scorePreText = "Score : ";
+        this.scorePreText = "Stage : ";
         this.currentScore = scene.add.text(
             _LeftScreenAnchor + padding,
             _TopScreenAnchor + padding,
@@ -37,8 +39,12 @@ export default class GameplayUI extends Entity{
             {fontSize: "64px"}
         ).setOrigin(1,0);
 
-        this.TemplatePanel = new TemplatePanel(scene);
-        this.TemplatePanel.show();
+        //this.TemplatePanel = new TemplatePanel(scene);
+        //this.TemplatePanel.show();
+        this.gameoverPanel = new GameOverPanel(scene);
+        this.gameoverPanel.forceHide();
+        this.gameEndPanel = new GameEndPanel(scene);
+        this.gameEndPanel.forceHide();
     }
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
@@ -46,15 +52,15 @@ export default class GameplayUI extends Entity{
     setLives(newLives){
         this.currentLives.text = this.livesPreText + newLives;
     }
-    setGameOverHighscore(score){
-        this.gameoverPanel.setHighscore(score);
-    }
     resetGameOverPanel(){
         this.gameoverPanel.reset();
     }
-    showGameOverPanel(finalScore){
-        this.gameoverPanel.setFinalScore(finalScore);
-        this.gameoverPanel.setHighscore(StorageManager.get('highscore'));
+    showGameOverPanel(finalTime){
+        this.gameoverPanel.setFinalTime(finalTime);
         this.gameoverPanel.show();
+    }
+    showGameEndPanel(Stages){
+        this.gameEndPanel.setPassStages(Stages);
+        this.gameEndPanel.show();
     }
 }

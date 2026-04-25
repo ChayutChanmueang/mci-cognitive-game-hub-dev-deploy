@@ -40,23 +40,54 @@ export default class DraggableComponent extends Component {
 
         this.entity.on('drop', (pointer, dropZoneEntity) => {
             // Fetch the SocketComponent from the Entity we dropped onto
-            const socket = dropZoneEntity.getComponent(SocketComponent);
+            const targetSocket = dropZoneEntity.getComponent(SocketComponent);
 
-            // Ensure it actually HAS a SocketComponent, then check if it's valid
-            if (socket && (socket.isEmpty() || socket.occupant === this.entity)) {
+            // If it's not a socket at all, bounce back
+            if (!targetSocket) {
+                this.snapBack();
+                return;
+            }
 
-                // 1. Detach from old socket
+            if (targetSocket.isEmpty() || targetSocket.occupant === this.entity) {
+                // SCENARIO 1: The socket is empty (Normal Drop)
                 if (this.currentSocket) {
                     this.currentSocket.detach();
                 }
-
-                // 2. Attach to the new socket
-                socket.attach(this.entity);
-                this.currentSocket = socket;
+                targetSocket.attach(this.entity);
+                this.currentSocket = targetSocket;
 
             } else {
-                // Target is not a socket, or socket is full!
-                this.snapBack();
+                // SCENARIO 2: The socket is occupied. Let's attempt a swap!
+                const targetOccupant = targetSocket.occupant;
+
+                // Check if the occupant is movable by looking for a DraggableComponent
+                const occupantDragComponent = targetOccupant.getComponent(DraggableComponent);
+
+                // We can only swap if the occupant is draggable (NOT locked) 
+                // AND our current dragging entity actually has an original socket to send them to.
+                if (occupantDragComponent && this.currentSocket) {
+                    const originalSocket = this.currentSocket;
+
+                    // 1. Detach both entities from their sockets
+                    originalSocket.detach();
+                    targetSocket.detach();
+
+                    // 2. Put the dragged entity into the target socket
+                    targetSocket.attach(this.entity);
+                    this.currentSocket = targetSocket;
+
+                    // 3. Send the displaced occupant to our original socket
+                    originalSocket.attach(targetOccupant);
+                    occupantDragComponent.currentSocket = originalSocket;
+
+                    // 4. Update the displaced occupant's start coordinates so it tweens properly if dragged later
+                    occupantDragComponent.startX = originalSocket.entity.x;
+                    occupantDragComponent.startY = originalSocket.entity.y;
+
+                } else {
+                    // SCENARIO 3: The occupant is Locked, or the swap is invalid. Bounce back!
+                    this.snapBack();
+                }
             }
         });
 

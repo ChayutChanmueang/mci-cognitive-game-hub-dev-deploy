@@ -1,8 +1,12 @@
-import UIPanel from "../core/ui-panel";
+import UIPage from "../core/ui-page";
 import {SampleConstants} from "../../constants";
-export default class TemplatePanel extends UIPanel{
+export default class TemplatePanel extends UIPage{
     constructor(scene){
-        super(scene,scene.scale.width/2,scene.scale.height/2,800,1000);
+        super(scene,scene.scale.width/2,scene.scale.height/2,{
+            overlayEnable: true,
+            size: {x:800, y:1000},
+            strokeEnable: true
+        });
 
         //Relative to the main container
 
@@ -12,7 +16,6 @@ export default class TemplatePanel extends UIPanel{
         this.titleText.setScale(1.5);
 
         this.homeBtn = this.createButton(0,350, "START", () => {
-            //this.scene.spawnFruit();
             this.hide();
         });
 
