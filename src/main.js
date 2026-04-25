@@ -611,6 +611,23 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        try {
+            const educationLevels = await db.getEducationLevels();
+            const educationLevelMap = new Map(
+                educationLevels.map((level) => [String(level?.eduid || "").trim(), String(level?.name || "").trim()]),
+            );
+            const educationLevelId = String(player?.education_level || player?.educationLevel || "").trim();
+
+            if (educationLevelId && educationLevelMap.has(educationLevelId)) {
+                player = {
+                    ...player,
+                    educationName: educationLevelMap.get(educationLevelId) || educationLevelId,
+                };
+            }
+        } catch (error) {
+            console.warn("Unable to load education levels for player info:", error);
+        }
+
         renderPlayerInfoScreen(uiRoot, {
             player,
             onEndProgram: async () => {
