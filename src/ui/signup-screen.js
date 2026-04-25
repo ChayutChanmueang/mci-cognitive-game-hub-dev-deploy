@@ -75,13 +75,11 @@ export function renderSignupScreen(root, options = {}) {
                         </label>
 
                         <label class="signup-row">
-                            <span>อายุ :</span>
+                            <span>วันเกิด :</span>
                             <md-outlined-text-field
-                                id="signup-age"
-                                placeholder="เช่น 65"
-                                aria-label="อายุ"
-                                type="number"
-                                min="1"
+                                id="signup-birth-date"
+                                aria-label="วันเกิด"
+                                type="date"
                                 required
                                 no-asterisk
                             ></md-outlined-text-field>
@@ -167,7 +165,7 @@ export function renderSignupScreen(root, options = {}) {
             hn: String(initialHn || "").trim(),
             firstname: String(root.querySelector("#signup-firstname")?.value || "").trim(),
             lastname: String(root.querySelector("#signup-lastname")?.value || "").trim(),
-            age: String(root.querySelector("#signup-age")?.value || "").trim(),
+            birthDate: String(root.querySelector("#signup-birth-date")?.value || "").trim(),
             gender: String(root.querySelector("#signup-gender")?.value || "").trim(),
             educationLevel: String(root.querySelector("#signup-education-level")?.value || "").trim(),
             startedProgram: String(root.querySelector("#signup-started-program")?.value || "").trim(),

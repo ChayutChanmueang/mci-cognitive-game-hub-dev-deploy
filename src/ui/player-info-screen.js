@@ -32,6 +32,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
     } = options;
 
     const hn = String(player.hn || player.patientCode || "").trim();
+    const birthDate = player.date || player.birthDate || "";
     const startedProgram = player.started_program || player.startedProgram || createDateValue();
     const endedProgram = programEndedAt || createDateValue();
 
@@ -72,10 +73,10 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     </label>
 
                     <label class="player-info-row">
-                        <span>อายุ :</span>
+                        <span>วันเกิด :</span>
                         <md-outlined-text-field
-                            id="player-info-age"
-                            value="${player.age || ""}"
+                            id="player-info-birth-date"
+                            value="${formatDisplayDate(birthDate)}"
                             readonly
                             no-asterisk
                         ></md-outlined-text-field>

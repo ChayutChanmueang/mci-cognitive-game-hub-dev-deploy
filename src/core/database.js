@@ -154,7 +154,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
             .eq("hn", parsedHn)
             .maybeSingle();
 
@@ -176,7 +176,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
             .eq("uid", parsedUid)
             .maybeSingle();
 
@@ -213,7 +213,7 @@ class Database {
         hn,
         firstname,
         lastname,
-        age,
+        birthDate,
         gender,
         educationLevel,
         startedProgram,
@@ -224,9 +224,10 @@ class Database {
         const parsedFirstname = String(firstname || "").trim();
         const parsedLastname = String(lastname || "").trim();
         const parsedGender = String(gender || "").trim();
-        const parsedAge = Number(age);
         const parsedEducation = String(educationLevel || "").trim();
         const normalizedStartedProgram = new Date(startedProgram);
+        const parsedBirthDate = String(birthDate || "").trim();
+        const normalizedBirthDate = new Date(parsedBirthDate);
 
         if (!parsedHn) {
             throw new Error("Missing patient ID");
@@ -240,8 +241,12 @@ class Database {
             throw new Error("กรุณากรอกนามสกุล");
         }
 
-        if (!Number.isInteger(parsedAge) || parsedAge <= 0 || parsedAge > 130) {
-            throw new Error("กรุณากรอกอายุให้ถูกต้อง");
+        if (!parsedBirthDate || Number.isNaN(normalizedBirthDate.getTime())) {
+            throw new Error("กรุณาเลือกวันเกิด");
+        }
+
+        if (normalizedBirthDate > new Date()) {
+            throw new Error("วันเกิดต้องไม่เป็นวันในอนาคต");
         }
 
         if (!parsedGender) {
@@ -265,17 +270,17 @@ class Database {
             hn: parsedHn,
             firstname: parsedFirstname,
             lastname: parsedLastname,
-            age: parsedAge,
             gender: parsedGender,
             education_level: parsedEducation,
             started_program: normalizedStartedProgram.toISOString(),
+            date: parsedBirthDate,
         };
 
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, uid, hn, firstname, lastname, age, gender, education_level, started_program")
+            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
             .maybeSingle();
 
         if (error) {
