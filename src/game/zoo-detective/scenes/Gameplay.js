@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
-import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
+import { createThaiText, getThaiFontFamily, ThaiTextPresets } from "../../../util/thai-text.js";
 import { AnimalIconTray, SquareGridLayout } from "../../../util/layout/index.js";
 import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
@@ -511,7 +511,7 @@ export default class GameplayScene extends Phaser.Scene {
     createTimerText() {
         this.timerText?.destroy();
         this.timerText = this.add.text(24, 24, "Time 00:00", {
-            fontFamily: '"Noto Sans Thai", "Noto Sans", sans-serif',
+            fontFamily: getThaiFontFamily(),
             fontSize: "34px",
             fontStyle: "bold",
             color: "#1f2b3a",
