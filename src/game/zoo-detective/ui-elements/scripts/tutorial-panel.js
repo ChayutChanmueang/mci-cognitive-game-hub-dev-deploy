@@ -16,6 +16,11 @@ export default class TutorialPanel extends UIPanel{
         this.homeBtn = this.createButton(0,350, "START", () => {
             //this.scene.spawnFruit();
             this.hide();
+
+            if (scene.onCloseTutorial) {
+                scene.onCloseTutorial();
+                console.log("Stat")
+            }
         });
 
         //Relative to the sub container 1
