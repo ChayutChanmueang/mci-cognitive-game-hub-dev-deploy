@@ -34,6 +34,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.onPlacementEvaluated = null;
         this.progressBarRefs = [];
         this.puzzleTimer = new DateTimeTimer();
+        this.timeLimitMs = Config.TimeLimitMs;
+        this.isGameEnded = false;
     }
 
     preload() {
@@ -56,6 +58,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.round = 0;
         this.allScore = 0;
         this.progressBarRefs = [];
+        this.timeLimitMs = data.timeLimitMs ?? Config.TimeLimitMs;
+        this.isGameEnded = false;
         this.onPlacementEvaluated = data.onPlacementEvaluated ?? null;
     }
 
@@ -71,6 +75,10 @@ export default class GameplayScene extends Phaser.Scene {
         };
 
         this.onPuzzleCompleted = (result = {})=>{
+            if (this.isGameEnded) {
+                return;
+            }
+
             this.round++;
             const addScore = Config.IncreaseScore[this.levelMap] + this.roundScore;
             this.allScore += (addScore >= 0 ? addScore : 0);
@@ -88,16 +96,17 @@ export default class GameplayScene extends Phaser.Scene {
                 this.progressBarRefs[this.round].animateTo(1, 500)
 
                 this.time.delayedCall(500, () => {
+                    if (this.isGameEnded) {
+                        return;
+                    }
+
                     this.gameplayUI.showNextQuizPanel(() => {
                         // Create New Puzzle
                         this.loadNextPuzzle();
                     })
                 });
             }else{
-                this.puzzleTimer.stop();
-                this.gameplayUI.setElapsedTime(this.puzzleTimer.getElapsedMilliseconds());
-                this.gameplayUI.setScore(this.allScore);
-                this.gameplayUI.showGameOverPanel(this.allScore);
+                this.endGame();
             }
         };
 
@@ -175,7 +184,16 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     update() {
-        this.gameplayUI?.setElapsedTime(this.puzzleTimer.getElapsedMilliseconds());
+        if (!this.gameplayUI) {
+            return;
+        }
+
+        const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
+        this.gameplayUI.setElapsedTime(elapsedMs);
+
+        if (!this.isGameEnded && elapsedMs >= this.timeLimitMs) {
+            this.endGame();
+        }
     }
 
     startGameTimer(){
@@ -184,6 +202,20 @@ export default class GameplayScene extends Phaser.Scene {
 
     resetGameTimer(){
         this.puzzleTimer.reset();
+    }
+
+    endGame() {
+        if (this.isGameEnded) {
+            return;
+        }
+
+        this.isGameEnded = true;
+        this.puzzleTimer.stop();
+
+        const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
+        this.gameplayUI?.setElapsedTime(elapsedMs);
+        this.gameplayUI?.setScore(this.allScore);
+        this.gameplayUI?.showGameOverPanel(this.allScore);
     }
 
     renderPuzzle() {

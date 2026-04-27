@@ -4,7 +4,7 @@ import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
 import { createThaiText, getThaiFontFamily } from "../../../../../util/thai-text.js";
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
-import GameOverPanel from "../../../../context-clues/ui-elements/scripts/gameover-panel.js";
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
