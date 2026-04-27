@@ -141,9 +141,10 @@ export default class GameplayUI extends Entity{
         this.NextQuizPanel.show();
     }
 
-    showGameOverPanel(finalScore){
+    showGameOverPanel(finalScore, resultStatus = "success"){
         finalScore = finalScore <= 0 ? 0 : finalScore;
 
+        this.gameoverPanel.setResultStatus(resultStatus);
         this.gameoverPanel.setFinalScore(finalScore);
         this.setGameOverHighscore(finalScore);
         this.setScore(finalScore);

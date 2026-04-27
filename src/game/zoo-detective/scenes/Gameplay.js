@@ -106,7 +106,7 @@ export default class GameplayScene extends Phaser.Scene {
                     })
                 });
             }else{
-                this.endGame();
+                this.endGame("success");
             }
         };
 
@@ -192,7 +192,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI.setElapsedTime(elapsedMs);
 
         if (!this.isGameEnded && elapsedMs >= this.timeLimitMs) {
-            this.endGame();
+            this.endGame("failure");
         }
     }
 
@@ -204,18 +204,23 @@ export default class GameplayScene extends Phaser.Scene {
         this.puzzleTimer.reset();
     }
 
-    endGame() {
+    endGame(resultStatus = "success") {
         if (this.isGameEnded) {
             return;
         }
 
         this.isGameEnded = true;
-        this.puzzleTimer.stop();
+        if (resultStatus === "failure" && this.puzzleTimer.getStartedAt()) {
+            const timeoutStopAt = new Date(this.puzzleTimer.getStartedAt().getTime() + this.timeLimitMs);
+            this.puzzleTimer.stop(timeoutStopAt);
+        } else {
+            this.puzzleTimer.stop();
+        }
 
         const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
         this.gameplayUI?.setElapsedTime(elapsedMs);
         this.gameplayUI?.setScore(this.allScore);
-        this.gameplayUI?.showGameOverPanel(this.allScore);
+        this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
     }
 
     renderPuzzle() {
