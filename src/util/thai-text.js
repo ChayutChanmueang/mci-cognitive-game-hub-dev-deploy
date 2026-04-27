@@ -1,5 +1,12 @@
+/**
+ * Default Thai font stack used by createThaiText().
+ * You can reassign this at runtime via setThaiFontFamily()/setThaiGoogleFont().
+ */
 export let THAI_FONT_FAMILY = '"Noto Sans Thai Looped", sans-serif';
 
+/**
+ * Reusable style presets for common Thai text roles in this project.
+ */
 export const ThaiTextPresets = Object.freeze({
   menuTitle: Object.freeze({
     fontSize: "96px",
@@ -29,6 +36,28 @@ export const ThaiTextPresets = Object.freeze({
 });
 
 const GOOGLE_FONTS_CSS_API = "https://fonts.googleapis.com/css2";
+const DEFAULT_FONT_FALLBACKS = Object.freeze(["sans-serif"]);
+const DEFAULT_GOOGLE_FONT_OPTIONS = Object.freeze({
+  display: "swap",
+  timeoutMs: 5000,
+  testText: "ภาษาไทย",
+  testFontSize: "24px"
+});
+const GENERIC_FONT_FAMILIES = new Set([
+  "serif",
+  "sans-serif",
+  "monospace",
+  "cursive",
+  "fantasy",
+  "system-ui",
+  "ui-sans-serif",
+  "ui-serif",
+  "ui-monospace",
+  "emoji",
+  "math",
+  "fangsong"
+]);
+
 const loadedGoogleFontStylesheets = new Set();
 const googleFontReadyPromises = new Map();
 
@@ -40,11 +69,24 @@ const graphemeSegmenter = typeof Intl !== "undefined" && Intl.Segmenter
   ? new Intl.Segmenter("th", { granularity: "grapheme" })
   : null;
 
+/**
+ * Get the current default Thai font stack.
+ *
+ * Usage:
+ * const font = getThaiFontFamily();
+ */
 export function getThaiFontFamily() {
   return THAI_FONT_FAMILY;
 }
 
-export function setThaiFontFamily(fontFamily, fallbacks = ["sans-serif"]) {
+/**
+ * Set the default Thai font stack for future createThaiText() calls.
+ * If a single font name is provided, fallback fonts are appended automatically.
+ *
+ * Usage:
+ * setThaiFontFamily("Kanit", ["Sarabun", "sans-serif"]);
+ */
+export function setThaiFontFamily(fontFamily, fallbacks = DEFAULT_FONT_FALLBACKS) {
   const normalized = String(fontFamily ?? "").trim();
 
   if (!normalized) {
@@ -58,61 +100,97 @@ export function setThaiFontFamily(fontFamily, fallbacks = ["sans-serif"]) {
   return THAI_FONT_FAMILY;
 }
 
+/**
+ * Load a Google Font and return a complete font-family stack string.
+ * This function does not mutate THAI_FONT_FAMILY by itself.
+ *
+ * Usage:
+ * const stack = await loadGoogleFont("Noto Sans Thai", { weights: [400, 700] });
+ */
 export async function loadGoogleFont(fontName, options = {}) {
   const normalizedName = normalizeGoogleFontName(fontName);
-  await ensureGoogleFontAvailable(normalizedName, options);
+  const normalizedOptions = normalizeGoogleFontOptions(options);
 
-  return createFontFamilyStack(normalizedName, options.fallbacks ?? ["sans-serif"]);
+  await ensureGoogleFontAvailable(normalizedName, normalizedOptions);
+
+  return createFontFamilyStack(normalizedName, normalizedOptions.fallbacks);
 }
 
+/**
+ * Load a Google Font then set it as the default THAI_FONT_FAMILY.
+ *
+ * Usage:
+ * await setThaiGoogleFont("Noto Sans Thai", { weights: [400, 700] });
+ */
 export async function setThaiGoogleFont(fontName, options = {}) {
   THAI_FONT_FAMILY = await loadGoogleFont(fontName, options);
   return THAI_FONT_FAMILY;
 }
 
+/**
+ * Ensure the current default Thai font (or explicit options.fontName) is loaded.
+ * Useful to call once in a Scene before creating many text objects.
+ *
+ * Usage:
+ * await ensureThaiFontLoaded({ weights: [400, 700] });
+ */
 export async function ensureThaiFontLoaded(options = {}) {
-  const requestedName = typeof options.fontName === "string"
-    ? options.fontName
-    : extractPrimaryFontName(THAI_FONT_FAMILY);
+  const normalizedOptions = normalizeGoogleFontOptions(options);
+  const requestedName = resolveGoogleFontNameFromOptions(THAI_FONT_FAMILY, normalizedOptions);
 
-  if (!requestedName || isGenericFontFamily(requestedName)) {
+  if (!requestedName) {
     return THAI_FONT_FAMILY;
   }
 
-  await ensureGoogleFontAvailable(requestedName, options);
+  await ensureGoogleFontAvailable(requestedName, normalizedOptions);
   return THAI_FONT_FAMILY;
 }
 
+/**
+ * Create Phaser Text with Thai-friendly defaults:
+ * - default font from THAI_FONT_FAMILY (unless style.fontFamily is provided)
+ * - Thai line spacing and padding tuning
+ * - optional Thai wrap callback
+ * - optional deferred Google Font reload
+ *
+ * Usage:
+ * createThaiText(scene, 100, 100, "สวัสดี", { fontSize: "48px" }, { origin: 0.5, wrapWidth: 500 });
+ */
 export function createThaiText(scene, x, y, text, style = {}, options = {}) {
   const textStyle = getThaiTextStyle(style);
   const textObject = scene.add.text(x, y, text, textStyle);
 
   applyThaiTextSupport(textObject, options);
-
-  if (options.origin !== undefined) {
-    if (Array.isArray(options.origin)) {
-      textObject.setOrigin(options.origin[0], options.origin[1]);
-    } else {
-      textObject.setOrigin(options.origin);
-    }
-  }
-
+  applyTextOrigin(textObject, options.origin);
   applyDeferredGoogleFont(textObject, textStyle.fontFamily, options.googleFont);
 
   return textObject;
 }
 
+/**
+ * Merge style with default Thai font fallback behavior.
+ * If style.fontFamily is undefined/empty, THAI_FONT_FAMILY is used.
+ *
+ * Usage:
+ * const style = getThaiTextStyle({ fontSize: "32px" });
+ */
 export function getThaiTextStyle(style = {}) {
-  const styleObject = style && typeof style === "object" ? style : {};
+  const styleObject = isPlainObject(style) ? style : {};
   const { fontFamily, ...restStyle } = styleObject;
-  const resolvedFontFamily = resolveFontFamily(fontFamily);
 
   return {
     ...restStyle,
-    fontFamily: resolvedFontFamily
+    fontFamily: resolveFontFamily(fontFamily)
   };
 }
 
+/**
+ * Apply Thai text rendering helpers to an existing Phaser Text object.
+ * Handles padding, line spacing and optional wrap callback.
+ *
+ * Usage:
+ * applyThaiTextSupport(textObject, { wrapWidth: 400 });
+ */
 export function applyThaiTextSupport(textObject, options = {}) {
   const fontSize = parseFontSize(textObject.style.fontSize);
   const padding = options.padding ?? getDefaultPadding(fontSize);
@@ -128,6 +206,11 @@ export function applyThaiTextSupport(textObject, options = {}) {
   return textObject;
 }
 
+/**
+ * Thai-aware word wrapping:
+ * - split by words when possible (Intl.Segmenter)
+ * - if a token is too long, split by grapheme clusters
+ */
 export function wrapThaiText(text, textObject, maxWidth) {
   const lines = [];
 
@@ -149,13 +232,13 @@ export function wrapThaiText(text, textObject, maxWidth) {
       }
 
       const candidateLine = currentLine + nextSegment;
+      const candidateWidth = measureTextWidth(textObject, candidateLine);
 
-      if (currentLine && textObject.context.measureText(candidateLine).width > maxWidth) {
+      if (currentLine && candidateWidth > maxWidth) {
         lines.push(currentLine.trimEnd());
 
-        if (textObject.context.measureText(nextSegment).width > maxWidth) {
+        if (measureTextWidth(textObject, nextSegment) > maxWidth) {
           const brokenSegments = breakLongSegment(nextSegment, textObject, maxWidth);
-
           lines.push(...brokenSegments.slice(0, -1));
           currentLine = brokenSegments[brokenSegments.length - 1] ?? "";
         } else {
@@ -165,9 +248,8 @@ export function wrapThaiText(text, textObject, maxWidth) {
         continue;
       }
 
-      if (!currentLine && textObject.context.measureText(nextSegment).width > maxWidth) {
+      if (!currentLine && candidateWidth > maxWidth) {
         const brokenSegments = breakLongSegment(nextSegment, textObject, maxWidth);
-
         lines.push(...brokenSegments.slice(0, -1));
         currentLine = brokenSegments[brokenSegments.length - 1] ?? "";
         continue;
@@ -182,6 +264,23 @@ export function wrapThaiText(text, textObject, maxWidth) {
   }
 
   return lines.length ? lines : [""];
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function applyTextOrigin(textObject, origin) {
+  if (origin === undefined) {
+    return;
+  }
+
+  if (Array.isArray(origin)) {
+    textObject.setOrigin(origin[0], origin[1]);
+    return;
+  }
+
+  textObject.setOrigin(origin);
 }
 
 function segmentWords(text) {
@@ -206,7 +305,7 @@ function breakLongSegment(text, textObject, maxWidth) {
   for (const grapheme of graphemes) {
     const candidateSegment = currentSegment + grapheme;
 
-    if (currentSegment && textObject.context.measureText(candidateSegment).width > maxWidth) {
+    if (currentSegment && measureTextWidth(textObject, candidateSegment) > maxWidth) {
       segments.push(currentSegment);
       currentSegment = grapheme;
       continue;
@@ -222,9 +321,12 @@ function breakLongSegment(text, textObject, maxWidth) {
   return segments;
 }
 
+function measureTextWidth(textObject, text) {
+  return textObject.context.measureText(text).width;
+}
+
 function parseFontSize(fontSize) {
   const parsed = Number.parseFloat(fontSize);
-
   return Number.isFinite(parsed) ? parsed : 32;
 }
 
@@ -255,7 +357,10 @@ function getDefaultLineSpacing(text, wrapWidth, fontSize) {
 }
 
 function normalizeGoogleFontName(fontName) {
-  const normalized = String(fontName ?? "").trim().replace(/\s+/g, " ");
+  const normalized = String(fontName ?? "")
+    .trim()
+    .replace(/^['"]|['"]$/g, "")
+    .replace(/\s+/g, " ");
 
   if (!normalized) {
     throw new Error("Google font name is required");
@@ -264,22 +369,53 @@ function normalizeGoogleFontName(fontName) {
   return normalized;
 }
 
-function buildGoogleFontCssUrl(fontName, weights = [], display = "swap") {
+function normalizeGoogleFontOptions(options = {}) {
+  const source = isPlainObject(options) ? options : {};
+  const timeoutMs = Number.isFinite(source.timeoutMs)
+    ? Math.max(0, source.timeoutMs)
+    : DEFAULT_GOOGLE_FONT_OPTIONS.timeoutMs;
+
+  return {
+    ...source,
+    fontName: typeof source.fontName === "string" ? source.fontName.trim() : "",
+    weights: normalizeWeights(source.weights),
+    display: typeof source.display === "string" && source.display.trim()
+      ? source.display.trim()
+      : DEFAULT_GOOGLE_FONT_OPTIONS.display,
+    fallbacks: normalizeFallbacks(source.fallbacks),
+    timeoutMs,
+    testText: typeof source.testText === "string" && source.testText
+      ? source.testText
+      : DEFAULT_GOOGLE_FONT_OPTIONS.testText,
+    testFontSize: typeof source.testFontSize === "string" && source.testFontSize.trim()
+      ? source.testFontSize.trim()
+      : DEFAULT_GOOGLE_FONT_OPTIONS.testFontSize
+  };
+}
+
+function normalizeFallbacks(fallbacks) {
+  if (!Array.isArray(fallbacks) || !fallbacks.length) {
+    return [...DEFAULT_FONT_FALLBACKS];
+  }
+
+  return fallbacks;
+}
+
+function buildGoogleFontCssUrl(fontName, weights, display) {
   const familyQuery = buildGoogleFontFamilyQuery(fontName, weights);
   const encodedFamily = encodeURIComponent(familyQuery).replace(/%20/g, "+");
-  const encodedDisplay = encodeURIComponent(display || "swap");
+  const encodedDisplay = encodeURIComponent(display || DEFAULT_GOOGLE_FONT_OPTIONS.display);
   return `${GOOGLE_FONTS_CSS_API}?family=${encodedFamily}&display=${encodedDisplay}`;
 }
 
 function buildGoogleFontFamilyQuery(fontName, weights) {
   const encodedName = fontName.replace(/\s+/g, " ").trim();
-  const normalizedWeights = normalizeWeights(weights);
 
-  if (!normalizedWeights.length) {
+  if (!weights.length) {
     return encodedName;
   }
 
-  return `${encodedName}:wght@${normalizedWeights.join(";")}`;
+  return `${encodedName}:wght@${weights.join(";")}`;
 }
 
 function normalizeWeights(weights) {
@@ -291,6 +427,11 @@ function normalizeWeights(weights) {
   return Array.from(new Set(values)).sort((left, right) => left - right);
 }
 
+function resolveGoogleFontNameFromOptions(fontFamilyStack, options) {
+  const requested = options.fontName || extractPrimaryFontName(fontFamilyStack);
+  return requested && !isGenericFontFamily(requested) ? requested : "";
+}
+
 function extractPrimaryFontName(fontFamilyStack) {
   const stack = String(fontFamilyStack ?? "").trim();
 
@@ -299,11 +440,10 @@ function extractPrimaryFontName(fontFamilyStack) {
   }
 
   const firstToken = stack.split(",")[0]?.trim() ?? "";
-  const unquoted = firstToken.replace(/^['"]|['"]$/g, "").trim();
-  return unquoted;
+  return firstToken.replace(/^['"]|['"]$/g, "").trim();
 }
 
-function createFontFamilyStack(primaryFont, fallbacks = ["sans-serif"]) {
+function createFontFamilyStack(primaryFont, fallbacks = DEFAULT_FONT_FALLBACKS) {
   const normalizedPrimary = normalizeFontToken(primaryFont);
   const fallbackList = Array.isArray(fallbacks) ? fallbacks : [fallbacks];
   const normalizedFallbacks = fallbackList
@@ -329,22 +469,7 @@ function normalizeFontToken(fontName) {
 }
 
 function isGenericFontFamily(fontName) {
-  const genericFamilies = new Set([
-    "serif",
-    "sans-serif",
-    "monospace",
-    "cursive",
-    "fantasy",
-    "system-ui",
-    "ui-sans-serif",
-    "ui-serif",
-    "ui-monospace",
-    "emoji",
-    "math",
-    "fangsong"
-  ]);
-
-  return genericFamilies.has(String(fontName).toLowerCase());
+  return GENERIC_FONT_FAMILIES.has(String(fontName).toLowerCase());
 }
 
 async function loadGoogleFontStylesheet(href) {
@@ -382,39 +507,33 @@ async function loadGoogleFontStylesheet(href) {
   });
 }
 
-async function waitForGoogleFontReady(fontName, options = {}) {
+async function waitForGoogleFontReady(fontName, options) {
   if (typeof document === "undefined" || !document.fonts || typeof document.fonts.load !== "function") {
     return;
   }
 
-  const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : 5000;
-  const text = String(options.testText ?? "ภาษาไทย");
-  const fontSize = String(options.testFontSize ?? "24px");
-  const fontQuery = `${fontSize} "${fontName}"`;
+  const fontQuery = `${options.testFontSize} "${fontName}"`;
 
   await Promise.race([
-    Promise.all([document.fonts.load(fontQuery, text), document.fonts.ready]),
-    wait(timeoutMs)
+    Promise.all([document.fonts.load(fontQuery, options.testText), document.fonts.ready]),
+    wait(options.timeoutMs)
   ]);
 }
 
 async function ensureGoogleFontAvailable(fontName, options = {}) {
   const normalizedName = normalizeGoogleFontName(fontName);
-  const cacheKey = `${normalizedName}|${(options.weights ?? []).toString()}|${options.display ?? "swap"}`;
+  const normalizedOptions = normalizeGoogleFontOptions(options);
+  const cacheKey = `${normalizedName}|${normalizedOptions.weights.join(",")}|${normalizedOptions.display}`;
 
   if (googleFontReadyPromises.has(cacheKey)) {
     return googleFontReadyPromises.get(cacheKey);
   }
 
   const promise = (async () => {
-    const cssUrl = buildGoogleFontCssUrl(normalizedName, options.weights, options.display);
+    const cssUrl = buildGoogleFontCssUrl(normalizedName, normalizedOptions.weights, normalizedOptions.display);
 
     await loadGoogleFontStylesheet(cssUrl);
-    await waitForGoogleFontReady(normalizedName, {
-      timeoutMs: options.timeoutMs,
-      testText: options.testText,
-      testFontSize: options.testFontSize
-    });
+    await waitForGoogleFontReady(normalizedName, normalizedOptions);
   })();
 
   googleFontReadyPromises.set(cacheKey, promise);
@@ -426,18 +545,15 @@ function applyDeferredGoogleFont(textObject, fontFamily, googleFontOptions) {
     return;
   }
 
-  const options = googleFontOptions && typeof googleFontOptions === "object" ? googleFontOptions : {};
-  const autoLoad = options.autoLoad !== false;
+  const options = normalizeGoogleFontOptions(googleFontOptions);
 
-  if (!autoLoad) {
+  if (options.autoLoad === false) {
     return;
   }
 
-  const targetFontName = typeof options.fontName === "string" && options.fontName.trim()
-    ? options.fontName.trim()
-    : extractPrimaryFontName(fontFamily);
+  const targetFontName = resolveGoogleFontNameFromOptions(fontFamily, options);
 
-  if (!targetFontName || isGenericFontFamily(targetFontName)) {
+  if (!targetFontName) {
     return;
   }
 
