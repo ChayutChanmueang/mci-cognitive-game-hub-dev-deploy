@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
-import { createThaiText, getThaiFontFamily, ThaiTextPresets } from "../../../util/thai-text.js";
+import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import { AnimalIconTray, SquareGridLayout } from "../../../util/layout/index.js";
 import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
@@ -34,7 +34,6 @@ export default class GameplayScene extends Phaser.Scene {
         this.onPlacementEvaluated = null;
         this.progressBarRefs = [];
         this.puzzleTimer = new DateTimeTimer();
-        this.timerText = null;
     }
 
     preload() {
@@ -55,31 +54,37 @@ export default class GameplayScene extends Phaser.Scene {
         this.levelMap = LevelMap[this.level] ?? "easy";
         this.puzzleData = null;
         this.round = 0;
+        this.allScore = 0;
         this.progressBarRefs = [];
         this.onPlacementEvaluated = data.onPlacementEvaluated ?? null;
     }
 
     create(data) {
         this.gameplayUI = new GameplayUI(this, 0, 0);
+        this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
+        this.gameplayUI.setScore(this.allScore);
+        this.gameplayUI.setElapsedTime(0);
+
+        this.resetGameTimer();
         this.onCloseTutorial = () => {
             this.startGameTimer();
         };
-
-        this.createTimerText();
-        this.updateTimerText();
 
         this.onPuzzleCompleted = (result = {})=>{
             this.round++;
             const addScore = Config.IncreaseScore[this.levelMap] + this.roundScore;
             this.allScore += (addScore >= 0 ? addScore : 0);
             this.roundScore = 0;
+            const maxRound = Config.MaxRound[this.levelMap];
+            const nextRoundDisplay = Math.min(this.round + 1, maxRound);
 
             this.gameplayUI.setScore(this.allScore);
+            this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
 
             console.log(`allScore : ${this.allScore}`);
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
 
-            if (this.round < Config.MaxRound[this.levelMap]) {
+            if (this.round < maxRound) {
                 this.progressBarRefs[this.round].animateTo(1, 500)
 
                 this.time.delayedCall(500, () => {
@@ -90,7 +95,7 @@ export default class GameplayScene extends Phaser.Scene {
                 });
             }else{
                 this.puzzleTimer.stop();
-                this.updateTimerText();
+                this.gameplayUI.setElapsedTime(this.puzzleTimer.getElapsedMilliseconds());
                 this.gameplayUI.setScore(this.allScore);
                 this.gameplayUI.showGameOverPanel(this.allScore);
             }
@@ -115,10 +120,6 @@ export default class GameplayScene extends Phaser.Scene {
             }
         };
 
-        this.returnBtn = this.createButton(this.scale.width / 2 - 250, this.scale.height - 150, "RETURN", () => {
-            this.scene.start("main-menu-scene", { conveyerNums: 1 });
-        });
-
         let dotProgressBars = [];
         for (let i = 0; i < Config.MaxRound[this.levelMap]; i++) {
             const bar = new ProgressBar(this, 0, 0, {
@@ -142,8 +143,6 @@ export default class GameplayScene extends Phaser.Scene {
         });
 
         this.progressBarRefs[this.round]?.animateTo(1, 500);
-
-        this.returnBtn[0].setDepth(100);
 
         this.loadNextPuzzle();
     }
@@ -176,15 +175,15 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     update() {
-        this.updateTimerText();
+        this.gameplayUI?.setElapsedTime(this.puzzleTimer.getElapsedMilliseconds());
     }
 
     startGameTimer(){
         this.puzzleTimer.start();
     }
 
-    stopGameTimer(){
-        this.puzzleTimer.stop();
+    resetGameTimer(){
+        this.puzzleTimer.reset();
     }
 
     renderPuzzle() {
@@ -234,13 +233,13 @@ export default class GameplayScene extends Phaser.Scene {
                 rowGap: 20,
                 padding: { top: 40, right: 36, bottom: 32, left: 36 },
                 trayRadius: 42,
-                footerReservedHeight: this.sceneData.answerButtonHeight ?? 170,
-                footerOffset: this.sceneData.answerButtonOffset ?? 28,
+                footerReservedHeight: this.sceneData.answerButtonHeight ?? 0,
+                footerOffset: this.sceneData.answerButtonOffset ?? 12,
                 items: animals
             });
         this.animalTray.setPosition(48, sceneHeight - this.animalTray.height - 42);
 
-        const boardTop = headerMetrics.bottom + 48;
+        const boardTop = headerMetrics.bottom + 100;
         const boardBottom = this.animalTray.y - 56;
         const boardWidth = Math.min(sceneWidth - 140, 930);
         const boardHeight = Math.max(420, boardBottom - boardTop);
@@ -502,48 +501,15 @@ export default class GameplayScene extends Phaser.Scene {
 
         outer.fillStyle(0xf7f2e6, 1);
         outer.lineStyle(10, 0x475466, 1);
-        outer.fillRoundedRect(12, 186, sceneWidth - 24, sceneHeight - 150, 42);
-        outer.strokeRoundedRect(12, 186, sceneWidth - 24, sceneHeight - 150, 42);
+        outer.fillRoundedRect(12, 216, sceneWidth - 24, sceneHeight - 120, 42);
+        outer.strokeRoundedRect(12, 216, sceneWidth - 24, sceneHeight - 120, 42);
 
         return outer;
     }
 
-    createTimerText() {
-        this.timerText?.destroy();
-        this.timerText = this.add.text(24, 24, "Time 00:00", {
-            fontFamily: getThaiFontFamily(),
-            fontSize: "34px",
-            fontStyle: "bold",
-            color: "#1f2b3a",
-            stroke: "#ffffff",
-            strokeThickness: 5
-        });
-
-        this.timerText
-            .setOrigin(0, 0)
-            .setScrollFactor(0)
-            .setDepth(10000);
-    }
-
-    updateTimerText() {
-        if (!this.timerText) {
-            return;
-        }
-
-        const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
-        this.timerText.setText(`Time ${this.formatElapsedTime(elapsedMs)}`);
-    }
-
-    formatElapsedTime(elapsedMs = 0) {
-        const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-    }
-
     createHeader(layoutConfig, data) {
         const left = 52;
-        const top = 222;
+        const top = 255;
         const chipWidth = 240;
         const chipHeight = 112;
         const gap = 22;
@@ -606,7 +572,7 @@ export default class GameplayScene extends Phaser.Scene {
         const promptText = createThaiText(
             this,
             this.scale.width / 2,
-            top + chipHeight + 60,
+            top + chipHeight + 80,
             `${GameplayConfig.defaultPromptFallback}`,
             {
                 fontSize: "42px",

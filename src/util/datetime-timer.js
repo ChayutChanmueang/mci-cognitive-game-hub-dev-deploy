@@ -61,6 +61,11 @@ export default class DateTimeTimer {
         return this.stoppedAt;
     }
 
+    reset() {
+        this.startedAt = null;
+        this.stoppedAt = null;
+    }
+
     /**
      * Read the stored stop datetime.
      * @returns {Date|null} Stop datetime, or null when timer is still running.
