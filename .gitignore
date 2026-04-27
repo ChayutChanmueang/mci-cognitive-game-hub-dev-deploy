@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 .env
 public/js/material-web docs-components
+.env.example
