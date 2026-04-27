@@ -1,7 +1,10 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
 
-const DEFAULT_DAILY_TARGET = 14;
+const DEFAULT_DAILY_TARGET = 12;
 const DEFAULT_START_GAME_GID = "ATTN001";
+const PROGRAM_GAME_TARGET = 10;
+const TOTAL_PROGRAM_NODE_TARGET = 12;
+const REST_GAME_GID = "REST001";
 
 const CATEGORY_META = Object.freeze({
     Attention: {
@@ -31,10 +34,12 @@ const FALLBACK_GAMES = Object.freeze([
     { id: "fallback-mem-001", gid: "MEM001", name: "Postcard Reader", mci_group: "Memory" },
     { id: "fallback-lang-001", gid: "LANG001", name: "Context Clues", mci_group: "Language" },
     { id: "fallback-vis-001", gid: "VIS001", name: "Symmetry Decor", mci_group: "Visuospatial" },
+    { id: "fallback-exec-001", gid: "EXEC001", name: "Gamehub Puzzle", mci_group: "Executive" },
     { id: "fallback-attn-002", gid: "ATTN002", name: "Zoo Detective", mci_group: "Attention" },
     { id: "fallback-attn-003", gid: "ATTN003", name: "ค้นหาสัตว์", mci_group: "Attention" },
     { id: "fallback-vis-002", gid: "VIS002", name: "ต่อภาพเส้นทาง", mci_group: "Visuospatial" },
     { id: "fallback-lang-002", gid: "LANG002", name: "เลือกคำให้ถูก", mci_group: "Language" },
+    { id: "fallback-mem-002", gid: "MEM002", name: "จับคู่ความจำ", mci_group: "Memory" },
 ]);
 const DAY_ONE_PRESET_GIDS_MOCK = Object.freeze([
     "ATTN001",
@@ -42,6 +47,11 @@ const DAY_ONE_PRESET_GIDS_MOCK = Object.freeze([
     "MEM001",
     "EXEC001",
     "VSP001",
+    "ATTN002",
+    "ATTN003",
+    "VIS002",
+    "LANG002",
+    "MEM002",
 ]);
 
 function escapeHtml(value) {
@@ -69,7 +79,8 @@ function normalizeGame(item, index, fallbackCategory = "Attention") {
 export function createGameHubState() {
     return {
         programGames: [],
-        playedGameGids: [],
+        restGame: null,
+        historyRecords: [],
         programInitialized: false,
         programLoading: false,
         historyLoading: false,
@@ -126,22 +137,76 @@ function getProgramDateRange(programDate = null) {
     };
 }
 
-function getSequentialCompletedCount(games, playedGids) {
-    const playedSet = new Set((playedGids || []).map((gid) => String(gid || "").trim()).filter(Boolean));
+function normalizeHistoryRecord(item) {
+    return {
+        gid: String(item?.gid || "").trim(),
+        rest: Boolean(item?.rest),
+        checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]),
+        playedAt: item?.played_at || item?.playedAt || null,
+    };
+}
+
+function isNodeMatchedByHistory(node, historyRecord) {
+    if (!node || !historyRecord) {
+        return false;
+    }
+
+    if (node.type === "game") {
+        return Boolean(historyRecord.gid) && historyRecord.gid === node.gid;
+    }
+
+    if (node.type === "rest") {
+        return historyRecord.rest === true && historyRecord.gid === REST_GAME_GID;
+    }
+
+    if (node.type === "checkin") {
+        return historyRecord.checkIn === true || (!historyRecord.gid && historyRecord.rest !== true);
+    }
+
+    return false;
+}
+
+function getSequentialCompletedCount(nodes, historyRecords) {
+    const normalizedHistory = (historyRecords || [])
+        .map((record) => normalizeHistoryRecord(record))
+        .sort((first, second) => {
+            const firstTime = new Date(first.playedAt || 0).getTime();
+            const secondTime = new Date(second.playedAt || 0).getTime();
+            return firstTime - secondTime;
+        });
+
+    let cursor = 0;
     let completedCount = 0;
 
-    for (const game of games || []) {
-        const gid = String(game?.gid || "").trim();
-        if (!gid || !playedSet.has(gid)) {
+    for (const node of nodes || []) {
+        let matchedIndex = -1;
+
+        for (let index = cursor; index < normalizedHistory.length; index += 1) {
+            if (isNodeMatchedByHistory(node, normalizedHistory[index])) {
+                matchedIndex = index;
+                break;
+            }
+        }
+
+        if (matchedIndex < 0) {
             break;
         }
+
+        cursor = matchedIndex + 1;
         completedCount += 1;
     }
 
     return completedCount;
 }
 
-function buildProgramGamesFromPreset(gameListItems, dailyTarget, preferredGameGid) {
+function findRestGame(gameListItems) {
+    const list = Array.isArray(gameListItems) ? gameListItems : [];
+    const target = list.find((item) => String(item?.gid || "").trim() === REST_GAME_GID);
+
+    return target ? normalizeGame(target, 0, target?.mci_group || "Attention") : null;
+}
+
+function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = PROGRAM_GAME_TARGET) {
     // TODO: Replace this mock preset GID set (derived from CSV day-1 sample) with DB preset data when preset table is ready.
     const presetGids = DAY_ONE_PRESET_GIDS_MOCK;
     const normalizedGameList = (gameListItems || []).map((item, index) =>
@@ -167,7 +232,7 @@ function buildProgramGamesFromPreset(gameListItems, dailyTarget, preferredGameGi
 
     for (const item of merged) {
         const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
-        if (!game.gid || seen.has(game.gid)) {
+        if (!game.gid || game.gid === REST_GAME_GID || seen.has(game.gid)) {
             continue;
         }
         seen.add(game.gid);
@@ -186,9 +251,46 @@ function buildProgramGamesFromPreset(gameListItems, dailyTarget, preferredGameGi
         });
     }
 
-    const requestedTarget = Math.max(1, Number(dailyTarget) || presetGids.length || DEFAULT_DAILY_TARGET);
-    const target = Math.min(requestedTarget, presetGids.length || requestedTarget);
+    const target = Math.max(1, Number(gameTarget) || PROGRAM_GAME_TARGET);
     return uniqueGames.slice(0, target);
+}
+
+function buildDailyProgramNodes(games, restGame) {
+    const gameNodes = (games || []).slice(0, PROGRAM_GAME_TARGET).map((game, index) => ({
+        id: `game-${String(game?.gid || index)}`,
+        type: "game",
+        gid: String(game?.gid || "").trim(),
+        title: game?.name || `เกมที่ ${index + 1}`,
+        gameNumber: index + 1,
+        gameData: game,
+    }));
+
+    if (!gameNodes.length) {
+        return [];
+    }
+
+    const splitIndex = Math.ceil(gameNodes.length / 2);
+    const restNode = {
+        id: "rest-node",
+        type: "rest",
+        gid: REST_GAME_GID,
+        title: restGame?.name || "พักยืดเส้นยืดสาย",
+        emoji: "🏋️",
+    };
+    const checkInNode = {
+        id: "checkin-node",
+        type: "checkin",
+        gid: "",
+        title: "เช็คชื่อ",
+        emoji: "🏁",
+    };
+
+    return [
+        ...gameNodes.slice(0, splitIndex),
+        restNode,
+        ...gameNodes.slice(splitIndex),
+        checkInNode,
+    ];
 }
 
 class HubElement {
@@ -249,9 +351,9 @@ class DailyGoalTopBar extends HubElement {
                 <div class="hub-clean-goal">
                     <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
                     <h1>เป้าหมายของวันนี้</h1>
-                    <p>เล่น ${dailyTarget} เกม เพื่อฝึกสมอง</p>
+                    <p>ทำภารกิจ ${dailyTarget} จุด ให้ครบตามแผนประจำวัน</p>
                     <div class="hub-clean-progress">
-                        <md-linear-progress value="${progress}" aria-label="เล่นแล้ว ${completedCount} จาก ${dailyTarget} เกม"></md-linear-progress>
+                        <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedCount} จาก ${dailyTarget} จุด"></md-linear-progress>
                         <span>${completedCount}/${dailyTarget}</span>
                     </div>
                 </div>
@@ -283,7 +385,32 @@ class DailyGoalTopBar extends HubElement {
 
 class GameLaunchCard extends HubElement {
     html() {
-        const game = this.options.gameData || {};
+        const node = this.options.nodeData || {};
+        const type = node.type || "game";
+
+        if (type === "rest") {
+            return `
+                <article class="hub-clean-current-card">
+                    <p>พักยืดเส้น</p>
+                    <h2>${escapeHtml(node.title || "พักยืดเส้นยืดสาย")}</h2>
+                    <span>พักสายตา ยืดเส้น และผ่อนคลายก่อนเล่นต่อ</span>
+                    <md-outlined-button data-hub-launch-game type="button">บันทึกการพัก</md-outlined-button>
+                </article>
+            `;
+        }
+
+        if (type === "checkin") {
+            return `
+                <article class="hub-clean-current-card">
+                    <p>ภารกิจครบแล้ว</p>
+                    <h2>${escapeHtml(node.title || "เช็คชื่อ")}</h2>
+                    <span>กดเช็คชื่อเพื่อบันทึกว่าเป้าหมายประจำวันสำเร็จแล้ว</span>
+                    <md-outlined-button data-hub-launch-game type="button">เช็คชื่อ</md-outlined-button>
+                </article>
+            `;
+        }
+
+        const game = node.gameData || {};
         const categoryId = game.mci_group || "Attention";
 
         return `
@@ -298,15 +425,15 @@ class GameLaunchCard extends HubElement {
 
     bind() {
         this.on(this.element?.querySelector("[data-hub-launch-game]"), "click", () => {
-            this.options.onLaunch?.(this.options.gameData);
+            this.options.onAction?.(this.options.nodeData);
         });
     }
 }
 
 class LevelNode extends HubElement {
     html() {
+        const node = this.options.nodeData || {};
         const index = Math.max(0, Number(this.options.index) || 0);
-        const game = this.options.gameData || {};
         const isDone = Boolean(this.options.isDone);
         const isCurrent = Boolean(this.options.isCurrent);
         const classes = [
@@ -314,7 +441,12 @@ class LevelNode extends HubElement {
             isDone ? "is-done" : "",
             isCurrent ? "is-current" : "",
         ].filter(Boolean).join(" ");
-        const nodeText = isDone ? "✓" : isCurrent ? "🧑" : String(index + 1);
+        const nodeText = isDone
+            ? "✓"
+            : node.type === "game"
+                ? String(node.gameNumber || index + 1)
+                : node.emoji || "•";
+        const sideLabel = node.title || `จุดที่ ${index + 1}`;
 
         return `
             <div class="${classes}">
@@ -322,7 +454,7 @@ class LevelNode extends HubElement {
                     <span>${nodeText}</span>
                 </div>
                 <div class="hub-clean-level__side">
-                    ${isCurrent ? `<div data-current-card></div>` : `<div class="hub-clean-game-pill">${escapeHtml(game.name || `เกมที่ ${index + 1}`)}</div>`}
+                    ${isCurrent ? `<div data-current-card></div>` : `<div class="hub-clean-game-pill">${escapeHtml(sideLabel)}</div>`}
                 </div>
             </div>
         `;
@@ -334,8 +466,8 @@ class LevelNode extends HubElement {
         }
 
         this.addChild(new GameLaunchCard({
-            gameData: this.options.gameData,
-            onLaunch: this.options.onLaunch,
+            nodeData: this.options.nodeData,
+            onAction: this.options.onAction,
         }), this.element?.querySelector("[data-current-card]"));
     }
 }
@@ -393,21 +525,21 @@ class LevelMap extends HubElement {
     }
 
     renderNodes() {
-        const games = this.options.games || [];
+        const nodes = this.options.nodes || [];
         const completedCount = Math.min(
-            games.length,
+            nodes.length,
             Math.max(0, Number(this.options.completedCount) || 0),
         );
-        const currentGameIndex = completedCount >= games.length ? -1 : completedCount;
+        const currentNodeIndex = completedCount >= nodes.length ? -1 : completedCount;
         const list = this.element?.querySelector("[data-level-list]");
 
-        games.forEach((game, index) => {
+        nodes.forEach((node, index) => {
             this.addChild(new LevelNode({
-                gameData: game,
+                nodeData: node,
                 index,
                 isDone: index < completedCount,
-                isCurrent: currentGameIndex >= 0 && index === currentGameIndex,
-                onLaunch: this.options.onLaunch,
+                isCurrent: currentNodeIndex >= 0 && index === currentNodeIndex,
+                onAction: this.options.onNodeAction,
             }), list);
         });
     }
@@ -437,12 +569,12 @@ class HubMapScreen extends HubElement {
         }), this.element?.querySelector("[data-topbar]"));
 
         this.addChild(new LevelMap({
-            games: this.options.games,
+            nodes: this.options.nodes,
             completedCount: this.options.completedCount,
             isLoading: this.options.isLoading,
             initialScrollTop: this.options.initialScrollTop,
             onScrollChange: this.options.onScrollChange,
-            onLaunch: this.options.onLaunch,
+            onNodeAction: this.options.onNodeAction,
         }), this.element?.querySelector("[data-stage]"));
 
         this.on(this.element?.querySelector("[data-logout]"), "click", () => {
@@ -458,6 +590,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const {
         loadGameList,
+        loadHistoryRecords = null,
         loadPlayedGameGids = null,
         patientHn = "",
         programDate = null,
@@ -465,6 +598,8 @@ export async function renderGameHubScreen(root, options = {}) {
         completedCount = 0,
         preferredGameGid = DEFAULT_START_GAME_GID,
         onLaunchGame = () => {},
+        onRestNode = async () => {},
+        onCheckInNode = async () => {},
         onLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
@@ -475,8 +610,8 @@ export async function renderGameHubScreen(root, options = {}) {
     if (!Array.isArray(state.programGames)) {
         state.programGames = [];
     }
-    if (!Array.isArray(state.playedGameGids)) {
-        state.playedGameGids = [];
+    if (!Array.isArray(state.historyRecords)) {
+        state.historyRecords = [];
     }
 
     let activeScreen = null;
@@ -486,11 +621,15 @@ export async function renderGameHubScreen(root, options = {}) {
     const render = () => {
         activeScreen?.destroy();
         root.innerHTML = "";
-        const derivedCompletedCount = getSequentialCompletedCount(state.programGames, state.playedGameGids);
+        const programNodes = buildDailyProgramNodes(state.programGames, state.restGame);
+        const derivedCompletedCount = getSequentialCompletedCount(programNodes, state.historyRecords);
         const resolvedCompletedCount = Math.max(0, Number(completedCount) || 0, derivedCompletedCount);
-        const resolvedDailyTarget = Math.max(1, state.programGames.length || dailyTarget);
+        const resolvedDailyTarget = Math.max(
+            1,
+            programNodes.length || Number(dailyTarget) || TOTAL_PROGRAM_NODE_TARGET,
+        );
         activeScreen = new HubMapScreen({
-            games: state.programGames,
+            nodes: programNodes,
             dailyTarget: resolvedDailyTarget,
             completedCount: resolvedCompletedCount,
             patientLabel,
@@ -501,11 +640,25 @@ export async function renderGameHubScreen(root, options = {}) {
             },
             onProfile,
             onLogout,
-            onLaunch: async (selectedGame) => {
+            onNodeAction: async (selectedNode) => {
                 try {
-                    await onLaunchGame(selectedGame);
+                    if (selectedNode?.type === "game") {
+                        await onLaunchGame(selectedNode.gameData);
+                        return;
+                    }
+
+                    if (selectedNode?.type === "rest") {
+                        await onRestNode(selectedNode);
+                        await loadPlayedHistory(true);
+                        return;
+                    }
+
+                    if (selectedNode?.type === "checkin") {
+                        await onCheckInNode(selectedNode);
+                        await loadPlayedHistory(true);
+                    }
                 } catch (error) {
-                    console.error("Unable to launch selected game:", error);
+                    console.error("Unable to handle selected node action:", error);
                 }
             },
         });
@@ -526,11 +679,17 @@ export async function renderGameHubScreen(root, options = {}) {
                 const gameListItems = typeof loadGameList === "function"
                     ? await loadGameList()
                     : [];
-                state.programGames = buildProgramGamesFromPreset(gameListItems, dailyTarget, preferredGameGid);
+                state.restGame = findRestGame(gameListItems);
+                state.programGames = buildProgramGamesFromPreset(
+                    gameListItems,
+                    preferredGameGid,
+                    PROGRAM_GAME_TARGET,
+                );
                 state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
-                state.programGames = buildProgramGamesFromPreset([], dailyTarget, preferredGameGid);
+                state.restGame = null;
+                state.programGames = buildProgramGamesFromPreset([], preferredGameGid, PROGRAM_GAME_TARGET);
                 state.programError = error?.message || "Unable to load game list";
             }
 
@@ -541,13 +700,13 @@ export async function renderGameHubScreen(root, options = {}) {
         }
     };
 
-    const loadPlayedHistory = async () => {
-        if (state.historyLoading) {
+    const loadPlayedHistory = async (force = false) => {
+        if (state.historyLoading && !force) {
             return;
         }
 
-        if (!state.programGames.length || !parsedPatientHn || typeof loadPlayedGameGids !== "function") {
-            state.playedGameGids = [];
+        if (!parsedPatientHn) {
+            state.historyRecords = [];
             state.historyError = "";
             render();
             return;
@@ -561,18 +720,40 @@ export async function renderGameHubScreen(root, options = {}) {
                 .map((game) => String(game?.gid || "").trim())
                 .filter(Boolean);
             const { playedFrom, playedTo } = getProgramDateRange(programDate);
-            const playedGameGids = await loadPlayedGameGids({
-                hn: parsedPatientHn,
-                gids,
-                playedFrom,
-                playedTo,
-            });
 
-            state.playedGameGids = Array.isArray(playedGameGids) ? playedGameGids : [];
+            if (typeof loadHistoryRecords === "function") {
+                const historyRows = await loadHistoryRecords({
+                    hn: parsedPatientHn,
+                    playedFrom,
+                    playedTo,
+                });
+
+                state.historyRecords = Array.isArray(historyRows)
+                    ? historyRows.map((record) => normalizeHistoryRecord(record))
+                    : [];
+            } else if (typeof loadPlayedGameGids === "function") {
+                const playedGameGids = await loadPlayedGameGids({
+                    hn: parsedPatientHn,
+                    gids,
+                    playedFrom,
+                    playedTo,
+                });
+
+                state.historyRecords = Array.isArray(playedGameGids)
+                    ? playedGameGids.map((gid) => normalizeHistoryRecord({
+                        gid,
+                        rest: false,
+                        played_at: playedFrom,
+                    }))
+                    : [];
+            } else {
+                state.historyRecords = [];
+            }
+
             state.historyError = "";
         } catch (error) {
             console.warn("Unable to load played game history:", error);
-            state.playedGameGids = [];
+            state.historyRecords = [];
             state.historyError = error?.message || "Unable to load played game history";
         }
 
