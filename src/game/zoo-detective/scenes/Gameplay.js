@@ -7,6 +7,7 @@ import RandomPuzzle from "../components/scripts/random-puzzle.js";
 import { DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
 import {Config} from "../../zoo-detective/constants.js";
 import ProgressBar from "../../../util/layout/progress-bar.js";
+import DateTimeTimer from "../../../util/datetime-timer.js";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -32,6 +33,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.onPuzzleCompleted = null;
         this.onPlacementEvaluated = null;
         this.progressBarRefs = [];
+        this.puzzleTimer = new DateTimeTimer();
     }
 
     preload() {
@@ -59,7 +61,7 @@ export default class GameplayScene extends Phaser.Scene {
     create(data) {
         this.gameplayUI = new GameplayUI(this, 0, 0);
 
-        this.onPuzzleCompleted = ()=>{
+        this.onPuzzleCompleted = (result = {})=>{
             this.round++;
             const addScore = Config.IncreaseScore[this.levelMap] + this.roundScore;
             this.allScore += (addScore >= 0 ? addScore : 0);
@@ -67,7 +69,8 @@ export default class GameplayScene extends Phaser.Scene {
 
             this.gameplayUI.setScore(this.allScore);
 
-            console.log(`allScore : ${this.allScore}`)
+            console.log(`allScore : ${this.allScore}`);
+            console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
 
             if (this.round < Config.MaxRound[this.levelMap]) {
                 this.progressBarRefs[this.round].animateTo(1, 500)
@@ -158,6 +161,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     loadNextPuzzle() {
         this.puzzleData = this.createPuzzleData(this.sceneData);
+        this.puzzleTimer.start();
         this.renderPuzzle();
         this.currentHintIndex = 0;
         this.syncHintViewer();
@@ -466,7 +470,8 @@ export default class GameplayScene extends Phaser.Scene {
             level: this.level,
             puzzleData: this.puzzleData,
             placements: [...this.currentPlacements],
-            lockedCellIndexes: [...this.lockedCellIndexes]
+            lockedCellIndexes: [...this.lockedCellIndexes],
+            elapsedTimeMs: this.puzzleTimer.getElapsedMilliseconds()
         });
 
         return true;
