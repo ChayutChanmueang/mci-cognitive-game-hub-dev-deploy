@@ -40,12 +40,31 @@ export default class UITestScene extends Phaser.Scene {
     this.gameplayUI = new GameplayUI(this,0,0);
     this.gameplayUI.resetGameOverPanel();
     this.conveyerNums = data.conveyerNums || 3;
-    this.currentConeyer = 0;
-    this.conveyers = [];
-    while(this.conveyers.length < this.conveyerNums){
-      this.conveyers[this.currentConeyer] = new Conveyer(this,this.scale.width * ((1 + this.currentConeyer)/(this.conveyerNums+1)),(this.scale.height/2) - 950,150,2.15);
-      this.currentConeyer++;
-    }
+this.conveyers = [];
+
+// 1. Define the exact pixel gap you want between each conveyor belt
+const _conveyerSpacing = 300; 
+
+// 2. Calculate the starting X position so the group remains perfectly centered
+const _totalWidth = _conveyerSpacing * (this.conveyerNums - 1);
+const _startX = (this.scale.width / 2) - (_totalWidth / 2);
+
+// 3. Iterate and spawn using a cleaner 'for' loop
+for (let i = 0; i < this.conveyerNums; i++) {
+    
+    // Multiply the current index by the spacing to spread them out
+    const _xPos = _startX + (i * _conveyerSpacing);
+    
+    const _newConveyer = new Conveyer(
+        this, 
+        _xPos, 
+        (this.scale.height / 2) - 950, 
+        150, 
+        2.15
+    );
+    
+    this.conveyers.push(_newConveyer);
+}
 
     console.log(this.conveyers.length);
     //this.spawnFruit();
