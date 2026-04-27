@@ -430,21 +430,29 @@ class Database {
 
     async addUserGameHistory({
         hn,
-        gid,
+        gid = null,
         playedAt = new Date().toISOString(),
         userGameDataId = null,
+        rest = false,
+        checkIn = false,
     }) {
         const parsedHn = String(hn || "").trim();
-        const parsedGid = String(gid || "").trim();
+        const parsedGid = gid == null ? "" : String(gid).trim();
         const parsedPlayedAt = new Date(playedAt);
         const parsedUserGameDataId = userGameDataId == null ? null : Number(userGameDataId);
+        const parsedRest = Boolean(rest);
+        const parsedCheckIn = Boolean(checkIn);
 
         if (!parsedHn) {
             throw new Error("Invalid hn");
         }
 
-        if (!parsedGid) {
+        if (!parsedGid && !parsedCheckIn) {
             throw new Error("Invalid gid");
+        }
+
+        if (parsedRest && !parsedGid) {
+            throw new Error("Invalid rest gid");
         }
 
         if (Number.isNaN(parsedPlayedAt.getTime())) {
@@ -459,23 +467,87 @@ class Database {
 
         const payload = {
             hn: parsedHn,
-            gid: parsedGid,
+            gid: parsedGid || null,
             played_at: parsedPlayedAt.toISOString(),
             user_game_data_id: parsedUserGameDataId,
+            rest: parsedRest,
         };
 
         const client = this.getClient();
-        const { data, error } = await client
+        const insertHistory = async (insertPayload) => client
             .from(USER_GAME_HISTORY_TABLE)
-            .insert([payload])
-            .select("id, hn, gid, played_at, user_game_data_id")
+            .insert([insertPayload])
+            .select("id, hn, gid, played_at, user_game_data_id, rest")
             .maybeSingle();
+
+        let insertPayload = payload;
+        if (parsedCheckIn) {
+            insertPayload = {
+                ...payload,
+                "check-in": true,
+            };
+        }
+
+        let { data, error } = await insertHistory(insertPayload);
+
+        if (error && parsedCheckIn) {
+            const fallbackPayload = {
+                ...payload,
+                check_in: true,
+            };
+
+            ({ data, error } = await insertHistory(fallbackPayload));
+        }
 
         if (error) {
             throw error;
         }
 
-        return data || payload;
+        return data || insertPayload;
+    }
+
+    async getUserGameHistoryByHn({
+        hn,
+        playedFrom = null,
+        playedTo = null,
+    }) {
+        const parsedHn = String(hn || "").trim();
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        let query = client
+            .from(USER_GAME_HISTORY_TABLE)
+            .select("gid, played_at, rest")
+            .eq("hn", parsedHn);
+
+        if (playedFrom) {
+            const parsedFrom = new Date(playedFrom);
+            if (Number.isNaN(parsedFrom.getTime())) {
+                throw new Error("Invalid playedFrom");
+            }
+            query = query.gte("played_at", parsedFrom.toISOString());
+        }
+
+        if (playedTo) {
+            const parsedTo = new Date(playedTo);
+            if (Number.isNaN(parsedTo.getTime())) {
+                throw new Error("Invalid playedTo");
+            }
+            query = query.lt("played_at", parsedTo.toISOString());
+        }
+
+        const { data, error } = await query.order("played_at", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
     }
 
     async getPlayedGameGidsByHn({

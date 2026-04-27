@@ -304,6 +304,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
+            loadHistoryRecords: ({ hn, playedFrom, playedTo }) =>
+                db.getUserGameHistoryByHn({ hn, playedFrom, playedTo }),
             loadPlayedGameGids: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getPlayedGameGidsByHn({ hn, gids, playedFrom, playedTo }),
             dailyTarget: HUB_DAILY_TARGET,
@@ -353,6 +355,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 persistSelectedGame(selectedGame);
                 sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, String(selectedGame?.gid || "").trim());
                 navigateTo(getGameRouteHash(selectedGame));
+            },
+            onRestNode: async () => {
+                const restGame = await db.getGameByGid("REST001");
+
+                if (!restGame?.gid) {
+                    throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
+                }
+
+                await db.addUserGameHistory({
+                    hn: patientCode,
+                    gid: restGame.gid,
+                    playedAt: new Date().toISOString(),
+                    userGameDataId: null,
+                    rest: true,
+                    checkIn: false,
+                });
+            },
+            onCheckInNode: async () => {
+                await db.addUserGameHistory({
+                    hn: patientCode,
+                    gid: null,
+                    playedAt: new Date().toISOString(),
+                    userGameDataId: null,
+                    rest: false,
+                    checkIn: true,
+                });
             },
             onLogout: async () => {
                 const hasConfirmed = await showPopup({
