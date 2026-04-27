@@ -29,7 +29,7 @@ export default class GameplayScene extends Phaser.Scene {
   create(data) {
     if (this.stage == undefined || this.level != data.level) this.stage = 1;
     this.level = data.level || 1;
-    if (this.fullPlaytime == undefined) {
+    if (this.fullPlaytime == undefined  || this.level != data.level || this.fullPlaytime >= 180) {
       this.fullPlaytime = 0;
       this.startTime = this.time.now;
     }
