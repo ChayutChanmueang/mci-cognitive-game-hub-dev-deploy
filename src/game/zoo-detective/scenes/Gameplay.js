@@ -34,6 +34,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.onPlacementEvaluated = null;
         this.progressBarRefs = [];
         this.puzzleTimer = new DateTimeTimer();
+        this.timerText = null;
     }
 
     preload() {
@@ -60,6 +61,12 @@ export default class GameplayScene extends Phaser.Scene {
 
     create(data) {
         this.gameplayUI = new GameplayUI(this, 0, 0);
+        this.onCloseTutorial = () => {
+            this.startGameTimer();
+        };
+
+        this.createTimerText();
+        this.updateTimerText();
 
         this.onPuzzleCompleted = (result = {})=>{
             this.round++;
@@ -82,6 +89,8 @@ export default class GameplayScene extends Phaser.Scene {
                     })
                 });
             }else{
+                this.puzzleTimer.stop();
+                this.updateTimerText();
                 this.gameplayUI.setScore(this.allScore);
                 this.gameplayUI.showGameOverPanel(this.allScore);
             }
@@ -161,10 +170,21 @@ export default class GameplayScene extends Phaser.Scene {
 
     loadNextPuzzle() {
         this.puzzleData = this.createPuzzleData(this.sceneData);
-        this.puzzleTimer.start();
         this.renderPuzzle();
         this.currentHintIndex = 0;
         this.syncHintViewer();
+    }
+
+    update() {
+        this.updateTimerText();
+    }
+
+    startGameTimer(){
+        this.puzzleTimer.start();
+    }
+
+    stopGameTimer(){
+        this.puzzleTimer.stop();
     }
 
     renderPuzzle() {
@@ -486,6 +506,39 @@ export default class GameplayScene extends Phaser.Scene {
         outer.strokeRoundedRect(12, 186, sceneWidth - 24, sceneHeight - 150, 42);
 
         return outer;
+    }
+
+    createTimerText() {
+        this.timerText?.destroy();
+        this.timerText = this.add.text(24, 24, "Time 00:00", {
+            fontFamily: '"Noto Sans Thai", "Noto Sans", sans-serif',
+            fontSize: "34px",
+            fontStyle: "bold",
+            color: "#1f2b3a",
+            stroke: "#ffffff",
+            strokeThickness: 5
+        });
+
+        this.timerText
+            .setOrigin(0, 0)
+            .setScrollFactor(0)
+            .setDepth(10000);
+    }
+
+    updateTimerText() {
+        if (!this.timerText) {
+            return;
+        }
+
+        const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
+        this.timerText.setText(`Time ${this.formatElapsedTime(elapsedMs)}`);
+    }
+
+    formatElapsedTime(elapsedMs = 0) {
+        const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     }
 
     createHeader(layoutConfig, data) {

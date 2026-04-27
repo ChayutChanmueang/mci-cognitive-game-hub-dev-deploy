@@ -21,6 +21,7 @@ export default class DateTimeTimer {
      */
     constructor(startAt = null) {
         this.startedAt = startAt instanceof Date ? startAt : null;
+        this.stoppedAt = null;
     }
 
     /**
@@ -31,6 +32,7 @@ export default class DateTimeTimer {
      */
     start(startAt = new Date()) {
         this.startedAt = startAt instanceof Date ? startAt : new Date(startAt);
+        this.stoppedAt = null;
         return this.startedAt;
     }
 
@@ -40,6 +42,31 @@ export default class DateTimeTimer {
      */
     getStartedAt() {
         return this.startedAt;
+    }
+
+    /**
+     * Stop timer at current datetime (or a provided datetime).
+     * After stopping, elapsed time is frozen until start() is called again.
+     *
+     * @param {Date|string|number} stopAt Datetime to use as stop point.
+     * Defaults to the current datetime.
+     * @returns {Date|null} The stored stop datetime, or null if timer never started.
+     */
+    stop(stopAt = new Date()) {
+        if (!this.startedAt) {
+            return null;
+        }
+
+        this.stoppedAt = stopAt instanceof Date ? stopAt : new Date(stopAt);
+        return this.stoppedAt;
+    }
+
+    /**
+     * Read the stored stop datetime.
+     * @returns {Date|null} Stop datetime, or null when timer is still running.
+     */
+    getStoppedAt() {
+        return this.stoppedAt;
     }
 
     /**
@@ -54,6 +81,7 @@ export default class DateTimeTimer {
             return 0;
         }
 
-        return currentTime.getTime() - this.startedAt.getTime();
+        const effectiveNow = this.stoppedAt ?? currentTime;
+        return effectiveNow.getTime() - this.startedAt.getTime();
     }
 }
