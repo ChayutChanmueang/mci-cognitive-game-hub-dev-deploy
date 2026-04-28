@@ -1,9 +1,6 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
 
-const DEFAULT_DAILY_TARGET = 12;
 const DEFAULT_START_GAME_GID = "ATTN001";
-const PROGRAM_GAME_TARGET = 10;
-const TOTAL_PROGRAM_NODE_TARGET = 12;
 const REST_GAME_GID = "REST001";
 
 const CATEGORY_META = Object.freeze({
@@ -35,23 +32,13 @@ const FALLBACK_GAMES = Object.freeze([
     { id: "fallback-lang-001", gid: "LANG001", name: "Context Clues", mci_group: "Language" },
     { id: "fallback-vis-001", gid: "VIS001", name: "Symmetry Decor", mci_group: "Visuospatial" },
     { id: "fallback-exec-001", gid: "EXEC001", name: "Gamehub Puzzle", mci_group: "Executive" },
-    { id: "fallback-attn-002", gid: "ATTN002", name: "Zoo Detective", mci_group: "Attention" },
-    { id: "fallback-attn-003", gid: "ATTN003", name: "ค้นหาสัตว์", mci_group: "Attention" },
-    { id: "fallback-vis-002", gid: "VIS002", name: "ต่อภาพเส้นทาง", mci_group: "Visuospatial" },
-    { id: "fallback-lang-002", gid: "LANG002", name: "เลือกคำให้ถูก", mci_group: "Language" },
-    { id: "fallback-mem-002", gid: "MEM002", name: "จับคู่ความจำ", mci_group: "Memory" },
 ]);
 const DAY_ONE_PRESET_GIDS_MOCK = Object.freeze([
     "ATTN001",
     "LANG001",
     "MEM001",
     "EXEC001",
-    "VSP001",
-    "ATTN002",
-    "ATTN003",
-    "VIS002",
-    "LANG002",
-    "MEM002",
+    "VIS001",
 ]);
 
 function escapeHtml(value) {
@@ -79,6 +66,7 @@ function normalizeGame(item, index, fallbackCategory = "Attention") {
 export function createGameHubState() {
     return {
         programGames: [],
+        allGames: [],
         restGame: null,
         historyRecords: [],
         programInitialized: false,
@@ -138,10 +126,11 @@ function getProgramDateRange(programDate = null) {
 }
 
 function normalizeHistoryRecord(item) {
+    const gid = String(item?.gid || "").trim();
     return {
-        gid: String(item?.gid || "").trim(),
-        rest: Boolean(item?.rest),
-        checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]),
+        gid,
+        rest: gid === REST_GAME_GID,
+        checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]) || !gid,
         playedAt: item?.played_at || item?.playedAt || null,
     };
 }
@@ -156,11 +145,11 @@ function isNodeMatchedByHistory(node, historyRecord) {
     }
 
     if (node.type === "rest") {
-        return historyRecord.rest === true && historyRecord.gid === REST_GAME_GID;
+        return historyRecord.gid === REST_GAME_GID;
     }
 
     if (node.type === "checkin") {
-        return historyRecord.checkIn === true || (!historyRecord.gid && historyRecord.rest !== true);
+        return historyRecord.checkIn === true || !historyRecord.gid;
     }
 
     return false;
@@ -199,6 +188,17 @@ function getSequentialCompletedCount(nodes, historyRecords) {
     return completedCount;
 }
 
+function getCompletedGameCount(nodes, completedNodeCount) {
+    const safeCompletedNodeCount = Math.max(0, Number(completedNodeCount) || 0);
+    return (nodes || [])
+        .slice(0, safeCompletedNodeCount)
+        .reduce((count, node) => (
+            node?.type === "game"
+                ? count + 1
+                : count
+        ), 0);
+}
+
 function findRestGame(gameListItems) {
     const list = Array.isArray(gameListItems) ? gameListItems : [];
     const target = list.find((item) => String(item?.gid || "").trim() === REST_GAME_GID);
@@ -206,7 +206,27 @@ function findRestGame(gameListItems) {
     return target ? normalizeGame(target, 0, target?.mci_group || "Attention") : null;
 }
 
-function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = PROGRAM_GAME_TARGET) {
+function buildAllGames(gameListItems) {
+    const normalized = (gameListItems || []).map((item, index) =>
+        normalizeGame(item, index, item?.mci_group || "Attention"),
+    );
+    const source = normalized.length ? normalized : FALLBACK_GAMES;
+    const uniqueGames = [];
+    const seen = new Set();
+
+    source.forEach((item) => {
+        const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
+        if (!game.gid || seen.has(game.gid)) {
+            return;
+        }
+        seen.add(game.gid);
+        uniqueGames.push(game);
+    });
+
+    return uniqueGames;
+}
+
+function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = DAY_ONE_PRESET_GIDS_MOCK.length) {
     // TODO: Replace this mock preset GID set (derived from CSV day-1 sample) with DB preset data when preset table is ready.
     const presetGids = DAY_ONE_PRESET_GIDS_MOCK;
     const normalizedGameList = (gameListItems || []).map((item, index) =>
@@ -251,12 +271,12 @@ function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget
         });
     }
 
-    const target = Math.max(1, Number(gameTarget) || PROGRAM_GAME_TARGET);
+    const target = Math.max(1, Number(gameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
     return uniqueGames.slice(0, target);
 }
 
 function buildDailyProgramNodes(games, restGame) {
-    const gameNodes = (games || []).slice(0, PROGRAM_GAME_TARGET).map((game, index) => ({
+    const gameNodes = (games || []).map((game, index) => ({
         id: `game-${String(game?.gid || index)}`,
         type: "game",
         gid: String(game?.gid || "").trim(),
@@ -341,9 +361,10 @@ class HubElement {
 
 class DailyGoalTopBar extends HubElement {
     html() {
-        const completedCount = Math.max(0, Number(this.options.completedCount) || 0);
-        const dailyTarget = Math.max(1, Number(this.options.dailyTarget) || DEFAULT_DAILY_TARGET);
-        const progress = Math.min(1, completedCount / dailyTarget);
+        const completedGameCount = Math.max(0, Number(this.options.completedGameCount) || 0);
+        const dailyGameTarget = Math.max(1, Number(this.options.dailyGameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
+        const progress = Math.min(1, completedGameCount / dailyGameTarget);
+        const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const patientLabel = this.options.patientLabel || "ผู้เล่น";
 
         return `
@@ -351,10 +372,10 @@ class DailyGoalTopBar extends HubElement {
                 <div class="hub-clean-goal">
                     <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
                     <h1>เป้าหมายของวันนี้</h1>
-                    <p>ทำภารกิจ ${dailyTarget} จุด ให้ครบตามแผนประจำวัน</p>
-                    <div class="hub-clean-progress">
-                        <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedCount} จาก ${dailyTarget} จุด"></md-linear-progress>
-                        <span>${completedCount}/${dailyTarget}</span>
+                    <p>ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน</p>
+                    <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
+                        <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedGameCount} จาก ${dailyGameTarget} เกม"></md-linear-progress>
+                        <span>${completedGameCount}/${dailyGameTarget}</span>
                     </div>
                 </div>
                 <div class="hub-clean-profile" role="button" tabindex="0" aria-label="เปิดโปรไฟล์ผู้เล่น">
@@ -446,7 +467,7 @@ class LevelNode extends HubElement {
             : node.type === "game"
                 ? String(node.gameNumber || index + 1)
                 : node.emoji || "•";
-        const sideLabel = node.title || `จุดที่ ${index + 1}`;
+        const sideLabel = node.title || `เกมที่ ${index + 1}`;
 
         return `
             <div class="${classes}">
@@ -547,12 +568,32 @@ class LevelMap extends HubElement {
 
 class HubMapScreen extends HubElement {
     html() {
+        const selectableGames = Array.isArray(this.options.selectableGames) ? this.options.selectableGames : [];
+        const menuItems = selectableGames.map((game) => `
+            <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
+                <div slot="headline">${escapeHtml(game.name || game.gid || "เกม")}</div>
+                <div slot="supporting-text">${escapeHtml(game.gid || "")}</div>
+            </md-menu-item>
+        `).join("");
+        const menuContent = menuItems || `
+            <md-menu-item disabled>
+                <div slot="headline">ไม่พบรายการเกม</div>
+            </md-menu-item>
+        `;
+
         return `
             <section class="hub-clean-screen">
                 <div class="hub-clean-shell">
                     <div data-topbar></div>
                     <div data-stage></div>
                     <div class="hub-clean-logout">
+                        <md-filled-button data-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
+                        <span class="hub-clean-quick-menu">
+                            <md-filled-button data-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
+                            <md-menu data-quick-game-menu positioning="popover">
+                                ${menuContent}
+                            </md-menu>
+                        </span>
                         <md-filled-button data-logout type="button">ออกจากระบบ</md-filled-button>
                     </div>
                 </div>
@@ -562,8 +603,8 @@ class HubMapScreen extends HubElement {
 
     bind() {
         this.addChild(new DailyGoalTopBar({
-            dailyTarget: this.options.dailyTarget,
-            completedCount: this.options.completedCount,
+            dailyGameTarget: this.options.dailyGameTarget,
+            completedGameCount: this.options.completedGameCount,
             patientLabel: this.options.patientLabel,
             onProfile: this.options.onProfile,
         }), this.element?.querySelector("[data-topbar]"));
@@ -576,6 +617,44 @@ class HubMapScreen extends HubElement {
             onScrollChange: this.options.onScrollChange,
             onNodeAction: this.options.onNodeAction,
         }), this.element?.querySelector("[data-stage]"));
+
+        const selectableGameMap = new Map(
+            (Array.isArray(this.options.selectableGames) ? this.options.selectableGames : [])
+                .map((game) => [String(game?.gid || "").trim(), game])
+                .filter(([gid]) => Boolean(gid)),
+        );
+        const quickGameTrigger = this.element?.querySelector("[data-quick-game-trigger]");
+        const quickGameMenu = this.element?.querySelector("[data-quick-game-menu]");
+        if (quickGameMenu && quickGameTrigger) {
+            quickGameMenu.anchorElement = quickGameTrigger;
+            this.on(quickGameTrigger, "click", () => {
+                quickGameMenu.open = !quickGameMenu.open;
+            });
+        }
+
+        const quickGameItems = this.element?.querySelectorAll("[data-quick-game-item]") || [];
+        quickGameItems.forEach((item) => {
+            this.on(item, "click", async () => {
+                const gid = String(item.getAttribute("data-gid") || "").trim();
+                const selectedGame = selectableGameMap.get(gid);
+                if (!selectedGame) {
+                    return;
+                }
+
+                await this.options.onQuickGameSelect?.(selectedGame);
+                if (quickGameMenu) {
+                    quickGameMenu.open = false;
+                }
+            });
+        });
+
+        this.on(this.element?.querySelector("[data-clear-history]"), "click", async () => {
+            try {
+                await this.options.onClearHistory?.();
+            } catch (error) {
+                console.error("Unable to clear today history:", error);
+            }
+        });
 
         this.on(this.element?.querySelector("[data-logout]"), "click", () => {
             this.options.onLogout?.();
@@ -594,12 +673,13 @@ export async function renderGameHubScreen(root, options = {}) {
         loadPlayedGameGids = null,
         patientHn = "",
         programDate = null,
-        dailyTarget = DEFAULT_DAILY_TARGET,
         completedCount = 0,
         preferredGameGid = DEFAULT_START_GAME_GID,
         onLaunchGame = () => {},
         onRestNode = async () => {},
         onCheckInNode = async () => {},
+        onQuickLaunchGame = async () => {},
+        onClearTodayHistory = async () => {},
         onLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
@@ -609,6 +689,9 @@ export async function renderGameHubScreen(root, options = {}) {
     const state = sharedState || createGameHubState();
     if (!Array.isArray(state.programGames)) {
         state.programGames = [];
+    }
+    if (!Array.isArray(state.allGames)) {
+        state.allGames = [];
     }
     if (!Array.isArray(state.historyRecords)) {
         state.historyRecords = [];
@@ -624,15 +707,21 @@ export async function renderGameHubScreen(root, options = {}) {
         const programNodes = buildDailyProgramNodes(state.programGames, state.restGame);
         const derivedCompletedCount = getSequentialCompletedCount(programNodes, state.historyRecords);
         const resolvedCompletedCount = Math.max(0, Number(completedCount) || 0, derivedCompletedCount);
-        const resolvedDailyTarget = Math.max(
+        const resolvedDailyGameTarget = Math.max(
             1,
-            programNodes.length || Number(dailyTarget) || TOTAL_PROGRAM_NODE_TARGET,
+            programNodes.filter((node) => node.type === "game").length || DAY_ONE_PRESET_GIDS_MOCK.length,
+        );
+        const resolvedCompletedGameCount = Math.min(
+            resolvedDailyGameTarget,
+            getCompletedGameCount(programNodes, resolvedCompletedCount),
         );
         activeScreen = new HubMapScreen({
             nodes: programNodes,
-            dailyTarget: resolvedDailyTarget,
+            dailyGameTarget: resolvedDailyGameTarget,
             completedCount: resolvedCompletedCount,
+            completedGameCount: resolvedCompletedGameCount,
             patientLabel,
+            selectableGames: state.allGames,
             isLoading: (state.programLoading && !state.programInitialized) || state.historyLoading,
             initialScrollTop: state.scrollTop,
             onScrollChange: (scrollTop) => {
@@ -640,6 +729,13 @@ export async function renderGameHubScreen(root, options = {}) {
             },
             onProfile,
             onLogout,
+            onQuickGameSelect: async (selectedGame) => {
+                await onQuickLaunchGame(selectedGame);
+            },
+            onClearHistory: async () => {
+                await onClearTodayHistory();
+                await loadPlayedHistory(true);
+            },
             onNodeAction: async (selectedNode) => {
                 try {
                     if (selectedNode?.type === "game") {
@@ -654,7 +750,11 @@ export async function renderGameHubScreen(root, options = {}) {
                     }
 
                     if (selectedNode?.type === "checkin") {
-                        await onCheckInNode(selectedNode);
+                        const result = await onCheckInNode(selectedNode);
+                        if (result?.redirected) {
+                            return;
+                        }
+
                         await loadPlayedHistory(true);
                     }
                 } catch (error) {
@@ -679,17 +779,23 @@ export async function renderGameHubScreen(root, options = {}) {
                 const gameListItems = typeof loadGameList === "function"
                     ? await loadGameList()
                     : [];
-                state.restGame = findRestGame(gameListItems);
+                state.allGames = buildAllGames(gameListItems);
+                state.restGame = findRestGame(state.allGames);
                 state.programGames = buildProgramGamesFromPreset(
-                    gameListItems,
+                    state.allGames,
                     preferredGameGid,
-                    PROGRAM_GAME_TARGET,
+                    DAY_ONE_PRESET_GIDS_MOCK.length,
                 );
                 state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
+                state.allGames = buildAllGames([]);
                 state.restGame = null;
-                state.programGames = buildProgramGamesFromPreset([], preferredGameGid, PROGRAM_GAME_TARGET);
+                state.programGames = buildProgramGamesFromPreset(
+                    state.allGames,
+                    preferredGameGid,
+                    DAY_ONE_PRESET_GIDS_MOCK.length,
+                );
                 state.programError = error?.message || "Unable to load game list";
             }
 
