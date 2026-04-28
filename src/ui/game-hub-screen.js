@@ -750,7 +750,11 @@ export async function renderGameHubScreen(root, options = {}) {
                     }
 
                     if (selectedNode?.type === "checkin") {
-                        await onCheckInNode(selectedNode);
+                        const result = await onCheckInNode(selectedNode);
+                        if (result?.redirected) {
+                            return;
+                        }
+
                         await loadPlayedHistory(true);
                     }
                 } catch (error) {

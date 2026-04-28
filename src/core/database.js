@@ -154,7 +154,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
+            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
             .eq("hn", parsedHn)
             .maybeSingle();
 
@@ -176,7 +176,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
+            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
             .eq("uid", parsedUid)
             .maybeSingle();
 
@@ -213,6 +213,7 @@ class Database {
         hn,
         firstname,
         lastname,
+        phone,
         birthDate,
         gender,
         educationLevel,
@@ -223,6 +224,7 @@ class Database {
         const parsedHn = String(hn || "").trim();
         const parsedFirstname = String(firstname || "").trim();
         const parsedLastname = String(lastname || "").trim();
+        const parsedPhone = String(phone || "").trim().replaceAll(/[\s-]/g, "");
         const parsedGender = String(gender || "").trim();
         const parsedEducation = String(educationLevel || "").trim();
         const normalizedStartedProgram = new Date(startedProgram);
@@ -239,6 +241,10 @@ class Database {
 
         if (!parsedLastname) {
             throw new Error("กรุณากรอกนามสกุล");
+        }
+
+        if (!parsedPhone) {
+            throw new Error("กรุณากรอกเบอร์โทร");
         }
 
         if (!parsedBirthDate || Number.isNaN(normalizedBirthDate.getTime())) {
@@ -270,6 +276,7 @@ class Database {
             hn: parsedHn,
             firstname: parsedFirstname,
             lastname: parsedLastname,
+            phone: parsedPhone,
             gender: parsedGender,
             education_level: parsedEducation,
             started_program: normalizedStartedProgram.toISOString(),
@@ -280,11 +287,22 @@ class Database {
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, uid, hn, firstname, lastname, gender, education_level, started_program, date")
+            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
             .maybeSingle();
 
         if (error) {
             if (error.code === "23505") {
+                const duplicateTarget = [
+                    error.message,
+                    error.details,
+                    error.hint,
+                    error.constraint,
+                ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+                if (duplicateTarget.includes("phone")) {
+                    throw new Error("เบอร์โทรนี้ถูกใช้งานแล้ว");
+                }
+
                 throw new Error("Patient ID นี้ถูกใช้งานแล้ว");
             }
 
@@ -502,6 +520,70 @@ class Database {
         }
 
         return data || insertPayload;
+    }
+
+    async getUserCheckInDatesByHn({ hn }) {
+        const parsedHn = String(hn || "").trim();
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const checkInDateKeys = new Set();
+        const toDateKey = (value) => {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) {
+                return "";
+            }
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+        const collectDateKeys = (rows) => {
+            (rows || []).forEach((row) => {
+                const key = toDateKey(row?.played_at);
+                if (key) {
+                    checkInDateKeys.add(key);
+                }
+            });
+        };
+        const queryByCheckInColumn = async (columnName) => client
+            .from(USER_GAME_HISTORY_TABLE)
+            .select("played_at")
+            .eq("hn", parsedHn)
+            .eq(columnName, true)
+            .order("played_at", { ascending: true });
+
+        let result = await queryByCheckInColumn("check-in");
+
+        if (result.error) {
+            result = await queryByCheckInColumn("check_in");
+        }
+
+        if (result.error) {
+            // Compatibility fallback: old test data might only have gid = null for check-in rows.
+            const fallback = await client
+                .from(USER_GAME_HISTORY_TABLE)
+                .select("played_at")
+                .eq("hn", parsedHn)
+                .is("gid", null)
+                .order("played_at", { ascending: true });
+
+            if (fallback.error) {
+                throw fallback.error;
+            }
+
+            collectDateKeys(fallback.data);
+            return [...checkInDateKeys];
+        }
+
+        collectDateKeys(result.data);
+        return [...checkInDateKeys];
     }
 
     async getUserGameHistoryByHn({
