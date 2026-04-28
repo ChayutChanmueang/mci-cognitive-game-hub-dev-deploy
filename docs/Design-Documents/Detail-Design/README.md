@@ -20,6 +20,7 @@
 
 ### **1. Zoo Detective 🦁**
 *   **Key Concept**: การจัดวางสัตว์ตามคำใบ้และการสืบสวนทางตรรกะ (Logical Deduction).
+*   **Design Document**: [Procedural Generation System](procedural_generation_zoo_detective.md) - รายละเอียดอัลกอริทึมการสร้างปริศนาแบบสุ่ม.
 *   **สิ่งที่ต้องบันทึก**: Flowchart การให้คำใบ้, ตรรกะการตรวจสอบความถูกต้องของตำแหน่งที่วาง.
 
 ### **2. Context Clues 📝**
