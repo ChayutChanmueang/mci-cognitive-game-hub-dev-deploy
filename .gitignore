@@ -26,3 +26,4 @@ dist-ssr
 public/js/material-web docs-components
 .ai
 .env.example
+graphify-out/cache
