@@ -1,4 +1,5 @@
 export const Config = Object.freeze({
+    TimeLimitMs: 3 * 60 * 1000,
     IncreaseScore: {
         easy: 15,
         medium: 16,

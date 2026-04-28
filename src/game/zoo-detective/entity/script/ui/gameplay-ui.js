@@ -1,59 +1,127 @@
+import Phaser from "phaser";
 import StorageManager from "../../../../../core/storage-manager";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
-import { createThaiText, ThaiTextPresets } from "../../../../../util/thai-text.js";
+import { createThaiText, getThaiFontFamily } from "../../../../../util/thai-text.js";
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
-import GameOverPanel from "../../../../context-clues/ui-elements/scripts/gameover-panel.js";
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
         super(scene,x,y);
-        const _LeftScreenAnchor = 0;
-        const _RightScreenAnchor = scene.scale.width;
-        const _TopScreenAnchor = 0;
-        const _ButtomScreenAnchor = scene.scale.height;
 
-        // 1. SETTINGS FOR THE UI BAR
-        const uiBarHeight = 100; // Adjust based on your 64px font
-        const padding = 0;      // Space from the edges
+        this.maxRound = 10;
+        this.levelNumber = scene.level ?? 1;
+        this.levelName = "EASY";
+        this.currentRound = 1;
+        this.currentScoreValue = 0;
+        this.uiDepth = 990;
 
-        // 2. DRAW THE BACKGROUND BAR
-        // Arguments: x, y, width, height, color, alpha
-        this.uiBackground = scene.add.rectangle(
-            0, 0, 
-            scene.scale.width, uiBarHeight, 
-            0x000000, 0.75
-        ).setOrigin(0, 0);
+        const barX = 14;
+        const barY = 12;
+        const barWidth = scene.scale.width - (barX * 2);
+        const barHeight = 188;
+        const infoRight = barX + barWidth - 22;
+        const infoStartY = barY + 5;
+        const rowGap = 54;
+        const hudFontFamily = `"Noto Color Emoji", ${getThaiFontFamily()}`;
 
-        this.scorePreText = "Score : ";
+        this.uiBackground = scene.add.graphics();
+        this.uiBackground
+            .fillStyle(0xbcecff, 1)
+            .lineStyle(8, 0x42586b, 1)
+            .fillRoundedRect(barX, barY, barWidth, barHeight, 38)
+            .strokeRoundedRect(barX, barY, barWidth, barHeight, 38)
+            .setDepth(this.uiDepth - 1);
+
+        this.levelText = createThaiText(
+            scene,
+            infoRight,
+            infoStartY,
+            "",
+            {
+                fontFamily: hudFontFamily,
+                fontSize: "28px",
+                fontStyle: "bold",
+                color: "#2e4962"
+            },
+            { origin: [1, 0] }
+        ).setDepth(this.uiDepth);
+
+        this.timerText = createThaiText(
+            scene,
+            infoRight,
+            infoStartY + rowGap,
+            "",
+            {
+                fontFamily: hudFontFamily,
+                fontSize: "40px",
+                fontStyle: "bold",
+                color: "#1f3a53"
+            },
+            { origin: [1, 0] }
+        ).setDepth(this.uiDepth);
+
         this.currentScore = createThaiText(
             scene,
-            _LeftScreenAnchor + padding,
-            _TopScreenAnchor + padding,
-            this.scorePreText + "0",
-            ThaiTextPresets.hud
-        )
-        this.livesPreText = "Level : ";                         
-        this.currentLives = createThaiText(
-            scene,
-            _RightScreenAnchor - padding,
-            _TopScreenAnchor + padding,
-            this.livesPreText + scene.level,
-            ThaiTextPresets.hud
-        ).setOrigin(1,0);
+            infoRight,
+            infoStartY + (rowGap * 2),
+            "",
+            {
+                fontFamily: hudFontFamily,
+                fontSize: "40px",
+                fontStyle: "bold",
+                color: "#f4a900"
+            },
+            { origin: [1, 0] }
+        ).setDepth(this.uiDepth);
 
-        this.TutorialPanel = new TutorialPanel(scene);
+        this.TutorialPanel = new TutorialPanel(scene, this.depth + 10);
         this.TutorialPanel.show();
 
         this.gameoverPanel = new GameOverPanel(scene);
         this.NextQuizPanel = new NextQuizPanel(scene);
+
+        this.returnBtn = scene.createButton(scene.scale.width / 2 - 325, 105, "◀️ RETURN", () => {
+            scene.scene.start("main-menu-scene");
+        });
+
+        this.returnBtn[0].setDepth(this.uiDepth);
+
+        this.refreshLevelText();
+        this.setElapsedTime(0);
+        this.setScore(0);
     }
+    refreshLevelText() {
+        this.levelText.setText(`${this.levelName} - ด่าน ${this.currentRound}/${this.maxRound}`);
+    }
+
+    setLevel(levelMap = "easy", levelNumber = 1, currentRound = 1, maxRound = 10) {
+        this.levelName = String(levelMap || "easy").toUpperCase();
+        this.levelNumber = levelNumber;
+        this.maxRound = Math.max(1, Number(maxRound) || 10);
+        this.currentRound = Phaser.Math.Clamp(Number(currentRound) || 1, 1, this.maxRound);
+
+        this.refreshLevelText();
+    }
+
     setScore(newScore){
-        this.currentScore.text = this.scorePreText + newScore;
+        this.currentScoreValue = Math.max(0, Number(newScore) || 0);
+        this.currentScore.setText(`⭐ ${this.currentScoreValue}`);
     }
+
     setLives(newLives){
-        this.currentLives.text = this.livesPreText + newLives;
+        this.currentRound = Phaser.Math.Clamp(Number(newLives) || 1, 1, this.maxRound);
+        this.refreshLevelText();
     }
+
+    setElapsedTime(elapsedMs = 0) {
+        const totalSeconds = Math.max(0, Math.floor((Number(elapsedMs) || 0) / 1000));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        this.timerText.setText(`⏱ ${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
+    }
+
     setGameOverHighscore(score){
         const currentScore = StorageManager.get('EXEC001-highscore');
         console.log(`Current score: ${currentScore} | Set score: ${score}`);
@@ -73,12 +141,13 @@ export default class GameplayUI extends Entity{
         this.NextQuizPanel.show();
     }
 
-    showGameOverPanel(finalScore){
+    showGameOverPanel(finalScore, resultStatus = "success"){
         finalScore = finalScore <= 0 ? 0 : finalScore;
 
+        this.gameoverPanel.setResultStatus(resultStatus);
         this.gameoverPanel.setFinalScore(finalScore);
         this.setGameOverHighscore(finalScore);
-        this.currentScore.text = this.scorePreText + finalScore;
+        this.setScore(finalScore);
         this.gameoverPanel.setHighscore(StorageManager.get('EXEC001-highscore'));
         this.gameoverPanel.show();
     }

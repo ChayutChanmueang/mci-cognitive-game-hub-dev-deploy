@@ -3,6 +3,7 @@ import Entity from "../entity";
 import {BlankWord, Config} from "../../constants.js";
 import {createInlineSentence} from "../../utils/auto-insert-layout.js";
 import DragDropManager from "/src/core/drag-drop-manager.js";
+import { getThaiFontFamily } from "../../../../util/thai-text.js";
 
 export default class Quiz extends Entity{
     constructor(scene, x, y, id, textParts, answers, options, gameData, setting = {
@@ -54,7 +55,7 @@ export default class Quiz extends Entity{
         const textStyle = {
             quizTextSize: this.quizTextSize,
             labelFontSize: this.labelFontSize,
-            fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
+            fontFamily: getThaiFontFamily(),
             fontStyle: "bold",
             color: "#ffffff",
         };
@@ -87,7 +88,7 @@ export default class Quiz extends Entity{
 
             const label = this.scene.add.text(0, 0, word, {
                 fontSize: `${this.slotFontSize}px`,
-                fontFamily: '"Noto Sans Thai", "Sarabun", sans-serif',
+                fontFamily: getThaiFontFamily(),
                 fontStyle: "bold",
                 color: "#000000"
             }).setOrigin(0.5);

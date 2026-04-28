@@ -31,7 +31,6 @@ const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
 const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
-const HUB_DAILY_TARGET = 14;
 const HUB_DEFAULT_START_GAME_GID = "ATTN001";
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
@@ -304,9 +303,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
+            loadHistoryRecords: ({ hn, playedFrom, playedTo }) =>
+                db.getUserGameHistoryByHn({ hn, playedFrom, playedTo }),
             loadPlayedGameGids: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getPlayedGameGidsByHn({ hn, gids, playedFrom, playedTo }),
-            dailyTarget: HUB_DAILY_TARGET,
             completedCount: 0,
             preferredGameGid: HUB_DEFAULT_START_GAME_GID,
             patientHn: patientCode,
@@ -348,11 +348,77 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 } catch (error) {
                     console.warn("Unable to write launch history:", error);
+                    await showPopup({
+                        title: "บันทึกประวัติไม่สำเร็จ",
+                        message: "ระบบยังไม่สามารถบันทึกประวัติการเล่นเกมลงฐานข้อมูลได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return;
                 }
 
                 persistSelectedGame(selectedGame);
                 sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, String(selectedGame?.gid || "").trim());
                 navigateTo(getGameRouteHash(selectedGame));
+            },
+            onQuickLaunchGame: async (selectedGame) => {
+                const selectedGid = String(selectedGame?.gid || "").trim();
+                if (!selectedGid) {
+                    return;
+                }
+
+                if (selectedGid === "REST001") {
+                    await showPopup({
+                        title: "เกมพัก",
+                        message: "รายการนี้เป็นจุดพักสำหรับ flow หลัก ไม่ได้มีหน้าจอเกมให้เล่นโดยตรง",
+                        confirmText: "รับทราบ",
+                        icon: "info",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "เปิดเกมทดสอบ",
+                    message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} โดยไม่บันทึกประวัติใช่หรือไม่`,
+                    confirmText: "เปิดเกม",
+                    cancelText: "ยกเลิก",
+                    icon: "sports_esports",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                persistSelectedGame(selectedGame);
+                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                navigateTo(getGameRouteHash(selectedGame));
+            },
+            onRestNode: async () => {
+                const restGame = await db.getGameByGid("REST001");
+
+                if (!restGame?.gid) {
+                    throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
+                }
+
+                await db.addUserGameHistory({
+                    hn: patientCode,
+                    gid: restGame.gid,
+                    playedAt: new Date().toISOString(),
+                    userGameDataId: null,
+                    rest: true,
+                    checkIn: false,
+                });
+            },
+            onCheckInNode: async () => {
+                await db.addUserGameHistory({
+                    hn: patientCode,
+                    gid: null,
+                    playedAt: new Date().toISOString(),
+                    userGameDataId: null,
+                    rest: false,
+                    checkIn: true,
+                });
             },
             onLogout: async () => {
                 const hasConfirmed = await showPopup({
