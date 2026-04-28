@@ -587,6 +587,7 @@ class HubMapScreen extends HubElement {
                     <div data-topbar></div>
                     <div data-stage></div>
                     <div class="hub-clean-logout">
+                        <md-filled-button data-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
                         <span class="hub-clean-quick-menu">
                             <md-filled-button data-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
                             <md-menu data-quick-game-menu positioning="popover">
@@ -647,6 +648,14 @@ class HubMapScreen extends HubElement {
             });
         });
 
+        this.on(this.element?.querySelector("[data-clear-history]"), "click", async () => {
+            try {
+                await this.options.onClearHistory?.();
+            } catch (error) {
+                console.error("Unable to clear today history:", error);
+            }
+        });
+
         this.on(this.element?.querySelector("[data-logout]"), "click", () => {
             this.options.onLogout?.();
         });
@@ -670,6 +679,7 @@ export async function renderGameHubScreen(root, options = {}) {
         onRestNode = async () => {},
         onCheckInNode = async () => {},
         onQuickLaunchGame = async () => {},
+        onClearTodayHistory = async () => {},
         onLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
@@ -721,6 +731,10 @@ export async function renderGameHubScreen(root, options = {}) {
             onLogout,
             onQuickGameSelect: async (selectedGame) => {
                 await onQuickLaunchGame(selectedGame);
+            },
+            onClearHistory: async () => {
+                await onClearTodayHistory();
+                await loadPlayedHistory(true);
             },
             onNodeAction: async (selectedNode) => {
                 try {

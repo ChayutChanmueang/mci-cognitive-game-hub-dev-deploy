@@ -328,6 +328,18 @@ body.hub-mode {
     font-weight: 600;
 }
 
+.signup-age-value {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: rgba(53, 104, 89, 0.12);
+    color: #1e1b18;
+    font-size: clamp(1.0rem, 2.5vw, 1.3rem);
+    font-weight: 600;
+}
+
 .signup-feedback,
 .player-info-feedback {
     margin: 0;
