@@ -77,21 +77,17 @@ export function renderSignupScreen(root, options = {}) {
                         </label>
 
                         <label class="signup-row">
-                            <span>วันเกิด :</span>
+                            <span>เบอร์โทร :</span>
                             <md-outlined-text-field
-                                id="signup-birth-date"
-                                aria-label="วันเกิด"
-                                type="date"
-                                lang="en-GB"
+                                id="signup-phone"
+                                placeholder="เช่น 0812345678"
+                                aria-label="เบอร์โทร"
+                                type="tel"
+                                inputmode="tel"
                                 required
                                 no-asterisk
                             ></md-outlined-text-field>
                         </label>
-
-                        <div class="signup-row">
-                            <span>อายุ :</span>
-                            <div id="signup-age-value" class="signup-age-value">- ปี</div>
-                        </div>
 
                         <label class="signup-row">
                             <span>เพศ :</span>
@@ -114,6 +110,23 @@ export function renderSignupScreen(root, options = {}) {
                                 </md-select-option>
                             </md-outlined-select>
                         </label>
+
+                        <label class="signup-row">
+                            <span>วันเกิด :</span>
+                            <md-outlined-text-field
+                                id="signup-birth-date"
+                                aria-label="วันเกิด"
+                                type="date"
+                                lang="en-GB"
+                                required
+                                no-asterisk
+                            ></md-outlined-text-field>
+                        </label>
+
+                        <div class="signup-row">
+                            <span>อายุ :</span>
+                            <div id="signup-age-value" class="signup-age-value">- ปี</div>
+                        </div>
 
                         <label class="signup-row">
                             <span>การศึกษา :</span>
@@ -189,6 +202,7 @@ export function renderSignupScreen(root, options = {}) {
             hn: String(initialHn || "").trim(),
             firstname: String(root.querySelector("#signup-firstname")?.value || "").trim(),
             lastname: String(root.querySelector("#signup-lastname")?.value || "").trim(),
+            phone: String(root.querySelector("#signup-phone")?.value || "").trim(),
             birthDate: String(root.querySelector("#signup-birth-date")?.value || "").trim(),
             gender: String(root.querySelector("#signup-gender")?.value || "").trim(),
             educationLevel: String(root.querySelector("#signup-education-level")?.value || "").trim(),

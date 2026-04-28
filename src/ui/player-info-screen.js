@@ -71,6 +71,16 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     </label>
 
                     <label class="player-info-row">
+                        <span>เบอร์โทร :</span>
+                        <div id="player-info-phone" class="player-info-value">${escapeHtml(player.phone || "")}</div>
+                    </label>
+
+                    <label class="player-info-row">
+                        <span>เพศ :</span>
+                        <div id="player-info-gender" class="player-info-value">${escapeHtml(player.gender || "")}</div>
+                    </label>
+
+                    <label class="player-info-row">
                         <span>วันเกิด :</span>
                         <div id="player-info-birth-date" class="player-info-value">${escapeHtml(formatDisplayDate(birthDate))}</div>
                     </label>
@@ -78,11 +88,6 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     <label class="player-info-row">
                         <span>อายุ :</span>
                         <div id="player-info-age" class="player-info-value">${escapeHtml(ageDisplay)}</div>
-                    </label>
-
-                    <label class="player-info-row">
-                        <span>เพศ :</span>
-                        <div id="player-info-gender" class="player-info-value">${escapeHtml(player.gender || "")}</div>
                     </label>
 
                     <label class="player-info-row">
