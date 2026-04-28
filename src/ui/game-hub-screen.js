@@ -66,6 +66,7 @@ function normalizeGame(item, index, fallbackCategory = "Attention") {
 export function createGameHubState() {
     return {
         programGames: [],
+        allGames: [],
         restGame: null,
         historyRecords: [],
         programInitialized: false,
@@ -203,6 +204,26 @@ function findRestGame(gameListItems) {
     const target = list.find((item) => String(item?.gid || "").trim() === REST_GAME_GID);
 
     return target ? normalizeGame(target, 0, target?.mci_group || "Attention") : null;
+}
+
+function buildAllGames(gameListItems) {
+    const normalized = (gameListItems || []).map((item, index) =>
+        normalizeGame(item, index, item?.mci_group || "Attention"),
+    );
+    const source = normalized.length ? normalized : FALLBACK_GAMES;
+    const uniqueGames = [];
+    const seen = new Set();
+
+    source.forEach((item) => {
+        const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
+        if (!game.gid || seen.has(game.gid)) {
+            return;
+        }
+        seen.add(game.gid);
+        uniqueGames.push(game);
+    });
+
+    return uniqueGames;
 }
 
 function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = DAY_ONE_PRESET_GIDS_MOCK.length) {
@@ -547,12 +568,31 @@ class LevelMap extends HubElement {
 
 class HubMapScreen extends HubElement {
     html() {
+        const selectableGames = Array.isArray(this.options.selectableGames) ? this.options.selectableGames : [];
+        const menuItems = selectableGames.map((game) => `
+            <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
+                <div slot="headline">${escapeHtml(game.name || game.gid || "เกม")}</div>
+                <div slot="supporting-text">${escapeHtml(game.gid || "")}</div>
+            </md-menu-item>
+        `).join("");
+        const menuContent = menuItems || `
+            <md-menu-item disabled>
+                <div slot="headline">ไม่พบรายการเกม</div>
+            </md-menu-item>
+        `;
+
         return `
             <section class="hub-clean-screen">
                 <div class="hub-clean-shell">
                     <div data-topbar></div>
                     <div data-stage></div>
                     <div class="hub-clean-logout">
+                        <span class="hub-clean-quick-menu">
+                            <md-filled-button data-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
+                            <md-menu data-quick-game-menu positioning="popover">
+                                ${menuContent}
+                            </md-menu>
+                        </span>
                         <md-filled-button data-logout type="button">ออกจากระบบ</md-filled-button>
                     </div>
                 </div>
@@ -577,6 +617,36 @@ class HubMapScreen extends HubElement {
             onNodeAction: this.options.onNodeAction,
         }), this.element?.querySelector("[data-stage]"));
 
+        const selectableGameMap = new Map(
+            (Array.isArray(this.options.selectableGames) ? this.options.selectableGames : [])
+                .map((game) => [String(game?.gid || "").trim(), game])
+                .filter(([gid]) => Boolean(gid)),
+        );
+        const quickGameTrigger = this.element?.querySelector("[data-quick-game-trigger]");
+        const quickGameMenu = this.element?.querySelector("[data-quick-game-menu]");
+        if (quickGameMenu && quickGameTrigger) {
+            quickGameMenu.anchorElement = quickGameTrigger;
+            this.on(quickGameTrigger, "click", () => {
+                quickGameMenu.open = !quickGameMenu.open;
+            });
+        }
+
+        const quickGameItems = this.element?.querySelectorAll("[data-quick-game-item]") || [];
+        quickGameItems.forEach((item) => {
+            this.on(item, "click", async () => {
+                const gid = String(item.getAttribute("data-gid") || "").trim();
+                const selectedGame = selectableGameMap.get(gid);
+                if (!selectedGame) {
+                    return;
+                }
+
+                await this.options.onQuickGameSelect?.(selectedGame);
+                if (quickGameMenu) {
+                    quickGameMenu.open = false;
+                }
+            });
+        });
+
         this.on(this.element?.querySelector("[data-logout]"), "click", () => {
             this.options.onLogout?.();
         });
@@ -599,6 +669,7 @@ export async function renderGameHubScreen(root, options = {}) {
         onLaunchGame = () => {},
         onRestNode = async () => {},
         onCheckInNode = async () => {},
+        onQuickLaunchGame = async () => {},
         onLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
@@ -608,6 +679,9 @@ export async function renderGameHubScreen(root, options = {}) {
     const state = sharedState || createGameHubState();
     if (!Array.isArray(state.programGames)) {
         state.programGames = [];
+    }
+    if (!Array.isArray(state.allGames)) {
+        state.allGames = [];
     }
     if (!Array.isArray(state.historyRecords)) {
         state.historyRecords = [];
@@ -637,6 +711,7 @@ export async function renderGameHubScreen(root, options = {}) {
             completedCount: resolvedCompletedCount,
             completedGameCount: resolvedCompletedGameCount,
             patientLabel,
+            selectableGames: state.allGames,
             isLoading: (state.programLoading && !state.programInitialized) || state.historyLoading,
             initialScrollTop: state.scrollTop,
             onScrollChange: (scrollTop) => {
@@ -644,6 +719,9 @@ export async function renderGameHubScreen(root, options = {}) {
             },
             onProfile,
             onLogout,
+            onQuickGameSelect: async (selectedGame) => {
+                await onQuickLaunchGame(selectedGame);
+            },
             onNodeAction: async (selectedNode) => {
                 try {
                     if (selectedNode?.type === "game") {
@@ -683,17 +761,23 @@ export async function renderGameHubScreen(root, options = {}) {
                 const gameListItems = typeof loadGameList === "function"
                     ? await loadGameList()
                     : [];
-                state.restGame = findRestGame(gameListItems);
+                state.allGames = buildAllGames(gameListItems);
+                state.restGame = findRestGame(state.allGames);
                 state.programGames = buildProgramGamesFromPreset(
-                    gameListItems,
+                    state.allGames,
                     preferredGameGid,
                     DAY_ONE_PRESET_GIDS_MOCK.length,
                 );
                 state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
+                state.allGames = buildAllGames([]);
                 state.restGame = null;
-                state.programGames = buildProgramGamesFromPreset([], preferredGameGid, DAY_ONE_PRESET_GIDS_MOCK.length);
+                state.programGames = buildProgramGamesFromPreset(
+                    state.allGames,
+                    preferredGameGid,
+                    DAY_ONE_PRESET_GIDS_MOCK.length,
+                );
                 state.programError = error?.message || "Unable to load game list";
             }
 

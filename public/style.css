@@ -787,6 +787,25 @@ body.hub-mode {
     z-index: 30;
     left: 24px;
     bottom: 18px;
+    display: grid;
+    gap: 8px;
+}
+
+.hub-clean-quick-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.hub-clean-quick-menu md-filled-button {
+    --md-outlined-button-container-height: 34px;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.hub-clean-quick-menu md-menu {
+    min-width: 230px;
+    max-height: 320px;
 }
 
 .hub-clean-empty {

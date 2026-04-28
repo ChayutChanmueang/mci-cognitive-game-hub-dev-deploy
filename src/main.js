@@ -362,6 +362,38 @@ document.addEventListener("DOMContentLoaded", () => {
                 sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, String(selectedGame?.gid || "").trim());
                 navigateTo(getGameRouteHash(selectedGame));
             },
+            onQuickLaunchGame: async (selectedGame) => {
+                const selectedGid = String(selectedGame?.gid || "").trim();
+                if (!selectedGid) {
+                    return;
+                }
+
+                if (selectedGid === "REST001") {
+                    await showPopup({
+                        title: "เกมพัก",
+                        message: "รายการนี้เป็นจุดพักสำหรับ flow หลัก ไม่ได้มีหน้าจอเกมให้เล่นโดยตรง",
+                        confirmText: "รับทราบ",
+                        icon: "info",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "เปิดเกมทดสอบ",
+                    message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} โดยไม่บันทึกประวัติใช่หรือไม่`,
+                    confirmText: "เปิดเกม",
+                    cancelText: "ยกเลิก",
+                    icon: "sports_esports",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                persistSelectedGame(selectedGame);
+                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                navigateTo(getGameRouteHash(selectedGame));
+            },
             onRestNode: async () => {
                 const restGame = await db.getGameByGid("REST001");
 
