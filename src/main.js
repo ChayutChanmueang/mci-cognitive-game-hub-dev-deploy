@@ -1,4 +1,5 @@
 import db from "./core/database.js";
+import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
 import { renderAdminLoginScreen } from "./ui/admin-login-screen.js";
 import { renderLandingScreen } from "./ui/landing-screen.js";
@@ -24,6 +25,7 @@ const ROUTES = Object.freeze({
     playerInfo: "#/player-info",
     signup: "#/signup",
     hub: "#/hub",
+    checkInSummary: "#/checkin-summary",
 });
 
 const GAME_ROUTE_PREFIX = "#/game/";
@@ -137,6 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (normalizedPath === "/signup") {
             return { name: "signup" };
+        }
+
+        if (normalizedPath === "/checkin-summary") {
+            return { name: "checkin-summary" };
         }
 
         if (normalizedPath === "/hub" || normalizedPath === "/hub/intro") {
@@ -461,6 +467,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     rest: false,
                     checkIn: true,
                 });
+
+                navigateTo(ROUTES.checkInSummary);
+                return { redirected: true };
             },
             onLogout: async () => {
                 const hasConfirmed = await showPopup({
@@ -485,6 +494,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
+            },
+        });
+    };
+
+    const showCheckInSummary = async () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const rememberedPatient = getPatientSessionCookie();
+        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+
+        if (!patientCode) {
+            navigateTo(ROUTES.login, { replace: true });
+            return;
+        }
+
+        let checkInDates = [];
+        try {
+            checkInDates = await db.getUserCheckInDatesByHn({ hn: patientCode });
+        } catch (error) {
+            console.warn("Unable to load check-in dates:", error);
+        }
+
+        renderCheckInSummaryScreen(uiRoot, {
+            checkInDates,
+            defaultDayCount: 14,
+            onBackHome: () => {
+                navigateTo(ROUTES.hub);
             },
         });
     };
@@ -844,6 +892,11 @@ document.addEventListener("DOMContentLoaded", () => {
             await showSignup({
                 patientCode: pendingPatientCode,
             });
+            return;
+        }
+
+        if (route.name === "checkin-summary") {
+            await showCheckInSummary();
             return;
         }
 
