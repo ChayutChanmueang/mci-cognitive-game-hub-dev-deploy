@@ -609,6 +609,42 @@ class Database {
         return [...seen];
     }
 
+    async deleteUserGameHistoryByHn({
+        hn,
+        playedFrom,
+        playedTo,
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedFrom = new Date(playedFrom);
+        const parsedTo = new Date(playedTo);
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (Number.isNaN(parsedFrom.getTime())) {
+            throw new Error("Invalid playedFrom");
+        }
+
+        if (Number.isNaN(parsedTo.getTime())) {
+            throw new Error("Invalid playedTo");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { error } = await client
+            .from(USER_GAME_HISTORY_TABLE)
+            .delete()
+            .eq("hn", parsedHn)
+            .gte("played_at", parsedFrom.toISOString())
+            .lt("played_at", parsedTo.toISOString());
+
+        if (error) {
+            throw error;
+        }
+    }
+
     async submitHighScore(score, playtime = 0, gid = "ATTN001", level = null) {
         const endedAt = new Date();
         const startedAt = new Date(endedAt.getTime() - Math.max(0, Number(playtime) || 0) * 1000);

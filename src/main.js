@@ -394,6 +394,48 @@ document.addEventListener("DOMContentLoaded", () => {
                 sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
                 navigateTo(getGameRouteHash(selectedGame));
             },
+            onClearTodayHistory: async () => {
+                if (!patientCode) {
+                    await showPopup({
+                        title: "ไม่พบผู้เล่น",
+                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถลบประวัติได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการลบประวัติ",
+                    message: "ต้องการลบประวัติการเล่นทั้งหมดของวันนี้ใช่หรือไม่",
+                    confirmText: "ลบข้อมูลวันนี้",
+                    cancelText: "ยกเลิก",
+                    icon: "delete",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                const start = new Date();
+                start.setHours(0, 0, 0, 0);
+                const end = new Date(start);
+                end.setDate(end.getDate() + 1);
+
+                await db.deleteUserGameHistoryByHn({
+                    hn: patientCode,
+                    playedFrom: start.toISOString(),
+                    playedTo: end.toISOString(),
+                });
+
+                await showPopup({
+                    title: "ลบประวัติสำเร็จ",
+                    message: "ระบบลบประวัติการเล่นของวันนี้เรียบร้อยแล้ว",
+                    confirmText: "รับทราบ",
+                    icon: "check_circle",
+                });
+            },
             onRestNode: async () => {
                 const restGame = await db.getGameByGid("REST001");
 
