@@ -474,7 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
             onLogout: async () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
-                    message: "ต้องการออกจากระบบและกลับไปยังหน้าเข้าสู่ระบบใช่หรือไม่",
+                    message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
                     confirmText: "ออกจากระบบ",
                     cancelText: "ยกเลิก",
                     icon: "logout",
@@ -728,13 +728,42 @@ document.addEventListener("DOMContentLoaded", () => {
         gameContainer.classList.add("game-container--hidden");
         showUiRoot();
 
-        const bypassAdminLogin = async () => {
-            navigateTo(ROUTES.playerInfo);
-            return true;
-        };
-
         renderAdminLoginScreen(uiRoot, {
-            onSubmit: bypassAdminLogin,
+            onSubmit: async ({ email, password }) => {
+                try {
+                    await db.login(email, password);
+                } catch (error) {
+                    const errorMessage = String(error?.message || "").toLowerCase();
+                    if (
+                        errorMessage.includes("invalid login credentials")
+                        || errorMessage.includes("email not confirmed")
+                        || errorMessage.includes("email")
+                        || errorMessage.includes("password")
+                    ) {
+                        await showPopup({
+                            title: "เข้าสู่ระบบไม่สำเร็จ",
+                            message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+                            confirmText: "ลองอีกครั้ง",
+                            icon: "lock",
+                            tone: "error",
+                        });
+                        return false;
+                    }
+
+                    console.warn("Unable to sign in admin:", error);
+                    await showPopup({
+                        title: "เข้าสู่ระบบไม่สำเร็จ",
+                        message: "ไม่สามารถเข้าสู่ระบบผู้ดูแลได้ในขณะนี้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return false;
+                }
+
+                navigateTo(ROUTES.playerInfo);
+                return true;
+            },
         });
     };
 
@@ -808,8 +837,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                clearPatientClientState();
-                navigateTo(ROUTES.login);
+                try {
+                    await db.signOut();
+                    await db.initAuth();
+                } catch (error) {
+                    console.warn("Unable to sign out admin session:", error);
+                    await showPopup({
+                        title: "ออกจากระบบไม่สำเร็จ",
+                        message: "ระบบยังไม่สามารถออกจากระบบผู้ดูแลได้ กรุณาลองใหม่อีกครั้ง",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return;
+                }
+
+                navigateTo(ROUTES.hub);
             },
             onExport: async () => {
                 await showPopup({

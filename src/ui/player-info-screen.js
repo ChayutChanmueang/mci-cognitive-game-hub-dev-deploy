@@ -1,3 +1,5 @@
+import { calculateAgeFromBirthDate } from "../util/patient-date-util.js";
+
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
 }
@@ -42,6 +44,8 @@ export function renderPlayerInfoScreen(root, options = {}) {
 
     const hn = String(player.hn || player.patientCode || "").trim();
     const birthDate = player.date || player.birthDate || "";
+    const age = calculateAgeFromBirthDate(birthDate);
+    const ageDisplay = Number.isInteger(age) ? `${age} ปี` : "- ปี";
     const startedProgram = player.started_program || player.startedProgram || createDateValue();
     const endedProgram = programEndedAt || createDateValue();
 
@@ -69,6 +73,11 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     <label class="player-info-row">
                         <span>วันเกิด :</span>
                         <div id="player-info-birth-date" class="player-info-value">${escapeHtml(formatDisplayDate(birthDate))}</div>
+                    </label>
+
+                    <label class="player-info-row">
+                        <span>อายุ :</span>
+                        <div id="player-info-age" class="player-info-value">${escapeHtml(ageDisplay)}</div>
                     </label>
 
                     <label class="player-info-row">
