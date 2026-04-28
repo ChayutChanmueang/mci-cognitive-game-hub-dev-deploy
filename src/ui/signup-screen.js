@@ -2,6 +2,38 @@ function createDateValue() {
     return new Date().toISOString().slice(0, 10);
 }
 
+function calculateAgeFromBirthDate(birthDateValue) {
+    const rawValue = String(birthDateValue || "").trim();
+    if (!rawValue) {
+        return null;
+    }
+
+    const parsedBirthDate = new Date(rawValue);
+    if (Number.isNaN(parsedBirthDate.getTime())) {
+        return null;
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - parsedBirthDate.getFullYear();
+    const hasBirthdayPassedThisYear = (
+        today.getMonth() > parsedBirthDate.getMonth()
+        || (
+            today.getMonth() === parsedBirthDate.getMonth()
+            && today.getDate() >= parsedBirthDate.getDate()
+        )
+    );
+
+    if (!hasBirthdayPassedThisYear) {
+        age -= 1;
+    }
+
+    if (age < 0) {
+        return null;
+    }
+
+    return age;
+}
+
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -86,6 +118,11 @@ export function renderSignupScreen(root, options = {}) {
                             ></md-outlined-text-field>
                         </label>
 
+                        <div class="signup-row">
+                            <span>อายุ :</span>
+                            <div id="signup-age-value" class="signup-age-value">- ปี</div>
+                        </div>
+
                         <label class="signup-row">
                             <span>เพศ :</span>
                             <md-outlined-select
@@ -151,10 +188,25 @@ export function renderSignupScreen(root, options = {}) {
     const backButton = root.querySelector("#signup-back-button");
     const submitButton = root.querySelector("#signup-submit-button");
     const feedback = root.querySelector("#signup-feedback");
+    const birthDateField = root.querySelector("#signup-birth-date");
+    const ageValue = root.querySelector("#signup-age-value");
 
     if (!form || !backButton || !submitButton || !feedback) {
         return;
     }
+
+    const updateAgeDisplay = () => {
+        if (!ageValue) {
+            return;
+        }
+
+        const age = calculateAgeFromBirthDate(birthDateField?.value);
+        ageValue.textContent = Number.isInteger(age) ? `${age} ปี` : "- ปี";
+    };
+
+    birthDateField?.addEventListener("input", updateAgeDisplay);
+    birthDateField?.addEventListener("change", updateAgeDisplay);
+    updateAgeDisplay();
 
     backButton.addEventListener("click", () => {
         onBack();
