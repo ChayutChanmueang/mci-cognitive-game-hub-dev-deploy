@@ -31,7 +31,6 @@ const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
 const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
-const HUB_DAILY_TARGET = 14;
 const HUB_DEFAULT_START_GAME_GID = "ATTN001";
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
@@ -308,7 +307,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 db.getUserGameHistoryByHn({ hn, playedFrom, playedTo }),
             loadPlayedGameGids: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getPlayedGameGidsByHn({ hn, gids, playedFrom, playedTo }),
-            dailyTarget: HUB_DAILY_TARGET,
             completedCount: 0,
             preferredGameGid: HUB_DEFAULT_START_GAME_GID,
             patientHn: patientCode,

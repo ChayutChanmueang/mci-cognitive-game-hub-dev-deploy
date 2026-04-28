@@ -1,9 +1,6 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
 
-const DEFAULT_DAILY_TARGET = 12;
 const DEFAULT_START_GAME_GID = "ATTN001";
-const PROGRAM_GAME_TARGET = 10;
-const TOTAL_PROGRAM_NODE_TARGET = 12;
 const REST_GAME_GID = "REST001";
 
 const CATEGORY_META = Object.freeze({
@@ -35,23 +32,13 @@ const FALLBACK_GAMES = Object.freeze([
     { id: "fallback-lang-001", gid: "LANG001", name: "Context Clues", mci_group: "Language" },
     { id: "fallback-vis-001", gid: "VIS001", name: "Symmetry Decor", mci_group: "Visuospatial" },
     { id: "fallback-exec-001", gid: "EXEC001", name: "Gamehub Puzzle", mci_group: "Executive" },
-    { id: "fallback-attn-002", gid: "ATTN002", name: "Zoo Detective", mci_group: "Attention" },
-    { id: "fallback-attn-003", gid: "ATTN003", name: "ค้นหาสัตว์", mci_group: "Attention" },
-    { id: "fallback-vis-002", gid: "VIS002", name: "ต่อภาพเส้นทาง", mci_group: "Visuospatial" },
-    { id: "fallback-lang-002", gid: "LANG002", name: "เลือกคำให้ถูก", mci_group: "Language" },
-    { id: "fallback-mem-002", gid: "MEM002", name: "จับคู่ความจำ", mci_group: "Memory" },
 ]);
 const DAY_ONE_PRESET_GIDS_MOCK = Object.freeze([
     "ATTN001",
     "LANG001",
     "MEM001",
     "EXEC001",
-    "VSP001",
-    "ATTN002",
-    "ATTN003",
-    "VIS002",
-    "LANG002",
-    "MEM002",
+    "VIS001",
 ]);
 
 function escapeHtml(value) {
@@ -199,6 +186,17 @@ function getSequentialCompletedCount(nodes, historyRecords) {
     return completedCount;
 }
 
+function getCompletedGameCount(nodes, completedNodeCount) {
+    const safeCompletedNodeCount = Math.max(0, Number(completedNodeCount) || 0);
+    return (nodes || [])
+        .slice(0, safeCompletedNodeCount)
+        .reduce((count, node) => (
+            node?.type === "game"
+                ? count + 1
+                : count
+        ), 0);
+}
+
 function findRestGame(gameListItems) {
     const list = Array.isArray(gameListItems) ? gameListItems : [];
     const target = list.find((item) => String(item?.gid || "").trim() === REST_GAME_GID);
@@ -206,7 +204,7 @@ function findRestGame(gameListItems) {
     return target ? normalizeGame(target, 0, target?.mci_group || "Attention") : null;
 }
 
-function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = PROGRAM_GAME_TARGET) {
+function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = DAY_ONE_PRESET_GIDS_MOCK.length) {
     // TODO: Replace this mock preset GID set (derived from CSV day-1 sample) with DB preset data when preset table is ready.
     const presetGids = DAY_ONE_PRESET_GIDS_MOCK;
     const normalizedGameList = (gameListItems || []).map((item, index) =>
@@ -251,12 +249,12 @@ function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget
         });
     }
 
-    const target = Math.max(1, Number(gameTarget) || PROGRAM_GAME_TARGET);
+    const target = Math.max(1, Number(gameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
     return uniqueGames.slice(0, target);
 }
 
 function buildDailyProgramNodes(games, restGame) {
-    const gameNodes = (games || []).slice(0, PROGRAM_GAME_TARGET).map((game, index) => ({
+    const gameNodes = (games || []).map((game, index) => ({
         id: `game-${String(game?.gid || index)}`,
         type: "game",
         gid: String(game?.gid || "").trim(),
@@ -341,9 +339,9 @@ class HubElement {
 
 class DailyGoalTopBar extends HubElement {
     html() {
-        const completedCount = Math.max(0, Number(this.options.completedCount) || 0);
-        const dailyTarget = Math.max(1, Number(this.options.dailyTarget) || DEFAULT_DAILY_TARGET);
-        const progress = Math.min(1, completedCount / dailyTarget);
+        const completedGameCount = Math.max(0, Number(this.options.completedGameCount) || 0);
+        const dailyGameTarget = Math.max(1, Number(this.options.dailyGameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
+        const progress = Math.min(1, completedGameCount / dailyGameTarget);
         const patientLabel = this.options.patientLabel || "ผู้เล่น";
 
         return `
@@ -351,10 +349,10 @@ class DailyGoalTopBar extends HubElement {
                 <div class="hub-clean-goal">
                     <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
                     <h1>เป้าหมายของวันนี้</h1>
-                    <p>ทำภารกิจ ${dailyTarget} จุด ให้ครบตามแผนประจำวัน</p>
+                    <p>ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน</p>
                     <div class="hub-clean-progress">
-                        <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedCount} จาก ${dailyTarget} จุด"></md-linear-progress>
-                        <span>${completedCount}/${dailyTarget}</span>
+                        <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedGameCount} จาก ${dailyGameTarget} เกม"></md-linear-progress>
+                        <span>${completedGameCount}/${dailyGameTarget}</span>
                     </div>
                 </div>
                 <div class="hub-clean-profile" role="button" tabindex="0" aria-label="เปิดโปรไฟล์ผู้เล่น">
@@ -446,7 +444,7 @@ class LevelNode extends HubElement {
             : node.type === "game"
                 ? String(node.gameNumber || index + 1)
                 : node.emoji || "•";
-        const sideLabel = node.title || `จุดที่ ${index + 1}`;
+        const sideLabel = node.title || `เกมที่ ${index + 1}`;
 
         return `
             <div class="${classes}">
@@ -562,8 +560,8 @@ class HubMapScreen extends HubElement {
 
     bind() {
         this.addChild(new DailyGoalTopBar({
-            dailyTarget: this.options.dailyTarget,
-            completedCount: this.options.completedCount,
+            dailyGameTarget: this.options.dailyGameTarget,
+            completedGameCount: this.options.completedGameCount,
             patientLabel: this.options.patientLabel,
             onProfile: this.options.onProfile,
         }), this.element?.querySelector("[data-topbar]"));
@@ -594,7 +592,6 @@ export async function renderGameHubScreen(root, options = {}) {
         loadPlayedGameGids = null,
         patientHn = "",
         programDate = null,
-        dailyTarget = DEFAULT_DAILY_TARGET,
         completedCount = 0,
         preferredGameGid = DEFAULT_START_GAME_GID,
         onLaunchGame = () => {},
@@ -624,14 +621,19 @@ export async function renderGameHubScreen(root, options = {}) {
         const programNodes = buildDailyProgramNodes(state.programGames, state.restGame);
         const derivedCompletedCount = getSequentialCompletedCount(programNodes, state.historyRecords);
         const resolvedCompletedCount = Math.max(0, Number(completedCount) || 0, derivedCompletedCount);
-        const resolvedDailyTarget = Math.max(
+        const resolvedDailyGameTarget = Math.max(
             1,
-            programNodes.length || Number(dailyTarget) || TOTAL_PROGRAM_NODE_TARGET,
+            programNodes.filter((node) => node.type === "game").length || DAY_ONE_PRESET_GIDS_MOCK.length,
+        );
+        const resolvedCompletedGameCount = Math.min(
+            resolvedDailyGameTarget,
+            getCompletedGameCount(programNodes, resolvedCompletedCount),
         );
         activeScreen = new HubMapScreen({
             nodes: programNodes,
-            dailyTarget: resolvedDailyTarget,
+            dailyGameTarget: resolvedDailyGameTarget,
             completedCount: resolvedCompletedCount,
+            completedGameCount: resolvedCompletedGameCount,
             patientLabel,
             isLoading: (state.programLoading && !state.programInitialized) || state.historyLoading,
             initialScrollTop: state.scrollTop,
@@ -683,13 +685,13 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.programGames = buildProgramGamesFromPreset(
                     gameListItems,
                     preferredGameGid,
-                    PROGRAM_GAME_TARGET,
+                    DAY_ONE_PRESET_GIDS_MOCK.length,
                 );
                 state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
                 state.restGame = null;
-                state.programGames = buildProgramGamesFromPreset([], preferredGameGid, PROGRAM_GAME_TARGET);
+                state.programGames = buildProgramGamesFromPreset([], preferredGameGid, DAY_ONE_PRESET_GIDS_MOCK.length);
                 state.programError = error?.message || "Unable to load game list";
             }
 
