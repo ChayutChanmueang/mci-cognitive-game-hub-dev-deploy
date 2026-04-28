@@ -348,6 +348,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 } catch (error) {
                     console.warn("Unable to write launch history:", error);
+                    await showPopup({
+                        title: "บันทึกประวัติไม่สำเร็จ",
+                        message: "ระบบยังไม่สามารถบันทึกประวัติการเล่นเกมลงฐานข้อมูลได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return;
                 }
 
                 persistSelectedGame(selectedGame);

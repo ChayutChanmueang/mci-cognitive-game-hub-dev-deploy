@@ -440,7 +440,6 @@ class Database {
         const parsedGid = gid == null ? "" : String(gid).trim();
         const parsedPlayedAt = new Date(playedAt);
         const parsedUserGameDataId = userGameDataId == null ? null : Number(userGameDataId);
-        const parsedRest = Boolean(rest);
         const parsedCheckIn = Boolean(checkIn);
 
         if (!parsedHn) {
@@ -451,7 +450,7 @@ class Database {
             throw new Error("Invalid gid");
         }
 
-        if (parsedRest && !parsedGid) {
+        if (Boolean(rest) && !parsedGid) {
             throw new Error("Invalid rest gid");
         }
 
@@ -470,14 +469,13 @@ class Database {
             gid: parsedGid || null,
             played_at: parsedPlayedAt.toISOString(),
             user_game_data_id: parsedUserGameDataId,
-            rest: parsedRest,
         };
 
         const client = this.getClient();
         const insertHistory = async (insertPayload) => client
             .from(USER_GAME_HISTORY_TABLE)
             .insert([insertPayload])
-            .select("id, hn, gid, played_at, user_game_data_id, rest")
+            .select("id, hn, gid, played_at, user_game_data_id")
             .maybeSingle();
 
         let insertPayload = payload;
@@ -522,7 +520,7 @@ class Database {
         const client = this.getClient();
         let query = client
             .from(USER_GAME_HISTORY_TABLE)
-            .select("gid, played_at, rest")
+            .select("gid, played_at")
             .eq("hn", parsedHn);
 
         if (playedFrom) {

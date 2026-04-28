@@ -125,10 +125,11 @@ function getProgramDateRange(programDate = null) {
 }
 
 function normalizeHistoryRecord(item) {
+    const gid = String(item?.gid || "").trim();
     return {
-        gid: String(item?.gid || "").trim(),
-        rest: Boolean(item?.rest),
-        checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]),
+        gid,
+        rest: gid === REST_GAME_GID,
+        checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]) || !gid,
         playedAt: item?.played_at || item?.playedAt || null,
     };
 }
@@ -143,11 +144,11 @@ function isNodeMatchedByHistory(node, historyRecord) {
     }
 
     if (node.type === "rest") {
-        return historyRecord.rest === true && historyRecord.gid === REST_GAME_GID;
+        return historyRecord.gid === REST_GAME_GID;
     }
 
     if (node.type === "checkin") {
-        return historyRecord.checkIn === true || (!historyRecord.gid && historyRecord.rest !== true);
+        return historyRecord.checkIn === true || !historyRecord.gid;
     }
 
     return false;
@@ -342,6 +343,7 @@ class DailyGoalTopBar extends HubElement {
         const completedGameCount = Math.max(0, Number(this.options.completedGameCount) || 0);
         const dailyGameTarget = Math.max(1, Number(this.options.dailyGameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
         const progress = Math.min(1, completedGameCount / dailyGameTarget);
+        const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const patientLabel = this.options.patientLabel || "ผู้เล่น";
 
         return `
@@ -350,7 +352,7 @@ class DailyGoalTopBar extends HubElement {
                     <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
                     <h1>เป้าหมายของวันนี้</h1>
                     <p>ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน</p>
-                    <div class="hub-clean-progress">
+                    <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
                         <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedGameCount} จาก ${dailyGameTarget} เกม"></md-linear-progress>
                         <span>${completedGameCount}/${dailyGameTarget}</span>
                     </div>
