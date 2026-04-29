@@ -24,6 +24,22 @@ class Database {
         this.supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
     }
 
+    getLocalDayRange(dateValue) {
+        const start = new Date(dateValue);
+        if (Number.isNaN(start.getTime())) {
+            throw new Error("Invalid dateValue");
+        }
+
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 1);
+
+        return {
+            start,
+            end,
+        };
+    }
+
     getClient() {
         if (this.client) {
             return this.client;
@@ -499,6 +515,29 @@ class Database {
         };
 
         const client = this.getClient();
+
+        if (parsedGid && !Boolean(rest) && !parsedCheckIn && parsedUserGameDataId == null) {
+            const { start, end } = this.getLocalDayRange(parsedStartAt);
+            const { data: existingRows, error: existingError } = await client
+                .from(USER_GAME_HISTORY_TABLE)
+                .select("id, hn, gid, start_at, end_at, user_game_data_id")
+                .eq("hn", parsedHn)
+                .eq("gid", parsedGid)
+                .gte("start_at", start.toISOString())
+                .lt("start_at", end.toISOString())
+                .order("start_at", { ascending: false })
+                .limit(20);
+
+            if (existingError) {
+                throw existingError;
+            }
+
+            const existingHistory = (existingRows || []).find((row) => !row?.end_at) || existingRows?.[0] || null;
+            if (existingHistory?.id) {
+                return existingHistory;
+            }
+        }
+
         const insertHistory = async (insertPayload) => client
             .from(USER_GAME_HISTORY_TABLE)
             .insert([insertPayload])
@@ -529,6 +568,47 @@ class Database {
         }
 
         return data || insertPayload;
+    }
+
+    /*
+     * Future Game Hub retry flow:
+     * When addUserGameHistory(...) returns an existing same-day game history row,
+     * call refreshUserGameHistoryStartAt({ historyId: row.id, startAt: new Date() })
+     * before launching the minigame. This keeps the retry start time accurate while
+     * still reusing the database row instead of creating duplicate history records.
+     */
+    async refreshUserGameHistoryStartAt({
+        historyId,
+        startAt = new Date().toISOString(),
+    }) {
+        const parsedHistoryId = Number(historyId);
+        const parsedStartAt = new Date(startAt);
+
+        if (!Number.isInteger(parsedHistoryId) || parsedHistoryId <= 0) {
+            throw new Error("Invalid historyId");
+        }
+
+        if (Number.isNaN(parsedStartAt.getTime())) {
+            throw new Error("Invalid startAt");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_GAME_HISTORY_TABLE)
+            .update({
+                start_at: parsedStartAt.toISOString(),
+            })
+            .eq("id", parsedHistoryId)
+            .select("id, hn, gid, start_at, end_at, user_game_data_id")
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || null;
     }
 
     async completeUserGameHistory({
