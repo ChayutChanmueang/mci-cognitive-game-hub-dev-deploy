@@ -3,12 +3,14 @@ import EmojiRenderer from "../../components/scripts/emoji-renderer";
 import Clickable from "../../components/scripts/clickable";
 import TriggerListener from "../../components/scripts/trigger-listener";
 import { FoodTypes, FoodSpriteLibrary } from "../../constants";
+import SpriteRenderer from "../../components/scripts/sprite-renderer";
+import ShadowComponent from "../../components/scripts/shadow";
 
-export default class Fruit extends Entity{
-    constructor(scene,x,y,converyerBelt = null,sizeScale = 1){
-        super(scene,x,y,null);
+export default class Fruit extends Entity {
+    constructor(scene, x, y, converyerBelt = null, sizeScale = 1) {
+        super(scene, x, y, null);
 
-        this.setScale(1.5);
+        //this.setScale(1.5);
         //this.refreshBody();
 
         this.converyerBelt = converyerBelt;
@@ -22,47 +24,49 @@ export default class Fruit extends Entity{
         const _spriteOptions = FoodSpriteLibrary[this.currentFoodType];
         this.foodSprite = Phaser.Math.RND.pick(_spriteOptions);
 
-        this.addComponent(EmojiRenderer,{
-            emojiSprite: this.foodSprite,
-            sizeScale:sizeScale
-        });
-        this.addComponent(Clickable,{
+        // this.addComponent(EmojiRenderer,{
+        //     emojiSprite: this.foodSprite,
+        //     sizeScale:sizeScale
+        // });
+        this.addComponent(SpriteRenderer, {
+            textureKey: this.foodSprite,
+            sizeScale: sizeScale
+        })
+        this.addComponent(Clickable, {
             onClickAction: (entity) => {
-            //console.log("You clicked the food!");
-            entity.emit('itemSorted');
-            entity.disableInteractive();
+                //console.log("You clicked the food!");
+                entity.emit('itemSorted');
+                entity.disableInteractive();
 
-            const _direction = Phaser.Math.RND.pick([-1,1]);
-            const _speed = 300;
+                const _direction = Phaser.Math.RND.pick([-1, 1]);
+                const _speed = 300;
 
-            entity.setVelocityY(0);
-            entity.setVelocityX(_speed * _direction);
-            this.killTimer = this.scene.time.addEvent({
+                entity.setVelocityY(0);
+                entity.setVelocityX(_speed * _direction);
+                this.killTimer = this.scene.time.addEvent({
                     delay: 1000, //ms
                     callback: this.destroy,
                     callbackScope: this,
                     loop: false
                 })
-            this.converyerBelt.onRemoveFood(this.currentFoodType);
+                this.converyerBelt.onRemoveFood(this.currentFoodType);
             }
         })
-        // this.addComponent(TriggerListener,this.scene.lava,(other) => {
-        //     console.log("Touched the lava! Destroying food...");
-        //     this.destroy();
-        // })
 
-        this.addComponent(TriggerListener,converyerBelt.animal,(other) => {
-            if(other.onEat){
+        this.addComponent(TriggerListener, converyerBelt.animal, (other) => {
+            if (other.onEat) {
                 other.onEat(this.currentFoodType);
             }
             this.destroy();
         })
 
+        this.addComponent(ShadowComponent,{radius: 100,alpha: 0.2,offset: - 25});
+
         this.setCollideWorldBounds(true);
     }
-    destroy(){
+    destroy() {
         super.destroy();
-        if(this.onDestroy){
+        if (this.onDestroy) {
             this.onDestroy();
         }
     }

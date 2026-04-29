@@ -1,25 +1,29 @@
 import Component from "../component";
 import Phaser from "phaser";
 
-export default class Clickable extends Component{
-    constructor(entity, settings){
+export default class Clickable extends Component {
+    constructor(entity, settings) {
         super(entity);
-        if(settings.onClickAction){
-            this.onClickAction = settings.onClickAction;
-        }
-        if(settings.size){
-            this.size = settings.size;
-        }
-        else{
-            this.size = {x:64,y:64};
-        }
+        this.onClickAction = settings.onClickAction;
+        // Allow a scale multiplier for the hitbox (defaults to 1.0 for an exact fit)
+        this.hitboxScale = settings.hitboxScale || 1.0; 
     }
-    awake(){
-        //console.log("Clickable attached! Action registered: ", !!this.onClickAction);
 
-        const _hitbox = new Phaser.Geom.Rectangle(-(this.size.x/4),-(this.size.y/4),this.size.x,this.size.y);
+    awake() {
+        // Calculate the new inflated/deflated dimensions
+        const _hitWidth = this.entity.width * this.hitboxScale;
+        const _hitHeight = this.entity.height * this.hitboxScale;
+        
+        // Center the custom geometry by calculating the difference between the actual width and hit width
+        const _offsetX = (this.entity.width - _hitWidth) / 2;
+        const _offsetY = (this.entity.height - _hitHeight) / 2;
 
-        this.entity.setSize(this.size.x,this.size.y);
+        const _hitbox = new Phaser.Geom.Rectangle(
+            _offsetX, 
+            _offsetY, 
+            _hitWidth, 
+            _hitHeight
+        );
 
         this.entity.setInteractive({
             hitArea: _hitbox,
@@ -27,21 +31,19 @@ export default class Clickable extends Component{
             useHandCursor: true
         });
 
-        this.entity.scene.input.enableDebug(this.entity);
+        // Keep debug on so you can verify the green box alignment visually!
+        //this.entity.scene.input.enableDebug(this.entity);
 
         this.entity.on('pointerdown', () => {
-            //console.log("Pointer down detected");
-
-            if(this.onClickAction){
-                //console.log("Executing action...");
+            if (this.onClickAction) {
                 this.onClickAction(this.entity);
-            }
-            else{
-                console.error("No onClickAction")
+            } else {
+                console.error("No onClickAction registered for this entity!");
             }
         });
     }
-    destroy(){
+
+    destroy() {
         this.entity.off('pointerdown');
     }
 }
