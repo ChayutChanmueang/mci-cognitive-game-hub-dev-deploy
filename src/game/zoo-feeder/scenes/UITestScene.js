@@ -93,6 +93,15 @@ export default class UITestScene extends Phaser.Scene {
     this.physics.resume();
 
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
+
+    this.countdownTimer = this.time.addEvent({
+      delay: 180000,
+      callback: () => {
+        this.onGameOver();
+      },
+      callbackScope: thisArg,
+      loop: false,
+    })
   }
   update(time, delta) {
     for (const _conveyer of this.conveyers) {
@@ -100,16 +109,16 @@ export default class UITestScene extends Phaser.Scene {
     }
   }
   onGetEatableFood() {
-    this.addScore(100);
+    this.addScore(20);
   }
   onGetUneatableFood() {
-    this.removeLives(1);
+    this.removeLives(-50);
   }
   onRemoveEatableFood() {
-    this.removeLives(1);
+    this.removeLives(-25);
   }
   onRemoveUneatableFood() {
-    this.addScore(25);
+    this.addScore(10);
   }
   addScore(addedScore) {
     this.score += addedScore;
