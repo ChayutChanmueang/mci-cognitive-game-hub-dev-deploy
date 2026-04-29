@@ -43,6 +43,8 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameplayUI = new GameplayUI(this, 0, 0);
     // Create First Quiz
     this.getNewQuiz();
+    this.gameStartedAt = new Date();
+    this.gameEndedAt = new Date();
 
     this.easyBtn = this.createButton(this.scale.width / 2 - 175, (this.scale.height) - 350, "Return", () => {
       this.scene.start('main-menu-scene',{ conveyerNums: 1 })
@@ -108,6 +110,7 @@ export default class GameplayScene extends Phaser.Scene {
                   })
               });
           }else{
+              this.gameEndedAt = new Date();
               this.gameplayUI.setScore(this.allScore);
               this.gameplayUI.showGameOverPanel(this.allScore);
           }
