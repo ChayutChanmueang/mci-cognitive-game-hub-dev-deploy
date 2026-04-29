@@ -53,7 +53,7 @@ export default class Conveyer extends Entity {
         this.conveyerArrows.setDepth(-1);
 
         // Position the animal near the bottom
-        this.animal = new Animal(scene, x, y + _beltHeight + 200, 1.5);
+        this.animal = new Animal(scene, x, y + _beltHeight + 200, 0.75);
         this.foods = [];
     }
 
@@ -77,7 +77,7 @@ export default class Conveyer extends Entity {
 
     spawnFoods() {
         // Spawns fruit at the top (this.y)
-        const _fruit = new Fruit(this.scene, this.x, this.y, this, 1.5);
+        const _fruit = new Fruit(this.scene, this.x, this.y + 100, this, 0.5);
         
         // Ensure initial velocity is pointing downwards
         _fruit.setVelocityY(Math.abs(this.speed));
