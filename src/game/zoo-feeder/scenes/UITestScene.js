@@ -34,12 +34,12 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('plant_sprite', 'assets/zoo-feeder/food/Plant.png')
     this.load.image('soda_sprite', 'assets/zoo-feeder/food/Soda.png')
     //Animal Sprite
-    this.load.image('bear_sprite', 'assets/zoo-feeder/animal/B_Bear.svg')
-    this.load.image('cow_sprite', 'assets/zoo-feeder/animal/B_Cow.svg')
-    this.load.image('elephant_sprite', 'assets/zoo-feeder/animal/B_Ele.svg')
-    this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.svg')
-    this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.svg')
-    this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.svg')
+    this.load.image('bear_sprite', 'assets/zoo-feeder/animal/B_Bear.png')
+    this.load.image('cow_sprite', 'assets/zoo-feeder/animal/B_Cow.png')
+    this.load.image('elephant_sprite', 'assets/zoo-feeder/animal/B_Ele.png')
+    this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.png')
+    this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.png')
+    this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.png')
   }
 
   create(data) {
@@ -65,7 +65,7 @@ export default class UITestScene extends Phaser.Scene {
     this.conveyers = [];
 
     // 1. Define the exact pixel gap you want between each conveyor belt
-    const _conveyerSpacing = 300;
+    const _conveyerSpacing = 325;
 
     // 2. Calculate the starting X position so the group remains perfectly centered
     const _totalWidth = _conveyerSpacing * (this.conveyerNums - 1);
@@ -80,7 +80,7 @@ export default class UITestScene extends Phaser.Scene {
       const _newConveyer = new Conveyer(
         this,
         _xPos,
-        (this.scale.height / 2) - 950,
+        (this.scale.height / 2) - 1050,
         150,
         2.15
       );
@@ -99,7 +99,6 @@ export default class UITestScene extends Phaser.Scene {
       callback: () => {
         this.onGameOver();
       },
-      callbackScope: thisArg,
       loop: false,
     })
   }
@@ -112,16 +111,17 @@ export default class UITestScene extends Phaser.Scene {
     this.addScore(20);
   }
   onGetUneatableFood() {
-    this.removeLives(-50);
+    this.addScore(-50);
   }
   onRemoveEatableFood() {
-    this.removeLives(-25);
+    this.addScore(-25);
   }
   onRemoveUneatableFood() {
     this.addScore(10);
   }
   addScore(addedScore) {
     this.score += addedScore;
+    if(this.score < 0) this.score = 0;
     console.log("Current Score: " + this.score);
     this.level = this.score / 100;
     this.level = Math.floor(this.level);
