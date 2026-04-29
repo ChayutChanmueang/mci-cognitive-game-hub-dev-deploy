@@ -1,4 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
+import {
+    isCompleteThaiPhoneNumber,
+    normalizeThaiPhoneNumber,
+} from "../util/phone-number-util.js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
@@ -224,7 +228,7 @@ class Database {
         const parsedHn = String(hn || "").trim();
         const parsedFirstname = String(firstname || "").trim();
         const parsedLastname = String(lastname || "").trim();
-        const parsedPhone = String(phone || "").trim().replaceAll(/[\s-]/g, "");
+        const parsedPhone = normalizeThaiPhoneNumber(phone);
         const parsedGender = String(gender || "").trim();
         const parsedEducation = String(educationLevel || "").trim();
         const normalizedStartedProgram = new Date(startedProgram);
@@ -245,6 +249,10 @@ class Database {
 
         if (!parsedPhone) {
             throw new Error("กรุณากรอกเบอร์โทร");
+        }
+
+        if (!isCompleteThaiPhoneNumber(parsedPhone)) {
+            throw new Error("กรุณากรอกเบอร์โทร 10 หลัก");
         }
 
         if (!parsedBirthDate || Number.isNaN(normalizedBirthDate.getTime())) {
