@@ -113,8 +113,10 @@ export default class Conveyer extends Entity {
     onRemoveFood(foodType) {
         if (foodType == this.animal.currentAnimal.AcceptableFoodType) {
             this.scene.onRemoveEatableFood();
+            return false;
         } else {
             this.scene.onRemoveUneatableFood();
+            return true;
         }
     }
 
