@@ -2,6 +2,7 @@ import Entity from "../entity";
 import EmojiRenderer from "../../components/scripts/emoji-renderer";
 import { AnimalSetting } from "../../constants";
 import SpriteRenderer from "../../components/scripts/sprite-renderer";
+import ShadowComponent from "../../components/scripts/shadow";
 
 export default class Animal extends Entity{
     constructor(scene,x,y,sizeScale = 1){
@@ -19,6 +20,8 @@ export default class Animal extends Entity{
         })
         this.setDisplaySize(288, 336);
         //this.setOffset(192,224)
+
+        this.addComponent(ShadowComponent,{radius: 125,alpha: 0.2,offset: - 60});
 
         this.setCollideWorldBounds(true);
     }

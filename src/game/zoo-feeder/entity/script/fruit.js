@@ -4,6 +4,7 @@ import Clickable from "../../components/scripts/clickable";
 import TriggerListener from "../../components/scripts/trigger-listener";
 import { FoodTypes, FoodSpriteLibrary } from "../../constants";
 import SpriteRenderer from "../../components/scripts/sprite-renderer";
+import ShadowComponent from "../../components/scripts/shadow";
 
 export default class Fruit extends Entity {
     constructor(scene, x, y, converyerBelt = null, sizeScale = 1) {
@@ -58,6 +59,8 @@ export default class Fruit extends Entity {
             }
             this.destroy();
         })
+
+        this.addComponent(ShadowComponent,{radius: 100,alpha: 0.2,offset: - 25});
 
         this.setCollideWorldBounds(true);
     }

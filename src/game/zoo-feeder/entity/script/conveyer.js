@@ -11,14 +11,14 @@ export default class Conveyer extends Entity {
         this.speed = speed;
         this.scale = scale;
 
-        const _beltWidth = 225;
-        const _beltHeight = 1600;
-        const _cornerRadius = 25;
+        const _beltWidth = 250;
+        const _beltHeight = 1700;
+        const _cornerRadius = 70;
 
         // 1. Draw the Static Background (Image 2)
         this.beltBackground = scene.add.graphics();
         // Thick light-grey border (Stroke)
-        this.beltBackground.lineStyle(8, 0xe0e0e0, 1);
+        this.beltBackground.lineStyle(12, 0xe0e0e0, 1);
         // Dark grey interior (Fill)
         this.beltBackground.fillStyle(0x383838, 1);
         
@@ -46,7 +46,7 @@ export default class Conveyer extends Entity {
         this.conveyerArrows = scene.add.tileSprite(
             x,
             y + (_beltHeight / 2),
-            _beltWidth - 125, // Slightly thinner than belt interior
+            _beltWidth - 150, // Slightly thinner than belt interior
             _beltHeight - 20,
             _arrowTextureName
         );
@@ -77,7 +77,7 @@ export default class Conveyer extends Entity {
 
     spawnFoods() {
         // Spawns fruit at the top (this.y)
-        const _fruit = new Fruit(this.scene, this.x, this.y + 100, this, 0.5);
+        const _fruit = new Fruit(this.scene, this.x, this.y + 200, this, 0.75);
         
         // Ensure initial velocity is pointing downwards
         _fruit.setVelocityY(Math.abs(this.speed));

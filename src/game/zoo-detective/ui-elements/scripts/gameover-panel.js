@@ -1,10 +1,13 @@
 import UIPanel from "../core/ui-panel.js";
+import game_db from "/src/util/minigame-db-util.js";
 
 export default class GameOverPanel extends UIPanel{
     constructor(scene){
         super(scene,scene.scale.width/2,scene.scale.height/2,400,450);
 
         this.panelBg.setScale(1.5);
+
+        this.finalScore = 0;
 
         this.titleText = scene.add.text(0,-200,"ผ่าน",{
             fontSize: '48px', color:'#ff4444',fontStyle: 'bold'
@@ -23,6 +26,13 @@ export default class GameOverPanel extends UIPanel{
 
         this.homeBtn = this.createButton(0,225, "RETURN", () => {
             this.scene.scene.start('main-menu-scene')
+
+            //Save game data to database
+            game_db.pushGameData(this.finalScore, this.scene.level, this.scene.gameStartedAt, this.scene.gameEndedAt).then(() => {
+                console.log("Game data saved to database.");
+            }).catch((error) => {
+                console.error("Failed to save game data:", error);
+            });
         });
 
         this.addElements([this.titleText, this.scoreText, this.highscoreText,...this.homeBtn]);
@@ -43,6 +53,7 @@ export default class GameOverPanel extends UIPanel{
 
     setFinalScore(score){
         this.scoreText.setText("Score: " + score);
+        this.finalScore = score;
     }
     setHighscore(score){
         this.highscoreText.setText("Highscore: " + score);

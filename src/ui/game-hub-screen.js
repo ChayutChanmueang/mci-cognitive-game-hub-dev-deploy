@@ -131,7 +131,8 @@ function normalizeHistoryRecord(item) {
         gid,
         rest: gid === REST_GAME_GID,
         checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]) || !gid,
-        playedAt: item?.played_at || item?.playedAt || null,
+        playedAt: item?.start_at || item?.startAt || item?.played_at || item?.playedAt || null,
+        endAt: item?.end_at || item?.endAt || null,
     };
 }
 
@@ -141,7 +142,9 @@ function isNodeMatchedByHistory(node, historyRecord) {
     }
 
     if (node.type === "game") {
-        return Boolean(historyRecord.gid) && historyRecord.gid === node.gid;
+        return Boolean(historyRecord.gid)
+            && historyRecord.gid === node.gid
+            && Boolean(historyRecord.endAt);
     }
 
     if (node.type === "rest") {
@@ -670,7 +673,8 @@ export async function renderGameHubScreen(root, options = {}) {
     const {
         loadGameList,
         loadHistoryRecords = null,
-        loadPlayedGameGids = null,
+        loadCompletedGameHistoryRecords = null,
+        loadInstantNodeHistoryRecords = null,
         patientHn = "",
         programDate = null,
         completedCount = 0,
@@ -827,7 +831,33 @@ export async function renderGameHubScreen(root, options = {}) {
                 .filter(Boolean);
             const { playedFrom, playedTo } = getProgramDateRange(programDate);
 
-            if (typeof loadHistoryRecords === "function") {
+            if (
+                typeof loadCompletedGameHistoryRecords === "function"
+                || typeof loadInstantNodeHistoryRecords === "function"
+            ) {
+                const [completedGameRows, instantNodeRows] = await Promise.all([
+                    typeof loadCompletedGameHistoryRecords === "function"
+                        ? loadCompletedGameHistoryRecords({
+                            hn: parsedPatientHn,
+                            gids,
+                            playedFrom,
+                            playedTo,
+                        })
+                        : [],
+                    typeof loadInstantNodeHistoryRecords === "function"
+                        ? loadInstantNodeHistoryRecords({
+                            hn: parsedPatientHn,
+                            playedFrom,
+                            playedTo,
+                        })
+                        : [],
+                ]);
+
+                state.historyRecords = [
+                    ...(Array.isArray(completedGameRows) ? completedGameRows : []),
+                    ...(Array.isArray(instantNodeRows) ? instantNodeRows : []),
+                ].map((record) => normalizeHistoryRecord(record));
+            } else if (typeof loadHistoryRecords === "function") {
                 const historyRows = await loadHistoryRecords({
                     hn: parsedPatientHn,
                     playedFrom,
@@ -836,21 +866,6 @@ export async function renderGameHubScreen(root, options = {}) {
 
                 state.historyRecords = Array.isArray(historyRows)
                     ? historyRows.map((record) => normalizeHistoryRecord(record))
-                    : [];
-            } else if (typeof loadPlayedGameGids === "function") {
-                const playedGameGids = await loadPlayedGameGids({
-                    hn: parsedPatientHn,
-                    gids,
-                    playedFrom,
-                    playedTo,
-                });
-
-                state.historyRecords = Array.isArray(playedGameGids)
-                    ? playedGameGids.map((gid) => normalizeHistoryRecord({
-                        gid,
-                        rest: false,
-                        played_at: playedFrom,
-                    }))
                     : [];
             } else {
                 state.historyRecords = [];
