@@ -911,19 +911,6 @@ class Database {
         }
     }
 
-    async submitHighScore(score, playtime = 0, gid = "ATTN001", level = null) {
-        const endedAt = new Date();
-        const startedAt = new Date(endedAt.getTime() - Math.max(0, Number(playtime) || 0) * 1000);
-
-        return this.submitGameData({
-            gid,
-            score,
-            level,
-            startedAt,
-            endedAt,
-        });
-    }
-
     async logUserEvent(eventId, gid = null) {
         const session = await this.initAuth();
         const user = session?.user || (await this.getCurrentUser());
