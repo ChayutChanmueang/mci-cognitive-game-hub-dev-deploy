@@ -1,13 +1,13 @@
 import Phaser from "phaser";
 
 export default class UIPanel{
-    constructor(scene,x,y,sizeX,sizeY){
+    constructor(scene,x,y,sizeX,sizeY, depth = 1000){
         this.scene = scene;
         this.x = x;
         this.y = y;
 
         this.container = scene.add.container(x,y);
-        this.container.setDepth(1000);
+        this.container.setDepth(depth);
 
         this.overlay = scene.add.rectangle(
             0,0,

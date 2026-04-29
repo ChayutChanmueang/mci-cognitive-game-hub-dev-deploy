@@ -1,4 +1,5 @@
 import db from "./core/database.js";
+import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
 import { renderAdminLoginScreen } from "./ui/admin-login-screen.js";
 import { renderLandingScreen } from "./ui/landing-screen.js";
@@ -24,6 +25,7 @@ const ROUTES = Object.freeze({
     playerInfo: "#/player-info",
     signup: "#/signup",
     hub: "#/hub",
+    checkInSummary: "#/checkin-summary",
 });
 
 const GAME_ROUTE_PREFIX = "#/game/";
@@ -31,7 +33,6 @@ const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
 const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
-const HUB_DAILY_TARGET = 14;
 const HUB_DEFAULT_START_GAME_GID = "ATTN001";
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
@@ -138,6 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (normalizedPath === "/signup") {
             return { name: "signup" };
+        }
+
+        if (normalizedPath === "/checkin-summary") {
+            return { name: "checkin-summary" };
         }
 
         if (normalizedPath === "/hub" || normalizedPath === "/hub/intro") {
@@ -304,9 +309,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
+            loadHistoryRecords: ({ hn, playedFrom, playedTo }) =>
+                db.getUserGameHistoryByHn({ hn, playedFrom, playedTo }),
             loadPlayedGameGids: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getPlayedGameGidsByHn({ hn, gids, playedFrom, playedTo }),
-            dailyTarget: HUB_DAILY_TARGET,
             completedCount: 0,
             preferredGameGid: HUB_DEFAULT_START_GAME_GID,
             patientHn: patientCode,
@@ -348,16 +354,127 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 } catch (error) {
                     console.warn("Unable to write launch history:", error);
+                    await showPopup({
+                        title: "บันทึกประวัติไม่สำเร็จ",
+                        message: "ระบบยังไม่สามารถบันทึกประวัติการเล่นเกมลงฐานข้อมูลได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return;
                 }
 
                 persistSelectedGame(selectedGame);
                 sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, String(selectedGame?.gid || "").trim());
                 navigateTo(getGameRouteHash(selectedGame));
             },
+            onQuickLaunchGame: async (selectedGame) => {
+                const selectedGid = String(selectedGame?.gid || "").trim();
+                if (!selectedGid) {
+                    return;
+                }
+
+                if (selectedGid === "REST001") {
+                    await showPopup({
+                        title: "เกมพัก",
+                        message: "รายการนี้เป็นจุดพักสำหรับ flow หลัก ไม่ได้มีหน้าจอเกมให้เล่นโดยตรง",
+                        confirmText: "รับทราบ",
+                        icon: "info",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "เปิดเกมทดสอบ",
+                    message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} โดยไม่บันทึกประวัติใช่หรือไม่`,
+                    confirmText: "เปิดเกม",
+                    cancelText: "ยกเลิก",
+                    icon: "sports_esports",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                persistSelectedGame(selectedGame);
+                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                navigateTo(getGameRouteHash(selectedGame));
+            },
+            onClearTodayHistory: async () => {
+                if (!patientCode) {
+                    await showPopup({
+                        title: "ไม่พบผู้เล่น",
+                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถลบประวัติได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการลบประวัติ",
+                    message: "ต้องการลบประวัติการเล่นทั้งหมดของวันนี้ใช่หรือไม่",
+                    confirmText: "ลบข้อมูลวันนี้",
+                    cancelText: "ยกเลิก",
+                    icon: "delete",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                const start = new Date();
+                start.setHours(0, 0, 0, 0);
+                const end = new Date(start);
+                end.setDate(end.getDate() + 1);
+
+                await db.deleteUserGameHistoryByHn({
+                    hn: patientCode,
+                    playedFrom: start.toISOString(),
+                    playedTo: end.toISOString(),
+                });
+
+                await showPopup({
+                    title: "ลบประวัติสำเร็จ",
+                    message: "ระบบลบประวัติการเล่นของวันนี้เรียบร้อยแล้ว",
+                    confirmText: "รับทราบ",
+                    icon: "check_circle",
+                });
+            },
+            onRestNode: async () => {
+                const restGame = await db.getGameByGid("REST001");
+
+                if (!restGame?.gid) {
+                    throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
+                }
+
+                await db.addUserGameHistory({
+                    hn: patientCode,
+                    gid: restGame.gid,
+                    playedAt: new Date().toISOString(),
+                    userGameDataId: null,
+                    rest: true,
+                    checkIn: false,
+                });
+            },
+            onCheckInNode: async () => {
+                await db.addUserGameHistory({
+                    hn: patientCode,
+                    gid: null,
+                    playedAt: new Date().toISOString(),
+                    userGameDataId: null,
+                    rest: false,
+                    checkIn: true,
+                });
+
+                navigateTo(ROUTES.checkInSummary);
+                return { redirected: true };
+            },
             onLogout: async () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
-                    message: "ต้องการออกจากระบบและกลับไปยังหน้าเข้าสู่ระบบใช่หรือไม่",
+                    message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
                     confirmText: "ออกจากระบบ",
                     cancelText: "ยกเลิก",
                     icon: "logout",
@@ -377,6 +494,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
+            },
+        });
+    };
+
+    const showCheckInSummary = async () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const rememberedPatient = getPatientSessionCookie();
+        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+
+        if (!patientCode) {
+            navigateTo(ROUTES.login, { replace: true });
+            return;
+        }
+
+        let checkInDates = [];
+        try {
+            checkInDates = await db.getUserCheckInDatesByHn({ hn: patientCode });
+        } catch (error) {
+            console.warn("Unable to load check-in dates:", error);
+        }
+
+        renderCheckInSummaryScreen(uiRoot, {
+            checkInDates,
+            defaultDayCount: 14,
+            onBackHome: () => {
+                navigateTo(ROUTES.hub);
             },
         });
     };
@@ -572,13 +728,42 @@ document.addEventListener("DOMContentLoaded", () => {
         gameContainer.classList.add("game-container--hidden");
         showUiRoot();
 
-        const bypassAdminLogin = async () => {
-            navigateTo(ROUTES.playerInfo);
-            return true;
-        };
-
         renderAdminLoginScreen(uiRoot, {
-            onSubmit: bypassAdminLogin,
+            onSubmit: async ({ email, password }) => {
+                try {
+                    await db.login(email, password);
+                } catch (error) {
+                    const errorMessage = String(error?.message || "").toLowerCase();
+                    if (
+                        errorMessage.includes("invalid login credentials")
+                        || errorMessage.includes("email not confirmed")
+                        || errorMessage.includes("email")
+                        || errorMessage.includes("password")
+                    ) {
+                        await showPopup({
+                            title: "เข้าสู่ระบบไม่สำเร็จ",
+                            message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+                            confirmText: "ลองอีกครั้ง",
+                            icon: "lock",
+                            tone: "error",
+                        });
+                        return false;
+                    }
+
+                    console.warn("Unable to sign in admin:", error);
+                    await showPopup({
+                        title: "เข้าสู่ระบบไม่สำเร็จ",
+                        message: "ไม่สามารถเข้าสู่ระบบผู้ดูแลได้ในขณะนี้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return false;
+                }
+
+                navigateTo(ROUTES.playerInfo);
+                return true;
+            },
         });
     };
 
@@ -652,8 +837,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                clearPatientClientState();
-                navigateTo(ROUTES.login);
+                try {
+                    await db.signOut();
+                    await db.initAuth();
+                } catch (error) {
+                    console.warn("Unable to sign out admin session:", error);
+                    await showPopup({
+                        title: "ออกจากระบบไม่สำเร็จ",
+                        message: "ระบบยังไม่สามารถออกจากระบบผู้ดูแลได้ กรุณาลองใหม่อีกครั้ง",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return;
+                }
+
+                navigateTo(ROUTES.hub);
             },
             onExport: async () => {
                 await showPopup({
@@ -736,6 +935,11 @@ document.addEventListener("DOMContentLoaded", () => {
             await showSignup({
                 patientCode: pendingPatientCode,
             });
+            return;
+        }
+
+        if (route.name === "checkin-summary") {
+            await showCheckInSummary();
             return;
         }
 

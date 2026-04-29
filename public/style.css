@@ -328,6 +328,18 @@ body.hub-mode {
     font-weight: 600;
 }
 
+.signup-age-value {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: rgba(53, 104, 89, 0.12);
+    color: #1e1b18;
+    font-size: clamp(1.0rem, 2.5vw, 1.3rem);
+    font-weight: 600;
+}
+
 .signup-feedback,
 .player-info-feedback {
     margin: 0;
@@ -564,7 +576,32 @@ body.hub-mode {
     place-items: center;
     font-size: 13px;
     font-weight: 800;
+    color: #111827;
+    text-shadow:
+        0 1px 2px rgba(255, 255, 255, 0.6),
+        0 0 1px rgba(15, 23, 42, 0.28);
+    transition: color 320ms ease, text-shadow 320ms ease, transform 320ms ease;
     pointer-events: none;
+}
+
+.hub-clean-progress.is-half-passed span {
+    color: #f8fafc;
+    text-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.85),
+        0 0 1px rgba(2, 6, 23, 0.65);
+    animation: hub-progress-text-pop 320ms ease;
+}
+
+@keyframes hub-progress-text-pop {
+    0% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.06);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .hub-clean-profile {
@@ -762,6 +799,25 @@ body.hub-mode {
     z-index: 30;
     left: 24px;
     bottom: 18px;
+    display: grid;
+    gap: 8px;
+}
+
+.hub-clean-quick-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.hub-clean-quick-menu md-filled-button {
+    --md-outlined-button-container-height: 34px;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.hub-clean-quick-menu md-menu {
+    min-width: 230px;
+    max-height: 320px;
 }
 
 .hub-clean-empty {
@@ -792,7 +848,156 @@ body.hub-mode {
     font-size: 30px;
 }
 
-@media (max-width: 420px) {
+.checkin-summary-screen {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 18px 18px calc(110px + env(safe-area-inset-bottom));
+    position: relative;
+}
+
+.checkin-summary-screen--success {
+    min-height: 100svh;
+    display: block;
+    padding: 0;
+    background: #e9e9e9;
+}
+
+.checkin-success-layout {
+    width: 100%;
+    min-height: 100svh;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 30px;
+    text-align: center;
+    padding: 24px 22px calc(120px + env(safe-area-inset-bottom));
+}
+
+.checkin-success-title {
+    margin: 0;
+    color: #0f0f0f;
+    font-size: clamp(1.6rem, 6.5vw, 2.2rem);
+    line-height: 1.05;
+    font-weight: 500;
+}
+
+.checkin-success-emoji {
+    font-size: clamp(5.2rem, 23vw, 7.8rem);
+    line-height: 1;
+}
+
+.checkin-success-message {
+    margin: 0;
+    color: #0f0f0f;
+    font-size: clamp(1.45rem, 5.8vw, 2rem);
+    line-height: 1.18;
+    font-weight: 500;
+}
+
+.checkin-floating-action {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 80;
+    display: grid;
+    justify-items: center;
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
+    pointer-events: none;
+}
+
+.checkin-floating-button {
+    width: min(100%, 360px);
+    pointer-events: auto;
+}
+
+.checkin-calendar-panel {
+    width: min(100%, 520px);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(183, 176, 168, 0.65);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--app-shadow);
+    padding: 20px 14px 18px;
+    color: var(--md-sys-color-on-surface);
+}
+
+.checkin-calendar-panel__header {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    margin-bottom: 24px;
+    margin-top: 12px;
+    text-align: center;
+}
+
+.checkin-calendar-panel__header h2 {
+    margin: 0;
+    color: var(--md-sys-color-on-surface);
+    font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1;
+    font-weight: 500;
+}
+
+.checkin-calendar-panel__header p {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: clamp(1.45rem, 5.8vw, 2rem);
+    line-height: 1.1;
+    font-weight: 500;
+}
+
+.checkin-calendar-panel__divider {
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(183, 176, 168, 0.72);
+    margin-bottom: 56px;
+}
+
+.checkin-program-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    row-gap: 56px;
+    column-gap: 6px;
+}
+
+.checkin-program-day {
+    display: grid;
+    gap: 6px;
+}
+
+.checkin-program-day__number {
+    text-align: center;
+    color: var(--md-sys-color-on-surface);
+    font-size: clamp(1.25rem, 5vw, 1.8rem);
+    line-height: 1;
+    font-weight: 500;
+}
+
+.checkin-program-day__box {
+    min-height: 42px;
+    border-radius: 0;
+    border: 0;
+    background: rgba(255, 255, 255, 0);
+    display: grid;
+    place-items: center;
+}
+
+.checkin-program-day__checkbox {
+    display: block;
+    margin: 0;
+    inline-size: 56px;
+    block-size: 56px;
+    place-self: center;
+    pointer-events: none;
+    --md-checkbox-container-size: 56px;
+    --md-checkbox-icon-size: 56px;
+    --md-checkbox-state-layer-size: 56px;
+    --md-checkbox-container-shape: 10px;
+}
+
+@media (max-width: 560px) {
     #app:has(.signup-screen),
     #app:has(.player-info-screen) {
         padding: 0;
@@ -836,6 +1041,47 @@ body.hub-mode {
     .player-info-row--date {
         grid-template-columns: minmax(98px, auto) minmax(0, 1fr);
         gap: 8px;
+    }
+
+    .checkin-summary-screen {
+        padding: 12px 12px calc(104px + env(safe-area-inset-bottom));
+    }
+
+    .checkin-summary-screen--success {
+        padding: 0;
+    }
+
+    .checkin-success-layout {
+        min-height: 100svh;
+        gap: 22px;
+        padding: 16px 14px calc(112px + env(safe-area-inset-bottom));
+    }
+
+    .checkin-calendar-panel {
+        width: min(100%, 430px);
+        padding: 16px 10px 14px;
+        border-radius: 20px;
+    }
+
+    .checkin-program-grid {
+        row-gap: 24px;
+        column-gap: 6px;
+    }
+
+    .checkin-program-day__box {
+        min-height: 50px;
+    }
+
+    .checkin-calendar-panel__divider {
+        margin-bottom: 24px;
+    }
+
+    .checkin-program-day__checkbox {
+        inline-size: 40px;
+        block-size: 40px;
+        --md-checkbox-container-size: 40px;
+        --md-checkbox-icon-size: 40px;
+        --md-checkbox-state-layer-size: 40px;
     }
 }
 
