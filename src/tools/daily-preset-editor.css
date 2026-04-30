@@ -17,7 +17,7 @@
     width: min(100%, 1280px);
     justify-self: center;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 320px) auto;
     align-items: center;
     gap: 16px;
     padding: 0 24px;
@@ -43,6 +43,13 @@
 .daily-preset-editor__preset-name-field {
     justify-self: end;
     width: 100%;
+}
+
+.daily-preset-editor__header-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .daily-preset-editor__surface {

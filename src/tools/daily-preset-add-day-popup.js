@@ -17,6 +17,7 @@ export function showDailyPresetAddDayPopup(options = {}) {
     const {
         dayNumber = 1,
         fields = [],
+        gameOptions = [],
     } = options;
 
     return new Promise((resolve) => {
@@ -45,13 +46,41 @@ export function showDailyPresetAddDayPopup(options = {}) {
                 </div>
 
                 <div class="daily-preset-add-day-popup__fields">
-                    ${fields.map((field) => `
-                        <md-filled-text-field
-                            label="${escapeHtml(field.label)}"
-                            value="${escapeHtml(field.value)}"
-                            data-day-field="${escapeHtml(field.field)}"
-                        ></md-filled-text-field>
-                    `).join("")}
+                    ${fields.map((field) => {
+                        if (field.type === "stage") {
+                            return `
+                                <div class="daily-preset-add-day-popup__stage" data-stage-field="${escapeHtml(field.field)}">
+                                    <strong>${escapeHtml(field.label)}</strong>
+                                    <md-filled-select
+                                        label="เกม"
+                                        data-stage-game="${escapeHtml(field.field)}"
+                                    >
+                                        <md-select-option aria-label="blank"></md-select-option>
+                                        ${gameOptions.map((game) => `
+                                            <md-select-option value="${escapeHtml(game.gid)}">
+                                                <div slot="headline">${escapeHtml(game.name)} (${escapeHtml(game.gid)})</div>
+                                            </md-select-option>
+                                        `).join("")}
+                                    </md-filled-select>
+                                    <md-filled-text-field
+                                        label="Level"
+                                        type="number"
+                                        inputmode="numeric"
+                                        value="${escapeHtml(field.value?.level || "")}"
+                                        data-stage-level="${escapeHtml(field.field)}"
+                                    ></md-filled-text-field>
+                                </div>
+                            `;
+                        }
+
+                        return `
+                            <md-filled-text-field
+                                label="${escapeHtml(field.label)}"
+                                value="${escapeHtml(field.value)}"
+                                data-day-field="${escapeHtml(field.field)}"
+                            ></md-filled-text-field>
+                        `;
+                    }).join("")}
                 </div>
 
                 <div class="app-popup__actions">
@@ -69,6 +98,7 @@ export function showDailyPresetAddDayPopup(options = {}) {
         const cancelButton = overlay.querySelector('[data-popup-action="cancel"]');
         const backdrop = overlay.querySelector(".app-popup__backdrop");
         const textFields = [...overlay.querySelectorAll("[data-day-field]")];
+        const stageFields = [...overlay.querySelectorAll("[data-stage-field]")];
         const previousOverflow = document.body.style.overflow;
 
         let settled = false;
@@ -96,6 +126,15 @@ export function showDailyPresetAddDayPopup(options = {}) {
             textFields.forEach((field) => {
                 values[field.dataset.dayField] = field.value || "";
             });
+            stageFields.forEach((stageField) => {
+                const field = stageField.dataset.stageField;
+                const gameSelect = overlay.querySelector(`[data-stage-game="${CSS.escape(field)}"]`);
+                const levelField = overlay.querySelector(`[data-stage-level="${CSS.escape(field)}"]`);
+                values[field] = {
+                    gid: gameSelect?.value || "",
+                    level: levelField?.value || "",
+                };
+            });
             cleanup(values);
         });
 
@@ -111,7 +150,7 @@ export function showDailyPresetAddDayPopup(options = {}) {
         document.body.appendChild(overlay);
         document.addEventListener("keydown", onKeyDown);
         requestAnimationFrame(() => {
-            textFields[0]?.focus();
+            (textFields[0] || overlay.querySelector("[data-stage-game]"))?.focus();
         });
     });
 }

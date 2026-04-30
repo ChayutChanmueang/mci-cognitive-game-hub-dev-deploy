@@ -9,7 +9,13 @@ import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
 import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
-import { getGameLevelPresetLists } from "./tools/daily-preset-database.js";
+import {
+    deleteGameLevelPresetList,
+    getGameLevelPresetEditorData,
+    getGameLevelPresetLists,
+    getGameListOptions,
+    saveGameLevelPreset,
+} from "./tools/daily-preset-database.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
@@ -707,13 +713,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const presetId = String(preset?.id || "preset-1").trim();
                 navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(presetId)}`);
             },
-            onAddPreset: async () => {
-                await showPopup({
-                    title: "เพิ่ม Preset",
-                    message: "ฟอร์มเพิ่ม preset จะถูกเชื่อมต่อในขั้นตอนถัดไป",
-                    confirmText: "รับทราบ",
-                    icon: "add_circle",
-                });
+            onAddPreset: () => {
+                navigateTo(`${ROUTES.dailyPresetTool}/new`);
             },
         });
 
@@ -731,7 +732,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const showDailyPresetEditor = (presetId = "preset-1") => {
+    const showDailyPresetEditor = async (presetId = "new") => {
         if (!uiRoot || !gameContainer) {
             return;
         }
@@ -746,12 +747,129 @@ document.addEventListener("DOMContentLoaded", () => {
         gameContainer.classList.add("game-container--hidden");
         showUiRoot();
 
+        const isNewPreset = presetId === "new";
+        let preset = {
+            id: null,
+            name: "Preset",
+            isNew: true,
+        };
+        let presetEditorData = {
+            rows: null,
+            stageFields: null,
+            hasDailyGoal: false,
+        };
+
+        if (!isNewPreset) {
+            try {
+                presetEditorData = await getGameLevelPresetEditorData(presetId);
+                preset = presetEditorData.preset;
+            } catch (error) {
+                console.error("Failed to load daily preset:", error);
+                await showPopup({
+                    title: "โหลด Preset ไม่สำเร็จ",
+                    message: "ไม่สามารถโหลดข้อมูล preset นี้ได้",
+                    confirmText: "กลับ",
+                    icon: "error",
+                    tone: "error",
+                });
+                navigateTo(ROUTES.dailyPresetTool);
+                return;
+            }
+        }
+
+        let gameOptions = [];
+        try {
+            gameOptions = await getGameListOptions();
+        } catch (error) {
+            console.error("Failed to load game list options:", error);
+            await showPopup({
+                title: "โหลดรายชื่อเกมไม่สำเร็จ",
+                message: "ไม่สามารถโหลดรายชื่อเกมสำหรับ preset ได้",
+                confirmText: "รับทราบ",
+                icon: "error",
+                tone: "error",
+            });
+        }
+
         renderDailyPresetEditor(uiRoot, {
-            preset: {
-                id: presetId,
-                name: presetId === "preset-1" ? "Preset 1" : presetId,
-            },
+            preset,
+            gameOptions,
+            initialRows: presetEditorData.rows,
+            initialStageFields: presetEditorData.stageFields,
+            initialHasDailyGoal: presetEditorData.hasDailyGoal,
             onBack: () => navigateTo(ROUTES.dailyPresetTool),
+            onSavePreset: async (presetData) => {
+                const name = String(presetData.name || "").trim();
+                if (!name) {
+                    await showPopup({
+                        title: "กรุณากรอกชื่อ preset",
+                        message: "ต้องมีชื่อ preset ก่อนบันทึก",
+                        confirmText: "รับทราบ",
+                        icon: "edit",
+                    });
+                    return;
+                }
+
+                try {
+                    const savedPreset = await saveGameLevelPreset({
+                        id: presetData.isNew ? null : presetData.id,
+                        name,
+                        rowData: presetData.rowData,
+                        rows: presetData.rowData,
+                        stageFields: presetData.stageFields,
+                        hasDailyGoal: presetData.hasDailyGoal,
+                    });
+
+                    await showPopup({
+                        title: "บันทึก Preset แล้ว",
+                        message: "บันทึก preset ลง database เรียบร้อยแล้ว",
+                        confirmText: "ตกลง",
+                        icon: "check_circle",
+                    });
+                    navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(savedPreset.id)}`);
+                } catch (error) {
+                    console.error("Failed to save daily preset:", error);
+                    await showPopup({
+                        title: "บันทึกไม่สำเร็จ",
+                        message: "ไม่สามารถบันทึก preset ได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                }
+            },
+            onDeletePreset: async (presetData) => {
+                if (!presetData?.id) {
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ลบ Preset",
+                    message: `ต้องการลบ preset "${presetData.name}" ใช่หรือไม่`,
+                    confirmText: "ลบ",
+                    cancelText: "ยกเลิก",
+                    icon: "delete",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                try {
+                    await deleteGameLevelPresetList(presetData.id);
+                    navigateTo(ROUTES.dailyPresetTool);
+                } catch (error) {
+                    console.error("Failed to delete daily preset:", error);
+                    await showPopup({
+                        title: "ลบไม่สำเร็จ",
+                        message: "ไม่สามารถลบ preset ได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                }
+            },
         });
     };
 

@@ -10,6 +10,15 @@ const DAILY_GOAL_FIELD = "dailyGoal";
 const DAY_FIELD = "day";
 const ROW_ID_FIELD = "__presetRowId";
 
+function escapeHtml(value) {
+    return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 class DeletableHeader {
     init(params) {
         this.params = params;
@@ -100,15 +109,15 @@ class DeleteDayCell {
 const DEFAULT_ROWS = Object.freeze([
     {
         day: 1,
-        stage1: "Game 1 (ง่าย)",
-        stage2: "Game 2 (ยาก)",
-        stage3: "Game 3 (ง่าย)",
+        stage1: null,
+        stage2: null,
+        stage3: null,
     },
     {
         day: 2,
-        stage1: "Game 1 (กลาง)",
-        stage2: "Game 2 (ง่าย)",
-        stage3: "Game 3 (ง่าย)",
+        stage1: null,
+        stage2: null,
+        stage3: null,
     },
 ]);
 
@@ -116,13 +125,23 @@ function getDefaultStageFields() {
     return Array.from({ length: DEFAULT_STAGE_COUNT }, (_, index) => `stage${index + 1}`);
 }
 
-function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow) {
+function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow, gameNameByGid) {
     const stageColumns = stageFields.map((field, index) => ({
         field,
         headerName: `ด่านที่ ${index + 1}`,
-        editable: true,
+        editable: false,
         minWidth: 190,
         flex: 1,
+        valueFormatter: (params) => {
+            const gid = String(params.value?.gid || "").trim();
+            const level = params.value?.level;
+            if (!gid) {
+                return "";
+            }
+
+            const gameName = gameNameByGid.get(gid) || gid;
+            return level ? `${gameName} / Level ${level}` : gameName;
+        },
         headerComponent: DeletableHeader,
         headerComponentParams: {
             field,
@@ -216,15 +235,32 @@ export function renderDailyPresetEditor(root, options = {}) {
 
     const {
         preset = { name: "Preset 1" },
+        gameOptions = [],
+        initialRows = null,
+        initialStageFields = null,
+        initialHasDailyGoal = false,
         onBack = () => {},
+        onSavePreset = async () => {},
+        onDeletePreset = async () => {},
     } = options;
 
     let presetName = preset?.name || "Preset";
-    let stageFields = getDefaultStageFields();
-    let nextStageId = DEFAULT_STAGE_COUNT + 1;
+    const gameNameByGid = new Map(
+        (Array.isArray(gameOptions) ? gameOptions : [])
+            .map((game) => [String(game.gid), game.name]),
+    );
+    const canDeletePreset = Boolean(preset?.id && !preset?.isNew);
+    let stageFields = Array.isArray(initialStageFields) && initialStageFields.length
+        ? [...initialStageFields]
+        : getDefaultStageFields();
+    let nextStageId = stageFields.reduce((max, field) => {
+        const stageId = Number(String(field || "").replace("stage", ""));
+        return Number.isFinite(stageId) ? Math.max(max, stageId) : max;
+    }, DEFAULT_STAGE_COUNT) + 1;
     let nextRowId = 1;
-    let hasDailyGoal = false;
-    let rowData = DEFAULT_ROWS.map((row) => ({
+    let hasDailyGoal = Boolean(initialHasDailyGoal);
+    const sourceRows = Array.isArray(initialRows) && initialRows.length ? initialRows : DEFAULT_ROWS;
+    let rowData = sourceRows.map((row) => ({
         [ROW_ID_FIELD]: nextRowId++,
         ...row,
     }));
@@ -243,9 +279,23 @@ export function renderDailyPresetEditor(root, options = {}) {
                     <md-filled-text-field
                         class="daily-preset-editor__preset-name-field"
                         label="ชื่อ preset"
-                        value="${presetName}"
+                        value="${escapeHtml(presetName)}"
                         data-preset-name
                     ></md-filled-text-field>
+                    <div class="daily-preset-editor__header-actions">
+                        ${
+                            canDeletePreset
+                                ? `
+                                    <md-outlined-button type="button" data-delete-preset>
+                                        ลบ preset
+                                    </md-outlined-button>
+                                `
+                                : ""
+                        }
+                        <md-filled-button type="button" data-save-preset>
+                            บันทึก
+                        </md-filled-button>
+                    </div>
                 </header>
 
                 <main class="daily-preset-editor__surface">
@@ -343,7 +393,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         stageFields = displayedStageFields;
         gridApi.setGridOption("columnDefs", getGridColumns());
     };
-    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow);
+    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow, gameNameByGid);
     const getAddDayFields = () => {
         const dailyGoalFields = hasDailyGoal
             ? [
@@ -357,8 +407,9 @@ export function renderDailyPresetEditor(root, options = {}) {
 
         const stageInputFields = stageFields.map((field, index) => ({
             field,
+            type: "stage",
             label: `ด่านที่ ${index + 1}`,
-            value: "",
+            value: null,
         }));
 
         return [...dailyGoalFields, ...stageInputFields];
@@ -397,6 +448,19 @@ export function renderDailyPresetEditor(root, options = {}) {
     root.querySelector("[data-preset-name]")?.addEventListener("input", (event) => {
         presetName = event.target.value || "";
     });
+    root.querySelector("[data-save-preset]")?.addEventListener("click", async () => {
+        await onSavePreset({
+            id: preset?.id || null,
+            isNew: Boolean(preset?.isNew),
+            name: presetName,
+            rowData,
+            stageFields,
+            hasDailyGoal,
+        });
+    });
+    root.querySelector("[data-delete-preset]")?.addEventListener("click", async () => {
+        await onDeletePreset(preset);
+    });
     root.querySelector("[data-add-stage]")?.addEventListener("click", async () => {
         const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal });
 
@@ -414,6 +478,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         const values = await showDailyPresetAddDayPopup({
             dayNumber: nextDay,
             fields: getAddDayFields(),
+            gameOptions,
         });
 
         if (!values) {
