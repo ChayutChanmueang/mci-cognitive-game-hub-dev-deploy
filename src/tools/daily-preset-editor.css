@@ -70,6 +70,34 @@
     justify-content: center;
 }
 
+.daily-preset-editor__header-cell {
+    width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px;
+}
+
+.daily-preset-editor__header-label {
+    min-width: 0;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.daily-preset-editor__delete-column {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ag-header-cell:hover .daily-preset-editor__delete-column,
+.daily-preset-editor__delete-column:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .daily-preset-editor__grid .ag-cell {
     display: flex;
     align-items: center;
