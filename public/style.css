@@ -489,6 +489,44 @@ body.hub-mode {
     flex-wrap: wrap;
 }
 
+.app-popup__dialog--success {
+    width: min(100%, 400px);
+    min-height: min(680px, calc(100svh - 48px));
+    grid-template-rows: 1fr auto;
+    align-content: stretch;
+    text-align: center;
+}
+
+.checkin-popup-success-layout {
+    min-height: 0;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    padding: 0 0 28px;
+}
+
+.checkin-popup-success-copy {
+    justify-items: center;
+    text-align: center;
+    gap: 0;
+}
+
+.checkin-popup-success-copy .checkin-success-emoji {
+    margin: 58px 0 48px;
+}
+
+.checkin-popup-success-copy p {
+    max-width: 320px;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}
+
+.checkin-popup-success-actions {
+    align-self: end;
+    justify-content: center;
+    padding-bottom: 8px;
+}
+
 .hub-clean-screen {
     width: 100%;
     height: 100dvh;

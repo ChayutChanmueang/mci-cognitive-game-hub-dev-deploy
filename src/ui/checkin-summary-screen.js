@@ -99,16 +99,15 @@ export function showCheckInPopup(options = {}) {
                         aria-modal="true"
                         aria-labelledby="${titleId}"
                         aria-describedby="${messageId}"
-                        style="text-align: center; max-width: 400px;"
                     >
-                        <div class="app-popup__header" style="flex-direction: column; align-items: center; padding-top: 32px;">
-                            <div class="checkin-success-emoji" aria-hidden="true" style="font-size: 64px; margin-bottom: 16px;">😊</div>
-                            <div class="app-popup__copy" style="text-align: center; margin-left: 0;">
-                                <h2 id="${titleId}" style="color: var(--md-sys-color-primary); font-size: 28px;">เก่งมาก !!!</h2>
-                                <p id="${messageId}" style="margin-top: 8px;">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อยแล้ว</p>
+                        <div class="checkin-popup-success-layout">
+                            <div class="app-popup__copy checkin-popup-success-copy">
+                                <h2 id="${titleId}" style="color: var(--md-sys-color-primary); font-size: 39px;">เก่งมาก !!!</h2>
+                                <div class="checkin-success-emoji" aria-hidden="true" style="font-size: 83px;">😊</div>
+                                <p id="${messageId}" style="margin-top: 8px; font-size: 22px;">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อยแล้ว</p>
                             </div>
                         </div>
-                        <div class="app-popup__actions" style="justify-content: center; padding-bottom: 32px;">
+                        <div class="app-popup__actions checkin-popup-success-actions">
                             <md-filled-button type="button" data-checkin-next style="width: 100%;">
                                 ต่อไป
                             </md-filled-button>
