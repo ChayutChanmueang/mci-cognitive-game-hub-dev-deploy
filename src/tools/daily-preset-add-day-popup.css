@@ -1,0 +1,17 @@
+.daily-preset-add-day-popup__dialog {
+    width: min(100%, 560px);
+    max-height: min(760px, calc(100dvh - 48px));
+    grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.daily-preset-add-day-popup__fields {
+    min-height: 0;
+    display: grid;
+    gap: 12px;
+    overflow: auto;
+    padding-block: 2px;
+}
+
+.daily-preset-add-day-popup__fields md-filled-text-field {
+    width: 100%;
+}

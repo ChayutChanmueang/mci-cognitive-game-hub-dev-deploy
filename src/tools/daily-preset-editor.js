@@ -1,4 +1,5 @@
 import { createGrid, ModuleRegistry, AllCommunityModule, themeMaterial } from "ag-grid-community";
+import { showDailyPresetAddDayPopup } from "./daily-preset-add-day-popup.js";
 import { showDailyPresetAddFieldPopup } from "./daily-preset-add-field-popup.js";
 import "./daily-preset-editor.css";
 
@@ -7,6 +8,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 const DEFAULT_STAGE_COUNT = 3;
 const DAILY_GOAL_FIELD = "dailyGoal";
 const DAY_FIELD = "day";
+const ROW_ID_FIELD = "__presetRowId";
 
 class DeletableHeader {
     init(params) {
@@ -54,6 +56,47 @@ class DeletableHeader {
     }
 }
 
+class DeleteDayCell {
+    init(params) {
+        this.params = params;
+        this.eGui = document.createElement("div");
+        this.eGui.className = "daily-preset-editor__delete-day-cell";
+
+        this.deleteButton = document.createElement("md-icon-button");
+        this.deleteButton.type = "button";
+        this.deleteButton.className = "daily-preset-editor__delete-day";
+        this.deleteButton.setAttribute("aria-label", `ลบวันที่ ${params.data?.[DAY_FIELD] || ""}`);
+
+        const icon = document.createElement("span");
+        icon.className = "material-symbols-rounded";
+        icon.textContent = "delete";
+        this.deleteButton.appendChild(icon);
+
+        this.onDelete = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.params.onRemoveRow?.(this.params.data?.[ROW_ID_FIELD]);
+        };
+
+        this.deleteButton.addEventListener("click", this.onDelete);
+        this.eGui.append(this.deleteButton);
+    }
+
+    getGui() {
+        return this.eGui;
+    }
+
+    refresh(params) {
+        this.params = params;
+        this.deleteButton.setAttribute("aria-label", `ลบวันที่ ${params.data?.[DAY_FIELD] || ""}`);
+        return true;
+    }
+
+    destroy() {
+        this.deleteButton?.removeEventListener("click", this.onDelete);
+    }
+}
+
 const DEFAULT_ROWS = Object.freeze([
     {
         day: 1,
@@ -73,7 +116,7 @@ function getDefaultStageFields() {
     return Array.from({ length: DEFAULT_STAGE_COUNT }, (_, index) => `stage${index + 1}`);
 }
 
-function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn) {
+function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow) {
     const stageColumns = stageFields.map((field, index) => ({
         field,
         headerName: `ด่านที่ ${index + 1}`,
@@ -119,6 +162,22 @@ function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn) {
             lockPosition: "left",
             suppressMovable: true,
         },
+        {
+            colId: "deleteDay",
+            headerName: "",
+            width: 64,
+            minWidth: 56,
+            maxWidth: 72,
+            editable: false,
+            resizable: false,
+            sortable: false,
+            suppressMovable: true,
+            lockPosition: "left",
+            cellRenderer: DeleteDayCell,
+            cellRendererParams: {
+                onRemoveRow,
+            },
+        },
         ...dailyGoalColumn,
         ...stageColumns,
     ];
@@ -141,6 +200,15 @@ function getRowsWithoutField(rowData, field) {
     });
 }
 
+function getNextDayNumber(rowData) {
+    const maxDay = rowData.reduce((max, row) => {
+        const day = Number(row[DAY_FIELD]);
+        return Number.isFinite(day) ? Math.max(max, day) : max;
+    }, 0);
+
+    return maxDay + 1;
+}
+
 export function renderDailyPresetEditor(root, options = {}) {
     if (!root) {
         return;
@@ -153,8 +221,12 @@ export function renderDailyPresetEditor(root, options = {}) {
 
     let stageFields = getDefaultStageFields();
     let nextStageId = DEFAULT_STAGE_COUNT + 1;
+    let nextRowId = 1;
     let hasDailyGoal = false;
-    let rowData = DEFAULT_ROWS.map((row) => ({ ...row }));
+    let rowData = DEFAULT_ROWS.map((row) => ({
+        [ROW_ID_FIELD]: nextRowId++,
+        ...row,
+    }));
     let gridApi = null;
 
     root.innerHTML = `
@@ -228,6 +300,19 @@ export function renderDailyPresetEditor(root, options = {}) {
         gridApi.setGridOption("columnDefs", getGridColumns());
         gridApi.setGridOption("rowData", rowData);
     };
+    const removeRow = (rowId) => {
+        if (!rowId) {
+            return;
+        }
+
+        rowData = rowData
+            .filter((row) => row[ROW_ID_FIELD] !== rowId)
+            .map((row, index) => ({
+                ...row,
+                [DAY_FIELD]: index + 1,
+            }));
+        gridApi.setGridOption("rowData", rowData);
+    };
     const syncStageOrderFromGrid = () => {
         const displayedColumns = gridApi?.getAllDisplayedColumns?.();
         if (!displayedColumns?.length) {
@@ -250,7 +335,26 @@ export function renderDailyPresetEditor(root, options = {}) {
         stageFields = displayedStageFields;
         gridApi.setGridOption("columnDefs", getGridColumns());
     };
-    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn);
+    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow);
+    const getAddDayFields = () => {
+        const dailyGoalFields = hasDailyGoal
+            ? [
+                {
+                    field: DAILY_GOAL_FIELD,
+                    label: "เป้าหมายประจำวัน",
+                    value: "",
+                },
+            ]
+            : [];
+
+        const stageInputFields = stageFields.map((field, index) => ({
+            field,
+            label: `ด่านที่ ${index + 1}`,
+            value: "",
+        }));
+
+        return [...dailyGoalFields, ...stageInputFields];
+    };
 
     gridApi = createGrid(gridEl, {
         theme: themeMaterial,
@@ -294,14 +398,26 @@ export function renderDailyPresetEditor(root, options = {}) {
             addDailyGoal();
         }
     });
-    root.querySelector("[data-add-day]")?.addEventListener("click", () => {
-        const nextDay = rowData.length + 1;
-        const nextRow = { day: nextDay };
+    root.querySelector("[data-add-day]")?.addEventListener("click", async () => {
+        const nextDay = getNextDayNumber(rowData);
+        const values = await showDailyPresetAddDayPopup({
+            dayNumber: nextDay,
+            fields: getAddDayFields(),
+        });
+
+        if (!values) {
+            return;
+        }
+
+        const nextRow = {
+            [ROW_ID_FIELD]: nextRowId++,
+            [DAY_FIELD]: nextDay,
+        };
         if (hasDailyGoal) {
-            nextRow[DAILY_GOAL_FIELD] = "";
+            nextRow[DAILY_GOAL_FIELD] = values[DAILY_GOAL_FIELD] || "";
         }
         stageFields.forEach((field) => {
-            nextRow[field] = "";
+            nextRow[field] = values[field] || "";
         });
         rowData = [...rowData, nextRow];
         gridApi.setGridOption("rowData", rowData);

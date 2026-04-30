@@ -98,6 +98,23 @@
     pointer-events: auto;
 }
 
+.daily-preset-editor__delete-day-cell {
+    width: 100%;
+    display: grid;
+    place-items: center;
+}
+
+.daily-preset-editor__delete-day {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ag-row:hover .daily-preset-editor__delete-day,
+.daily-preset-editor__delete-day:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .daily-preset-editor__grid .ag-cell {
     display: flex;
     align-items: center;
