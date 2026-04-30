@@ -19,10 +19,12 @@ export default class UITestScene extends Phaser.Scene {
       "rexUI",
     );
 
+    //Load Images
+
     this.load.image("button-idle", "assets/button_rectangle_depth_flat.png");
     this.load.image("button-press", "assets/button_rectangle_flat.png");
     //BG
-    this.load.image("background", "assets/zoo-feeder/etc/BG.svg");
+    this.load.image("background", "assets/zoo-feeder/etc/BG.png");
     //Food Sprite
     this.load.image("apple_sprite", "assets/zoo-feeder/food/Apple.png");
     this.load.image("battery_sprite", "assets/zoo-feeder/food/Battery.png");
@@ -40,6 +42,17 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image("fox_sprite", "assets/zoo-feeder/animal/B_Fox.png");
     this.load.image("lion_sprite", "assets/zoo-feeder/animal/B_Li.png");
     this.load.image("panda_sprite", "assets/zoo-feeder/animal/B_Pan.png");
+    //Animal Icon
+    this.load.image("bear_icon", "assets/zoo-feeder/animal/icons/H_Bear.png");
+    this.load.image("cow_icon", "assets/zoo-feeder/animal/icons/H_Cow.png");
+    this.load.image("elephant_icon", "assets/zoo-feeder/animal/icons/H_ele.png");
+    this.load.image("fox_icon", "assets/zoo-feeder/animal/icons/H_Fox.png");
+    this.load.image("lion_icon", "assets/zoo-feeder/animal/icons/H_Li.png");
+    this.load.image("panda_icon", "assets/zoo-feeder/animal/icons/H_Pan.png");
+    //Emote
+    this.load.image("popup_emote", "assets/zoo-feeder/etc/Popup.png");
+    this.load.image("emote_sad", "assets/zoo-feeder/etc/Emoji_None.png");
+    this.load.image("emote_happy", "assets/zoo-feeder/etc/Emoji_Smile.png");
   }
 
   create(data) {
@@ -48,6 +61,8 @@ export default class UITestScene extends Phaser.Scene {
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
     //this.animal = new Animal(this,this.scale.width/2,1200);
+    this.updatable = [];
+
     this.background = this.add.sprite(0, 0, "background");
     this.background.setScale(27);
     this.background.setDepth(-10);
@@ -104,6 +119,9 @@ export default class UITestScene extends Phaser.Scene {
   update(time, delta) {
     for (const _conveyer of this.conveyers) {
       _conveyer.update(time, delta);
+    }
+    for(const _updateObj of this.updatable){
+      _updateObj.update(time,delta);
     }
   }
   onGetEatableFood() {

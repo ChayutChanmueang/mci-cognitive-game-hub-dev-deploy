@@ -51,7 +51,7 @@ export default class Fruit extends Entity {
                     loop: false
                 })
                 if(!this.converyerBelt.onRemoveFood(this.currentFoodType)){
-                    new TextPopup(this.scene,this.x,this.y);
+                    new TextPopup(this.scene,this.x,this.y,"ทิ้งทำไม","#ff0000");
                 }
             }
         })

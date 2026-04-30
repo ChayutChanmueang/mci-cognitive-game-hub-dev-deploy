@@ -3,6 +3,8 @@ import EmojiRenderer from "../../components/scripts/emoji-renderer";
 import { AnimalSetting } from "../../constants";
 import SpriteRenderer from "../../components/scripts/sprite-renderer";
 import ShadowComponent from "../../components/scripts/shadow";
+import TextPopup from "./popup-text";
+import EmotePopup from "./emote-popup";
 
 export default class Animal extends Entity {
   constructor(scene, x, y, sizeScale = 1) {
@@ -20,10 +22,10 @@ export default class Animal extends Entity {
       this.Sprite = this.addComponent(SpriteRenderer, {
         textureKey: this.currentAnimal.Sprite,
         sizeScale: sizeScale,
-        offsetY: 30,
+        offsetY: 50,
       });
 
-      this.setDisplaySize(288, 336);
+      this.setDisplaySize(230, 269);
 
       this.addComponent(ShadowComponent, {
         radius: 125,
@@ -36,7 +38,7 @@ export default class Animal extends Entity {
         sizeScale: sizeScale,
       });
 
-      this.setDisplaySize(288, 336);
+      this.setDisplaySize(230, 269);
 
       this.addComponent(ShadowComponent, {
         radius: 125,
@@ -46,13 +48,18 @@ export default class Animal extends Entity {
     }
 
     this.setCollideWorldBounds(true);
+
+    this.emotePopup = new EmotePopup(scene,x,y - 150);
   }
   onEat(incomingFoodType) {
     if (this.currentAnimal.AcceptableFoodType == incomingFoodType) {
       //console.log("This is Eatable");
       this.scene.onGetEatableFood();
+      this.emotePopup.setHappy();
     } else {
       //console.log("I can't eat this");
+      new TextPopup(this.scene,this.x,this.y,"กินไม่ได้นะ","#ff0000");
+      this.emotePopup.setSad();
       this.scene.onGetUneatableFood();
     }
   }

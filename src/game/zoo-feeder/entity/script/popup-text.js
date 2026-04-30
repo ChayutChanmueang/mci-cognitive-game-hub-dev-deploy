@@ -1,30 +1,42 @@
 import Entity from "../entity";
 import { createThaiText } from "../../../../util/thai-text.js";
 export default class TextPopup extends Entity {
-  constructor(scene, x, y) {
+  constructor(scene, x, y, text,color = "#ffffff") {
     super(scene, x, y);
+    this.pushYSpeed = 5;
+    this.body.enable = false;
+    scene.updatable.push(this);
+    this.container = scene.add.container(x,y);
     this.text = createThaiText(
       scene,
-      x,
-      y,
-      "ทิ้งทำไม",
+      0,
+      0,
+      text,
       {
         fontSize: "48px",
         fontStyle: "bold",
-        color: "#ff0000",
+        color: color,
+        stroke: '#fff',
+        strokeThickness: 10,
       },
       { origin: 0.5, wrapWidth: 750 },
     );
-    this.setVelocityY(-25);
+    //this.text.addStrokeColor('#ffffff', 13);
     this.killTimer = this.scene.time.addEvent({
-      delay: 1000, //ms
+      delay: 500, //ms
       callback: this.destroy,
       callbackScope: this,
       loop: false,
     });
+    this.container.add([this.text]);
   }
   update(time, delta){
-    this.text.x = this.x;
-    this.text.y = this.y;
+    this.y -= this.pushYSpeed;
+    this.container.x = this.x;
+    this.container.y = this.y;
+  }
+  destroy(fromScene){
+    this.text.destroy();
+    super.destroy(fromScene);
   }
 }
