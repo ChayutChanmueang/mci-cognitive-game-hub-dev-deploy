@@ -11,6 +11,7 @@
     display: grid;
     grid-template-rows: auto 1fr;
     padding: 34px 0 0;
+    position: relative;
 }
 
 .daily-preset-editor__header {
@@ -157,4 +158,13 @@
     min-height: 86px;
     display: grid;
     place-items: center;
+}
+
+.daily-preset-editor__file-actions {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 10;
+    display: grid;
+    gap: 12px;
 }

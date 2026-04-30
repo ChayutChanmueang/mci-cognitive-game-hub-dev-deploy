@@ -221,6 +221,55 @@ function getStageNumber(stageFields, field) {
     return index >= 0 ? index + 1 : null;
 }
 
+function getCsvFilename(presetName) {
+    const normalizedName = String(presetName || "daily-preset")
+        .trim()
+        .replace(/[^a-zA-Z0-9ก-๙_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+    return `${normalizedName || "daily-preset"}.csv`;
+}
+
+function downloadCsv(filename, csvContent) {
+    const blob = new Blob([`\uFEFF${csvContent}`], {
+        type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
+function escapeCsvCell(value) {
+    if (value == null) {
+        return "";
+    }
+
+    const text = String(value);
+    if (!/[",\r\n]/.test(text)) {
+        return text;
+    }
+
+    return `"${text.replaceAll('"', '""')}"`;
+}
+
+function stringifyCsv(records, columns) {
+    const lines = [
+        columns.map(escapeCsvCell).join(","),
+        ...records.map((record) => columns
+            .map((column) => escapeCsvCell(record[column]))
+            .join(",")),
+    ];
+
+    return lines.join("\r\n");
+}
+
 export function renderDailyPresetEditor(root, options = {}) {
     if (!root) {
         return;
@@ -310,6 +359,15 @@ export function renderDailyPresetEditor(root, options = {}) {
                         </div>
                     </div>
                 </main>
+
+                <div class="daily-preset-editor__file-actions" aria-label="เครื่องมือนำเข้าและส่งออก">
+                    <md-fab size="small" aria-label="ส่งออก CSV" title="ส่งออก CSV" data-export-csv>
+                        <span class="material-symbols-rounded" slot="icon">file_download</span>
+                    </md-fab>
+                    <md-fab size="small" aria-label="นำเข้า CSV" title="นำเข้า CSV (ยังไม่เปิดใช้งาน)" data-import-csv disabled>
+                        <span class="material-symbols-rounded" slot="icon">file_upload</span>
+                    </md-fab>
+                </div>
             </div>
         </section>
     `;
@@ -387,6 +445,71 @@ export function renderDailyPresetEditor(root, options = {}) {
         gridApi.setGridOption("columnDefs", getGridColumns());
     };
     const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow, gameNameByGid);
+    const getStageCsvValue = (value) => {
+        const gid = String(value?.gid || "").trim();
+        const level = value?.level ?? "";
+        if (!gid) {
+            return "";
+        }
+
+        return level ? `${gid}(${level})` : gid;
+    };
+    const getCsvRecords = () => {
+        return [...rowData]
+            .sort((firstRow, secondRow) => Number(firstRow[DAY_FIELD]) - Number(secondRow[DAY_FIELD]))
+            .map((row) => {
+                const record = {
+                    "วันที่": row[DAY_FIELD],
+                };
+
+                if (hasDailyGoal) {
+                    record["เป้าหมายประจำวัน"] = row[DAILY_GOAL_FIELD] || "";
+                }
+
+                stageFields.forEach((field, index) => {
+                    record[`ด่านที่ ${index + 1}`] = getStageCsvValue(row[field]);
+                });
+
+                return record;
+            });
+    };
+    const getCsvGameReferenceRecords = () => {
+        const usedGids = new Set();
+        rowData.forEach((row) => {
+            stageFields.forEach((field) => {
+                const gid = String(row[field]?.gid || "").trim();
+                if (gid) {
+                    usedGids.add(gid);
+                }
+            });
+        });
+
+        return [...usedGids]
+            .sort((firstGid, secondGid) => firstGid.localeCompare(secondGid))
+            .map((gid) => ({
+                gid,
+                game_name: gameNameByGid.get(gid) || "",
+            }));
+    };
+    const exportCsv = () => {
+        const columns = [
+            "วันที่",
+            ...(hasDailyGoal ? ["เป้าหมายประจำวัน"] : []),
+            ...stageFields.map((_, index) => `ด่านที่ ${index + 1}`),
+        ];
+        const gameReferenceRecords = getCsvGameReferenceRecords();
+        const csvSections = [
+            stringifyCsv(getCsvRecords(), columns),
+        ];
+
+        if (gameReferenceRecords.length) {
+            csvSections.push(stringifyCsv(gameReferenceRecords, ["gid", "game_name"]));
+        }
+
+        const csvContent = csvSections.join("\r\n\r\n");
+
+        downloadCsv(getCsvFilename(presetName), csvContent);
+    };
     const updateStageCell = (rowId, field, value) => {
         rowData = rowData.map((row) => {
             if (row[ROW_ID_FIELD] !== rowId) {
@@ -495,6 +618,9 @@ export function renderDailyPresetEditor(root, options = {}) {
     });
     root.querySelector("[data-delete-preset]")?.addEventListener("click", async () => {
         await onDeletePreset(preset);
+    });
+    root.querySelector("[data-export-csv]")?.addEventListener("click", () => {
+        exportCsv();
     });
     root.querySelector("[data-add-stage]")?.addEventListener("click", async () => {
         const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal });
