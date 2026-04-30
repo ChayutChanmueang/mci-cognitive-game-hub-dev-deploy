@@ -624,6 +624,7 @@ class HubMapScreen extends HubElement {
                                 ${menuContent}
                             </md-menu>
                         </span>
+                        <md-filled-button data-test-daily-data-tools type="button">เครื่องมือจัดการข้อมูลรายวันเกม</md-filled-button>
                         <md-filled-button data-test-logout type="button">ออกจากระบบ</md-filled-button>
                     </div>
                 </div>
@@ -695,6 +696,14 @@ class HubMapScreen extends HubElement {
             }
         });
 
+        this.on(this.element?.querySelector("[data-test-daily-data-tools]"), "click", async () => {
+            try {
+                await this.options.onTestDailyDataTools?.();
+            } catch (error) {
+                console.error("Unable to open daily game data test tools:", error);
+            }
+        });
+
         this.on(this.element?.querySelector("[data-test-logout]"), "click", () => {
             this.options.onTestLogout?.();
         });
@@ -721,6 +730,7 @@ export async function renderGameHubScreen(root, options = {}) {
         onTestQuickLaunchGame = async () => {},
         onTestClearTodayHistory = async () => {},
         onTestCompleteAll = async () => {},
+        onTestDailyDataTools = async () => {},
         onTestLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
@@ -793,6 +803,7 @@ export async function renderGameHubScreen(root, options = {}) {
                 });
                 await loadPlayedHistory(true);
             },
+            onTestDailyDataTools,
             onNodeAction: async (selectedNode) => {
                 try {
                     if (selectedNode?.type === "game") {

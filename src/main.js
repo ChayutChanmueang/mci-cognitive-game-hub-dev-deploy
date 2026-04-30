@@ -607,6 +607,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon: "check_circle",
                 });
             },
+            // Test-only placeholder: daily game data management tools will be wired here later.
+            onTestDailyDataTools: async () => {},
             onRestNode: async () => {
                 const restGame = await db.getGameByGid("REST001");
 
