@@ -11,7 +11,7 @@ function normalizePresetListRow(row) {
         createdAt: row.created_at,
         name: row.name,
         description: row.description || "",
-        dayCount: 0,
+        dayCount: Number(row.dayCount || row.day_count || 0),
     };
 }
 
@@ -48,7 +48,31 @@ export async function getGameLevelPresetLists() {
         throw error;
     }
 
-    return (data || []).map(normalizePresetListRow);
+    const presets = (data || []).map(normalizePresetListRow);
+    if (!presets.length) {
+        return presets;
+    }
+
+    const presetIds = presets.map((preset) => preset.id);
+    const { data: dailyRows, error: dailyError } = await client
+        .from(GAME_DAILY_PRESET_DATA_TABLE)
+        .select("gpid")
+        .in("gpid", presetIds);
+
+    if (dailyError) {
+        throw dailyError;
+    }
+
+    const dayCounts = new Map();
+    (dailyRows || []).forEach((row) => {
+        const gpid = Number(row.gpid);
+        dayCounts.set(gpid, (dayCounts.get(gpid) || 0) + 1);
+    });
+
+    return presets.map((preset) => ({
+        ...preset,
+        dayCount: dayCounts.get(Number(preset.id)) || 0,
+    }));
 }
 
 export async function getGameLevelPresetList(id) {
@@ -109,8 +133,9 @@ export async function getGameLevelPresetEditorData(id) {
 
     const { data: levelRows, error: levelError } = await client
         .from(GAME_LEVEL_PRESET_DATA_TABLE)
-        .select("gdid, gid, stage, level")
+        .select("gdid, gid, stage, level, day")
         .eq("gpid", parsedPresetId)
+        .order("day", { ascending: true })
         .order("stage", { ascending: true });
 
     if (levelError) {
@@ -134,8 +159,10 @@ export async function getGameLevelPresetEditorData(id) {
     const hasDailyGoal = (dailyRows || []).some((row) => String(row.goal || "").trim());
 
     const rows = (dailyRows || []).map((dailyRow, index) => {
+        const dailyLevels = levelsByDailyId.get(Number(dailyRow.id)) || [];
+        const storedDay = dailyLevels.find((levelRow) => Number.isFinite(Number(levelRow.day)))?.day;
         const row = {
-            day: index + 1,
+            day: Number.isFinite(Number(storedDay)) ? Number(storedDay) : index + 1,
         };
 
         if (hasDailyGoal) {
@@ -146,7 +173,7 @@ export async function getGameLevelPresetEditorData(id) {
             row[field] = null;
         });
 
-        (levelsByDailyId.get(Number(dailyRow.id)) || []).forEach((levelRow) => {
+        dailyLevels.forEach((levelRow) => {
             const stage = Number(levelRow.stage);
             if (!Number.isFinite(stage) || stage < 1) {
                 return;
@@ -159,7 +186,7 @@ export async function getGameLevelPresetEditorData(id) {
         });
 
         return row;
-    });
+    }).sort((firstRow, secondRow) => Number(firstRow.day) - Number(secondRow.day));
 
     return {
         preset,
@@ -341,6 +368,7 @@ export async function saveGameLevelPreset({
                 gid,
                 stage: stageIndex + 1,
                 level,
+                day: Number(row.day) || rowIndex + 1,
             });
         });
     });

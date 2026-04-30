@@ -1,5 +1,6 @@
 import { createGrid, ModuleRegistry, AllCommunityModule, themeMaterial } from "ag-grid-community";
 import { showDailyPresetAddDayPopup } from "./daily-preset-add-day-popup.js";
+import { showDailyPresetEditStagePopup } from "./daily-preset-edit-stage-popup.js";
 import { showDailyPresetAddFieldPopup } from "./daily-preset-add-field-popup.js";
 import "./daily-preset-editor.css";
 
@@ -106,20 +107,7 @@ class DeleteDayCell {
     }
 }
 
-const DEFAULT_ROWS = Object.freeze([
-    {
-        day: 1,
-        stage1: null,
-        stage2: null,
-        stage3: null,
-    },
-    {
-        day: 2,
-        stage1: null,
-        stage2: null,
-        stage3: null,
-    },
-]);
+const DEFAULT_ROWS = Object.freeze([]);
 
 function getDefaultStageFields() {
     return Array.from({ length: DEFAULT_STAGE_COUNT }, (_, index) => `stage${index + 1}`);
@@ -228,6 +216,11 @@ function getNextDayNumber(rowData) {
     return maxDay + 1;
 }
 
+function getStageNumber(stageFields, field) {
+    const index = stageFields.indexOf(field);
+    return index >= 0 ? index + 1 : null;
+}
+
 export function renderDailyPresetEditor(root, options = {}) {
     if (!root) {
         return;
@@ -259,7 +252,7 @@ export function renderDailyPresetEditor(root, options = {}) {
     }, DEFAULT_STAGE_COUNT) + 1;
     let nextRowId = 1;
     let hasDailyGoal = Boolean(initialHasDailyGoal);
-    const sourceRows = Array.isArray(initialRows) && initialRows.length ? initialRows : DEFAULT_ROWS;
+    const sourceRows = Array.isArray(initialRows) ? initialRows : DEFAULT_ROWS;
     let rowData = sourceRows.map((row) => ({
         [ROW_ID_FIELD]: nextRowId++,
         ...row,
@@ -394,6 +387,24 @@ export function renderDailyPresetEditor(root, options = {}) {
         gridApi.setGridOption("columnDefs", getGridColumns());
     };
     const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow, gameNameByGid);
+    const updateStageCell = (rowId, field, value) => {
+        rowData = rowData.map((row) => {
+            if (row[ROW_ID_FIELD] !== rowId) {
+                return row;
+            }
+
+            return {
+                ...row,
+                [field]: value?.gid
+                    ? {
+                        gid: value.gid,
+                        level: value.level,
+                    }
+                    : null,
+            };
+        });
+        gridApi.setGridOption("rowData", rowData);
+    };
     const getAddDayFields = () => {
         const dailyGoalFields = hasDailyGoal
             ? [
@@ -433,6 +444,30 @@ export function renderDailyPresetEditor(root, options = {}) {
             if (event.finished) {
                 syncStageOrderFromGrid();
             }
+        },
+        onCellClicked: async (event) => {
+            const field = event.column?.getColId?.();
+            if (!field || !stageFields.includes(field) || !event.data) {
+                return;
+            }
+
+            const stageNumber = getStageNumber(stageFields, field);
+            if (!stageNumber) {
+                return;
+            }
+
+            const values = await showDailyPresetEditStagePopup({
+                dayNumber: event.data[DAY_FIELD],
+                stageNumber,
+                value: event.data[field],
+                gameOptions,
+            });
+
+            if (!values) {
+                return;
+            }
+
+            updateStageCell(event.data[ROW_ID_FIELD], field, values);
         },
         onCellValueChanged: () => {
             rowData = [];
