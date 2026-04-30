@@ -522,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon: "check_circle",
                 });
             },
-            // Test-only shortcut: writes fake completed history rows for every hub node.
+            // Test-only shortcut: writes fake completed history rows for games and rest only.
             onTestCompleteAll: async ({ nodes = [], playedFrom = null, playedTo = null } = {}) => {
                 if (!patientCode) {
                     await showPopup({
@@ -535,7 +535,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const playableNodes = (Array.isArray(nodes) ? nodes : [])
-                    .filter((node) => ["game", "rest", "checkin"].includes(node?.type));
+                    .filter((node) => ["game", "rest"].includes(node?.type));
 
                 if (!playableNodes.length) {
                     await showPopup({
@@ -549,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const hasConfirmed = await showPopup({
                     title: "บันทึกว่าเล่นครบทั้งหมด",
-                    message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพักและเช็คชื่อ",
+                    message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพัก โดยไม่บันทึกเช็คชื่อ",
                     confirmText: "บันทึกข้อมูลทดสอบ",
                     cancelText: "ยกเลิก",
                     icon: "checklist",
@@ -587,12 +587,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     await db.addUserGameHistory({
                         hn: patientCode,
-                        gid: node.type === "checkin" ? null : node.gid,
+                        gid: node.gid,
                         startAt: startAt.toISOString(),
                         endAt: endAt ? endAt.toISOString() : null,
                         userGameDataId: null,
                         rest: node.type === "rest",
-                        checkIn: node.type === "checkin",
+                        checkIn: false,
                         reuseExisting: false,
                     });
                 }
