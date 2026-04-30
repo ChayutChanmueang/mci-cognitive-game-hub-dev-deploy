@@ -9,6 +9,7 @@ import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
 import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
+import { getGameLevelPresetLists } from "./tools/daily-preset-database.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
@@ -684,7 +685,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    const showDailyPresetTool = () => {
+    const showDailyPresetTool = async () => {
         if (!uiRoot || !gameContainer) {
             return;
         }
@@ -699,7 +700,8 @@ document.addEventListener("DOMContentLoaded", () => {
         gameContainer.classList.add("game-container--hidden");
         showUiRoot();
 
-        renderDailyPresetTool(uiRoot, {
+        const renderPresetToolView = (presetOptions = {}) => renderDailyPresetTool(uiRoot, {
+            ...presetOptions,
             onBack: () => navigateTo(ROUTES.hub),
             onOpenPreset: (preset) => {
                 const presetId = String(preset?.id || "preset-1").trim();
@@ -714,6 +716,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             },
         });
+
+        renderPresetToolView({ presets: [], isLoading: true });
+
+        try {
+            const presets = await getGameLevelPresetLists();
+            renderPresetToolView({ presets });
+        } catch (error) {
+            console.error("Failed to load daily preset list:", error);
+            renderPresetToolView({
+                presets: [],
+                errorMessage: "ไม่สามารถโหลด preset ได้",
+            });
+        }
     };
 
     const showDailyPresetEditor = (presetId = "preset-1") => {

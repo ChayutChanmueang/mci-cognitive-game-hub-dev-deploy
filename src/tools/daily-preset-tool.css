@@ -43,6 +43,16 @@
     gap: 28px;
 }
 
+.daily-preset-tool__status {
+    margin: 0;
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.daily-preset-tool__status--error {
+    color: var(--md-sys-color-error);
+}
+
 .daily-preset-card {
     width: 100%;
     min-height: 88px;
