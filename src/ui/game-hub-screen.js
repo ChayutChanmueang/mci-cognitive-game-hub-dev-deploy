@@ -1,4 +1,6 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
+import { showCheckInPopup } from "./checkin-summary-screen.js";
+import db from "../core/database.js";
 
 const DEFAULT_START_GAME_GID = "ATTN001";
 const REST_GAME_GID = "REST001";
@@ -590,14 +592,15 @@ class HubMapScreen extends HubElement {
                     <div data-topbar></div>
                     <div data-stage></div>
                     <div class="hub-clean-logout">
-                        <md-filled-button data-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
+                        <md-filled-button data-test-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
+                        <md-filled-button data-test-complete-all type="button">เล่นเกมครบทั้งหมด</md-filled-button>
                         <span class="hub-clean-quick-menu">
-                            <md-filled-button data-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
-                            <md-menu data-quick-game-menu positioning="popover">
+                            <md-filled-button data-test-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
+                            <md-menu data-test-quick-game-menu positioning="popover">
                                 ${menuContent}
                             </md-menu>
                         </span>
-                        <md-filled-button data-logout type="button">ออกจากระบบ</md-filled-button>
+                        <md-filled-button data-test-logout type="button">ออกจากระบบ</md-filled-button>
                     </div>
                 </div>
             </section>
@@ -626,12 +629,13 @@ class HubMapScreen extends HubElement {
                 .map((game) => [String(game?.gid || "").trim(), game])
                 .filter(([gid]) => Boolean(gid)),
         );
-        const quickGameTrigger = this.element?.querySelector("[data-quick-game-trigger]");
-        const quickGameMenu = this.element?.querySelector("[data-quick-game-menu]");
-        if (quickGameMenu && quickGameTrigger) {
-            quickGameMenu.anchorElement = quickGameTrigger;
-            this.on(quickGameTrigger, "click", () => {
-                quickGameMenu.open = !quickGameMenu.open;
+        // Test-only hub controls for QA shortcuts; the real game flow uses onNodeAction.
+        const testQuickGameTrigger = this.element?.querySelector("[data-test-quick-game-trigger]");
+        const testQuickGameMenu = this.element?.querySelector("[data-test-quick-game-menu]");
+        if (testQuickGameMenu && testQuickGameTrigger) {
+            testQuickGameMenu.anchorElement = testQuickGameTrigger;
+            this.on(testQuickGameTrigger, "click", () => {
+                testQuickGameMenu.open = !testQuickGameMenu.open;
             });
         }
 
@@ -644,23 +648,31 @@ class HubMapScreen extends HubElement {
                     return;
                 }
 
-                await this.options.onQuickGameSelect?.(selectedGame);
-                if (quickGameMenu) {
-                    quickGameMenu.open = false;
+                await this.options.onTestQuickGameSelect?.(selectedGame);
+                if (testQuickGameMenu) {
+                    testQuickGameMenu.open = false;
                 }
             });
         });
 
-        this.on(this.element?.querySelector("[data-clear-history]"), "click", async () => {
+        this.on(this.element?.querySelector("[data-test-clear-history]"), "click", async () => {
             try {
-                await this.options.onClearHistory?.();
+                await this.options.onTestClearHistory?.();
             } catch (error) {
-                console.error("Unable to clear today history:", error);
+                console.error("Unable to clear test history:", error);
             }
         });
 
-        this.on(this.element?.querySelector("[data-logout]"), "click", () => {
-            this.options.onLogout?.();
+        this.on(this.element?.querySelector("[data-test-complete-all]"), "click", async () => {
+            try {
+                await this.options.onTestCompleteAll?.();
+            } catch (error) {
+                console.error("Unable to write complete-all test history:", error);
+            }
+        });
+
+        this.on(this.element?.querySelector("[data-test-logout]"), "click", () => {
+            this.options.onTestLogout?.();
         });
     }
 }
@@ -682,9 +694,10 @@ export async function renderGameHubScreen(root, options = {}) {
         onLaunchGame = () => {},
         onRestNode = async () => {},
         onCheckInNode = async () => {},
-        onQuickLaunchGame = async () => {},
-        onClearTodayHistory = async () => {},
-        onLogout = () => {},
+        onTestQuickLaunchGame = async () => {},
+        onTestClearTodayHistory = async () => {},
+        onTestCompleteAll = async () => {},
+        onTestLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
         sharedState = null,
@@ -732,12 +745,22 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.scrollTop = scrollTop;
             },
             onProfile,
-            onLogout,
-            onQuickGameSelect: async (selectedGame) => {
-                await onQuickLaunchGame(selectedGame);
+            onTestLogout,
+            onTestQuickGameSelect: async (selectedGame) => {
+                await onTestQuickLaunchGame(selectedGame);
             },
-            onClearHistory: async () => {
-                await onClearTodayHistory();
+            onTestClearHistory: async () => {
+                await onTestClearTodayHistory();
+                await loadPlayedHistory(true);
+            },
+            onTestCompleteAll: async () => {
+                const { playedFrom, playedTo } = getProgramDateRange(programDate);
+                await onTestCompleteAll({
+                    nodes: programNodes,
+                    historyRecords: state.historyRecords,
+                    playedFrom,
+                    playedTo,
+                });
                 await loadPlayedHistory(true);
             },
             onNodeAction: async (selectedNode) => {
@@ -754,12 +777,30 @@ export async function renderGameHubScreen(root, options = {}) {
                     }
 
                     if (selectedNode?.type === "checkin") {
-                        const result = await onCheckInNode(selectedNode);
-                        if (result?.redirected) {
-                            return;
-                        }
+                        // The original onCheckInNode from props navigates away, which we want to prevent.
+                        // We'll replicate the core DB logic here and then show our new popup UI.
+                        await db.addUserGameHistory({
+                            hn: parsedPatientHn,
+                            checkIn: true,
+                            startAt: new Date().toISOString(),
+                        });
 
+                        // We need to reload the history to update the main hub screen UI
+                        // to show that the check-in node is now completed.
                         await loadPlayedHistory(true);
+
+                        // Now, we fetch the data needed for the check-in summary popup.
+                        const checkInDates = await db.getUserCheckInDatesByHn({ hn: parsedPatientHn });
+
+                        // Finally, show the popup. The function returns a promise that resolves
+                        // when the user closes the popup.
+                        await showCheckInPopup({
+                            checkInDates,
+                            defaultDayCount: options.defaultDayCount || 14,
+                        });
+
+                        // No need to do anything after the popup closes.
+                        return; // Explicitly return to show we've handled this node type.
                     }
                 } catch (error) {
                     console.error("Unable to handle selected node action:", error);

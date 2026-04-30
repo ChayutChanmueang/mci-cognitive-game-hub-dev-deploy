@@ -474,14 +474,18 @@ class Database {
         hn,
         gid = null,
         startAt = null,
+        endAt = null,
         playedAt = null,
         userGameDataId = null,
         rest = false,
         checkIn = false,
+        // Test-only controls can set false to insert fake same-day completion rows.
+        reuseExisting = true,
     }) {
         const parsedHn = String(hn || "").trim();
         const parsedGid = gid == null ? "" : String(gid).trim();
         const parsedStartAt = new Date(startAt || playedAt || new Date().toISOString());
+        const parsedEndAt = endAt == null ? null : new Date(endAt);
         const parsedUserGameDataId = userGameDataId == null ? null : Number(userGameDataId);
         const parsedCheckIn = Boolean(checkIn);
 
@@ -501,6 +505,14 @@ class Database {
             throw new Error("Invalid startAt");
         }
 
+        if (parsedEndAt != null && Number.isNaN(parsedEndAt.getTime())) {
+            throw new Error("Invalid endAt");
+        }
+
+        if (parsedEndAt != null && parsedEndAt < parsedStartAt) {
+            throw new Error("endAt must be greater than or equal to startAt");
+        }
+
         if (parsedUserGameDataId != null && !Number.isInteger(parsedUserGameDataId)) {
             throw new Error("Invalid userGameDataId");
         }
@@ -513,10 +525,14 @@ class Database {
             start_at: parsedStartAt.toISOString(),
             user_game_data_id: parsedUserGameDataId,
         };
+        // Test-only fake completion rows can provide end_at without creating user_game_data.
+        if (parsedEndAt != null) {
+            payload.end_at = parsedEndAt.toISOString();
+        }
 
         const client = this.getClient();
 
-        if (parsedGid && !Boolean(rest) && !parsedCheckIn && parsedUserGameDataId == null) {
+        if (Boolean(reuseExisting) && parsedGid && !Boolean(rest) && !parsedCheckIn && parsedUserGameDataId == null) {
             const { start, end } = this.getLocalDayRange(parsedStartAt);
             const { data: existingRows, error: existingError } = await client
                 .from(USER_GAME_HISTORY_TABLE)
@@ -541,7 +557,7 @@ class Database {
         const insertHistory = async (insertPayload) => client
             .from(USER_GAME_HISTORY_TABLE)
             .insert([insertPayload])
-            .select("id, hn, gid, start_at, end_at, user_game_data_id")
+            .select("id, hn, gid, start_at, end_at, user_game_data_id, \"check-in\"")
             .maybeSingle();
 
         let insertPayload = payload;

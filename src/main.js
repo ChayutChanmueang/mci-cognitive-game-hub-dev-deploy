@@ -445,7 +445,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedGid);
                 navigateTo(getGameRouteHash(selectedGame));
             },
-            onQuickLaunchGame: async (selectedGame) => {
+            // Test-only shortcut: opens a selected game without creating normal history.
+            onTestQuickLaunchGame: async (selectedGame) => {
                 const selectedGid = String(selectedGame?.gid || "").trim();
                 if (!selectedGid) {
                     return;
@@ -478,7 +479,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 removePendingGameHistoryByGid(selectedGid);
                 navigateTo(getGameRouteHash(selectedGame));
             },
-            onClearTodayHistory: async () => {
+            // Test-only shortcut: clears today's hub history so QA can replay the daily path.
+            onTestClearTodayHistory: async () => {
                 if (!patientCode) {
                     await showPopup({
                         title: "ไม่พบผู้เล่น",
@@ -520,6 +522,91 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon: "check_circle",
                 });
             },
+            // Test-only shortcut: writes fake completed history rows for every hub node.
+            onTestCompleteAll: async ({ nodes = [], playedFrom = null, playedTo = null } = {}) => {
+                if (!patientCode) {
+                    await showPopup({
+                        title: "ไม่พบผู้เล่น",
+                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถบันทึกประวัติได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                    });
+                    return;
+                }
+
+                const playableNodes = (Array.isArray(nodes) ? nodes : [])
+                    .filter((node) => ["game", "rest", "checkin"].includes(node?.type));
+
+                if (!playableNodes.length) {
+                    await showPopup({
+                        title: "ไม่พบรายการเกม",
+                        message: "ยังไม่มีรายการภารกิจประจำวันที่ใช้บันทึกข้อมูลทดสอบได้",
+                        confirmText: "รับทราบ",
+                        icon: "info",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "บันทึกว่าเล่นครบทั้งหมด",
+                    message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพักและเช็คชื่อ",
+                    confirmText: "บันทึกข้อมูลทดสอบ",
+                    cancelText: "ยกเลิก",
+                    icon: "checklist",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                const parsedFrom = playedFrom ? new Date(playedFrom) : null;
+                const parsedTo = playedTo ? new Date(playedTo) : null;
+                const intervalMs = 2000;
+                let baseTime = new Date();
+                baseTime.setMilliseconds(0);
+
+                if (parsedFrom && !Number.isNaN(parsedFrom.getTime()) && baseTime < parsedFrom) {
+                    baseTime = new Date(parsedFrom);
+                }
+
+                if (parsedTo && !Number.isNaN(parsedTo.getTime())) {
+                    const latestBaseTime = parsedTo.getTime() - (playableNodes.length * intervalMs) - 1000;
+                    if (baseTime.getTime() > latestBaseTime) {
+                        const minimumBaseTime = parsedFrom && !Number.isNaN(parsedFrom.getTime())
+                            ? parsedFrom.getTime()
+                            : latestBaseTime;
+                        baseTime = new Date(Math.max(minimumBaseTime, latestBaseTime));
+                    }
+                }
+
+                for (const [index, node] of playableNodes.entries()) {
+                    const startAt = new Date(baseTime.getTime() + (index * intervalMs));
+                    const endAt = node.type === "game"
+                        ? new Date(startAt.getTime() + 1000)
+                        : null;
+
+                    await db.addUserGameHistory({
+                        hn: patientCode,
+                        gid: node.type === "checkin" ? null : node.gid,
+                        startAt: startAt.toISOString(),
+                        endAt: endAt ? endAt.toISOString() : null,
+                        userGameDataId: null,
+                        rest: node.type === "rest",
+                        checkIn: node.type === "checkin",
+                        reuseExisting: false,
+                    });
+                }
+
+                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                writePendingGameHistoryMap({});
+
+                await showPopup({
+                    title: "บันทึกสำเร็จ",
+                    message: "ระบบเพิ่มประวัติทดสอบว่าเล่นเกมครบทั้งหมดแล้ว",
+                    confirmText: "รับทราบ",
+                    icon: "check_circle",
+                });
+            },
             onRestNode: async () => {
                 const restGame = await db.getGameByGid("REST001");
 
@@ -549,7 +636,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 navigateTo(ROUTES.checkInSummary);
                 return { redirected: true };
             },
-            onLogout: async () => {
+            // Test-only hub control: leaves the patient/admin test session from this screen.
+            onTestLogout: async () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",

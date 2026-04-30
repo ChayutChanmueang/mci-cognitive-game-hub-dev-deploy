@@ -808,15 +808,8 @@ body.hub-mode {
     display: inline-flex;
 }
 
-.hub-clean-quick-menu md-filled-button {
-    --md-outlined-button-container-height: 34px;
-    white-space: nowrap;
-    font-size: 12px;
-    font-weight: 700;
-}
-
 .hub-clean-quick-menu md-menu {
-    min-width: 230px;
+    min-width: 320px;
     max-height: 320px;
 }
 
