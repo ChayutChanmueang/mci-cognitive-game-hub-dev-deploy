@@ -3,6 +3,8 @@ import { showDailyPresetAddDayPopup } from "./daily-preset-add-day-popup.js";
 import { showDailyPresetEditStagePopup } from "./daily-preset-edit-stage-popup.js";
 import { showDailyPresetAddFieldPopup } from "./daily-preset-add-field-popup.js";
 import { showDailyPresetImportPopup } from "./daily-preset-import-popup.js";
+import { parseDailyPresetCsv } from "./daily-preset-csv-import.js";
+import { showPopup } from "../ui/popup-dialog.js";
 import "./daily-preset-editor.css";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -271,6 +273,23 @@ function stringifyCsv(records, columns) {
     return lines.join("\r\n");
 }
 
+function pickCsvFile() {
+    return new Promise((resolve) => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".csv,text/csv";
+        input.style.display = "none";
+
+        input.addEventListener("change", () => {
+            resolve(input.files?.[0] || null);
+            input.remove();
+        }, { once: true });
+
+        document.body.appendChild(input);
+        input.click();
+    });
+}
+
 export function renderDailyPresetEditor(root, options = {}) {
     if (!root) {
         return;
@@ -446,6 +465,22 @@ export function renderDailyPresetEditor(root, options = {}) {
         gridApi.setGridOption("columnDefs", getGridColumns());
     };
     const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow, gameNameByGid);
+    const replacePresetRows = (importedPreset) => {
+        stageFields = importedPreset.stageFields.length
+            ? [...importedPreset.stageFields]
+            : getDefaultStageFields();
+        nextStageId = stageFields.reduce((max, field) => {
+            const stageId = Number(String(field || "").replace("stage", ""));
+            return Number.isFinite(stageId) ? Math.max(max, stageId) : max;
+        }, DEFAULT_STAGE_COUNT) + 1;
+        hasDailyGoal = Boolean(importedPreset.hasDailyGoal);
+        rowData = importedPreset.rows.map((row) => ({
+            [ROW_ID_FIELD]: nextRowId++,
+            ...row,
+        }));
+        gridApi.setGridOption("columnDefs", getGridColumns());
+        gridApi.setGridOption("rowData", rowData);
+    };
     const getStageCsvValue = (value) => {
         const gid = String(value?.gid || "").trim();
         const level = value?.level ?? "";
@@ -624,7 +659,35 @@ export function renderDailyPresetEditor(root, options = {}) {
         exportCsv();
     });
     root.querySelector("[data-import-csv]")?.addEventListener("click", async () => {
-        await showDailyPresetImportPopup();
+        const importType = await showDailyPresetImportPopup();
+        if (!importType) {
+            return;
+        }
+
+        const file = await pickCsvFile();
+        if (!file) {
+            return;
+        }
+
+        try {
+            const importedPreset = parseDailyPresetCsv(await file.text(), importType, gameOptions);
+            replacePresetRows(importedPreset);
+            await showPopup({
+                title: "นำเข้า CSV แล้ว",
+                message: `นำเข้าข้อมูล ${importedPreset.rows.length} วันเรียบร้อยแล้ว`,
+                confirmText: "ตกลง",
+                icon: "check_circle",
+            });
+        } catch (error) {
+            console.error("Failed to import daily preset CSV:", error);
+            await showPopup({
+                title: "นำเข้า CSV ไม่สำเร็จ",
+                message: error?.message || "ไม่สามารถอ่านข้อมูล CSV ได้",
+                confirmText: "รับทราบ",
+                icon: "error",
+                tone: "error",
+            });
+        }
     });
     root.querySelector("[data-add-stage]")?.addEventListener("click", async () => {
         const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal });
