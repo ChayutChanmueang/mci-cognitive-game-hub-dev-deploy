@@ -71,6 +71,8 @@ export function createGameHubState() {
         allGames: [],
         restGame: null,
         historyRecords: [],
+        autoCheckInLoading: false,
+        autoCheckInCompletedKey: "",
         programInitialized: false,
         programLoading: false,
         historyLoading: false,
@@ -191,6 +193,28 @@ function getSequentialCompletedCount(nodes, historyRecords) {
     }
 
     return completedCount;
+}
+
+function getCheckInDateKey(programDate = null) {
+    const anchor = programDate ? new Date(programDate) : new Date();
+    const safeAnchor = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+    const year = safeAnchor.getFullYear();
+    const month = String(safeAnchor.getMonth() + 1).padStart(2, "0");
+    const day = String(safeAnchor.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function getAutoCheckInTargetNodes(nodes) {
+    const checkInIndex = (nodes || []).findIndex((node) => node?.type === "checkin");
+    return checkInIndex >= 0
+        ? nodes.slice(0, checkInIndex)
+        : nodes || [];
+}
+
+function hasCheckInRecord(historyRecords) {
+    return (historyRecords || [])
+        .map((record) => normalizeHistoryRecord(record))
+        .some((record) => record.checkIn === true);
 }
 
 function getCompletedGameCount(nodes, completedNodeCount) {
@@ -713,6 +737,12 @@ export async function renderGameHubScreen(root, options = {}) {
     if (!Array.isArray(state.historyRecords)) {
         state.historyRecords = [];
     }
+    if (typeof state.autoCheckInLoading !== "boolean") {
+        state.autoCheckInLoading = false;
+    }
+    if (typeof state.autoCheckInCompletedKey !== "string") {
+        state.autoCheckInCompletedKey = "";
+    }
 
     let activeScreen = null;
     const patientLabel = getPatientLabel();
@@ -851,6 +881,60 @@ export async function renderGameHubScreen(root, options = {}) {
         }
     };
 
+    const maybeAutoCheckIn = async ({
+        programNodes,
+        historyRecords,
+        playedFrom,
+    }) => {
+        const targetNodes = getAutoCheckInTargetNodes(programNodes);
+        const checkInKey = getCheckInDateKey(programDate || playedFrom);
+
+        if (!parsedPatientHn || !targetNodes.length) {
+            return;
+        }
+
+        if (state.autoCheckInLoading || state.autoCheckInCompletedKey === checkInKey) {
+            return;
+        }
+
+        if (hasCheckInRecord(historyRecords)) {
+            state.autoCheckInCompletedKey = checkInKey;
+            return;
+        }
+
+        const completedTargetCount = getSequentialCompletedCount(targetNodes, historyRecords);
+        if (completedTargetCount < targetNodes.length) {
+            return;
+        }
+
+        state.autoCheckInLoading = true;
+
+        try {
+            const checkInRecord = await db.addUserGameHistory({
+                hn: parsedPatientHn,
+                checkIn: true,
+                startAt: new Date().toISOString(),
+            });
+
+            state.historyRecords = [
+                ...historyRecords,
+                normalizeHistoryRecord(checkInRecord),
+            ];
+            state.autoCheckInCompletedKey = checkInKey;
+            render();
+
+            const checkInDates = await db.getUserCheckInDatesByHn({ hn: parsedPatientHn });
+            await showCheckInPopup({
+                checkInDates,
+                defaultDayCount: options.defaultDayCount || 14,
+            });
+        } catch (error) {
+            console.error("Unable to auto check in completed daily program:", error);
+        } finally {
+            state.autoCheckInLoading = false;
+        }
+    };
+
     const loadPlayedHistory = async (force = false) => {
         if (state.historyLoading && !force) {
             return;
@@ -913,6 +997,14 @@ export async function renderGameHubScreen(root, options = {}) {
             }
 
             state.historyError = "";
+            state.historyLoading = false;
+            render();
+
+            await maybeAutoCheckIn({
+                programNodes: buildDailyProgramNodes(state.programGames, state.restGame),
+                historyRecords: state.historyRecords,
+                playedFrom,
+            });
         } catch (error) {
             console.warn("Unable to load played game history:", error);
             state.historyRecords = [];

@@ -6,6 +6,17 @@ export const Difficulty = Object.freeze({
     NORMAL: 'Normal',
     HARD: 'Hard'
 });
+
+export const DifficultyLevelNumber = Object.freeze({
+    [Difficulty.EASY]: 1,
+    [Difficulty.NORMAL]: 2,
+    [Difficulty.HARD]: 3,
+});
+
+export function getDifficultyLevelNumber(difficulty) {
+    return DifficultyLevelNumber[difficulty] || Number(difficulty) || 1;
+}
+
 export const GameLevels = {
     [Difficulty.EASY]: [
         {

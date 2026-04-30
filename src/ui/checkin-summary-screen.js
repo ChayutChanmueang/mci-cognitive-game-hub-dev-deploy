@@ -122,14 +122,13 @@ export function showCheckInPopup(options = {}) {
             } else {
                 const dayItems = buildDayItems(state.dayCount, checkInDates);
                 const dayCellsHtml = dayItems.map((item) => `
-                    <div class="checkin-program-day" style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                        <span class="checkin-program-day__number" style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);">${escapeHtml(String(item.id))}</span>
-                        <div class="checkin-program-day__box" style="display: flex; align-items: center; justify-content: center;">
+                    <div class="checkin-program-day">
+                        <span class="checkin-program-day__number">${escapeHtml(String(item.id))}</span>
+                        <div class="checkin-program-day__box">
                             <md-checkbox
                                 class="checkin-program-day__checkbox"
                                 aria-label="วันที่ ${escapeHtml(String(item.id))}"
                                 ${item.done ? "checked" : ""}
-                                disabled
                             ></md-checkbox>
                         </div>
                     </div>
@@ -138,22 +137,21 @@ export function showCheckInPopup(options = {}) {
                 overlay.innerHTML = `
                     <div class="app-popup__backdrop"></div>
                     <div
-                        class="app-popup__dialog"
+                        class="app-popup__dialog app-popup__dialog--checkin-calendar"
                         role="dialog"
                         aria-modal="true"
-                        style="max-width: 500px; width: 90%;"
                     >
-                        <div class="app-popup__header" style="padding-bottom: 16px;">
-                            <div class="app-popup__copy" style="width: 100%;">
-                                <h2 style="font-size: 20px; color: var(--md-sys-color-on-surface);">เป้าหมายของฉัน</h2>
-                                <p style="color: var(--md-sys-color-on-surface-variant);">เล่นเกมติดต่อกัน ${state.dayCount} วัน</p>
-                                <div style="height: 1px; background: var(--md-sys-color-outline-variant); margin: 16px 0;"></div>
-                                <div class="checkin-program-grid" role="list" aria-label="ความคืบหน้าการฝึกสมอง" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px;">
+                        <div class="app-popup__header checkin-popup-calendar-header">
+                            <div class="app-popup__copy checkin-popup-calendar-copy">
+                                <h2>เป้าหมายของฉัน</h2>
+                                <p>เล่นเกมติดต่อกัน ${state.dayCount} วัน</p>
+                                <div class="checkin-popup-calendar-divider"></div>
+                                <div class="checkin-program-grid" role="list" aria-label="ความคืบหน้าการฝึกสมอง">
                                     ${dayCellsHtml}
                                 </div>
                             </div>
                         </div>
-                        <div class="app-popup__actions">
+                        <div class="app-popup__actions checkin-popup-success-actions">
                             <md-filled-button type="button" data-back-home style="width: 100%;">
                                 กลับสู่หน้าหลัก
                             </md-filled-button>
