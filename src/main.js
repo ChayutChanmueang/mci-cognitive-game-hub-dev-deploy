@@ -7,6 +7,7 @@ import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
+import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
@@ -26,6 +27,7 @@ const ROUTES = Object.freeze({
     signup: "#/signup",
     hub: "#/hub",
     checkInSummary: "#/checkin-summary",
+    dailyPresetTool: "#/tools/daily-presets",
 });
 
 const GAME_ROUTE_PREFIX = "#/game/";
@@ -148,6 +150,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (normalizedPath === "/checkin-summary") {
             return { name: "checkin-summary" };
+        }
+
+        if (normalizedPath === "/tools/daily-presets") {
+            return { name: "daily-preset-tool" };
         }
 
         if (normalizedPath === "/hub" || normalizedPath === "/hub/intro") {
@@ -608,7 +614,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             },
             // Test-only placeholder: daily game data management tools will be wired here later.
-            onTestDailyDataTools: async () => {},
+            onTestDailyDataTools: async () => {
+                navigateTo(ROUTES.dailyPresetTool);
+            },
             onRestNode: async () => {
                 const restGame = await db.getGameByGid("REST001");
 
@@ -662,6 +670,42 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
+            },
+        });
+    };
+
+    const showDailyPresetTool = () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        renderDailyPresetTool(uiRoot, {
+            onBack: () => navigateTo(ROUTES.hub),
+            onOpenPreset: async () => {
+                await showPopup({
+                    title: "เปิด Preset",
+                    message: "หน้ารายละเอียด preset จะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    confirmText: "รับทราบ",
+                    icon: "folder_open",
+                });
+            },
+            onAddPreset: async () => {
+                await showPopup({
+                    title: "เพิ่ม Preset",
+                    message: "ฟอร์มเพิ่ม preset จะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    confirmText: "รับทราบ",
+                    icon: "add_circle",
+                });
             },
         });
     };
@@ -1108,6 +1152,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "checkin-summary") {
             await showCheckInSummary();
+            return;
+        }
+
+        if (route.name === "daily-preset-tool") {
+            showDailyPresetTool();
             return;
         }
 
