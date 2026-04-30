@@ -1,3 +1,4 @@
+// Do not merge this branch into any other branches because it contains test-only tooling.
 import "./daily-preset-tool.css";
 
 function escapeHtml(value) {
