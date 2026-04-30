@@ -120,7 +120,6 @@ export function renderDailyPresetEditor(root, options = {}) {
         },
         rowHeight: 52,
         headerHeight: 52,
-        domLayout: "autoHeight",
         stopEditingWhenCellsLoseFocus: true,
         onCellValueChanged: () => {
             rowData = [];
