@@ -219,6 +219,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         onBack = () => {},
     } = options;
 
+    let presetName = preset?.name || "Preset";
     let stageFields = getDefaultStageFields();
     let nextStageId = DEFAULT_STAGE_COUNT + 1;
     let nextRowId = 1;
@@ -233,11 +234,18 @@ export function renderDailyPresetEditor(root, options = {}) {
         <section class="daily-preset-editor-screen">
             <div class="daily-preset-editor">
                 <header class="daily-preset-editor__header">
-                    <md-icon-button type="button" aria-label="กลับ" data-editor-back>
-                        <span class="material-symbols-rounded">arrow_back</span>
-                    </md-icon-button>
-                    <h2>ระบบ เพิ่ม/แก้ไข ข้อมูลรายวัน</h2>
-                    <span class="daily-preset-editor__preset-name">${preset?.name || "Preset"}</span>
+                    <div class="daily-preset-editor__header-title">
+                        <md-icon-button type="button" aria-label="กลับ" data-editor-back>
+                            <span class="material-symbols-rounded">arrow_back</span>
+                        </md-icon-button>
+                        <h2>ระบบ เพิ่ม/แก้ไข ข้อมูลรายวัน</h2>
+                    </div>
+                    <md-filled-text-field
+                        class="daily-preset-editor__preset-name-field"
+                        label="ชื่อ preset"
+                        value="${presetName}"
+                        data-preset-name
+                    ></md-filled-text-field>
                 </header>
 
                 <main class="daily-preset-editor__surface">
@@ -386,6 +394,9 @@ export function renderDailyPresetEditor(root, options = {}) {
     });
 
     root.querySelector("[data-editor-back]")?.addEventListener("click", onBack);
+    root.querySelector("[data-preset-name]")?.addEventListener("input", (event) => {
+        presetName = event.target.value || "";
+    });
     root.querySelector("[data-add-stage]")?.addEventListener("click", async () => {
         const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal });
 

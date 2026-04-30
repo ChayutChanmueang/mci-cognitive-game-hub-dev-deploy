@@ -14,28 +14,35 @@
 }
 
 .daily-preset-editor__header {
-    width: min(100%, 1100px);
+    width: min(100%, 1280px);
     justify-self: center;
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) 140px;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
     align-items: center;
     gap: 16px;
     padding: 0 24px;
 }
 
+.daily-preset-editor__header-title {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
 .daily-preset-editor__header h1,
 .daily-preset-editor__header h2 {
     margin: 0;
-    text-align: center;
-    font-size: clamp(2rem, 4.2vw, 3.4rem);
-    line-height: 1.1;
+    text-align: left;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    line-height: 1.2;
     font-weight: 600;
 }
 
-.daily-preset-editor__preset-name {
+.daily-preset-editor__preset-name-field {
     justify-self: end;
-    color: var(--md-sys-color-on-surface-variant);
-    font-size: 1rem;
+    width: 100%;
 }
 
 .daily-preset-editor__surface {
