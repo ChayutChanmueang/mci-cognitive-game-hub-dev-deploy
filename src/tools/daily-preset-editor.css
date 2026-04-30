@@ -1,0 +1,98 @@
+.daily-preset-editor-screen {
+    min-height: 100dvh;
+    display: grid;
+    background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+    overflow: auto;
+}
+
+.daily-preset-editor {
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    padding: 34px 0 0;
+}
+
+.daily-preset-editor__header {
+    width: min(100%, 1100px);
+    justify-self: center;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 140px;
+    align-items: center;
+    gap: 16px;
+    padding: 0 24px;
+}
+
+.daily-preset-editor__header h1 {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(2rem, 4.2vw, 3.4rem);
+    line-height: 1.1;
+    font-weight: 600;
+}
+
+.daily-preset-editor__preset-name {
+    justify-self: end;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 1rem;
+}
+
+.daily-preset-editor__surface {
+    align-self: start;
+    margin-top: clamp(70px, 11vh, 120px);
+    min-height: min(790px, calc(100dvh - 210px));
+    width: 100%;
+    overflow: auto;
+}
+
+.daily-preset-editor__table-shell {
+    min-width: 980px;
+    min-height: min(790px, calc(100dvh - 210px));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 88px;
+    align-items: start;
+}
+
+.daily-preset-editor__grid {
+    width: 100%;
+}
+
+.daily-preset-editor__grid.ag-theme-material {
+    --ag-font-family: "Noto Sans Thai", sans-serif;
+    --ag-font-size: 24px;
+}
+
+.daily-preset-editor__grid .ag-header-cell-label {
+    justify-content: center;
+}
+
+.daily-preset-editor__grid .ag-cell {
+    display: flex;
+    align-items: center;
+}
+
+.daily-preset-editor__table-area {
+    min-width: 0;
+    display: grid;
+    align-content: start;
+}
+
+.daily-preset-editor__add-column {
+    min-height: 312px;
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    gap: 12px;
+    padding-top: 78px;
+}
+
+.daily-preset-editor__add-row {
+    min-height: 86px;
+    display: grid;
+    place-items: center;
+}
+
+
+.daily-preset-editor__add-day {
+    place-items: center;
+}

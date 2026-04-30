@@ -8,6 +8,7 @@ import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
+import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
@@ -154,6 +155,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (normalizedPath === "/tools/daily-presets") {
             return { name: "daily-preset-tool" };
+        }
+
+        if (normalizedPath.startsWith("/tools/daily-presets/")) {
+            const presetId = normalizedPath
+                .slice("/tools/daily-presets/".length)
+                .split("/")
+                .map((segment) => String(segment || "").trim())
+                .filter(Boolean)[0] || "";
+            return { name: "daily-preset-editor", presetId };
         }
 
         if (normalizedPath === "/hub" || normalizedPath === "/hub/intro") {
@@ -691,13 +701,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderDailyPresetTool(uiRoot, {
             onBack: () => navigateTo(ROUTES.hub),
-            onOpenPreset: async () => {
-                await showPopup({
-                    title: "เปิด Preset",
-                    message: "หน้ารายละเอียด preset จะถูกเชื่อมต่อในขั้นตอนถัดไป",
-                    confirmText: "รับทราบ",
-                    icon: "folder_open",
-                });
+            onOpenPreset: (preset) => {
+                const presetId = String(preset?.id || "preset-1").trim();
+                navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(presetId)}`);
             },
             onAddPreset: async () => {
                 await showPopup({
@@ -707,6 +713,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon: "add_circle",
                 });
             },
+        });
+    };
+
+    const showDailyPresetEditor = (presetId = "preset-1") => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        renderDailyPresetEditor(uiRoot, {
+            preset: {
+                id: presetId,
+                name: presetId === "preset-1" ? "Preset 1" : presetId,
+            },
+            onBack: () => navigateTo(ROUTES.dailyPresetTool),
         });
     };
 
@@ -1157,6 +1187,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "daily-preset-tool") {
             showDailyPresetTool();
+            return;
+        }
+
+        if (route.name === "daily-preset-editor") {
+            showDailyPresetEditor(route.presetId);
             return;
         }
 
