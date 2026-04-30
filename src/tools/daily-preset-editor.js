@@ -2,6 +2,7 @@ import { createGrid, ModuleRegistry, AllCommunityModule, themeMaterial } from "a
 import { showDailyPresetAddDayPopup } from "./daily-preset-add-day-popup.js";
 import { showDailyPresetEditStagePopup } from "./daily-preset-edit-stage-popup.js";
 import { showDailyPresetAddFieldPopup } from "./daily-preset-add-field-popup.js";
+import { showDailyPresetImportPopup } from "./daily-preset-import-popup.js";
 import "./daily-preset-editor.css";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -364,7 +365,7 @@ export function renderDailyPresetEditor(root, options = {}) {
                     <md-fab size="small" aria-label="ส่งออก CSV" title="ส่งออก CSV" data-export-csv>
                         <span class="material-symbols-rounded" slot="icon">file_download</span>
                     </md-fab>
-                    <md-fab size="small" aria-label="นำเข้า CSV" title="นำเข้า CSV (ยังไม่เปิดใช้งาน)" data-import-csv disabled>
+                    <md-fab size="small" aria-label="นำเข้า CSV" title="นำเข้า CSV" data-import-csv>
                         <span class="material-symbols-rounded" slot="icon">file_upload</span>
                     </md-fab>
                 </div>
@@ -621,6 +622,9 @@ export function renderDailyPresetEditor(root, options = {}) {
     });
     root.querySelector("[data-export-csv]")?.addEventListener("click", () => {
         exportCsv();
+    });
+    root.querySelector("[data-import-csv]")?.addEventListener("click", async () => {
+        await showDailyPresetImportPopup();
     });
     root.querySelector("[data-add-stage]")?.addEventListener("click", async () => {
         const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal });
