@@ -1,17 +1,24 @@
 import Entity from "../entity";
 import EmojiRenderer from "../../components/scripts/emoji-renderer";
 import { AnimalSetting } from "../../constants";
+import SpriteRenderer from "../../components/scripts/sprite-renderer";
 
 export default class Animal extends Entity{
     constructor(scene,x,y,sizeScale = 1){
         super(scene,x,y,null);
 
         this.randomAnimal()
-        this.Sprite = this.addComponent(EmojiRenderer,{
-            emojiSprite: this.currentAnimal.Sprite,
-            size: 128,
-            sizeScale:sizeScale
-        });
+        // this.Sprite = this.addComponent(EmojiRenderer,{
+        //     emojiSprite: this.currentAnimal.Sprite,
+        //     size: 128,
+        //     sizeScale:sizeScale
+        // });
+        this.Sprite = this.addComponent(SpriteRenderer,{
+            textureKey: this.currentAnimal.Sprite,
+            sizeScale: sizeScale
+        })
+        this.setDisplaySize(288, 336);
+        //this.setOffset(192,224)
 
         this.setCollideWorldBounds(true);
     }
