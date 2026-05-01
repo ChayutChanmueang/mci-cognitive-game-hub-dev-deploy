@@ -1,4 +1,6 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
+import { showCheckInPopup } from "./checkin-summary-screen.js";
+import db from "../core/database.js";
 
 const DEFAULT_START_GAME_GID = "ATTN001";
 const REST_GAME_GID = "REST001";
@@ -69,6 +71,8 @@ export function createGameHubState() {
         allGames: [],
         restGame: null,
         historyRecords: [],
+        autoCheckInLoading: false,
+        autoCheckInCompletedKey: "",
         programInitialized: false,
         programLoading: false,
         historyLoading: false,
@@ -131,7 +135,8 @@ function normalizeHistoryRecord(item) {
         gid,
         rest: gid === REST_GAME_GID,
         checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]) || !gid,
-        playedAt: item?.played_at || item?.playedAt || null,
+        playedAt: item?.start_at || item?.startAt || item?.played_at || item?.playedAt || null,
+        endAt: item?.end_at || item?.endAt || null,
     };
 }
 
@@ -141,7 +146,9 @@ function isNodeMatchedByHistory(node, historyRecord) {
     }
 
     if (node.type === "game") {
-        return Boolean(historyRecord.gid) && historyRecord.gid === node.gid;
+        return Boolean(historyRecord.gid)
+            && historyRecord.gid === node.gid
+            && Boolean(historyRecord.endAt);
     }
 
     if (node.type === "rest") {
@@ -186,6 +193,28 @@ function getSequentialCompletedCount(nodes, historyRecords) {
     }
 
     return completedCount;
+}
+
+function getCheckInDateKey(programDate = null) {
+    const anchor = programDate ? new Date(programDate) : new Date();
+    const safeAnchor = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+    const year = safeAnchor.getFullYear();
+    const month = String(safeAnchor.getMonth() + 1).padStart(2, "0");
+    const day = String(safeAnchor.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function getAutoCheckInTargetNodes(nodes) {
+    const checkInIndex = (nodes || []).findIndex((node) => node?.type === "checkin");
+    return checkInIndex >= 0
+        ? nodes.slice(0, checkInIndex)
+        : nodes || [];
+}
+
+function hasCheckInRecord(historyRecords) {
+    return (historyRecords || [])
+        .map((record) => normalizeHistoryRecord(record))
+        .some((record) => record.checkIn === true);
 }
 
 function getCompletedGameCount(nodes, completedNodeCount) {
@@ -587,14 +616,16 @@ class HubMapScreen extends HubElement {
                     <div data-topbar></div>
                     <div data-stage></div>
                     <div class="hub-clean-logout">
-                        <md-filled-button data-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
+                        <md-filled-button data-test-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
+                        <md-filled-button data-test-complete-all type="button">เล่นเกมครบทั้งหมด</md-filled-button>
                         <span class="hub-clean-quick-menu">
-                            <md-filled-button data-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
-                            <md-menu data-quick-game-menu positioning="popover">
+                            <md-filled-button data-test-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
+                            <md-menu data-test-quick-game-menu positioning="popover">
                                 ${menuContent}
                             </md-menu>
                         </span>
-                        <md-filled-button data-logout type="button">ออกจากระบบ</md-filled-button>
+                        <md-filled-button data-test-daily-data-tools type="button">เครื่องมือจัดการข้อมูลรายวันเกม</md-filled-button>
+                        <md-filled-button data-test-logout type="button">ออกจากระบบ</md-filled-button>
                     </div>
                 </div>
             </section>
@@ -623,12 +654,13 @@ class HubMapScreen extends HubElement {
                 .map((game) => [String(game?.gid || "").trim(), game])
                 .filter(([gid]) => Boolean(gid)),
         );
-        const quickGameTrigger = this.element?.querySelector("[data-quick-game-trigger]");
-        const quickGameMenu = this.element?.querySelector("[data-quick-game-menu]");
-        if (quickGameMenu && quickGameTrigger) {
-            quickGameMenu.anchorElement = quickGameTrigger;
-            this.on(quickGameTrigger, "click", () => {
-                quickGameMenu.open = !quickGameMenu.open;
+        // Test-only hub controls for QA shortcuts; the real game flow uses onNodeAction.
+        const testQuickGameTrigger = this.element?.querySelector("[data-test-quick-game-trigger]");
+        const testQuickGameMenu = this.element?.querySelector("[data-test-quick-game-menu]");
+        if (testQuickGameMenu && testQuickGameTrigger) {
+            testQuickGameMenu.anchorElement = testQuickGameTrigger;
+            this.on(testQuickGameTrigger, "click", () => {
+                testQuickGameMenu.open = !testQuickGameMenu.open;
             });
         }
 
@@ -641,23 +673,39 @@ class HubMapScreen extends HubElement {
                     return;
                 }
 
-                await this.options.onQuickGameSelect?.(selectedGame);
-                if (quickGameMenu) {
-                    quickGameMenu.open = false;
+                await this.options.onTestQuickGameSelect?.(selectedGame);
+                if (testQuickGameMenu) {
+                    testQuickGameMenu.open = false;
                 }
             });
         });
 
-        this.on(this.element?.querySelector("[data-clear-history]"), "click", async () => {
+        this.on(this.element?.querySelector("[data-test-clear-history]"), "click", async () => {
             try {
-                await this.options.onClearHistory?.();
+                await this.options.onTestClearHistory?.();
             } catch (error) {
-                console.error("Unable to clear today history:", error);
+                console.error("Unable to clear test history:", error);
             }
         });
 
-        this.on(this.element?.querySelector("[data-logout]"), "click", () => {
-            this.options.onLogout?.();
+        this.on(this.element?.querySelector("[data-test-complete-all]"), "click", async () => {
+            try {
+                await this.options.onTestCompleteAll?.();
+            } catch (error) {
+                console.error("Unable to write complete-all test history:", error);
+            }
+        });
+
+        this.on(this.element?.querySelector("[data-test-daily-data-tools]"), "click", async () => {
+            try {
+                await this.options.onTestDailyDataTools?.();
+            } catch (error) {
+                console.error("Unable to open daily game data test tools:", error);
+            }
+        });
+
+        this.on(this.element?.querySelector("[data-test-logout]"), "click", () => {
+            this.options.onTestLogout?.();
         });
     }
 }
@@ -670,7 +718,8 @@ export async function renderGameHubScreen(root, options = {}) {
     const {
         loadGameList,
         loadHistoryRecords = null,
-        loadPlayedGameGids = null,
+        loadCompletedGameHistoryRecords = null,
+        loadInstantNodeHistoryRecords = null,
         patientHn = "",
         programDate = null,
         completedCount = 0,
@@ -678,9 +727,11 @@ export async function renderGameHubScreen(root, options = {}) {
         onLaunchGame = () => {},
         onRestNode = async () => {},
         onCheckInNode = async () => {},
-        onQuickLaunchGame = async () => {},
-        onClearTodayHistory = async () => {},
-        onLogout = () => {},
+        onTestQuickLaunchGame = async () => {},
+        onTestClearTodayHistory = async () => {},
+        onTestCompleteAll = async () => {},
+        onTestDailyDataTools = async () => {},
+        onTestLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
         sharedState = null,
@@ -695,6 +746,12 @@ export async function renderGameHubScreen(root, options = {}) {
     }
     if (!Array.isArray(state.historyRecords)) {
         state.historyRecords = [];
+    }
+    if (typeof state.autoCheckInLoading !== "boolean") {
+        state.autoCheckInLoading = false;
+    }
+    if (typeof state.autoCheckInCompletedKey !== "string") {
+        state.autoCheckInCompletedKey = "";
     }
 
     let activeScreen = null;
@@ -728,14 +785,25 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.scrollTop = scrollTop;
             },
             onProfile,
-            onLogout,
-            onQuickGameSelect: async (selectedGame) => {
-                await onQuickLaunchGame(selectedGame);
+            onTestLogout,
+            onTestQuickGameSelect: async (selectedGame) => {
+                await onTestQuickLaunchGame(selectedGame);
             },
-            onClearHistory: async () => {
-                await onClearTodayHistory();
+            onTestClearHistory: async () => {
+                await onTestClearTodayHistory();
                 await loadPlayedHistory(true);
             },
+            onTestCompleteAll: async () => {
+                const { playedFrom, playedTo } = getProgramDateRange(programDate);
+                await onTestCompleteAll({
+                    nodes: programNodes,
+                    historyRecords: state.historyRecords,
+                    playedFrom,
+                    playedTo,
+                });
+                await loadPlayedHistory(true);
+            },
+            onTestDailyDataTools,
             onNodeAction: async (selectedNode) => {
                 try {
                     if (selectedNode?.type === "game") {
@@ -750,12 +818,30 @@ export async function renderGameHubScreen(root, options = {}) {
                     }
 
                     if (selectedNode?.type === "checkin") {
-                        const result = await onCheckInNode(selectedNode);
-                        if (result?.redirected) {
-                            return;
-                        }
+                        // The original onCheckInNode from props navigates away, which we want to prevent.
+                        // We'll replicate the core DB logic here and then show our new popup UI.
+                        await db.addUserGameHistory({
+                            hn: parsedPatientHn,
+                            checkIn: true,
+                            startAt: new Date().toISOString(),
+                        });
 
+                        // We need to reload the history to update the main hub screen UI
+                        // to show that the check-in node is now completed.
                         await loadPlayedHistory(true);
+
+                        // Now, we fetch the data needed for the check-in summary popup.
+                        const checkInDates = await db.getUserCheckInDatesByHn({ hn: parsedPatientHn });
+
+                        // Finally, show the popup. The function returns a promise that resolves
+                        // when the user closes the popup.
+                        await showCheckInPopup({
+                            checkInDates,
+                            defaultDayCount: options.defaultDayCount || 14,
+                        });
+
+                        // No need to do anything after the popup closes.
+                        return; // Explicitly return to show we've handled this node type.
                     }
                 } catch (error) {
                     console.error("Unable to handle selected node action:", error);
@@ -806,6 +892,60 @@ export async function renderGameHubScreen(root, options = {}) {
         }
     };
 
+    const maybeAutoCheckIn = async ({
+        programNodes,
+        historyRecords,
+        playedFrom,
+    }) => {
+        const targetNodes = getAutoCheckInTargetNodes(programNodes);
+        const checkInKey = getCheckInDateKey(programDate || playedFrom);
+
+        if (!parsedPatientHn || !targetNodes.length) {
+            return;
+        }
+
+        if (state.autoCheckInLoading || state.autoCheckInCompletedKey === checkInKey) {
+            return;
+        }
+
+        if (hasCheckInRecord(historyRecords)) {
+            state.autoCheckInCompletedKey = checkInKey;
+            return;
+        }
+
+        const completedTargetCount = getSequentialCompletedCount(targetNodes, historyRecords);
+        if (completedTargetCount < targetNodes.length) {
+            return;
+        }
+
+        state.autoCheckInLoading = true;
+
+        try {
+            const checkInRecord = await db.addUserGameHistory({
+                hn: parsedPatientHn,
+                checkIn: true,
+                startAt: new Date().toISOString(),
+            });
+
+            state.historyRecords = [
+                ...historyRecords,
+                normalizeHistoryRecord(checkInRecord),
+            ];
+            state.autoCheckInCompletedKey = checkInKey;
+            render();
+
+            const checkInDates = await db.getUserCheckInDatesByHn({ hn: parsedPatientHn });
+            await showCheckInPopup({
+                checkInDates,
+                defaultDayCount: options.defaultDayCount || 14,
+            });
+        } catch (error) {
+            console.error("Unable to auto check in completed daily program:", error);
+        } finally {
+            state.autoCheckInLoading = false;
+        }
+    };
+
     const loadPlayedHistory = async (force = false) => {
         if (state.historyLoading && !force) {
             return;
@@ -827,7 +967,33 @@ export async function renderGameHubScreen(root, options = {}) {
                 .filter(Boolean);
             const { playedFrom, playedTo } = getProgramDateRange(programDate);
 
-            if (typeof loadHistoryRecords === "function") {
+            if (
+                typeof loadCompletedGameHistoryRecords === "function"
+                || typeof loadInstantNodeHistoryRecords === "function"
+            ) {
+                const [completedGameRows, instantNodeRows] = await Promise.all([
+                    typeof loadCompletedGameHistoryRecords === "function"
+                        ? loadCompletedGameHistoryRecords({
+                            hn: parsedPatientHn,
+                            gids,
+                            playedFrom,
+                            playedTo,
+                        })
+                        : [],
+                    typeof loadInstantNodeHistoryRecords === "function"
+                        ? loadInstantNodeHistoryRecords({
+                            hn: parsedPatientHn,
+                            playedFrom,
+                            playedTo,
+                        })
+                        : [],
+                ]);
+
+                state.historyRecords = [
+                    ...(Array.isArray(completedGameRows) ? completedGameRows : []),
+                    ...(Array.isArray(instantNodeRows) ? instantNodeRows : []),
+                ].map((record) => normalizeHistoryRecord(record));
+            } else if (typeof loadHistoryRecords === "function") {
                 const historyRows = await loadHistoryRecords({
                     hn: parsedPatientHn,
                     playedFrom,
@@ -837,26 +1003,19 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.historyRecords = Array.isArray(historyRows)
                     ? historyRows.map((record) => normalizeHistoryRecord(record))
                     : [];
-            } else if (typeof loadPlayedGameGids === "function") {
-                const playedGameGids = await loadPlayedGameGids({
-                    hn: parsedPatientHn,
-                    gids,
-                    playedFrom,
-                    playedTo,
-                });
-
-                state.historyRecords = Array.isArray(playedGameGids)
-                    ? playedGameGids.map((gid) => normalizeHistoryRecord({
-                        gid,
-                        rest: false,
-                        played_at: playedFrom,
-                    }))
-                    : [];
             } else {
                 state.historyRecords = [];
             }
 
             state.historyError = "";
+            state.historyLoading = false;
+            render();
+
+            await maybeAutoCheckIn({
+                programNodes: buildDailyProgramNodes(state.programGames, state.restGame),
+                historyRecords: state.historyRecords,
+                playedFrom,
+            });
         } catch (error) {
             console.warn("Unable to load played game history:", error);
             state.historyRecords = [];

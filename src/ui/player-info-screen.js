@@ -1,4 +1,5 @@
 import { calculateAgeFromBirthDate } from "../util/patient-date-util.js";
+import { formatThaiPhoneNumber } from "../util/phone-number-util.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -43,6 +44,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
     } = options;
 
     const hn = String(player.hn || player.patientCode || "").trim();
+    const phoneDisplay = formatThaiPhoneNumber(player.phone || "");
     const birthDate = player.date || player.birthDate || "";
     const age = calculateAgeFromBirthDate(birthDate);
     const ageDisplay = Number.isInteger(age) ? `${age} ปี` : "- ปี";
@@ -72,7 +74,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
 
                     <label class="player-info-row">
                         <span>เบอร์โทร :</span>
-                        <div id="player-info-phone" class="player-info-value">${escapeHtml(player.phone || "")}</div>
+                        <div id="player-info-phone" class="player-info-value">${escapeHtml(phoneDisplay)}</div>
                     </label>
 
                     <label class="player-info-row">
