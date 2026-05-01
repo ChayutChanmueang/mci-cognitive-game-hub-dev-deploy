@@ -6,6 +6,8 @@ export default class SpriteRenderer extends Component {
         // We use texture keys instead of emoji strings
         this.textureKey = settings.textureKey || '__DEFAULT';
         this.sizeScale = settings.sizeScale || 1;
+        this.offsetX = settings.offsetX || 0;
+        this.offsetY = settings.offsetY || 0;
     }
 
     awake() {
@@ -30,6 +32,10 @@ export default class SpriteRenderer extends Component {
             
             // Force the physics engine to resync its position with the visual game object
             this.entity.body.updateFromGameObject(); 
+
+            // 2. Apply your custom offset to shift the physical hitbox
+            this.entity.body.setOffset(this.offsetX, this.offsetY);
+            this.entity.body.updateFromGameObject();
         }
     }
 

@@ -11,26 +11,32 @@ export const FoodSpriteLibrary = {
 export const AnimalSetting = Object.freeze({
     BEAR:{
         AcceptableFoodType: FoodTypes.MEAT,
-        Sprite: 'bear_sprite'
+        Sprite: 'bear_sprite',
+        Icon: 'bear_icon'
     },
     COW:{
         AcceptableFoodType: FoodTypes.VEGETABLE,
-        Sprite: 'cow_sprite'
+        Sprite: 'cow_sprite',
+        Icon: 'cow_icon'
     },
     ELEPHANT:{
         AcceptableFoodType: FoodTypes.VEGETABLE,
-        Sprite: 'elephant_sprite'
+        Sprite: 'elephant_sprite',
+        Icon: 'elephant_icon'
     },
     FOX:{
         AcceptableFoodType: FoodTypes.MEAT,
-        Sprite: 'fox_sprite'
+        Sprite: 'fox_sprite',
+        Icon: 'fox_icon'
     },
     LION:{
         AcceptableFoodType: FoodTypes.MEAT,
-        Sprite: 'lion_sprite'
+        Sprite: 'lion_sprite',
+        Icon: 'lion_icon'
     },
     PANDA:{
         AcceptableFoodType: FoodTypes.VEGETABLE,
-        Sprite: 'panda_sprite'
+        Sprite: 'panda_sprite',
+        Icon: 'panda_icon'
     }
 })
