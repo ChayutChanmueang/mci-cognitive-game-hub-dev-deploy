@@ -1,6 +1,15 @@
 # Documentation Changelog
 
 All notable changes to the game documentation suite will be documented in this file.
+ 
+## [2026-05-02] - Minigame Hotfix
+### Fixed
+- Resolved console errors in `context-clues`, `postcard-reader`, `symmetry-decor`, `zoo-detective`, and `zoo-feeder`.
+- Fixed `rexUI` plugin configuration typo (`ket` -> `key`).
+- Removed redundant external CDN loading for `rexUI` across all minigames.
+- Fixed scene key mismatches in `Preloader.js` starting `MainMenu` instead of `main-menu-scene`.
+- Added [HF-260502-01 Report](file:///c:/Users/noppon/sources/mci-cognitive-games/docs/agile/reports/260502_1640_Minigame_Hotfix_Report.md).
+
 
 ## [2026-05-02] - Documentation Restructuring
 ### Added
