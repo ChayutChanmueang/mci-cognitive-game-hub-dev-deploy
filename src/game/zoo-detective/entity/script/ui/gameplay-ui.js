@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import StorageManager from "../../../../../core/storage-manager";
+import StorageManager from "../../../../../core/storage-manager.js";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
 import { createThaiText, getThaiFontFamily } from "../../../../../util/thai-text.js";
