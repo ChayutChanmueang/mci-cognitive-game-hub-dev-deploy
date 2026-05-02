@@ -3,6 +3,8 @@ import Conveyer from "../entity/script/conveyer";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import StorageManager from "../../../core/storage-manager";
 import db from "../../../core/database.js";
+import { EventBus } from "../../../core/EventBus.js";
+
 
 const GAME_ID = "ATTN001";
 
@@ -12,12 +14,7 @@ export default class UITestScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
+    // rexUI is loaded via main.js global config
 
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
@@ -62,6 +59,16 @@ export default class UITestScene extends Phaser.Scene {
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();
+    
+    // Hide old Phaser UI elements if we're using the DOM HUD
+    this.gameplayUI.uiBackground.setVisible(false);
+    this.gameplayUI.currentScore.setVisible(false);
+    this.gameplayUI.currentLives.setVisible(false);
+
+    // Initial state to HUD
+    EventBus.emit('minigame:score', { score: this.score });
+    EventBus.emit('minigame:tick', { timeLeft: 180 }); // 3 minutes
+
     this.conveyerNums = data.conveyerNums || 3;
     this.conveyers = [];
 
@@ -96,12 +103,17 @@ export default class UITestScene extends Phaser.Scene {
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
 
     this.countdownTimer = this.time.addEvent({
-      delay: 180000,
+      delay: 1000,
       callback: () => {
-        this.onGameOver();
+        const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
+        EventBus.emit('minigame:tick', { timeLeft: remaining });
+        if (remaining <= 0) {
+            this.onGameOver();
+        }
       },
-      loop: false,
+      repeat: 179,
     })
+
   }
   update(time, delta) {
     for (const _conveyer of this.conveyers) {
@@ -128,6 +140,8 @@ export default class UITestScene extends Phaser.Scene {
     this.level = Math.floor(this.level);
     console.log("level: " + this.level);
     this.gameplayUI.setScore(this.score);
+    EventBus.emit('minigame:score', { score: this.score });
+
 
     if (this.level % 10 == 0 && this.level != this.lastLevel) {
       for (const _conveyer of this.conveyers) {
@@ -183,6 +197,8 @@ export default class UITestScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
 
     this.gameplayUI.showGameOverPanel(this.score);
+    EventBus.emit('minigame:game-over', { score: this.score });
+
     //console.log("Highscore: " + StorageManager.get('highscore'));
   }
   restartGame() {

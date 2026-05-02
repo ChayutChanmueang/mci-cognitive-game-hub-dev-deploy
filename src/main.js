@@ -24,6 +24,12 @@ import {
     setPatientSessionCookie,
 } from "./util/patient-session.js";
 import StringUtil from "./util/string-util.js";
+import { EventBus } from "./core/EventBus.js";
+import { MinigameHUD } from "./ui/minigame-hud.js";
+import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
+import StorageManager from "./core/storage-manager.js";
+
+
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -980,6 +986,65 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
+            
+            // Mount Minigame HUD
+            uiRoot.innerHTML = "";
+            uiRoot.hidden = false;
+            const hud = new MinigameHUD(uiRoot, {
+                gameTitle: selectedGame?.name,
+                timeLimit: selectedGame?.time_limit || 60 // Fallback
+            });
+            hud.render();
+
+
+            const handleExit = async () => {
+                const confirmed = await showPopup({
+                    title: "ออกจากเกม",
+                    message: "คุณต้องการออกจากเกมที่กำลังเล่นอยู่ใช่หรือไม่? ความก้าวหน้าในรอบนี้อาจจะไม่ถูกบันทึก",
+                    confirmText: "ออกจากการแข่งขัน",
+                    cancelText: "เล่นต่อ",
+                    icon: "logout",
+                    tone: "error"
+                });
+
+                if (confirmed) {
+                    cleanup();
+                    navigateTo(ROUTES.hub);
+                }
+            };
+
+            const handleGameOver = ({ score }) => {
+                const resultPanel = new MinigameResultPanel(uiRoot, {
+                    score,
+                    highScore: StorageManager.get('highscore', 0),
+                    gameTitle: selectedGame?.name
+                });
+                resultPanel.render();
+            };
+
+            const handleRetry = () => {
+                cleanup();
+                showGame(selectedGame);
+            };
+
+            const handleExitConfirmed = () => {
+                cleanup();
+                navigateTo(ROUTES.hub);
+            };
+
+            const cleanup = () => {
+                EventBus.off("minigame:exit-request", handleExit);
+                EventBus.off("minigame:game-over", handleGameOver);
+                EventBus.off("minigame:retry-request", handleRetry);
+                EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                hud.destroy();
+            };
+
+            EventBus.on("minigame:exit-request", handleExit);
+            EventBus.on("minigame:game-over", handleGameOver);
+            EventBus.on("minigame:retry-request", handleRetry);
+            EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+
             return true;
         } catch (error) {
             console.error(`Unable to start game ${parsedName}:`, error);

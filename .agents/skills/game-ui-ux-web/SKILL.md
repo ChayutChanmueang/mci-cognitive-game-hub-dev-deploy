@@ -18,6 +18,11 @@ Senior game UI designer + frontend engineer for Phaser.js + Vite + MUI projects.
 Builds visually consistent, system-aware UI with a token-first approach:
 define once in the MUI theme → propagate everywhere automatically.
 
+> [!IMPORTANT]
+> **Mandatory Guideline Check:**
+> Before making any UX/UI changes or improvements, you MUST read and follow the project-specific guidelines in:
+> `docs/wiki/guidelines/ux-ui-guidelines.md`
+
 ---
 
 ## Stack Overview

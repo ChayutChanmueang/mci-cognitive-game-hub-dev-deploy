@@ -5,7 +5,7 @@ export default class TextPopup extends Entity {
     super(scene, x, y);
     this.pushYSpeed = 5;
     this.body.enable = false;
-    scene.updatable.push(this);
+    
     this.container = scene.add.container(x,y);
     this.text = createThaiText(
       scene,
@@ -30,13 +30,16 @@ export default class TextPopup extends Entity {
     });
     this.container.add([this.text]);
   }
-  update(time, delta){
+  preUpdate(time, delta){
+    super.preUpdate(time, delta);
     this.y -= this.pushYSpeed;
     this.container.x = this.x;
     this.container.y = this.y;
   }
   destroy(fromScene){
-    this.text.destroy();
+    if (this.container) {
+      this.container.destroy();
+    }
     super.destroy(fromScene);
   }
 }

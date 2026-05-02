@@ -2,6 +2,7 @@ import UIPage from "../core/ui-page";
 import {SampleConstants} from "../../constants";
 import ProgressBar from "../core/progress-bar";
 import { createThaiText } from "../../../../util/thai-text.js";
+import { EventBus } from "../../../../core/EventBus.js";
 export default class PostcardPanel extends UIPage{
     constructor(scene){
         super(scene,scene.scale.width/2,scene.scale.height/2,{
@@ -28,26 +29,7 @@ export default class PostcardPanel extends UIPage{
         //     fontSize: '48px', color:'#ffffff',fontStyle: 'bold'
         // }).setOrigin(0.5);
 
-        this.timerBar = new ProgressBar(scene,0,-725,{width:800,height:50})
-
-        this.countdownString = "จำให้ได้ภายใน ";
-
-        this.countdownText = createThaiText(
-                    scene,
-                    -400,
-                    -875,
-                    this.countdownString,
-                    {
-                        fontSize: "48px",
-                        fontStyle: "bold",
-                        color: "#ffffff"
-                    },
-                    { origin: 0, wrapWidth: 750 });
-        // scene.add.text(-400,-875,this.countdownString,{
-        //     fontSize: '48px', color:'#ffffff',fontStyle: 'bold'
-        // }).setOrigin(0,0);
-
-        this.addElements([this.titleText,this.timerBar.getContainer(),this.countdownText]);
+        this.addElements([this.titleText]);
 
         this.countdownTimer = scene.time.addEvent({
             delay: 10000,
@@ -73,8 +55,8 @@ export default class PostcardPanel extends UIPage{
     }
 
     update(){
-        this.countdownText.setText(this.countdownString + Math.trunc(this.countdownTimer.getRemainingSeconds() + 1));
-        this.timerBar.setValue(this.countdownTimer.getRemaining() / 10000);
+        const timeLeft = Math.trunc(this.countdownTimer.getRemainingSeconds() + 1);
+        EventBus.emit("minigame:tick", { timeLeft, maxTime: 10 });
     }
 
     createButton(x,y,text,onClick){

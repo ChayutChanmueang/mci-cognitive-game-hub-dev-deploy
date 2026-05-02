@@ -6,6 +6,7 @@ import Button from "../ui-elements/core/button";
 import StorageManager from "../../../core/storage-manager";
 import db from "../../../core/database.js";
 import { createThaiText } from "../../../util/thai-text.js";
+import { EventBus } from "../../../core/EventBus.js";
 
 const GAME_ID = "MEM001";
 
@@ -15,13 +16,6 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
-
     this.load.image("button-idle", "assets/button_rectangle_depth_flat.png");
     this.load.image("button-press", "assets/button_rectangle_flat.png");
   }
@@ -50,6 +44,8 @@ export default class GameplayScene extends Phaser.Scene {
     console.log(this.level);
 
     this.score = 0;
+    EventBus.emit("minigame:score", { score: this.score });
+    this.isPlaying = false;
 
     this.buttonPool = {
       Pool: [],
@@ -77,6 +73,10 @@ export default class GameplayScene extends Phaser.Scene {
   }
   update(time, delta) {
     this.gameplayUI.update(time, delta);
+    if (this.isPlaying && !this.isGameOver) {
+      const timeLeft = Math.trunc(this.countdownTimer.getRemainingSeconds() + 1);
+      EventBus.emit("minigame:tick", { timeLeft, maxTime: 190 });
+    }
   }
   choosePostcard() {
     var _totalOptions = 0;
@@ -138,6 +138,7 @@ export default class GameplayScene extends Phaser.Scene {
         {
           size: { x: 800, y: 300 },
           strokeEnable: true,
+          overlayEnable: false,
         },
       );
     }
@@ -151,7 +152,7 @@ export default class GameplayScene extends Phaser.Scene {
                           {
                               fontSize: "48px",
                               fontStyle: "bold",
-                              color: "#ffffff"
+                              color: "#1e1b18"
                           },
                           { origin: 0.5, wrapWidth: 700 });
       // this.add
@@ -264,6 +265,7 @@ export default class GameplayScene extends Phaser.Scene {
     }
   }
   showGame() {
+    this.isPlaying = true;
     this.questionPanel.forceShow();
     for (const _button of this.buttonPool.Pool) {
       _button.forceShow();
@@ -272,6 +274,7 @@ export default class GameplayScene extends Phaser.Scene {
   onCorrectAnswer() {
     console.log("correct");
     this.score += 15;
+    EventBus.emit("minigame:score", { score: this.score });
     this.displayNextQuestion();
   }
   onWrongAnswer() {
@@ -302,6 +305,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.intializeGamePage();
   }
   reinitializeGame() {
+    this.isPlaying = false;
     for (const _button of this.buttonPool.Pool) {
       _button.destroy();
     }

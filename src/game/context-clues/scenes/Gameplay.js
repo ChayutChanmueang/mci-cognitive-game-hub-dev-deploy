@@ -18,13 +18,6 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
-
     this.load.image('button-idle','assets/button_rectangle_depth_flat.png')
     this.load.image('button-press','assets/button_rectangle_flat.png')
   }
