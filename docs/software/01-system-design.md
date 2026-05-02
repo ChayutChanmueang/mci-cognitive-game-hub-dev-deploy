@@ -29,5 +29,5 @@
 - **Singleton:** สำหรับ Database Manager และ Storage Manager
 
 ## Related Documents
-- Architecture: [[./00-architecture.md]]
+- Architecture: [[../gdd/00-concept.md]]
 - GDD Mechanics: [[../gdd/01-mechanics.md]]

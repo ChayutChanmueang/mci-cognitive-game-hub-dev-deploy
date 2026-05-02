@@ -3,9 +3,8 @@
 **Last Updated:** 2026-05-02 | **Maintained by:** Antigravity AI
 
 ## 🎯 Quick Access
-- **Game Concept**: [[../gdd/00-concept.md]]
+- **Game Concept & Architecture**: [[../gdd/00-concept.md]]
 - **Core Mechanics**: [[../gdd/01-mechanics.md]]
-- **Technical Architecture**: [[../software/04-system-architecture.md]]
 - **Product Backlog**: [[../agile/product-backlog.md]]
 - **Current Sprint**: [[../agile/sprint-planning.md]]
 

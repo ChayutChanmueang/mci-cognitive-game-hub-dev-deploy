@@ -74,4 +74,4 @@
 
 ## Linked Software Design
 - Subsystems: [[../software/01-system-design.md]]
-- Architecture: [[../software/00-architecture.md]]
+- Architecture: [[./00-concept.md]]

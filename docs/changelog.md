@@ -1,7 +1,18 @@
 # Documentation Changelog
 
 All notable changes to the game documentation suite will be documented in this file.
- 
+
+## [2026-05-03] - Architecture & Concept Consolidation
+### Changed
+- Merged `docs/software/04-system-architecture.md` and `docs/software/00-architecture.md` into `docs/gdd/00-concept.md`.
+- Renamed `docs/gdd/00-concept.md` to "Game Concept & Architecture".
+- Updated all cross-references in `README.md`, `docs/index.md`, `docs/wiki/wiki.md`, and other GDD files.
+- Updated `game-doc-manager` skill definition to reflect the new documentation structure.
+
+### Removed
+- `docs/software/00-architecture.md` (Redundant).
+- `docs/software/04-system-architecture.md` (Redundant).
+
 ## [2026-05-02] - Minigame Hotfix
 ### Fixed
 - Resolved console errors in `context-clues`, `postcard-reader`, `symmetry-decor`, `zoo-detective`, and `zoo-feeder`.

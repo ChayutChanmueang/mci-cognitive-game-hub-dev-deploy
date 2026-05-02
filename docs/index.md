@@ -8,7 +8,7 @@
 
 ## 📘 Game Design (GDD)
 เอกสารที่ระบุว่าเกมนี้คืออะไร มีระบบและทิศทางอย่างไร
-- [[gdd/00-concept.md|00. Game Concept]] - แนวคิดหลักและกลุ่มเป้าหมาย
+- [[gdd/00-concept.md|00. Game Concept & Architecture]] - แนวคิดหลัก กลุ่มเป้าหมาย และสถาปัตยกรรมระบบ
 - [[gdd/01-mechanics.md|01. Core Mechanics]] - ระบบการเล่นและเงื่อนไขของทั้ง 5 เกม
 - [[gdd/02-narrative.md|02. Narrative & Theme]] - เรื่องราวและบรรยากาศในเกม
 - [[gdd/03-art-direction.md|03. Art Direction]] - รูปแบบวิชวลและ UI/UX Guidelines
@@ -18,7 +18,7 @@
 
 ## 💻 Software Design
 เอกสารทางเทคนิคเกี่ยวกับการสร้างและสถาปัตยกรรม
-- [[software/system-architecture.md|00. System Architecture]] - โครงสร้างและการทำงานระหว่าง React & Phaser
+- [[gdd/00-concept.md|00. System Architecture]] - (ดูใน Game Concept) โครงสร้างและการทำงานระหว่าง React & Phaser
 - [[software/01-system-design.md|01. System Design]] - รายละเอียด Subsystems และ Design Patterns
 - [[software/02-class-diagram.md|02. Class Diagram]] - แผนภาพความสัมพันธ์ของ Class หลัก
 - [[software/03-data-schema.md|03. Data Schema]] - โครงสร้างฐานข้อมูล Supabase

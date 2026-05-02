@@ -38,13 +38,12 @@ All documents live under `docs/` and cross-reference each other via links.
 ```
 docs/
 ├── gdd/
-│   ├── 00-concept.md           ← High-level game concept & vision
+│   ├── 00-concept.md           ← High-level game concept, vision & architecture
 │   ├── 01-mechanics.md         ← Core gameplay loops & rules
 │   ├── 02-narrative.md         ← Story, characters, world
 │   ├── 03-art-direction.md     ← Visual style, UI/UX guidelines
 │   └── 04-audio-direction.md   ← Music, SFX guidelines
 ├── software/
-│   ├── 00-architecture.md      ← System overview & tech stack
 │   ├── 01-system-design.md     ← Subsystem breakdown
 │   ├── 02-class-diagram.md     ← Key classes & relationships (Mermaid)
 │   └── 03-data-schema.md       ← Data structures & persistence
@@ -122,39 +121,41 @@ Steps:
 
 ## Templates
 
-### GDD — Game Concept (`docs/gdd/00-concept.md`)
+### GDD — Game Concept & Architecture (`docs/gdd/00-concept.md`)
 ```markdown
-# [Game Title] — Game Concept
+# [Game Title] — Game Concept & Architecture
 
 **Version:** 0.1 | **Last Updated:** YYYY-MM-DD | **Owner:** [Name]
 
-## Elevator Pitch
+## 1. Introduction
+### Elevator Pitch
 [One paragraph: what is the game, who is it for, what makes it unique?]
 
-## Genre & Platform
-- **Genre:** [e.g., 2D Platformer, Top-down RPG]
-- **Platform:** [e.g., PC, Mobile, Web]
-- **Engine:** [e.g., Unity, Godot, engine-agnostic]
-- **Target Audience:** [age, gamer type]
+### Target Audience
+[age, gamer type, etc.]
 
-## Core Fantasy
-[What does the player FEEL when playing? What is the emotional promise?]
+---
 
-## Unique Selling Points
-1. [USP 1]
-2. [USP 2]
-3. [USP 3]
+## 2. Technical Stack
+| Layer | Technology | Notes |
+|-------|-----------|-------|
+| Engine | [e.g., Phaser 3] | |
+| Framework | [e.g., React] | |
 
-## Scope & Timeline
-- **Team Size:** [N people]
-- **Target Duration:** [X months]
-- **Milestone 1 (Prototype):** [Date]
-- **Milestone 2 (Alpha):** [Date]
-- **Milestone 3 (Release):** [Date]
+---
+
+## 3. Game Collection / Features
+[Summary of what's in the game]
+
+---
+
+## 4. System Architecture
+[High-level architecture description and Mermaid diagrams]
+
+---
 
 ## Related Documents
-- Mechanics: [[../gdd/01-mechanics.md]]
-- Architecture: [[../software/00-architecture.md]]
+- Mechanics: [[./01-mechanics.md]]
 - Backlog: [[../agile/product-backlog.md]]
 ```
 
@@ -347,10 +348,10 @@ gantt
 **Last Updated:** YYYY-MM-DD | **Maintained by:** [Name/Role]
 
 ## 🎯 Quick Access
-- **[Game Concept]**: [[gdd/00-concept.md]]
-- **[Technical Architecture]**: [[software/00-architecture.md]]
+- **[Concept & Architecture]**: [[gdd/00-concept.md]]
+- **[Core Mechanics]**: [[gdd/01-mechanics.md]]
 - **[Current Sprint]**: [[agile/sprint-planning.md]]
-
+```
 ---
 
 ## 📘 Documentation Suites

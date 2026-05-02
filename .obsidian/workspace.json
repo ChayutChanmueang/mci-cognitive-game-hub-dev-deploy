@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/software/04-system-architecture.md",
+                "file": "docs/software/01-system-design.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "04-system-architecture"
+              "title": "01-system-design"
             }
           }
         ]
@@ -206,7 +206,22 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
+    "docs/gdd/00-concept.md",
+    "docs/gdd/01-mechanics.md",
+    "docs/software/01-system-design.md",
+    "docs/software/02-class-diagram.md",
+    "docs/software/03-data-schema.md",
+    "docs/index.md",
+    "docs/agile/Meeting-Logs/2026-04-21.md",
+    "docs/agile/Meeting-Logs/2026-04-23.md",
+    "docs/agile/reports/260502_1640_Minigame_Hotfix_Report.md",
+    "docs/agile/reports/260502_0722_Sprint2_Final_Test_Report.md",
+    "docs/agile/reports/260425_2237_GameLoop_Test01_Report.md",
+    "docs/agile/reports/260425_2219_Test01_Report.md",
+    "docs/changelog.md",
     "docs/wiki/wiki.md",
+    "docs/software/00-architecture.md",
+    "docs/software/04-system-architecture.md",
     "docs/wiki/guidelines/ux-ui-modernization-guidelines.md",
     "docs/wiki/guidelines/ux-ui-guidelines.md",
     "docs/wiki/guidelines/system-test-guideline.md",
@@ -217,21 +232,6 @@
     "docs/wiki/Agentic-AI/PROJECT_AGENT_SKILL_USING.md",
     "docs/gdd/02-narrative.md",
     "docs/gdd/03-art-direction.md",
-    "docs/gdd/01-mechanics.md",
-    "docs/gdd/04-audio-direction.md",
-    "docs/gdd/00-concept.md",
-    "docs/gdd/minigames/README.md",
-    "docs/gdd/minigames/procedural_generation_zoo_detective.md",
-    "docs/gdd/minigames/gdd_zoo_feeder.md",
-    "docs/gdd/minigames/gdd_zoo_detective.md",
-    "docs/gdd/minigames/gdd_symmetry_decor.md",
-    "docs/agile/kanban.md",
-    "docs/agile/user-stories/US-E1-01.md",
-    "docs/agile/product-backlog.md",
-    "docs/agile/Weekly-Backlogs/S2-W04-Weekly-Backlog.md",
-    "docs/agile/Weekly-Backlogs/S2-W03-Weekly-Backlog.md",
-    "Sprint Planning.md",
-    "docs/agile/sprint-planning.md",
     "screenshot.png",
     "docs/wiki/guidelines",
     "docs/wiki/development",

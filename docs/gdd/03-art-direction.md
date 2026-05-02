@@ -20,4 +20,4 @@
 
 ## Related Documents
 - Mechanics: [[./01-mechanics.md]]
-- Architecture: [[../software/00-architecture.md]]
+- Architecture: [[./00-concept.md]]

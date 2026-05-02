@@ -79,11 +79,11 @@ This project leverages cutting-edge AI orchestration for both development and do
 - [**Knowledge Wiki**](docs/wiki/wiki.md) - Detailed technical guides and research
 
 ### 📘 Game Design (GDD)
-- [**Game Concept**](docs/gdd/00-concept.md) - Vision and USPs
+- [**Game Concept & Architecture**](docs/gdd/00-concept.md) - Vision, USPs, and Technical Overview
 - [**Core Mechanics**](docs/gdd/01-mechanics.md) - Gameplay rules and loops
 
 ### 💻 Software Design
-- [**Architecture**](docs/software/00-architecture.md) - Tech stack and system overview
+- [**System Design**](docs/software/01-system-design.md) - Subsystems and patterns
 - [**Database Schema**](docs/software/03-data-schema.md) - Supabase data structures
 
 ### 🚀 Project Management
