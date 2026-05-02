@@ -11,6 +11,22 @@
 | **Sprint 3** | Week 5-6 | Logic Games & Integration | Symmetry Decor, ระบบ Auth, ระบบบันทึกคะแนน (Score API) |
 | **Sprint 4** | Week 7-8 | AR & Accessibility Polish | Postcard Reader (AR), Voice Over, UX Final Polish |
 
+## 📊 Project Timeline (Gantt Chart)
+```mermaid
+gantt
+    title MCI Cognitive Games Roadmap
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m/%d
+    section Sprint 1
+    Foundation & Zoo Games :done, s1, 2026-04-06, 14d
+    section Sprint 2
+    UI & Data Setup        :active, s2, 2026-04-20, 14d
+    section Sprint 3
+    Logic Games & Integration :s3, after s2, 14d
+    section Sprint 4
+    AR & Final Polish      :s4, after s3, 14d
+```
+
 ---
 
 ## 🚀 Sprint Breakdown

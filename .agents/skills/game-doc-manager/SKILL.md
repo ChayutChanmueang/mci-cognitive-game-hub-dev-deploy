@@ -50,6 +50,7 @@ docs/
 │   └── 03-data-schema.md       ← Data structures & persistence
 ├── agile/
 │   ├── product-backlog.md      ← Full feature & task list
+│   ├── sprint-planning.md      ← Overall roadmap & Gantt chart
 │   ├── sprint-XX-plan.md       ← Per-sprint plan (duplicate for each sprint)
 │   └── retrospectives/
 │       └── sprint-XX-retro.md
@@ -225,13 +226,57 @@ graph TD
 - Derived from: [[../gdd/01-mechanics.md]], [[../gdd/00-concept.md]]
 ```
 
+### Agile — Sprint Planning (Roadmap) (`docs/agile/sprint-planning.md`)
+```markdown
+# Sprint Planning & Roadmap
+
+**Last Updated:** YYYY-MM-DD | **Version:** 0.1
+
+## 📅 Sprint Schedule Overview
+| Sprint | Timeline | Focus Area | Key Deliverables |
+|:---|:---|:---|:---|
+| **Sprint 1** | Week 1-2 | [Focus] | [Deliverables] |
+| **Sprint 2** | Week 3-4 | [Focus] | [Deliverables] |
+
+## 📊 Project Timeline (Gantt Chart)
+```mermaid
+gantt
+    title Project Roadmap
+    dateFormat  YYYY-MM-DD
+    section Sprint 1
+    Foundation & Zoo Games :active, s1, 2026-04-06, 14d
+    section Sprint 2
+    UI & Data Setup        :s2, after s1, 14d
+    section Sprint 3
+    Logic Games & Integration :s3, after s2, 14d
+    section Sprint 4
+    AR & Final Polish      :s4, after s3, 14d
+```
+
+## 📈 Milestone Strategy
+[Describe how Epics align with Sprints]
+
+---
+
 ### Agile — Sprint Plan (`docs/agile/sprint-XX-plan.md`)
 ```markdown
 # Sprint [XX] Plan
 
-**Sprint Dates:** YYYY-MM-DD → YYYY-MM-DD
+**Sprint Dates:** YYYY-MM-DD → YYYY-MM-DD (**Duration:** 14 Days)
 **Sprint Goal:** [One sentence: what will be DONE by end of sprint?]
 **Team:** [Names]
+
+## 📅 Internal Timeline
+```mermaid
+gantt
+    title Sprint [XX] Tasks
+    dateFormat  YYYY-MM-DD
+    section Development
+    Task 1 :a1, 2026-05-01, 3d
+    Task 2 :a2, after a1, 5d
+    section Testing
+    System Test :test1, after a2, 3d
+```
 
 ## Committed Stories
 | ID | Story | Owner | Estimate | Done? |
@@ -246,9 +291,9 @@ graph TD
 ## Risks & Blockers
 - [Risk 1]: [Mitigation]
 
-## Linked Documents
+## 🔗 Linked Documents
 - Backlog: [[./product-backlog.md]]
-- Architecture: [[../software/00-architecture.md]]
+- Roadmap: [[./sprint-planning.md]]
 ```
 
 ### Agile — Retrospective (`docs/agile/retrospectives/sprint-XX-retro.md`)
