@@ -12,10 +12,14 @@ export default class UIPanel {
         let width = 500;
         let height = 500;
 
+        let hasOverlay = true;
         if (typeof sizeXOrSetting === 'object' && sizeXOrSetting !== null) {
             const setting = sizeXOrSetting;
             width = setting.size?.x || 500;
             height = setting.size?.y || 500;
+            if (setting.overlayEnable === false) {
+                hasOverlay = false;
+            }
         } else {
             width = sizeXOrSetting || 500;
             height = sizeY || 500;
@@ -27,7 +31,11 @@ export default class UIPanel {
             scene.scale.width * 2, scene.scale.height * 2,
             Theme.colors.overlay, Theme.colors.overlayAlpha
         );
-        this.overlay.setInteractive();
+        if (hasOverlay) {
+            this.overlay.setInteractive();
+        } else {
+            this.overlay.setVisible(false);
+        }
 
         // Glass panel background
         this.panelBg = scene.add.graphics();

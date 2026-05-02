@@ -107,8 +107,11 @@ export class MinigameHUD {
     }
 
 
-    onTick({ timeLeft }) {
+    onTick({ timeLeft, maxTime }) {
         this.state.timeLeft = timeLeft;
+        if (maxTime !== undefined) {
+            this.state.maxTime = maxTime;
+        }
         if (this.timeElement) {
             this.timeElement.textContent = `${timeLeft}s`;
         }
