@@ -5,18 +5,18 @@
 ## 🎯 Quick Access
 - **Game Concept**: [[../gdd/00-concept.md]]
 - **Core Mechanics**: [[../gdd/01-mechanics.md]]
-- **Technical Architecture**: [[../software/system-architecture.md]]
+- **Technical Architecture**: [[../software/04-system-architecture.md]]
 - **Product Backlog**: [[../agile/product-backlog.md]]
 - **Current Sprint**: [[../agile/sprint-planning.md]]
 
 ---
 
 ## 📘 Documentation Suites
-| Group | Description | Status |
-|:---|:---|:---|
-| **[[../index.md#game-design-gdd|Game Design]]** | Concept, Mechanics, Art, Audio | 🟢 Active |
-| **[[../index.md#software-design|Software Design]]** | Architecture, System, Data Schema | 🟡 In-Progress |
-| **[[../index.md#agile-management|Agile Management]]** | Backlog, Sprints, Test Reports | 🟢 Updated Weekly |
+| Group                            | Description          | Status                            |                   |
+| :------------------------------- | :------------------- | :-------------------------------- | ----------------- |
+| **[[../index.md#game-design-gdd  | Game Design]]**      | Concept, Mechanics, Art, Audio    | 🟢 Active         |
+| **[[../index.md#software-design  | Software Design]]**  | Architecture, System, Data Schema | 🟡 In-Progress    |
+| **[[../index.md#agile-management | Agile Management]]** | Backlog, Sprints, Test Reports    | 🟢 Updated Weekly |
 
 ---
 

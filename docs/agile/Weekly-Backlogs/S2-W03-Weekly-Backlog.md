@@ -37,8 +37,8 @@
 ---
 
 ## 🔗 Traceability
-- **Sprint Plan:** [[Sprint Planning]]
-- **Product Backlog:** [[Product-Backlog]]
-- **Kanban:** [[Kanban_Board]]
+- **Sprint Plan:** [[sprint-planning|Sprint Planning]]
+- **Product Backlog:** [[product-backlog|Product Backlog]]
+- **Kanban:** [[kanban|Kanban Board]]
 
 ---

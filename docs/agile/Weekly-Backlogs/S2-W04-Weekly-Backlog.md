@@ -40,6 +40,6 @@
 ---
 
 ## 🔗 Traceability
-- **Test Report:** [[260502_0722_Sprint2_Final_Test_Report]]
-- **Sprint Plan:** [[Sprint Planning]]
-- **Kanban:** [[Kanban_Board]]
+- **Test Report:** [[reports/260502_0722_Sprint2_Final_Test_Report|260502_0722_Sprint2_Final_Test_Report]]
+- **Sprint Plan:** [[sprint-planning|Sprint Planning]]
+- **Kanban:** [[kanban|Kanban Board]]

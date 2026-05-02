@@ -5,7 +5,6 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
-- [ ] [[US-E1-07]] Symmetry Decor Grid
 
 
 ## 🔵 In Progress (WIP Limit: 3)
