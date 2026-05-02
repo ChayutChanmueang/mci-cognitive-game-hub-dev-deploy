@@ -18,7 +18,7 @@
 
 ## 💻 Software Design
 เอกสารทางเทคนิคเกี่ยวกับการสร้างและสถาปัตยกรรม
-- [[software/00-architecture.md|00. Architecture]] - ภาพรวมโครงสร้างระบบ (React + Phaser)
+- [[software/system-architecture.md|00. System Architecture]] - โครงสร้างและการทำงานระหว่าง React & Phaser
 - [[software/01-system-design.md|01. System Design]] - รายละเอียด Subsystems และ Design Patterns
 - [[software/02-class-diagram.md|02. Class Diagram]] - แผนภาพความสัมพันธ์ของ Class หลัก
 - [[software/03-data-schema.md|03. Data Schema]] - โครงสร้างฐานข้อมูล Supabase

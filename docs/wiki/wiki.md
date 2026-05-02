@@ -5,7 +5,7 @@
 ## 🎯 Quick Access
 - **Game Concept**: [[../gdd/00-concept.md]]
 - **Core Mechanics**: [[../gdd/01-mechanics.md]]
-- **Technical Architecture**: [[../software/00-architecture.md]]
+- **Technical Architecture**: [[../software/system-architecture.md]]
 - **Product Backlog**: [[../agile/product-backlog.md]]
 - **Current Sprint**: [[../agile/sprint-planning.md]]
 
