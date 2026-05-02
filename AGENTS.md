@@ -23,8 +23,9 @@ This is a Phaser 3 game template using Vite for bundling with hot-reload support
 1. Clone repository
 2. Run `npm install`
 3. Start development with `npm run dev`
-4. Edit files in `src/` - Vite handles hot reloading
-5. Game serves at `http://localhost:8080`
+4. **UX/UI Improvements:** Always refer to `docs/wiki/guidelines/ux-ui-guidelines.md` before making any UI changes.
+5. Edit files in `src/` - Vite handles hot reloading
+6. Game serves at `http://localhost:8080`
 
 ## Build & Deployment
 - Production builds output to `dist/` folder
