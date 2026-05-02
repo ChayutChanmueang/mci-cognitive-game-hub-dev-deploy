@@ -36,7 +36,7 @@ const config = {
     plugins: {
         scene:[
             {
-                ket: 'rexUI',
+                key: 'rexUI',
                 plugin: UIPlugin,
                 mapping: 'rexUI'
             }
