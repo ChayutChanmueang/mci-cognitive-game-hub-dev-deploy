@@ -2,129 +2,139 @@ import Entity from "../entity";
 import Animal from "./animal";
 import Fruit from "./fruit";
 
-export default class Conveyer extends Entity{
-    constructor(scene,x,y,speed = 150,scale = 1){
-        super(scene,x,y,null);
+export default class Conveyer extends Entity {
+    constructor(scene, x, y, speed = 150, scale = 1) {
+        super(scene, x, y, null);
 
         this.setVisible(false);
-
         this.isMoving = true;
-
         this.speed = speed;
-
         this.scale = scale;
 
-        this.beltSegmentPretext = 'beltSegment';
-        this.beltNum = 1;
-        while(scene.textures.exists('beltSegment'+this.beltNum.toString())){
-            this.beltNum++;
+        const _beltWidth = 250;
+        const _beltHeight = 1700;
+        const _cornerRadius = 70;
+
+        // 1. Draw the Static Background (Image 2)
+        this.beltBackground = scene.add.graphics();
+        // Thick light-grey border (Stroke)
+        this.beltBackground.lineStyle(12, 0xe0e0e0, 1);
+        // Dark grey interior (Fill)
+        this.beltBackground.fillStyle(0x383838, 1);
+        
+        // Draw the rounded rectangle centered at X, starting at Y
+        this.beltBackground.fillRoundedRect(x - _beltWidth / 2, y, _beltWidth, _beltHeight, _cornerRadius);
+        this.beltBackground.strokeRoundedRect(x - _beltWidth / 2, y, _beltWidth, _beltHeight, _cornerRadius);
+        this.beltBackground.setDepth(-2);
+
+        // 2. Generate the Arrow Texture (Image 3) dynamically
+        const _arrowTextureName = 'downArrowGraphic';
+        if (!scene.textures.exists(_arrowTextureName)) {
+            const arrowGraphics = scene.add.graphics();
+            arrowGraphics.fillStyle(0x4a4a4a, 1);
+            
+            // Draw a downward-pointing triangle
+            // Coordinates: (top-left, top-right, bottom-center)
+            arrowGraphics.fillTriangle(20, 10, 80, 10, 50, 40);
+            
+            // Save graphics to texture memory (width: 100, height: 100 to give spacing)
+            arrowGraphics.generateTexture(_arrowTextureName, 100, 100);
+            arrowGraphics.destroy(); // Clean up graphics object
         }
-        this.beltSegmentName = this.beltSegmentPretext + this.beltNum.toString();
-        console.log(this.beltSegmentName);
 
-        //Belt Settings
-        const _beltTotalSize = 64;
-        const _beltConnectorHeight = 4;
-        const _beltSize = _beltTotalSize - _beltConnectorHeight;
-        if(!scene.textures.exists(this.beltSegmentName)){
-            const canvas = scene.textures.createCanvas(this.beltSegmentName,100,_beltTotalSize);
-            const ctx = canvas.context;
-
-            ctx.fillStyle = '#333333';
-            ctx.fillRect(0,0,100,_beltTotalSize);
-
-            ctx.fillStyle = '#444444';
-            ctx.fillRect(0,_beltSize,100,_beltConnectorHeight);
-
-            canvas.refresh();
-        }
-
-        this.conveyer = scene.add.tileSprite(
+        // 3. Create Scrolling TileSprite for Arrows
+        this.conveyerArrows = scene.add.tileSprite(
             x,
-            y + 500,
-            100,
-            1100,
-            this.beltSegmentName
+            y + (_beltHeight / 2),
+            _beltWidth - 150, // Slightly thinner than belt interior
+            _beltHeight - 20,
+            _arrowTextureName
         );
-        this.conveyer.setDepth(-1);
+        this.conveyerArrows.setDepth(-1);
 
-        this.animal = new Animal(scene,x,1200 * 1.55,1.5);
-
+        // Position the animal near the bottom
+        this.animal = new Animal(scene, x, y + _beltHeight + 200, 0.75);
         this.foods = [];
-        // this.spawnFoods();
-        // this.spawnTimer = this.scene.time.addEvent({
-        //     delay: this.randomSpawnTime(9,15) * 100, //ms
-        //     callback: this.spawnFoods,
-        //     callbackScope: this,
-        //     loop: true
-        // });
-        this.conveyer.scale = this.scale;
     }
-    update(time,delta){
-        if(!this.isMoving) return;
 
-        const _deltaInSeconds = delta/1000;
-        const _moveDistance = this.speed * _deltaInSeconds;
-        this.conveyer.tilePositionY -= _moveDistance;
+    update(time, delta) {
+        if (!this.isMoving) return;
+
+        const _deltaInSeconds = delta / 1000;
+        const _moveDistance = Math.abs(this.speed) * _deltaInSeconds;
+        
+        // Scroll the dynamically generated arrow texture downwards
+        this.conveyerArrows.tilePositionY -= _moveDistance;
     }
-    setSpeed(newSpeed){
+
+    setSpeed(newSpeed) {
         this.speed = newSpeed;
-        for(const _food of this.foods){
-            _food.setVelocityY(this.speed);
+        for (const _food of this.foods) {
+            // In Phaser, positive Y velocity moves the physics body DOWN the screen
+            _food.setVelocityY(Math.abs(this.speed));
         }
     }
-    spawnFoods(){
-        const _fruit = new Fruit(this.scene, this.x, this.y,this,1.5);
-        _fruit.setVelocityY(this.speed);
-        //_fruit.scale = this.scale;
+
+    spawnFoods() {
+        // Spawns fruit at the top (this.y)
+        const _fruit = new Fruit(this.scene, this.x, this.y + 200, this, 0.75);
+        
+        // Ensure initial velocity is pointing downwards
+        _fruit.setVelocityY(Math.abs(this.speed));
+        
         this.foods.push(_fruit);
         this.spawnCooldown = 0;
-        if(this.spawnTimer != null){
-            this.spawnTimer.delay = this.randomSpawnTime(9,15) * 100;
+        
+        if (this.spawnTimer != null) {
+            this.spawnTimer.delay = this.randomSpawnTime(9, 15) * 100;
         }
 
         _fruit.once('destroy', () => {
             this.removeFoodFromList(_fruit);
-        })
+        });
         _fruit.once('itemSorted', () => {
             this.removeFoodFromList(_fruit);
-        })
+        });
     }
-    randomSpawnTime(min,max){
+
+    randomSpawnTime(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-    removeFoodFromList(fruit){
-        const index = this.foods.indexOf(fruit);
 
-        if(index > -1){
-            this.foods.splice(index,1);
+    removeFoodFromList(fruit) {
+        const index = this.foods.indexOf(fruit);
+        if (index > -1) {
+            this.foods.splice(index, 1);
         }
     }
-    onRemoveFood(foodType){
-        if(foodType == this.animal.currentAnimal.AcceptableFoodType){
-            //console.log("Why you remove the food");
+
+    onRemoveFood(foodType) {
+        if (foodType == this.animal.currentAnimal.AcceptableFoodType) {
             this.scene.onRemoveEatableFood();
-        }
-        else{
-            //console.log("Good job!");
+            return false;
+        } else {
             this.scene.onRemoveUneatableFood();
+            return true;
         }
     }
-    addSpeed(addedSpeed){
+
+    addSpeed(addedSpeed) {
         this.setSpeed(this.speed + addedSpeed);
     }
-    disableFoodsInput(){
+
+    disableFoodsInput() {
         this.foods.forEach(food => {
-            if(food.active){
+            if (food.active) {
                 food.disableInteractive();
             }
         });
     }
-    stop(){
+
+    stop() {
         this.isMoving = false;
         this.disableFoodsInput();
-        if(this.spawnTimer) this.spawnTimer.paused = true;
+        if (this.spawnTimer) this.spawnTimer.paused = true;
     }
 }

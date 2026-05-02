@@ -1,3 +1,10 @@
+import { calculateAgeFromBirthDate } from "../util/patient-date-util.js";
+import {
+    formatThaiPhoneNumber,
+    isCompleteThaiPhoneNumber,
+    normalizeThaiPhoneNumber,
+} from "../util/phone-number-util.js";
+
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
 }
@@ -9,6 +16,39 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#39;");
+}
+
+function setFieldError(input, message = "") {
+    if (!input) {
+        return;
+    }
+
+    input.error = true;
+    input.setAttribute("error", "");
+
+    if (message) {
+        input.errorText = message;
+        input.setAttribute("error-text", message);
+    }
+}
+
+function clearFieldError(input) {
+    if (!input) {
+        return;
+    }
+
+    input.error = false;
+    input.removeAttribute("error");
+}
+
+function isValidDateValue(value) {
+    const rawValue = String(value || "").trim();
+    if (!rawValue) {
+        return false;
+    }
+
+    const parsedDate = new Date(rawValue);
+    return !Number.isNaN(parsedDate.getTime());
 }
 
 export function renderSignupScreen(root, options = {}) {
@@ -60,6 +100,7 @@ export function renderSignupScreen(root, options = {}) {
                                 aria-label="ชื่อ"
                                 required
                                 no-asterisk
+                                error-text="กรุณากรอกชื่อ"
                             ></md-outlined-text-field>
                         </label>
 
@@ -71,18 +112,21 @@ export function renderSignupScreen(root, options = {}) {
                                 aria-label="นามสกุล"
                                 required
                                 no-asterisk
+                                error-text="กรุณากรอกนามสกุล"
                             ></md-outlined-text-field>
                         </label>
 
                         <label class="signup-row">
-                            <span>วันเกิด :</span>
+                            <span>เบอร์โทร :</span>
                             <md-outlined-text-field
-                                id="signup-birth-date"
-                                aria-label="วันเกิด"
-                                type="date"
-                                lang="en-GB"
+                                id="signup-phone"
+                                placeholder="เช่น 081-234-5678"
+                                aria-label="เบอร์โทร"
+                                type="tel"
+                                inputmode="tel"
                                 required
                                 no-asterisk
+                                error-text="กรุณากรอกเบอร์โทร"
                             ></md-outlined-text-field>
                         </label>
 
@@ -92,6 +136,7 @@ export function renderSignupScreen(root, options = {}) {
                                 id="signup-gender"
                                 aria-label="เพศ"
                                 required
+                                error-text="กรุณาเลือกเพศ"
                             >
                                 <md-select-option value="male">
                                     <div slot="headline">ชาย</div>
@@ -109,11 +154,30 @@ export function renderSignupScreen(root, options = {}) {
                         </label>
 
                         <label class="signup-row">
+                            <span>วันเกิด :</span>
+                            <md-outlined-text-field
+                                id="signup-birth-date"
+                                aria-label="วันเกิด"
+                                type="date"
+                                lang="en-GB"
+                                required
+                                no-asterisk
+                                error-text="กรุณาเลือกวันเกิด"
+                            ></md-outlined-text-field>
+                        </label>
+
+                        <div class="signup-row">
+                            <span>อายุ :</span>
+                            <div id="signup-age-value" class="signup-age-value">- ปี</div>
+                        </div>
+
+                        <label class="signup-row">
                             <span>การศึกษา :</span>
                             <md-outlined-select
                                 id="signup-education-level"
                                 aria-label="การศึกษา"
                                 required
+                                error-text="กรุณาเลือกระดับการศึกษา"
                                 ${isEducationLevelAvailable ? "" : "disabled"}
                             >
                                 <md-select-option value="">
@@ -133,6 +197,7 @@ export function renderSignupScreen(root, options = {}) {
                                 value="${createDateValue()}"
                                 required
                                 no-asterisk
+                                error-text="กรุณาเลือกวันที่เริ่มโปรแกรม"
                             ></md-outlined-text-field>
                         </label>
                     </div>
@@ -151,10 +216,58 @@ export function renderSignupScreen(root, options = {}) {
     const backButton = root.querySelector("#signup-back-button");
     const submitButton = root.querySelector("#signup-submit-button");
     const feedback = root.querySelector("#signup-feedback");
+    const firstnameField = root.querySelector("#signup-firstname");
+    const lastnameField = root.querySelector("#signup-lastname");
+    const phoneField = root.querySelector("#signup-phone");
+    const birthDateField = root.querySelector("#signup-birth-date");
+    const genderField = root.querySelector("#signup-gender");
+    const educationLevelField = root.querySelector("#signup-education-level");
+    const startedProgramField = root.querySelector("#signup-started-program");
+    const ageValue = root.querySelector("#signup-age-value");
 
     if (!form || !backButton || !submitButton || !feedback) {
         return;
     }
+
+    const updateAgeDisplay = () => {
+        if (!ageValue) {
+            return;
+        }
+
+        const age = calculateAgeFromBirthDate(birthDateField?.value);
+        ageValue.textContent = Number.isInteger(age) ? `${age} ปี` : "- ปี";
+    };
+
+    birthDateField?.addEventListener("input", updateAgeDisplay);
+    birthDateField?.addEventListener("change", updateAgeDisplay);
+    updateAgeDisplay();
+
+    const updatePhoneDisplay = () => {
+        if (!phoneField) {
+            return;
+        }
+
+        phoneField.value = formatThaiPhoneNumber(phoneField.value);
+        clearFieldError(phoneField);
+    };
+
+    phoneField?.addEventListener("input", updatePhoneDisplay);
+    phoneField?.addEventListener("change", updatePhoneDisplay);
+
+    const requiredFields = [
+        firstnameField,
+        lastnameField,
+        phoneField,
+        birthDateField,
+        genderField,
+        educationLevelField,
+        startedProgramField,
+    ].filter(Boolean);
+
+    requiredFields.forEach((field) => {
+        field.addEventListener("input", () => clearFieldError(field));
+        field.addEventListener("change", () => clearFieldError(field));
+    });
 
     backButton.addEventListener("click", () => {
         onBack();
@@ -165,13 +278,64 @@ export function renderSignupScreen(root, options = {}) {
 
         const formData = {
             hn: String(initialHn || "").trim(),
-            firstname: String(root.querySelector("#signup-firstname")?.value || "").trim(),
-            lastname: String(root.querySelector("#signup-lastname")?.value || "").trim(),
-            birthDate: String(root.querySelector("#signup-birth-date")?.value || "").trim(),
-            gender: String(root.querySelector("#signup-gender")?.value || "").trim(),
-            educationLevel: String(root.querySelector("#signup-education-level")?.value || "").trim(),
-            startedProgram: String(root.querySelector("#signup-started-program")?.value || "").trim(),
+            firstname: String(firstnameField?.value || "").trim(),
+            lastname: String(lastnameField?.value || "").trim(),
+            phone: normalizeThaiPhoneNumber(phoneField?.value),
+            birthDate: String(birthDateField?.value || "").trim(),
+            gender: String(genderField?.value || "").trim(),
+            educationLevel: String(educationLevelField?.value || "").trim(),
+            startedProgram: String(startedProgramField?.value || "").trim(),
         };
+        let hasInvalidField = false;
+        const normalizedBirthDate = new Date(formData.birthDate);
+
+        requiredFields.forEach((field) => clearFieldError(field));
+
+        if (!formData.firstname) {
+            setFieldError(firstnameField, "กรุณากรอกชื่อ");
+            hasInvalidField = true;
+        }
+
+        if (!formData.lastname) {
+            setFieldError(lastnameField, "กรุณากรอกนามสกุล");
+            hasInvalidField = true;
+        }
+
+        if (!formData.phone) {
+            setFieldError(phoneField, "กรุณากรอกเบอร์โทร");
+            hasInvalidField = true;
+        } else if (!isCompleteThaiPhoneNumber(formData.phone)) {
+            setFieldError(phoneField, "กรุณากรอกเบอร์โทร 10 หลัก");
+            hasInvalidField = true;
+        }
+
+        if (!isValidDateValue(formData.birthDate)) {
+            setFieldError(birthDateField, "กรุณาเลือกวันเกิด");
+            hasInvalidField = true;
+        } else if (normalizedBirthDate > new Date()) {
+            setFieldError(birthDateField, "วันเกิดต้องไม่เป็นวันในอนาคต");
+            hasInvalidField = true;
+        }
+
+        if (!formData.gender) {
+            setFieldError(genderField, "กรุณาเลือกเพศ");
+            hasInvalidField = true;
+        }
+
+        if (!formData.educationLevel) {
+            setFieldError(educationLevelField, "กรุณาเลือกระดับการศึกษา");
+            hasInvalidField = true;
+        }
+
+        if (!isValidDateValue(formData.startedProgram)) {
+            setFieldError(startedProgramField, "กรุณาเลือกวันที่เริ่มโปรแกรม");
+            hasInvalidField = true;
+        }
+
+        if (hasInvalidField) {
+            feedback.textContent = "";
+            return;
+        }
 
         sessionStorage.setItem("patient_signup_draft", JSON.stringify(formData));
         submitButton.disabled = true;
@@ -186,7 +350,13 @@ export function renderSignupScreen(root, options = {}) {
             }
         } catch (error) {
             console.error("Patient signup flow failed:", error);
-            feedback.textContent = error?.message || "ไม่สามารถบันทึกข้อมูลผู้ป่วยได้";
+            const message = error?.message || "ไม่สามารถบันทึกข้อมูลผู้ป่วยได้";
+
+            if (message.includes("เบอร์โทร")) {
+                setFieldError(phoneField, message);
+            }
+
+            feedback.textContent = message;
             submitButton.disabled = false;
             return;
         }

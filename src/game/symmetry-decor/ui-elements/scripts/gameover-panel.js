@@ -1,6 +1,7 @@
 import { createThaiText } from "../../../../util/thai-text";
 import UIPage from "../core/ui-page";
-
+import game_db from "/src/util/minigame-db-util.js";
+import { getDifficultyLevelNumber } from "../../constants";
 
 export default class GameOverPanel extends UIPage{
     constructor(scene){
@@ -55,6 +56,12 @@ export default class GameOverPanel extends UIPage{
 
         this.homeBtn = this.createButton(0,225, "กลับหน้าหลัก", () => {
             this.scene.scene.start('main-menu-scene')
+
+            game_db.pushGameData(0, getDifficultyLevelNumber(scene.level), scene.gameStartedAt, scene.gameEndedAt).then(() => {
+                console.log("Game data saved to database.");
+            }).catch((error) => {
+                console.error("Failed to save game data:", error);
+            });
         });
 
         this.addElements([this.titleText, this.timeText, ...this.restartBtn,...this.homeBtn]);

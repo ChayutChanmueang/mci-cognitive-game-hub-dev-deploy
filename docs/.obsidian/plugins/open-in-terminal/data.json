@@ -1,0 +1,14 @@
+{
+  "terminalApp": {
+    "win": "pwsh.exe"
+  },
+  "enableClaude": false,
+  "enableCodex": false,
+  "enableCursor": false,
+  "enableGemini": true,
+  "enableOpencode": false,
+  "enableWslOnWindows": false,
+  "enableGitCommitPush": true,
+  "enableGitPull": true,
+  "defaultCommitMessage": "update"
+}
