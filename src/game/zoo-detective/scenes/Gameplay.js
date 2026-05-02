@@ -8,6 +8,8 @@ import { DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../
 import {Config} from "../../zoo-detective/constants.js";
 import ProgressBar from "../../../util/layout/progress-bar.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
+import { EventBus } from "../../../core/EventBus.js";
+
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -69,6 +71,18 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI.setScore(this.allScore);
         this.gameplayUI.setElapsedTime(0);
 
+        // Hide old Phaser UI elements
+        this.gameplayUI.uiBackground.setVisible(false);
+        this.gameplayUI.currentScore.setVisible(false);
+        this.gameplayUI.currentElapsedTime.setVisible(false);
+
+        // Initial state to HUD
+        EventBus.emit('minigame:score', { score: this.allScore });
+        EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ 1/${Config.MaxRound[this.levelMap]}` });
+        EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
+
+
+
         this.gameStartedAt = new Date();
         this.gameEndedAt = new Date();
 
@@ -90,7 +104,11 @@ export default class GameplayScene extends Phaser.Scene {
             const nextRoundDisplay = Math.min(this.round + 1, maxRound);
 
             this.gameplayUI.setScore(this.allScore);
+            EventBus.emit('minigame:score', { score: this.allScore });
             this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
+            EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ ${nextRoundDisplay}/${maxRound}` });
+
+
 
             console.log(`allScore : ${this.allScore}`);
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
@@ -194,9 +212,13 @@ export default class GameplayScene extends Phaser.Scene {
         const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
         this.gameplayUI.setElapsedTime(elapsedMs);
 
+        const timeLeftS = Math.ceil((this.timeLimitMs - elapsedMs) / 1000);
+        EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS) });
+
         if (!this.isGameEnded && elapsedMs >= this.timeLimitMs) {
             this.endGame("failure");
         }
+
     }
 
     startGameTimer(){
@@ -226,6 +248,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI?.setElapsedTime(elapsedMs);
         this.gameplayUI?.setScore(this.allScore);
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
+        EventBus.emit('minigame:game-over', { score: this.allScore });
+
     }
 
     renderPuzzle() {
