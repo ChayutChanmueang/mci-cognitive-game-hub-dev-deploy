@@ -37,6 +37,7 @@
 
 ## 📚 Resources & Guidelines
 - [[wiki/wiki.md|🌐 Project Wiki]] - คลังความรู้และบันทึกโครงการ
+- [[wiki/guidelines/ux-ui-modernization-guidelines.md|Modern UX/UI Guidelines]] - แนวทางการปรับปรุงล่าสุด (2026)
 - [[wiki/guidelines/system-test-guideline.md|Testing Guidelines]] - แนวทางการทดสอบระบบ
 - [[changelog.md|Documentation Changelog]] - ประวัติการแก้ไขเอกสาร
 

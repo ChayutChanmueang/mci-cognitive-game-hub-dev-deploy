@@ -38,6 +38,8 @@
 ---
 
 ## 📚 Resources & Guidelines
+- [[guidelines/ux-ui-modernization-guidelines.md|Modern UX/UI Guidelines]] - **แนวทางการปรับปรุงล่าสุด (2026)**
+- [[guidelines/ux-ui-guidelines.md|General UI Guidelines]] - มาตรฐาน UI ทั่วไป
 - [[guidelines/system-test-guideline.md|Testing Guidelines]] - แนวทางการทดสอบระบบ
 - [[guidelines/system-test-gameloop-guideline.md|Game Loop Testing]] - แนวทางการทดสอบ Game Loop
 - [[../changelog.md|Documentation Changelog]] - ประวัติการแก้ไขเอกสาร
