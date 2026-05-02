@@ -2,7 +2,7 @@
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
 **Status:** Active | **Current Sprint:** Sprint 2 (Final Phase)
-**Last Updated:** 2026-05-02
+**Last Updated:** 2026-05-02 | **Knowledge Hub:** [[wiki/wiki.md|🌐 Project Wiki]]
 
 ---
 
@@ -36,6 +36,7 @@
 ---
 
 ## 📚 Resources & Guidelines
+- [[wiki/wiki.md|🌐 Project Wiki]] - คลังความรู้และบันทึกโครงการ
 - [[guidelines/system-test-guideline.md|Testing Guidelines]] - แนวทางการทดสอบระบบ
 - [[changelog.md|Documentation Changelog]] - ประวัติการแก้ไขเอกสาร
 

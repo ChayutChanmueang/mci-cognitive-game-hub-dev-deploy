@@ -11,10 +11,14 @@
             "id": "3e42e5dc7d4ff18f",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "docs/wiki/wiki.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "wiki"
             }
           }
         ]
@@ -170,12 +174,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "docs/wiki/wiki.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of wiki"
             }
           }
         ],
@@ -198,8 +203,22 @@
       "templater-obsidian:Templater": false
     }
   },
-  "active": "3e42e5dc7d4ff18f",
+  "active": "b80327e6fc02f4b7",
   "lastOpenFiles": [
+    "docs/changelog.md",
+    "docs/index.md",
+    "docs/wiki/wiki.md",
+    "docs/wiki/development/SETUP.md",
+    "docs/wiki/development",
+    "README.md",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "docs/wiki/SETUP.md",
+    "docs/software/01-system-design.md",
+    "docs/software/00-architecture.md",
+    "docs/gdd/01-mechanics.md",
+    "docs/gdd/00-concept.md",
+    "screenshot.png",
     "dashboard.md",
     "Progress-Logs/Reports-Logs/Report Guildline.MD",
     "Progress-Logs/Reports-Logs/New Text Document.txt",
@@ -217,25 +236,12 @@
     "DASHBOARD-Template.md",
     "Progress-Logs/Product-Backlog.md",
     "Progress-Logs/Kanban_Board.md",
-    "Progress-Logs/Weekly-Backlogs/S2-W03-Weekly-Backlog.md",
-    "Progress-Logs/Weekly-Backlogs/WB-ID.md",
-    "Progress-Logs/User-Storys/User-Story-Template.md",
-    "Progress-Logs/Weekly-Backlog-History-Template.md",
-    "Progress-Logs/Product-Backlog-Template.md",
-    "Progress-Logs/Meeting-History-Template.md",
-    "Progress-Logs/Meeting-Logs/2026-04-23.md",
-    "Progress-Logs/Meeting-Logs/2026-04-21.md",
-    "Agile-Template/Design-Documents/GDD-Template.md",
-    "Agile-Template/Guideline.md",
-    "Agile-Template/DASHBOARD-Template.md",
-    "Agile-Template/Design-Documents/ClassDiagram-Template.md",
     "Design-Documents",
     "Progress-Logs/Meeting-Logs",
     "Progress-Logs/Weekly-Backlogs",
     "User-Storys",
     "Agile-Template/Progress-Logs/Weekly-Backlogs",
     "Design Documents",
-    "Agile-Template/Progress-Logs/Meeting-Logs",
     "Idea.canvas",
     "Untitled.canvas",
     "Untitled 1.canvas"
