@@ -54,6 +54,7 @@ docs/
 │   ├── sprint-XX-plan.md       ← Per-sprint plan (duplicate for each sprint)
 │   └── retrospectives/
 ├── wiki/                       ← Ad-hoc knowledge, research, & guides
+│   ├── guidelines/             ← Process guidelines & specific rules
 │   ├── [Category]/             ← Sub-folders for specific topics
 │   ├── wiki.md                 ← Knowledge Hub (Quick links to everything)
 │   └── ...
@@ -108,6 +109,14 @@ Steps:
 3. Group ad-hoc knowledge in `docs/wiki/` into logical categories (e.g., "Research", "Dev Logs", "AI Experiments").
 4. Ensure `docs/wiki/wiki.md` serves as the "Wiki Home" for the project.
 5. Update `docs/index.md` to link to `docs/wiki/wiki.md` in the header and under the "Resources & Guidelines" section.
+
+### Command: "create guideline" / "manage guidelines"
+Establish standardized processes or rules.
+Steps:
+1. Create new guidelines in `docs/wiki/guidelines/`.
+2. Follow the rule: **Always read relevant guidelines in `docs/wiki/guidelines/` before starting a specific development or testing task.**
+3. Reference guidelines in relevant documents (e.g., mention the test guideline in the test report).
+4. Update `docs/wiki/wiki.md` and `docs/index.md` to include the new guideline link.
 
 ---
 

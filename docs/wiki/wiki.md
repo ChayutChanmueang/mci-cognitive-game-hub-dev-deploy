@@ -38,7 +38,8 @@
 ---
 
 ## 📚 Resources & Guidelines
-- [[../guidelines/system-test-guideline.md|Testing Guidelines]] - แนวทางการทดสอบระบบ
+- [[guidelines/system-test-guideline.md|Testing Guidelines]] - แนวทางการทดสอบระบบ
+- [[guidelines/system-test-gameloop-guideline.md|Game Loop Testing]] - แนวทางการทดสอบ Game Loop
 - [[../changelog.md|Documentation Changelog]] - ประวัติการแก้ไขเอกสาร
 
 ---

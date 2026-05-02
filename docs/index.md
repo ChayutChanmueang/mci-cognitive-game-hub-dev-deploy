@@ -37,7 +37,7 @@
 
 ## 📚 Resources & Guidelines
 - [[wiki/wiki.md|🌐 Project Wiki]] - คลังความรู้และบันทึกโครงการ
-- [[guidelines/system-test-guideline.md|Testing Guidelines]] - แนวทางการทดสอบระบบ
+- [[wiki/guidelines/system-test-guideline.md|Testing Guidelines]] - แนวทางการทดสอบระบบ
 - [[changelog.md|Documentation Changelog]] - ประวัติการแก้ไขเอกสาร
 
 ---
