@@ -4,12 +4,15 @@
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
-| Sprint        | Timeline      | Focus Area                           | Status      |
-| :------------ | :------------ | :----------------------------------- | :---------- |
-| [[sprint-01]] | Mar 01-14     | Foundation & Zoo Games               | Completed   |
-| [[sprint-02]] | Mar 15-28     | UI & Data Setup                      | Completed   |
-| [[sprint-03]] | Mar 29-Apr 11 | Logic Games & Integration            | Completed   |
-| [[sprint-04]] | Apr 12-30     | **(Current)** Final Polish & Variety | In-Progress |
+| Sprint                                    | Timeline      | Focus Area                           | Status    |
+| :---------------------------------------- | :------------ | :----------------------------------- | :-------- |
+| [sprint-01](sprint-backlogs/sprint-01.md) | Mar 01-14     | Foundation & Zoo Games               | Completed |
+| [sprint-02](sprint-backlogs/sprint-02.md) | Mar 15-28     | UI & Data Setup                      | Completed |
+| [sprint-03](sprint-backlogs/sprint-03.md) | Mar 29-Apr 11 | Logic Games & Integration            | Completed |
+| [sprint-04](sprint-backlogs/sprint-04.md) | Apr 12-30     | **(Current)** Final Polish & Variety | Reviewing |
+| [sprint-05](sprint-backlogs/sprint-05.md) | May 01-14     | Future Enhancements & Stability      | Planned   |
+|                                           |               |                                      |           |
+
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -33,10 +36,11 @@ gantt
 
 ดูรายละเอียดงานในแต่ละ Sprint ได้ที่ลิงก์ด้านล่าง:
 
-- **[[sprint-01]]**: Foundation & Zoo Games
-- **[[sprint-02]]**: UI Interactive & Data Foundation
-- **[[sprint-03]]**: Logic Games & Data Integration
-- **[[sprint-04]]**: Final Polish & Alternative Games
+- **[sprint-01](sprint-backlogs/sprint-01.md)**: Foundation & Zoo Games
+- **[sprint-02](sprint-backlogs/sprint-02.md)**: UI Interactive & Data Foundation
+- **[sprint-03](sprint-backlogs/sprint-03.md)**: Logic Games & Data Integration
+- **[sprint-04](sprint-backlogs/sprint-04.md)**: Final Polish & Alternative Games
+- **[sprint-05](sprint-backlogs/sprint-05.md)**: Future Enhancements & Stability
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
@@ -57,3 +61,7 @@ gantt
 - **Sprint 2:** เริ่มต้นด้วยมาตรฐานพื้นฐาน (Font/Button Size)
 - **Sprint 4:** เพิ่มส่วนเสริมเพื่อการเข้าถึง (Voice Over) และขัดเกลา UI ทั้งหมด
 - **Target:** ได้มาตรฐานการออกแบบเพื่อผู้สูงอายุเมื่อจบโครงการ
+
+---
+
+Back to Index: [Index](../index.md)

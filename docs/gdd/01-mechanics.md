@@ -73,5 +73,9 @@
 - **Lose:** HP หมด (ในบางเกมที่มีระบบหัวใจ) หรือเวลาหมด
 
 ## Linked Software Design
-- Subsystems: [[../software/01-system-design.md]]
-- Architecture: [[./00-concept.md]]
+- Subsystems: [System Design](../software/01-system-design.md)
+- Architecture: [Concept](../gdd/00-concept.md)
+
+---
+[Back to Index](../index.md)
+

@@ -421,9 +421,9 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ---
 
 ## 9. Implementation Reference
-- **Schema Setup:** [[US-E2-01]] (Supabase Table Setup)
-- **Authentication:** [[US-E2-02]] (Patient Auth Integration)
-- **Data Flow:** [[US-E2-03]] (Score & Time API)
+- **Schema Setup:** [US-E2-01](US-E2-01.md) (Supabase Table Setup)
+- **Authentication:** [US-E2-02](US-E2-02.md) (Patient Auth Integration)
+- **Data Flow:** [US-E2-03](US-E2-03.md) (Score & Time API)
 
 ---
 
@@ -433,3 +433,9 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 - รองรับ Anonymous Login สำหรับผู้ที่ไม่ต้องการสร้างบัญชี
 - Row Level Security (RLS) สำหรับความปลอดภัยของข้อมูล
 - ทุกตารางมีการสร้าง Index สำหรับ Query ที่ใช้บ่อย
+\
+
+---
+[Back to Index](../index.md)\
+
+

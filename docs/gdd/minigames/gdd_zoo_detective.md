@@ -47,6 +47,6 @@
 ---
 
 ## 🚀 Development Status
-- **Core Logic:** [[US-E1-01]] (Done)
-- **UI & Feedback:** [[US-E1-02]] (In Progress)
-- **Weekly Tracking:** [[2026-04-21]]
+- **Core Logic:** [US-E1-01](../../agile/user-stories/US-E1-01.md) (Done)
+- **UI & Feedback:** [US-E1-02](../../agile/user-stories/US-E1-02.md) (In Progress)
+- **Weekly Tracking:** [2026-04-21](../../agile/meeting-backlogs/2026-04-21.md) (In Progress)

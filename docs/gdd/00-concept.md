@@ -42,7 +42,7 @@ MCI Cognitive Games เป็นแพลตฟอร์มเกมเว็บ
 2. **Game Core (Phaser 3):** จัดการกลไกของเกมทั้ง 5 เกม โดยใช้ระบบ Scene-based  
   
 ```mermaid  
-graph TD  
+    graph TD  
     App[React App] --> Auth[Supabase Auth]  
     App --> Hub[Game Hub]  
     Hub --> Phaser[Phaser Game Instance]  
@@ -131,7 +131,13 @@ graph TB
 ---
 
 ## Related Documents
-- Mechanics: [[./01-mechanics.md]]
-- System Design: [[../software/01-system-design.md]]
-- Product Backlog: [[01-product-backlog]]
-- UX/UI Modernization: [[../wiki/guidelines/ux-ui-modernization-guidelines.md]]
+- Mechanics: [Mechanics](01-mechanics.md)
+- System Design: [System Design](../software/01-system-design.md)
+- Product Backlog: [Product Backlog](../agile/01-product-backlog.md)
+- UX/UI Modernization: [UX/UI Modernization](../wiki/guidelines/ux-ui-modernization-guidelines.md)
+
+
+---
+[Back to Index](../index.md)
+
+

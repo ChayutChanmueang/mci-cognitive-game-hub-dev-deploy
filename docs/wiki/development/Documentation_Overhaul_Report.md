@@ -11,14 +11,14 @@
 
 ## 2. การปรับปรุงโครงสร้างเอกสาร (Documentation Consolidation)
 
-| ไฟล์เดิม | การเปลี่ยนแปลง | ไฟล์ใหม่ / ปัจจุบัน |
-| :--- | :--- | :--- |
-| `00-architecture.md` | รวมเนื้อหาเข้ากับแนวคิดเกม | `docs/gdd/00-concept.md` |
-| `04-system-architecture.md` | รวมเนื้อหาเข้ากับแนวคิดเกม | `docs/gdd/00-concept.md` |
-| `00-concept.md` | อัปเกรดเป็นเอกสารหลัก (Master Doc) | `docs/gdd/00-concept.md` |
-| `01-system-design.md` | อัปเดต ECS Lite, UIPanel, Score API | `docs/software/01-system-design.md` |
-| *(N/A)* | สร้าง Dashboard รวมรายงานทดสอบ | `docs/agile/reports/index.md` |
-| *(N/A)* | สร้าง Dashboard รวมบทเรียน Sprint | `docs/agile/retrospectives/index.md` |
+| ไฟล์เดิม                    | การเปลี่ยนแปลง                      | ไฟล์ใหม่ / ปัจจุบัน                  |
+| :-------------------------- | :---------------------------------- | :----------------------------------- |
+| `00-architecture.md`        | รวมเนื้อหาเข้ากับแนวคิดเกม          | (docs/gdd/00-concept.md)             |
+| `04-system-architecture.md` | รวมเนื้อหาเข้ากับแนวคิดเกม          | `docs/gdd/00-concept.md`             |
+| `00-concept.md`             | อัปเกรดเป็นเอกสารหลัก (Master Doc)  | `docs/gdd/00-concept.md`             |
+| `01-system-design.md`       | อัปเดต ECS Lite, UIPanel, Score API | `docs/software/01-system-design.md`  |
+| *(N/A)*                     | สร้าง Dashboard รวมรายงานทดสอบ      | `docs/agile/reports/index.md`        |
+| *(N/A)*                     | สร้าง Dashboard รวมบทเรียน Sprint   | `docs/agile/retrospectives/index.md` |
 
 ---
 

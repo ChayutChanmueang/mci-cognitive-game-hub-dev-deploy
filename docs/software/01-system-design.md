@@ -2,6 +2,36 @@
 
 **Version:** 1.1 | **Last Updated:** 2026-05-03
 
+```mermaid
+graph TD
+    subgraph Core
+        EventBus
+        DB[Database & Storage]
+        Voice[VoiceService]
+    end
+
+    subgraph Games
+        Entities
+        Components
+        Scenes
+        UIElements
+    end
+
+    subgraph UI
+        ReactHUD
+        PhaserUI[Phaser UIPanel]
+    end
+
+    subgraph Utils
+        ObjectPool
+        Layout
+    end
+
+    Core <--> Games
+    Core <--> UI
+    Games <--> Utils
+```
+
 เอกสารนี้อธิบายรายละเอียดการออกแบบระบบเชิงโครงสร้าง (Subsystems) และรูปแบบการเขียนโปรแกรม (Design Patterns) ที่ใช้ในโครงการ
 
 ## 1. โครงสร้างมินิเกมมาตรฐาน (Standardized Minigame Structure)
@@ -88,5 +118,11 @@
 ---
 
 ## Related Documents
-- Architecture: [[../gdd/00-concept.md]]
-- GDD Mechanics: [[../gdd/01-mechanics.md]]
+- Architecture: [Concept](../gdd/00-concept.md)
+- GDD Mechanics: [Mechanics](../gdd/01-mechanics.md)
+
+
+---
+[Back to Index](../index.md)
+
+

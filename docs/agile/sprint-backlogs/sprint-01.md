@@ -21,11 +21,16 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Owner | Estimate | Status |
 |----|--------------|-------|----------|--------|
-| [[US-E1-01]] | ระบบค้นหาภาพและตรรกะของ Zoo Detective | UI Dev | - | ✅ Done |
-| [[US-E1-03]] | ระบบสายพานลำเลียงและฟิสิกส์ของ Zoo Feeder | UI Dev | - | ✅ Done |
-| [[US-E1-05]] | ระบบคลังคำถามและประมวลผล Context Clues | Core Dev | - | ✅ Done |
+| [US-E1-01](../user-stories/US-E1-01.md) | ระบบค้นหาภาพและตรรกะของ Zoo Detective | UI Dev | - | ✅ Done |
+| [US-E1-03](../user-stories/US-E1-03.md) | ระบบสายพานลำเลียงและฟิสิกส์ของ Zoo Feeder | UI Dev | - | ✅ Done |
+| [US-E1-05](../user-stories/US-E1-05.md) | ระบบคลังคำถามและประมวลผล Context Clues | Core Dev | - | ✅ Done |
 
 ## 🛠 Sprint 1 Specifics
 - **Core Architecture:** จัดโครงสร้างโปรเจกต์ (Vite, Phaser, File Structure)
 - **Game Engine:** ติดตั้ง Phaser 3 และกำหนด Scene Lifecycle พื้นฐาน
 - **Dev Environment:** ตั้งค่า Git และเตรียม CI/CD เบื้องต้น
+
+---
+
+Back to Index: [Index](../../index.md)
+Back to Sprint Backlogs: [Sprint Backlogs](../03-sprint-backlogs.md)

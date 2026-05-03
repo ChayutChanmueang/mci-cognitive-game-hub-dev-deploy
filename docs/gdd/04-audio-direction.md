@@ -17,5 +17,11 @@
 - ระบบเสียงอ่านคำแนะนำ (Instruction Voice Over) สำหรับผู้สูงอายุที่มีปัญหาการอ่าน
 
 ## Related Documents
-- Mechanics: [[./01-mechanics.md]]
-- Architecture: [[./00-concept.md]]
+- Mechanics: [mechanics](01-mechanics.md)
+- Architecture: [concept.md](00-concept.md)
+
+---
+
+[Back to Index](../index.md)
+
+
