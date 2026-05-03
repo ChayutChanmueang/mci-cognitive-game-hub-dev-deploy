@@ -30,9 +30,9 @@
 เอกสารการบริหารจัดการโครงการและการทดสอบ
 - [[agile/product-backlog.md|Product Backlog]] - รายการฟีเจอร์และ User Stories ทั้งหมด
 - [[agile/kanban.md|Kanban Board]] - สถานะงานปัจจุบัน
-- [[agile/sprint-planning.md|Sprint Planning]] - แผนการดำเนินงานภาพรวม
+- [[agile/sprint-planning.md|Sprint Roadmap]] - แผนการดำเนินงานภาพรวมและรายละเอียด Sprint ปัจจุบัน
 - [[agile/reports/index.md|System Test Reports]] - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด
-- [[agile/retrospectives/|Sprint Retrospectives]] - บันทึกการสรุปบทเรียนท้าย Sprint
+- [[agile/retrospectives/index.md|Sprint Retrospectives]] - บันทึกสรุปบทเรียนและแนวทางการปรับปรุงในแต่ละ Sprint
 
 ---
 

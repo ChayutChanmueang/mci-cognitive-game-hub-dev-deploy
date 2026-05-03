@@ -1,6 +1,6 @@
 # 📋 รายงานผลการทดสอบระบบ (System Test Reports)
 
-**สถานะปัจจุบัน:** 🟡 In-Progress (Sprint 2 Finished / Hotfix Applied)
+**สถานะปัจจุบัน:** 🟢 Stable (Sprint 3 Finished)
 **อัปเดตล่าสุด:** 2026-05-03 | **ผู้ดูแล:** Antigravity AI
 
 เอกสารนี้ทำหน้าที่เป็นศูนย์กลางรวบรวมรายงานการทดสอบระบบ (System Testing) และการทดสอบการทำงานของเกม (Game Loop Testing) เพื่อติดตามคุณภาพและความเสถียรของแพลตฟอร์ม MCI Cognitive Games
@@ -11,13 +11,14 @@
 
 | ระบบ (Subsystem) | สถานะ (Status) | หมายเหตุ |
 | :--- | :--- | :--- |
-| **User Auth (Supabase)** | 🟢 Pass | สมัครสมาชิกและเข้าสู่ระบบได้ปกติ |
+| **User Auth (Supabase)** | 🟢 Pass | ระบบ Login/Signup และ Auth Retry ทำงานเสถียรแล้ว |
 | **Game Hub Interface** | 🟢 Pass | แสดงผลถูกต้อง รองรับปุ่มขนาดใหญ่ |
-| **Zoo Detective** | 🟡 Stable | พบปัญหา UX เล็กน้อยในระบบ Drag-and-Drop |
+| **Zoo Detective** | 🟢 Pass | แก้ไขปัญหา Hit Area Offset เรียบร้อยแล้ว |
 | **Zoo Feeder** | 🟢 Pass | กลไกหลักและ HP System ทำงานถูกต้อง |
 | **Context Clues** | 🟢 Pass | รองรับภาษาไทยสมบูรณ์ |
-| **Data Logging (Supabase)** | 🟡 Fixing | เคยพบปัญหา Foreign Key; ปัจจุบันอยู่ระหว่างตรวจสอบซ้ำ |
-| **Navigation Flow** | 🟢 Pass | แก้ไข Loop กลับหน้า Hub ได้แล้วใน Hotfix |
+| **Symmetry Decor** | 🟢 Pass | ปรับปรุงภาพลักษณ์และเชื่อมต่อ HUD เรียบร้อย |
+| **Data Logging (Supabase)** | 🟢 Pass | แก้ไขปัญหา Foreign Key และเพิ่มระบบ Retry แล้ว |
+| **Navigation Flow** | 🟢 Pass | ระบบรับส่งข้อมูลระหว่าง React/Phaser เสถียร |
 
 ---
 
@@ -34,11 +35,9 @@
 
 ## 🐛 รายการข้อบกพร่องที่ยังค้างอยู่ (Open Known Issues)
 
-| ID      | หัวข้อ                                                        | ความรุนแรง | สถานะ                |
-| :------ | :------------------------------------------------------------ | :--------- | :------------------- |
-| BUG-001 | Transient Supabase Connection Error (Missing Key ในจังหวะแรก) | 🟠 Medium  | อยู่ระหว่างเฝ้าระวัง |
-| BUG-002 | Drag-and-Drop Offset เมื่อมีการ Scroll ใน Zoo Detective       | 🟡 Low     | รอการปรับปรุง UX     |
-| BUG-003 | การบันทึกสถิติ (Logging) บางประเภทยังติด Foreign Key          | 🟠 Medium  | รอการแก้ไข Schema    |
+| ID | หัวข้อ | ความรุนแรง | สถานะ |
+| :--- | :--- | :--- | :--- |
+| BUG-004 | Postcard Reader Asset Loading | 🟡 Low | รอการเริ่มพัฒนาใน Sprint 4 |
 
 ---
 

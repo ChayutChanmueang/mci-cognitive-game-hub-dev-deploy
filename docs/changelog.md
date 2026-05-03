@@ -5,15 +5,19 @@ All notable changes to the game documentation suite will be documented in this f
 ## [2026-05-03] - Architecture & Project Alignment
 ### Added
 - Created `docs/agile/reports/index.md` as the master index and dashboard for all system test reports.
+- Created `docs/agile/retrospectives/index.md` as a central hub for all sprint retrospectives.
+- Created `docs/agile/retrospectives/sprint-02-retro.md` to summarize lessons learned from Sprint 2.
 
 ### Changed
 - Merged `docs/software/04-system-architecture.md` and `docs/software/00-architecture.md` into `docs/gdd/00-concept.md`.
 - Renamed `docs/gdd/00-concept.md` to "Game Concept & Architecture".
+- Consolidated detailed sprint plans into `docs/agile/sprint-planning.md` for better project tracking.
 - Updated `docs/agile/product-backlog.md` and `docs/agile/sprint-planning.md` to reflect Sprint 2 completion status.
 - Updated `docs/software/02-class-diagram.md` and `docs/software/03-data-schema.md` to v1.1, adding ECS Lite architecture.
 - Updated all cross-references in `README.md`, `docs/index.md`, `docs/wiki/wiki.md`, and other GDD files.
 - Updated `game-doc-manager` skill definition to reflect the new documentation structure.
 - Updated `docs/software/01-system-design.md` to reflect current architectural patterns (ECS Lite, UIPanel, Object Pooling, Layout Management).
+- Polished `Symmetry Decor` game: integrated React HUD (EventBus), added Emoji visuals, and refactored level generation.
 
 ### Removed
 - `docs/software/00-architecture.md` (Redundant).
