@@ -133,5 +133,5 @@ graph TB
 ## Related Documents
 - Mechanics: [[./01-mechanics.md]]
 - System Design: [[../software/01-system-design.md]]
-- Product Backlog: [[../agile/product-backlog.md]]
+- Product Backlog: [[01-product-backlog]]
 - UX/UI Modernization: [[../wiki/guidelines/ux-ui-modernization-guidelines.md]]

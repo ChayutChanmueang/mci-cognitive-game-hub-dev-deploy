@@ -5,8 +5,8 @@
 ## 🎯 Quick Access
 - **Game Concept & Architecture**: [[../gdd/00-concept.md]]
 - **Core Mechanics**: [[../gdd/01-mechanics.md]]
-- **Product Backlog**: [[../agile/product-backlog.md]]
-- **Current Sprint**: [[../agile/sprint-planning.md]]
+- **Product Backlog**: [[01-product-backlog]]
+- **Current Sprint**: [[02-sprint-planning]]
 
 ---
 
@@ -29,7 +29,7 @@
 - [[Agentic-AI/PROJECT_AGENT_SKILL_USING.md|Agentic AI Skill Usage]] - คู่มือการใช้ Skill และ Agent ในโครงการ
 
 ### 📊 Reports & Research
-- [[../agile/reports/index.md|System Test Reports]] - **สรุปผลการทดสอบระบบและแดชบอร์ดคุณภาพ**
+- [[04-report-backlog|System Test Reports]] - **สรุปผลการทดสอบระบบและแดชบอร์ดคุณภาพ**
 - [[camt-fun/proposal.md|Project Proposal]] - เอกสารนำเสนอโครงการ
 - [[camt-fun/monthly-progress-plan.md|Monthly Progress Plan]] - แผนงานรายเดือน
 - [[camt-fun/260427-fun-report.md|Experiment Report (260427)]] - รายงานผลการทดลอง

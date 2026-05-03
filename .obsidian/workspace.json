@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/index.md",
+                "file": "docs/agile/03-retrospectives-backlog.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "03-retrospectives-backlog"
             }
           }
         ]
@@ -206,17 +206,20 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
-    "docs/agile/sprint-backlogs/sprint-04.md",
-    "docs/agile/sprint-backlogs/sprint-03.md",
-    "docs/agile/sprint-backlogs/sprint-02.md",
-    "docs/agile/sprint-backlogs/sprint-01.md",
+    "docs/agile/02-sprint-planning.md",
+    "docs/agile/03-retrospectives-backlog.md",
+    "docs/agile/04-report-backlog.md",
+    "docs/agile/01-product-backlog.md",
+    "docs/agile/kanban.md",
     "docs/agile/retrospectives/sprint-04-retro.md",
     "docs/agile/retrospectives/sprint-03-retro.md",
     "docs/agile/retrospectives/sprint-02-retro.md",
     "docs/agile/retrospectives/sprint-01-retro.md",
-    "docs/agile/sprint-planning.md",
-    "docs/agile/product-backlog.md",
-    "docs/agile/retrospectives/index.md",
+    "docs/index.md",
+    "docs/agile/sprint-backlogs/sprint-04.md",
+    "docs/agile/sprint-backlogs/sprint-03.md",
+    "docs/agile/sprint-backlogs/sprint-02.md",
+    "docs/agile/sprint-backlogs/sprint-01.md",
     "docs/agile/reports/260425_2237_GameLoop_Test01_Report.md",
     "docs/agile/reports/260425_2219_Test01_Report.md",
     "docs/agile/reports/bugs/BUG-003.md",
@@ -224,14 +227,11 @@
     "docs/agile/reports/bugs/BUG-001.md",
     "docs/agile/reports/polish/POL-001.md",
     "docs/agile/reports/qa/QA-001.md",
-    "docs/agile/reports/index.md",
     "docs/agile/reports/polish",
     "docs/agile/reports/qa",
     "docs/agile/reports/bugs",
-    "docs/agile/kanban.md",
     "docs/gdd/00-concept.md",
     "docs/agile/sprint-backlogs",
-    "docs/index.md",
     "docs/wiki/Agentic-AI/PROJECT_AGENT_SKILL_USING.md",
     "docs/gdd/minigames/procedural_generation_zoo_detective.md",
     "docs/agile/user-stories/US-E3-02.md",

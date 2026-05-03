@@ -87,8 +87,8 @@ This project leverages cutting-edge AI orchestration for both development and do
 - [**Database Schema**](docs/software/03-data-schema.md) - Supabase data structures
 
 ### 🚀 Agile & Quality
-- [**System Test Reports**](docs/agile/reports/index.md) - QA Dashboard and stable status
-- [**Sprint Retrospectives**](docs/agile/retrospectives/index.md) - Lessons learned and project closure
+- [**System Test Reports**](04-report-backlog.md) - QA Dashboard and stable status
+- [**Sprint Retrospectives**](03-retrospectives-backlog.md) - Lessons learned and project closure
 
 ---
 
@@ -100,8 +100,8 @@ This project leverages cutting-edge AI orchestration for both development and do
 
 ## 🚀 Quick Start
 ### 🚀 Project Management
-- [**Product Backlog**](docs/agile/product-backlog.md) - Feature list and status
-- [**Sprint Planning**](docs/agile/sprint-planning.md) - Project roadmap and timeline
+- [**Product Backlog**](01-product-backlog.md) - Feature list and status
+- [**Sprint Planning**](02-sprint-planning.md) - Project roadmap and timeline
 
 ### 🤖 AI & Agents
 - [**Agent Guidelines**](AGENTS.md) - Essential commands and project rules for AI agents
