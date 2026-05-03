@@ -14,8 +14,6 @@ export default class PostcardPanel extends UIPage {
             strokeEnable: true
         });
 
-        this.panelBg.setFillStyle(Theme.colors.surface, 0.98);
-        this.panelBg.setStrokeStyle(6, Theme.colors.primary, 1);
         this.panelBg.setScale(1.5);
 
         this.titleText = createThaiText(

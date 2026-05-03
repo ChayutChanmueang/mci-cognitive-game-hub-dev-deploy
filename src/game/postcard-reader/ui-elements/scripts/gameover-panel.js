@@ -11,9 +11,6 @@ export default class GameOverPanel extends UIPage {
         });
 
         this.panelBg.setScale(1.5);
-        this.panelBg.setFillStyle(Theme.colors.surface, 0.95);
-        this.panelBg.setStrokeStyle(4, Theme.colors.primary, 1);
-
         this.titleText = createThaiText(
             scene,
             0,
