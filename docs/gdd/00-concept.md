@@ -42,7 +42,7 @@ MCI Cognitive Games เป็นแพลตฟอร์มเกมเว็บ
 2. **Game Core (Phaser 3):** จัดการกลไกของเกมทั้ง 5 เกม โดยใช้ระบบ Scene-based  
   
 ```mermaid  
-graph TD  
+    graph TD  
     App[React App] --> Auth[Supabase Auth]  
     App --> Hub[Game Hub]  
     Hub --> Phaser[Phaser Game Instance]  

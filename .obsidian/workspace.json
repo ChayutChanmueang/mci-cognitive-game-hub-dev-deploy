@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/agile/meeting-backlogs/2026-04-21.md",
+                "file": "docs/wiki/guidelines/ux-ui-modernization-guidelines.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2026-04-21"
+              "title": "ux-ui-modernization-guidelines"
             }
           }
         ]
@@ -206,21 +206,24 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
-    "docs/agile/01-product-backlog.md",
+    "docs/wiki/wiki.md",
+    "docs/index.md",
+    "docs/changelog.md",
+    "docs/wiki/development/Documentation_Overhaul_Report.md",
+    "docs/agile/kanban.md",
+    "AGENTS.md",
+    "docs/wiki/guidelines/system-test-guideline.md",
     "docs/agile/meeting-backlogs/2026-04-21.md",
+    "docs/agile/01-product-backlog.md",
     "docs/agile/03-meeting-backlogs.md",
     "docs/agile/04-retrospectives-backlog.md",
     "docs/agile/meeting-backlogs/2026-04-28.md",
     "docs/agile/meeting-backlogs/2026-04-07.md",
     "docs/agile/meeting-backlogs/2026-04-14.md",
-    "docs/changelog.md",
-    "docs/index.md",
-    "AGENTS.md",
     "README.md",
     "docs/software/02-class-diagram.md",
     "docs/agile/02-sprint-planning.md",
     "docs/agile/05-report-backlog.md",
-    "docs/agile/kanban.md",
     "docs/agile/retrospectives/sprint-04-retro.md",
     "docs/agile/retrospectives/sprint-03-retro.md",
     "docs/agile/retrospectives/sprint-02-retro.md",
@@ -229,9 +232,6 @@
     "docs/agile/sprint-backlogs/sprint-03.md",
     "docs/agile/sprint-backlogs/sprint-02.md",
     "docs/agile/sprint-backlogs/sprint-01.md",
-    "docs/agile/reports/260425_2237_GameLoop_Test01_Report.md",
-    "docs/agile/reports/260425_2219_Test01_Report.md",
-    "docs/agile/reports/bugs/BUG-003.md",
     "docs/agile/reports/polish",
     "docs/agile/reports/qa",
     "docs/agile/reports/bugs",
