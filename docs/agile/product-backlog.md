@@ -31,8 +31,8 @@
 ### E3: Accessibility & UX (P2)
 | ID | User Story | Priority | Sprint | Status |
 |---|---|---|---|---|
-| [[US-E3-01]] | ปรับแต่งขนาด Font และปุ่มสำหรับผู้สูงอายุ (Standard) | High | S2 | ✅ Done |
-| [[US-E3-02]] | ระบบ Voice Over คำแนะนำการเล่นเกม | Low | S4 | ✅ Done |
+| [[US-E3-01]] | ปรับแต่งขนาด Font และปุ่มสำหรับผู้สูงอายุ (Standard) | High | S2 | 🏗 In-Progress |
+| [[US-E3-02]] | ระบบ Voice Over คำแนะนำการเล่นเกม | Low | S4 | 🏗 In-Progress |
 | [[US-E3-03]] | ระบบ Game Hub และการนำทาง (Navigation) | High | S2 | ✅ Done |
 
 ---
