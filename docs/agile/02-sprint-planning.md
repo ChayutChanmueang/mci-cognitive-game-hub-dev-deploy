@@ -6,10 +6,10 @@
 
 | Sprint        | Timeline      | Focus Area                           | Status      |
 | :------------ | :------------ | :----------------------------------- | :---------- |
-| [[sprint-01]] | Mar 01-14     | Foundation & Zoo Games               | Completed   |
-| [[sprint-02]] | Mar 15-28     | UI & Data Setup                      | Completed   |
-| [[sprint-03]] | Mar 29-Apr 11 | Logic Games & Integration            | Completed   |
-| [[sprint-04]] | Apr 12-30     | **(Current)** Final Polish & Variety | In-Progress |
+| [sprint-01](sprint-01.md) | Mar 01-14     | Foundation & Zoo Games               | Completed   |
+| [sprint-02](sprint-02.md) | Mar 15-28     | UI & Data Setup                      | Completed   |
+| [sprint-03](sprint-03.md) | Mar 29-Apr 11 | Logic Games & Integration            | Completed   |
+| [sprint-04](sprint-04.md) | Apr 12-30     | **(Current)** Final Polish & Variety | In-Progress |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -33,10 +33,10 @@ gantt
 
 ดูรายละเอียดงานในแต่ละ Sprint ได้ที่ลิงก์ด้านล่าง:
 
-- **[[sprint-01]]**: Foundation & Zoo Games
-- **[[sprint-02]]**: UI Interactive & Data Foundation
-- **[[sprint-03]]**: Logic Games & Data Integration
-- **[[sprint-04]]**: Final Polish & Alternative Games
+- **[sprint-01](sprint-01.md)**: Foundation & Zoo Games
+- **[sprint-02](sprint-02.md)**: UI Interactive & Data Foundation
+- **[sprint-03](sprint-03.md)**: Logic Games & Data Integration
+- **[sprint-04](sprint-04.md)**: Final Polish & Alternative Games
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
@@ -57,3 +57,4 @@ gantt
 - **Sprint 2:** เริ่มต้นด้วยมาตรฐานพื้นฐาน (Font/Button Size)
 - **Sprint 4:** เพิ่มส่วนเสริมเพื่อการเข้าถึง (Voice Over) และขัดเกลา UI ทั้งหมด
 - **Target:** ได้มาตรฐานการออกแบบเพื่อผู้สูงอายุเมื่อจบโครงการ
+

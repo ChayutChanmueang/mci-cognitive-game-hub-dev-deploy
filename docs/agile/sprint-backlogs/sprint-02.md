@@ -21,8 +21,9 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Owner | Estimate | Status |
 |----|--------------|-------|----------|--------|
-| [[US-E1-02]] | Zoo Detective UI & Feedback | UI Dev | - | ✅ Done |
-| [[US-E1-04]] | Zoo Feeder Interaction Logic | UI Dev | - | ✅ Done |
-| [[US-E1-06]] | UI สำหรับ Context Clues (Thai Support) | UI Dev | - | ✅ Done |
-| [[US-E2-01]] | Setup Supabase Tables | Core Dev | - | ✅ Done |
-| [[US-E3-01]] | ปรับขนาด Font/ปุ่ม (Accessibility Basics) | UI Dev | - | 🏗 In-Progress |
+| [US-E1-02](US-E1-02.md) | Zoo Detective UI & Feedback | UI Dev | - | ✅ Done |
+| [US-E1-04](US-E1-04.md) | Zoo Feeder Interaction Logic | UI Dev | - | ✅ Done |
+| [US-E1-06](US-E1-06.md) | UI สำหรับ Context Clues (Thai Support) | UI Dev | - | ✅ Done |
+| [US-E2-01](US-E2-01.md) | Setup Supabase Tables | Core Dev | - | ✅ Done |
+| [US-E3-01](US-E3-01.md) | ปรับขนาด Font/ปุ่ม (Accessibility Basics) | UI Dev | - | 🏗 In-Progress |
+

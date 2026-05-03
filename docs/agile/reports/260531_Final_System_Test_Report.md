@@ -30,8 +30,8 @@
 ---
 
 ## 3. สรุปสถานะ User Stories (Sprint 4)
-- [x] **[[US-E1-08]]** Postcard Reader & Polish (Completed)
-- [x] **[[US-E3-02]]** Multi-game Voice Over Support (Completed)
+- [x] **[US-E1-08](US-E1-08.md)** Postcard Reader & Polish (Completed)
+- [x] **[US-E3-02](US-E3-02.md)** Multi-game Voice Over Support (Completed)
 - [x] **QA-001** Final End-to-End System Testing (Completed)
 - [x] **POL-001** UI Consistency Polish (Completed)
 
@@ -41,3 +41,4 @@
 
 ---
 *Verified by Antigravity Knowledge Management System.*
+

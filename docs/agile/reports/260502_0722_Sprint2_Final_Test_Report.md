@@ -43,14 +43,15 @@
 ---
 
 ## สรุปสถานะ User Stories (Sprint 2 - W04)
-- [x] **[[US-E1-02]]** Zoo Detective UI & Feedback (Completed)
-- [x] **[[US-E1-04]]** Zoo Feeder Interaction Logic (Completed)
-- [x] **[[US-E1-06]]** Context Clues UI & Thai Support (Completed)
-- [ ] **[[US-E2-01]]** Setup Supabase Tables (In Progress - พบปัญหาการ Sync ข้อมูลเล็กน้อย)
-- [x] **[[US-E3-01]]** Accessibility Basics (Completed - ปุ่มขนาดใหญ่ในทุกเกมหลัก)
+- [x] **[US-E1-02](US-E1-02.md)** Zoo Detective UI & Feedback (Completed)
+- [x] **[US-E1-04](US-E1-04.md)** Zoo Feeder Interaction Logic (Completed)
+- [x] **[US-E1-06](US-E1-06.md)** Context Clues UI & Thai Support (Completed)
+- [ ] **[US-E2-01](US-E2-01.md)** Setup Supabase Tables (In Progress - พบปัญหาการ Sync ข้อมูลเล็กน้อย)
+- [x] **[US-E3-01](US-E3-01.md)** Accessibility Basics (Completed - ปุ่มขนาดใหญ่ในทุกเกมหลัก)
 
 ---
 
 ## ข้อเสนอแนะเพิ่มเติม (Recommendations)
 1. ควรเพิ่มระบบ **Retry Mechanism** สำหรับการเชื่อมต่อ Supabase เพื่อป้องกันปัญหา Transient Error
 2. ปรับปรุงระบบ **Input Mapping** ใน Zoo Detective ให้รองรับทั้ง Click-to-Place และ Drag-and-Drop อย่างสมบูรณ์ เพื่อลดความลำบากของผู้สูงอายุในการลากวาง
+

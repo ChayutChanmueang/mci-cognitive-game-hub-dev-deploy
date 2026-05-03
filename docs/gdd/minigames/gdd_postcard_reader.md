@@ -47,6 +47,7 @@
 ---
 
 ## 🚀 Development Status
-- **Core Logic:** [[US-E1-08]] (Done)
-- **UI Elements:** [[US-E1-08]] (Done)
-- **Weekly Tracking:** [[2026-04-28]]
+- **Core Logic:** [US-E1-08](US-E1-08.md) (Done)
+- **UI Elements:** [US-E1-08](US-E1-08.md) (Done)
+- **Weekly Tracking:** [2026-04-28](2026-04-28.md)
+
