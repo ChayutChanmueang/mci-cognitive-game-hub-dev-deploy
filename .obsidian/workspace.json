@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/index.md",
+                "file": "docs/agile/product-backlog.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "product-backlog"
             }
           }
         ]
@@ -206,6 +206,17 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
+    "docs/agile/user-stories/US-E2-03.md",
+    "docs/agile/user-stories/US-E2-02.md",
+    "docs/agile/user-stories/US-E2-01.md",
+    "docs/agile/user-stories/US-E1-07.md",
+    "docs/agile/user-stories/US-E1-06.md",
+    "docs/agile/product-backlog.md",
+    "docs/agile/kanban.md",
+    "docs/agile/sprint-planning.md",
+    "docs/agile/user-stories/US-E1-08.md",
+    "docs/agile/user-stories-details.md",
+    "docs/index.md",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/SetTextureProperties.js",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/ReplaceSliderConfig.js",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/ReplaceChildrenConfig.js",
@@ -216,7 +227,6 @@
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/CreateAnyLabel.js",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/CreateAnySizer.js",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/CreateAnyImage.js",
-    "node_modules/phaser3-rex-plugins/templates/ui/maker/utils/ParseYAML.js",
     "node_modules/ag-grid-community/README.md",
     "node_modules/ag-charts-types/README.md",
     "node_modules/bootstrap/README.md",
@@ -232,16 +242,6 @@
     "docs/software/03-data-schema.md",
     "docs/software/02-class-diagram.md",
     "docs/software/01-system-design.md",
-    "docs/gdd/03-art-direction.md",
-    "docs/gdd/02-narrative.md",
-    "docs/gdd/00-concept.md",
-    "docs/gdd/01-mechanics.md",
-    "docs/agile/sprint-planning.md",
-    "docs/agile/product-backlog.md",
-    "docs/agile/reports/index.md",
-    "docs/agile/retrospectives/index.md",
-    "docs/agile/sprint-03-plan.md",
-    "docs/index.md",
     "screenshot.png",
     "Idea.canvas",
     "Untitled.canvas",
