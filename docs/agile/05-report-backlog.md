@@ -24,14 +24,14 @@
 
 ## 📂 บันทึกประวัติการทดสอบ (Testing History)
 
-| วันที่ | รหัสรายงาน | หัวข้อการทดสอบ | สรุปผลลัพธ์ | เอกสาร |
-| :--- | :--- | :--- | :--- | :--- |
-| 2026-05-31 | QA-FINAL | **Final System Test Report** | ระบบสมบูรณ์ 100% พร้อมใช้งาน; รวม Polish & Voice Over | [[260531_Final_System_Test_Report.md|ดูรายงาน]] |
-| 2026-05-03 | ST-S3-01 | **Sprint 3 Integration Test** | ระบบ Auth และ Score API ทำงานถูกต้อง; แก้ไข Bug ทั้งหมดในแผน | [[260503_Sprint3_Integration_Test_Report.md|ดูรายงาน]] |
-| 2026-05-02 | HF-260502-01 | **Minigame Hotfix** | แก้ไขปัญหา Console Error และ Plugin Loading | [[260502_1640_Minigame_Hotfix_Report.md|ดูรายงาน]] |
-| 2026-05-02 | S2-W04-01 | **Sprint 2 Final Test** | ระบบหลักทำงานได้แบบ E2E; พบปัญหา Drag-and-Drop | [[260502_0722_Sprint2_Final_Test_Report.md|ดูรายงาน]] |
-| 2026-04-25 | GL-T1-01 | **Game Loop (Context Clues)** | เล่นจบ 10/10; พบปัญหาทางออกลูปเกมและ Database | [[260425_2237_GameLoop_Test01_Report.md|ดูรายงาน]] |
-| 2026-04-25 | ST-T1-01 | **System Test 01** | พื้นฐาน Auth ผ่าน; พบข้อบกพร่อง Supabase DB Logging | [[260425_2219_Test01_Report.md|ดูรายงาน]] |
+| วันที่     | รหัสรายงาน   | หัวข้อการทดสอบ                | สรุปผลลัพธ์                                                  | เอกสาร                                        |
+| :--------- | :----------- | :---------------------------- | :----------------------------------------------------------- | :-------------------------------------------- |
+| 2026-05-31 | QA-FINAL     | **Final System Test Report**  | ระบบสมบูรณ์ 100% พร้อมใช้งาน; รวม Polish & Voice Over        | [[260531_Final_System_Test_Report.md]]        |
+| 2026-05-03 | ST-S3-01     | **Sprint 3 Integration Test** | ระบบ Auth และ Score API ทำงานถูกต้อง; แก้ไข Bug ทั้งหมดในแผน | [[260503_Sprint3_Integration_Test_Report.md]] |
+| 2026-05-02 | HF-260502-01 | **Minigame Hotfix**           | แก้ไขปัญหา Console Error และ Plugin Loading                  | [[260502_1640_Minigame_Hotfix_Report.md]]     |
+| 2026-05-02 | S2-W04-01    | **Sprint 2 Final Test**       | ระบบหลักทำงานได้แบบ E2E; พบปัญหา Drag-and-Drop               | [[260502_0722_Sprint2_Final_Test_Report.md]]  |
+| 2026-04-25 | GL-T1-01     | **Game Loop (Context Clues)** | เล่นจบ 10/10; พบปัญหาทางออกลูปเกมและ Database                | [[260425_2237_GameLoop_Test01_Report.md]]     |
+| 2026-04-25 | ST-T1-01     | **System Test 01**            | พื้นฐาน Auth ผ่าน; พบข้อบกพร่อง Supabase DB Logging          | [[260425_2219_Test01_Report.md]]              |
 
 ---
 

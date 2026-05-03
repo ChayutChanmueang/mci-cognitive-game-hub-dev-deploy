@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/agile/03-retrospectives-backlog.md",
+                "file": "docs/index.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "03-retrospectives-backlog"
+              "title": "index"
             }
           }
         ]
@@ -206,16 +206,23 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
-    "docs/agile/02-sprint-planning.md",
-    "docs/agile/03-retrospectives-backlog.md",
-    "docs/agile/04-report-backlog.md",
     "docs/agile/01-product-backlog.md",
+    "docs/index.md",
+    "docs/changelog.md",
+    "AGENTS.md",
+    "README.md",
+    "docs/software/02-class-diagram.md",
+    "docs/agile/02-sprint-planning.md",
+    "docs/agile/03-meeting-backlogs.md",
+    "docs/agile/04-retrospectives-backlog.md",
+    "docs/agile/05-report-backlog.md",
+    "docs/agile/weekly-backlogs/S2-W03-Weekly-Backlog.md",
+    "docs/agile/weekly-backlogs/S2-W04-Weekly-Backlog.md",
     "docs/agile/kanban.md",
     "docs/agile/retrospectives/sprint-04-retro.md",
     "docs/agile/retrospectives/sprint-03-retro.md",
     "docs/agile/retrospectives/sprint-02-retro.md",
     "docs/agile/retrospectives/sprint-01-retro.md",
-    "docs/index.md",
     "docs/agile/sprint-backlogs/sprint-04.md",
     "docs/agile/sprint-backlogs/sprint-03.md",
     "docs/agile/sprint-backlogs/sprint-02.md",
@@ -225,17 +232,10 @@
     "docs/agile/reports/bugs/BUG-003.md",
     "docs/agile/reports/bugs/BUG-002.md",
     "docs/agile/reports/bugs/BUG-001.md",
-    "docs/agile/reports/polish/POL-001.md",
-    "docs/agile/reports/qa/QA-001.md",
     "docs/agile/reports/polish",
     "docs/agile/reports/qa",
     "docs/agile/reports/bugs",
-    "docs/gdd/00-concept.md",
     "docs/agile/sprint-backlogs",
-    "docs/wiki/Agentic-AI/PROJECT_AGENT_SKILL_USING.md",
-    "docs/gdd/minigames/procedural_generation_zoo_detective.md",
-    "docs/agile/user-stories/US-E3-02.md",
-    "docs/agile/user-stories/US-E3-01.md",
     "logger.mjs",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/SetTextureProperties.js",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/ReplaceSliderConfig.js",

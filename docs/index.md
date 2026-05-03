@@ -28,11 +28,12 @@
 
 ## 🚀 Agile Management
 เอกสารการบริหารจัดการโครงการและการทดสอบ
-- [[01-product-backlog|Product Backlog]] - รายการฟีเจอร์และ User Stories ทั้งหมด
 - [[agile/kanban.md|Kanban Board]] - สถานะงานปัจจุบัน
-- [[02-sprint-planning|Sprint Roadmap]] - แผนการดำเนินงานภาพรวมและรายละเอียด Sprint ปัจจุบัน
-- [[04-report-backlog|System Test Reports]] - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด
-- [[03-retrospectives-backlog|Sprint Retrospectives]] - บันทึกสรุปบทเรียนและแนวทางการปรับปรุงในแต่ละ Sprint
+- [[agile/01-product-backlog.md|01. Product Backlog]] - รายการฟีเจอร์และ User Stories ทั้งหมด
+- [[agile/02-sprint-planning.md|02. Sprint Roadmap]] - แผนการดำเนินงานภาพรวมและรายละเอียด Sprint ปัจจุบัน
+- [[agile/03-meeting-backlogs.md|03. Meeting Logs]] - บันทึกการประชุมของทีม
+- [[agile/05-report-backlog.md|05. System Test Reports]] - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด
+- [[agile/04-retrospectives-backlog.md|04. Sprint Retrospectives]] - บันทึกสรุปบทเรียนและแนวทางการปรับปรุงในแต่ละ Sprint
 
 ---
 

@@ -2,7 +2,7 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
-## [2026-05-31] - Project Completion & Handover
+## [2026-05-03] - Project Completion Basic Function & Handover
 ### Added
 - Delivered `Postcard Reader` minigame with expanded memory challenges.
 - Implemented project-wide `VoiceService` for Thai instruction text-to-speech.
