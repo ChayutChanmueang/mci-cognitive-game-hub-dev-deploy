@@ -4,12 +4,12 @@
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
-| Sprint | Timeline | Focus Area | Status |
-|:---|:---|:---|:---|
-| [[sprint-01]] | Week 1-2 | Foundation & Zoo Games | Completed |
-| [[sprint-02]] | Week 3-4 | UI & Data Setup | Completed |
-| [[sprint-03]] | Week 5-6 | Logic Games & Integration | Completed |
-| [[sprint-04]] | Week 7-8 | **(Current)** Final Polish & Variety | In-Progress |
+| Sprint        | Timeline      | Focus Area                           | Status      |
+| :------------ | :------------ | :----------------------------------- | :---------- |
+| [[sprint-01]] | Mar 01-14     | Foundation & Zoo Games               | Completed   |
+| [[sprint-02]] | Mar 15-28     | UI & Data Setup                      | Completed   |
+| [[sprint-03]] | Mar 29-Apr 11 | Logic Games & Integration            | Completed   |
+| [[sprint-04]] | Apr 12-30     | **(Current)** Final Polish & Variety | In-Progress |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -18,13 +18,13 @@ gantt
     dateFormat  YYYY-MM-DD
     axisFormat  %m/%d
     section Sprint 1
-    Foundation & Zoo Games :done, s1, 2026-04-06, 14d
+    Foundation & Zoo Games :done, s1, 2026-03-01, 14d
     section Sprint 2
-    UI & Data Setup        :done, s2, 2026-04-20, 14d
+    UI & Data Setup        :done, s2, 2026-03-15, 14d
     section Sprint 3
-    Logic Games & Integration :done, s3, 2026-05-04, 14d
+    Logic Games & Integration :done, s3, 2026-03-29, 14d
     section Sprint 4
-    Final Polish & Optimization :active, s4, 2026-05-18, 14d
+    Final Polish & Optimization :active, s4, 2026-04-12, 20d
 ```
 
 ---

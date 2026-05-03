@@ -1,6 +1,22 @@
 # Sprint 1: Foundation & Zoo Games
 
 **Goal:** วางโครงสร้างพื้นฐานของโปรเจกต์ และพัฒนา Logic พื้นฐานของเกม Zoo Detective & Zoo Feeder
+**Timeline:** 2026-03-01 → 2026-03-14
+
+## 📅 Internal Timeline
+```mermaid
+gantt
+    title Sprint 01 Tasks
+    dateFormat  YYYY-MM-DD
+    section Foundation
+    Architecture Setup :done, s1a, 2026-03-01, 5d
+    Engine Lifecycle   :done, s1b, 2026-03-05, 5d
+    section Development
+    Zoo Detective Logic :done, s1c, 2026-03-07, 7d
+    Zoo Feeder Logic    :done, s1d, 2026-03-07, 7d
+    section Deployment
+    Git & CI/CD Setup   :done, s1e, 2026-03-12, 3d
+```
 
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Owner | Estimate | Status |

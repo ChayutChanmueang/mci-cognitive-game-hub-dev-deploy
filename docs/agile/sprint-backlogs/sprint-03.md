@@ -1,7 +1,7 @@
 # Sprint 3: Logic Games & Data Integration
 
 **Goal:** เพิ่มเกมฝึกตรรกะ (Symmetry Decor), เชื่อมต่อระบบ Authentication และแก้ไขปัญหาความเสถียรของข้อมูล
-**Timeline:** 2026-05-04 → 2026-05-17
+**Timeline:** 2026-04-06 → 2026-04-19
 
 ## 📅 Internal Timeline
 ```mermaid
@@ -9,15 +9,15 @@ gantt
     title Sprint 03 Tasks
     dateFormat  YYYY-MM-DD
     section Core Logic
-    Symmetry Decor Polish :done, logic1, 2026-05-04, 5d
-    Auth UI Integration   :done, logic2, 2026-05-06, 4d
+    Symmetry Decor Polish :done, logic1, 2026-04-06, 5d
+    Auth UI Integration   :done, logic2, 2026-04-08, 4d
     section Data & Stability
-    Database Schema Fix   :done, data1, 2026-05-04, 2d
-    Supabase Retry Logic  :done, data2, 2026-05-05, 3d
+    Database Schema Fix   :done, data1, 2026-04-06, 2d
+    Supabase Retry Logic  :done, data2, 2026-04-07, 3d
     section UI/UX
-    Scroll Offset Fix     :done, ui1, 2026-05-08, 3d
+    Scroll Offset Fix     :done, ui1, 2026-04-10, 3d
     section Testing
-    System Test Sprint 3  :done, test1, 2026-05-15, 3d
+    System Test Sprint 3  :done, test1, 2026-04-17, 3d
 ```
 
 ## 📋 Committed Stories & Tasks
