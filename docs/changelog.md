@@ -2,25 +2,16 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
-## [2026-05-03] - Project Completion Basic Function & Handover
-### Added
-- Delivered `Postcard Reader` minigame with expanded memory challenges.
-- Implemented project-wide `VoiceService` for Thai instruction text-to-speech.
-- Created `Final System Test Report` (v1.0) and confirmed stable status.
-- Created `Sprint 04 Retrospective` and finalized documentation suite.
-- Created `Documentation & System Overhaul Report` summarizing all session improvements.
-
-### Changed
-- Updated all minigames to use Thai UI elements and centralized Voice Over system.
-- Completed all outstanding User Stories in the Product Backlog.
-- Set project status to ✅ Completed in the Project Index.
-
 ## [2026-05-03] - Architecture & Project Alignment
 ### Added
 - Created `docs/agile/reports/index.md` as the master index and dashboard for all system test reports.
 - Created `docs/agile/retrospectives/index.md` as a central hub for all sprint retrospectives.
 - Created `docs/agile/retrospectives/sprint-02-retro.md` to summarize lessons learned from Sprint 2.
-
+- Delivered `Postcard Reader` minigame with expanded memory challenges.
+- Implemented project-wide `VoiceService` for Thai instruction text-to-speech.
+- Created `Final System Test Report` (v1.0) and confirmed stable status.
+- Created `Sprint 04 Retrospective` and finalized documentation suite.
+- Created `Documentation & System Overhaul Report` summarizing all session improvements.
 ### Changed
 - Merged `docs/software/04-system-architecture.md` and `docs/software/00-architecture.md` into `docs/gdd/00-concept.md`.
 - Renamed `docs/gdd/00-concept.md` to "Game Concept & Architecture".
@@ -31,6 +22,9 @@ All notable changes to the game documentation suite will be documented in this f
 - Updated `game-doc-manager` skill definition to reflect the new documentation structure.
 - Updated `docs/software/01-system-design.md` to reflect current architectural patterns (ECS Lite, UIPanel, Object Pooling, Layout Management).
 - Polished `Symmetry Decor` game: integrated React HUD (EventBus), added Emoji visuals, and refactored level generation.
+- Updated all minigames to use Thai UI elements and centralized Voice Over system.
+- Completed all outstanding User Stories in the Product Backlog.
+- Set project status to ✅ Completed in the Project Index.
 
 ### Removed
 - `docs/software/00-architecture.md` (Redundant).

@@ -48,15 +48,23 @@ docs/
 │   ├── 02-class-diagram.md     ← Key classes & relationships (Mermaid)
 │   └── 03-data-schema.md       ← Data structures & persistence
 ├── agile/
-│   ├── product-backlog.md      ← Full feature & task list
-│   ├── sprint-planning.md      ← Overall roadmap & Gantt chart
-│   ├── sprint-XX-plan.md       ← Per-sprint plan (duplicate for each sprint)
-│   └── retrospectives/
+│   ├── 01-product-backlog.md   ← Full feature & task list
+│   ├── 02-sprint-planning.md   ← Overall roadmap & Gantt chart
+│   ├── 03-meeting-backlogs.md  ← Meeting logs hub
+│   ├── 04-retrospectives-backlog.md ← Retrospectives hub
+│   ├── 05-report-backlog.md    ← System test reports hub
+│   ├── kanban.md               ← Kanban board
+│   ├── sprint-backlogs/        ← Per-sprint plan
+│   ├── retrospectives/         ← Per-sprint retrospectives
+│   ├── reports/                ← Detailed test reports (qa/, polish/, bugs/)
+│   └── meeting-backlogs/       ← Detailed meeting logs
+│   └── user-stories/           ← Detailed user stories
 ├── wiki/                       ← Ad-hoc knowledge, research, & guides
-│   ├── guidelines/             ← Process guidelines & specific rules
-│   ├── [Category]/             ← Sub-folders for specific topics
-│   ├── wiki.md                 ← Knowledge Hub (Quick links to everything)
-│   └── ...
+│   ├── agentic-ai/             ← AI skill guides
+│   ├── camt-fun/               ← Research & experiments
+│   ├── development/            ← Dev setup & guides
+│   ├── guidelines/             ← Process rules
+│   └── wiki.md                 ← Knowledge Hub
 ├── index.md                    ← Project status & doc inventory
 └── changelog.md                ← Record of all doc updates
 ```
@@ -88,8 +96,8 @@ Steps:
 1. Read `docs/gdd/01-mechanics.md` and other GDD files.
 2. Identify features, systems, and tasks implied by the design.
 3. Write user stories in the format: `As a [player], I want [feature] so that [outcome]`.
-4. Populate `docs/agile/product-backlog.md` grouped by priority (Must Have / Should Have / Nice to Have).
-5. If sprint length is given, generate a `sprint-XX-plan.md` with a realistic subset.
+4. Populate `docs/agile/01-product-backlog.md` grouped by priority (Must Have / Should Have / Nice to Have).
+5. If sprint length is given, generate a `docs/agile/sprint-backlogs/sprint-XX.md` with a realistic subset.
 
 ### Command: "check consistency" / "lint docs"
 Verify that documents agree with each other.
@@ -125,7 +133,7 @@ Steps:
 ```markdown
 # [Game Title] — Game Concept & Architecture
 
-**Version:** 0.1 | **Last Updated:** YYYY-MM-DD | **Owner:** [Name]
+**Version:** 1.0 | **Last Updated:** YYYY-MM-DD | **Owner:** [Name]
 
 ## 1. Introduction
 ### Elevator Pitch
@@ -156,102 +164,70 @@ Steps:
 
 ## Related Documents
 - Mechanics: [[./01-mechanics.md]]
-- Backlog: [[../agile/product-backlog.md]]
+- Backlog: [[../agile/01-product-backlog.md]]
 ```
 
 ### GDD — Core Mechanics (`docs/gdd/01-mechanics.md`)
 ```markdown
 # [Game Title] — Core Mechanics
 
-**Version:** 0.1 | **Last Updated:** YYYY-MM-DD
+**Version:** 1.0 | **Last Updated:** YYYY-MM-DD
 
 ## Core Loop
-[Describe the primary gameplay loop in 3–5 steps. e.g., Explore → Fight → Reward → Upgrade → Explore]
+[Describe the primary gameplay loop in 3–5 steps.]
 
 ## Player Actions
 | Action | Input | Result | Notes |
 |--------|-------|--------|-------|
 | [Move] | [WASD] | [Character moves] | |
-| [Attack] | [Space] | [Deals damage] | |
 
 ## Game Systems
-### [System Name, e.g., Combat System]
-[Description of how this system works, its rules, and win/lose conditions.]
+### [System Name]
+[Description of how this system works.]
 
-**Linked to Software Design:** [[../software/01-system-design.md#combat-system]]
-
-## Progression & Economy
-[How does the player grow? XP, items, unlocks, currency?]
+**Linked to Software Design:** [[../software/01-system-design.md]]
 
 ## Win / Lose Conditions
 - **Win:** [Condition]
 - **Lose:** [Condition]
 ```
 
-### Agile — Product Backlog (`docs/agile/product-backlog.md`)
+### Agile — Product Backlog (`docs/agile/01-product-backlog.md`)
 ```markdown
 # [Game Title] — Product Backlog
 
-**Last Updated:** YYYY-MM-DD | **Version:** 0.1
+**Last Updated:** YYYY-MM-DD | **Version:** 1.0
 
 ## Must Have (MVP)
 | ID | User Story | Acceptance Criteria | Estimate | Status |
 |----|-----------|---------------------|----------|--------|
-| US-001 | As a player, I want to [action] so that [outcome] | [Criteria] | [S/M/L] | [ ] |
-
-## Should Have
-| ID | User Story | Acceptance Criteria | Estimate | Status |
-|----|-----------|---------------------|----------|--------|
-| US-0XX | ... | ... | ... | [ ] |
-
-## Nice to Have
-| ID | User Story | Acceptance Criteria | Estimate | Status |
-|----|-----------|---------------------|----------|--------|
-| US-0XX | ... | ... | ... | [ ] |
+| [[US-XX-XX]] | As a player, I want to [action] so that [outcome] | [Criteria] | [S/M/L] | [ ] |
 
 ## Linked GDD Features
 - Derived from: [[../gdd/01-mechanics.md]], [[../gdd/00-concept.md]]
 ```
 
-### Agile — Sprint Planning (Roadmap) (`docs/agile/sprint-planning.md`)
+### Agile — Sprint Planning (`docs/agile/02-sprint-planning.md`)
 ```markdown
 # Sprint Planning & Roadmap
 
-**Last Updated:** YYYY-MM-DD | **Version:** 0.1
+**Last Updated:** YYYY-MM-DD | **Version:** 1.0
 
 ## 📅 Sprint Schedule Overview
-| Sprint | Timeline | Focus Area | Key Deliverables |
+| Sprint | Timeline | Focus Area | Status |
 |:---|:---|:---|:---|
-| **Sprint 1** | Week 1-2 | [Focus] | [Deliverables] |
-| **Sprint 2** | Week 3-4 | [Focus] | [Deliverables] |
+| [[sprint-01]] | YYYY-MM-DD | [Focus] | Completed |
 
-## 📊 Project Timeline (Gantt Chart)
-```mermaid
-gantt
-    title Project Roadmap
-    dateFormat  YYYY-MM-DD
-    section Sprint 1
-    Foundation & Zoo Games :active, s1, 2026-04-06, 14d
-    section Sprint 2
-    UI & Data Setup        :s2, after s1, 14d
-    section Sprint 3
-    Logic Games & Integration :s3, after s2, 14d
-    section Sprint 4
-    Final Polish & Optimization :s4, after s3, 14d
+## 🚀 Sprint Details
+- **[[sprint-01]]**: [Focus Area]
 ```
 
-## 📈 Milestone Strategy
-[Describe how Epics align with Sprints]
-
----
-
-### Agile — Sprint Plan (`docs/agile/sprint-XX-plan.md`)
+### Agile — Sprint Plan (`docs/agile/sprint-backlogs/sprint-XX.md`)
 ```markdown
-# Sprint [XX] Plan
+# Sprint [XX]: [Title]
 
-**Sprint Dates:** YYYY-MM-DD → YYYY-MM-DD (**Duration:** 14 Days)
-**Sprint Goal:** [One sentence: what will be DONE by end of sprint?]
-**Team:** [Names]
+**Goal:** [Goal]
+**Timeline:** YYYY-MM-DD → YYYY-MM-DD
 
 ## 📅 Internal Timeline
 ```mermaid
@@ -259,51 +235,51 @@ gantt
     title Sprint [XX] Tasks
     dateFormat  YYYY-MM-DD
     section Development
-    Task 1 :a1, 2026-05-01, 3d
-    Task 2 :a2, after a1, 5d
-    section Testing
-    System Test :test1, after a2, 3d
+    Task 1 :a1, YYYY-MM-DD, 3d
 ```
 
-## Committed Stories
-| ID | Story | Owner | Estimate | Done? |
-|----|-------|-------|----------|-------|
-| US-001 | [Story title] | [Name] | [hrs] | [ ] |
+## 📋 Committed Stories & Tasks
+| ID | Story / Task | Owner | Estimate | Status |
+|----|--------------|-------|----------|--------|
+| [[US-XX-XX]] | [Story title] | [Name] | [hrs] | [ ] |
 
-## Definition of Done
-- [ ] Code reviewed by at least 1 teammate
-- [ ] Feature tested on [platform]
-- [ ] Relevant doc updated (GDD / Software Design)
-
-## Risks & Blockers
-- [Risk 1]: [Mitigation]
-
-## 🔗 Linked Documents
-- Backlog: [[./product-backlog.md]]
-- Roadmap: [[./sprint-planning.md]]
+## 🛠 Sprint Specifics
+- **Definition of Done:** [...]
+- **Risks & Blockers:** [...]
 ```
 
-### Agile — Retrospective (`docs/agile/retrospectives/sprint-XX-retro.md`)
+### Agile — User Story (`docs/agile/user-stories/US-XX-XX.md`)
 ```markdown
-# Sprint [XX] Retrospective
+# User Story: US-[Epic]-[Number] - [Title]
 
-**Date:** YYYY-MM-DD | **Facilitator:** [Name]
+**Status:** [✅ Done / 🔵 In Progress / 🏗 In-Progress]
+**Epic:** [[E[X]: Title]]
+**Owner:** [Name]
 
-## What Went Well ✅
-- [Item]
+---
 
-## What Could Improve 🔧
-- [Item]
+## 📖 Description
+**ในฐานะ** [Role]
+**ฉันต้องการ** [Feature/Action]
+**เพื่อให้** [Benefit]
 
-## Action Items for Next Sprint
-| Action | Owner | Due |
-|--------|-------|-----|
-| [Action] | [Name] | [Date] |
+---
 
-## Velocity
-- **Planned:** [N hrs / points]
-- **Completed:** [N hrs / points]
-- **Notes:** [Why the difference?]
+## ✅ Acceptance Criteria
+1. [ ] [Criteria 1]
+2. [ ] [Criteria 2]
+
+---
+
+## 🛠 Technical Tasks (Git Log Updates)
+- [ ] [Task 1]
+- [ ] [Task 2]
+
+---
+
+## 🔗 Related Files
+- Backlog: [[../01-product-backlog.md]]
+- GDD: [[../../gdd/[doc-name].md]]
 ```
 
 ### Knowledge Hub — Wiki Home (`docs/wiki/wiki.md`)
@@ -313,39 +289,18 @@ gantt
 **Last Updated:** YYYY-MM-DD | **Maintained by:** [Name/Role]
 
 ## 🎯 Quick Access
-- **[Concept & Architecture]**: [[gdd/00-concept.md]]
-- **[Core Mechanics]**: [[gdd/01-mechanics.md]]
-- **[Current Sprint]**: [[agile/sprint-planning.md]]
+- **[Concept & Architecture]**: [[../gdd/00-concept.md]]
+- **[Core Mechanics]**: [[../gdd/01-mechanics.md]]
+- **[Current Sprint]**: [[../agile/02-sprint-planning.md]]
 ```
----
-
-## 📘 Documentation Suites
-| Group | Description | Status |
-|:---|:---|:---|
-| **[Game Design]** | Mechanics, Art, Audio | [Active/Draft] |
-| **[Software]** | System Design, API, Data | [In-Progress] |
-| **[Agile]** | Backlog, Sprints, Retros | [Updated Weekly] |
-
 ---
 
 ## 🧠 Knowledge Base (Wiki)
 *Ad-hoc research, experiment logs, and specialized guides.*
 
-### 🛠 Development & Setup
-- [[wiki/development/SETUP.md|Development Setup Guide]]
-
-### 🤖 Agentic AI & Tools
-- [[wiki/Agentic-AI/PROJECT_AGENT_SKILL_USING.md|Agentic AI Skill Usage]]
-
 ### 📊 Reports & Research
-- [[wiki/camt-fun/proposal.md|Project Proposal]]
-- [[wiki/camt-fun/260427-fun-report.md|Experiment Reports]]
-
----
-
-## 📚 External Resources
-- [Phaser Documentation](https://phaser.io/learn)
-- [Project Dashboard](URL)
+- [[../agile/05-report-backlog.md|System Test Reports]]
+- [[../agile/04-retrospectives-backlog.md|Sprint Retrospectives]]
 
 ---
 *Powered by Antigravity Knowledge Management System.*
