@@ -1,11 +1,12 @@
 import Phaser from "phaser";
-import GameplayUI from "../entity/script/ui/gameplay-ui";
+import GameplayUI from "../entity/script/ui/gameplay-ui.js";
 import RandomQuiz from "../components/scripts/random-quiz.js";
 import {LevelMap, Config, QuizUI_Setting} from "../constants.js";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import Quiz from "../entity/script/quiz.js";
 import ProgressBar from "../../../util/layout/progress-bar.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
+import { EventBus } from "../../../core/EventBus.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
