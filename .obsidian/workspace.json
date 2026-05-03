@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/agile/01-product-backlog.md",
+                "file": "docs/agile/meeting-backlogs/2026-04-21.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "01-product-backlog"
+              "title": "2026-04-21"
             }
           }
         ]
@@ -206,13 +206,13 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
+    "docs/agile/01-product-backlog.md",
+    "docs/agile/meeting-backlogs/2026-04-21.md",
     "docs/agile/03-meeting-backlogs.md",
     "docs/agile/04-retrospectives-backlog.md",
     "docs/agile/meeting-backlogs/2026-04-28.md",
-    "docs/agile/meeting-backlogs/2026-04-21.md",
     "docs/agile/meeting-backlogs/2026-04-07.md",
     "docs/agile/meeting-backlogs/2026-04-14.md",
-    "docs/agile/01-product-backlog.md",
     "docs/changelog.md",
     "docs/index.md",
     "AGENTS.md",
