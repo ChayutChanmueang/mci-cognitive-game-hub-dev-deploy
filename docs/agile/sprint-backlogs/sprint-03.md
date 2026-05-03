@@ -23,14 +23,18 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID           | Story / Task                                  | Owner    | Estimate | Done?  |
 | ------------ | --------------------------------------------- | -------- | -------- | ------ |
-| [US-E1-07](US-E1-07.md) | ระบบ Grid และการวาดภาพสะท้อน (Symmetry Decor) | UI Dev   | 40h      | ✅ Done |
-| [US-E2-02](US-E2-02.md) | ระบบ Authentication สำหรับแพทย์และผู้ป่วย     | Core Dev | 24h      | ✅ Done |
-| [US-E2-03](US-E2-03.md) | API สำหรับส่งคะแนนและเวลาที่ใช้ (Integration) | Core Dev | 16h      | ✅ Done |
-| [BUG-001](BUG-001.md)  | Supabase Transient Connection Fix             | Core Dev | 8h       | ✅ Done |
-| [BUG-002](BUG-002.md)  | Zoo Detective Drag-and-Drop Scroll Offset     | UI Dev   | 8h       | ✅ Done |
-| [BUG-003](BUG-003.md)  | Database Logging Foreign Key Fix              | Data Eng | 4h       | ✅ Done |
+| [US-E1-07](../user-stories/US-E1-07.md) | ระบบ Grid และการวาดภาพสะท้อน (Symmetry Decor) | UI Dev   | 40h      | ✅ Done |
+| [US-E2-02](../user-stories/US-E2-02.md) | ระบบ Authentication สำหรับแพทย์และผู้ป่วย     | Core Dev | 24h      | ✅ Done |
+| [US-E2-03](../user-stories/US-E2-03.md) | API สำหรับส่งคะแนนและเวลาที่ใช้ (Integration) | Core Dev | 16h      | ✅ Done |
+| [BUG-001](../user-stories/BUG-001.md)  | Supabase Transient Connection Fix             | Core Dev | 8h       | ✅ Done |
+| [BUG-002](../user-stories/BUG-002.md)  | Zoo Detective Drag-and-Drop Scroll Offset     | UI Dev   | 8h       | ✅ Done |
+| [BUG-003](../user-stories/BUG-003.md)  | Database Logging Foreign Key Fix              | Data Eng | 4h       | ✅ Done |
 
 ## 🛠 Sprint 3 Specifics
 - **Definition of Done:** ผ่านการทดสอบ Game Loop, ข้อมูลบันทึกถูกต้อง 100%, UI รองรับ Tablet, Code Review เสร็จสิ้น
 - **Risks & Blockers:** Supabase Rate Limiting (Mitigation: Batch Logging), Database Schema Sync Issues.
 
+---
+
+Back to Index: [Index](../../index.md)
+Back to Sprint Backlogs: [Sprint Backlogs](../03-sprint-backlogs.md)

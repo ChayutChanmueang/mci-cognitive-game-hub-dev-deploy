@@ -19,10 +19,10 @@
 - **Type:** Emoji Icons, SVG, and basic Sound Effects
 
 ## Related Documents
-- Mechanics: [./01-mechanics.md](./01-mechanics.md.md)
-- Architecture: [./00-concept.md](./00-concept.md.md)
-\
+- Mechanics: [01-mechanics.md](01-mechanics.md)
+- Architecture: [00-concept.md](00-concept.md)
 
 ---
-[? Back to Index](../index.md)\
+[Back to Index](../index.md)
+
 

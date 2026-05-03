@@ -23,3 +23,8 @@
 - **Planned:** 6 Major Tasks (3 Stories + 3 Bugs)
 - **Completed:** 6 Major Tasks (US-E1-07, US-E2-02, US-E2-03, BUG-001, BUG-002, BUG-003)
 - **Notes:** ปิดงานได้ครบ 100% ตามแผนที่วางไว้
+
+---
+
+Back to Index: [Index](../../index.md)
+Back to Retrospectives: [Retrospectives](../04-retrospectives-backlog.md)

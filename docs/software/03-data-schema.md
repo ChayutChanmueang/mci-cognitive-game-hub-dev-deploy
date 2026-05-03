@@ -436,5 +436,6 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 \
 
 ---
-[? Back to Index](../index.md)\
+[Back to Index](../index.md)\
+
 

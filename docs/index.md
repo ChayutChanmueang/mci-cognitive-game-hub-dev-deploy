@@ -19,7 +19,7 @@
 
 ## 💻 Software Design
 เอกสารทางเทคนิคเกี่ยวกับการสร้างและสถาปัตยกรรม
-- [00. System Architecture](gdd/00-concept.md) - (ดูใน Game Concept) โครงสร้างและการทำงานระหว่าง React & Phaser
+- [00. Concept Design](gdd/00-concept.md) - (ดูใน Game Concept) โครงสร้างและการทำงานระหว่าง React & Phaser
 - [01. System Design](software/01-system-design.md) - รายละเอียด Subsystems และ Design Patterns
 - [02. Class Diagram](software/02-class-diagram.md) - แผนภาพความสัมพันธ์ของ Class หลัก
 - [03. Data Schema](software/03-data-schema.md) - โครงสร้างฐานข้อมูล Supabase
@@ -32,8 +32,8 @@
 - [01. Product Backlog](agile/01-product-backlog.md) - รายการฟีเจอร์และ User Stories ทั้งหมด
 - [02. Sprint Roadmap](agile/02-sprint-planning.md) - แผนการดำเนินงานภาพรวมและรายละเอียด Sprint ปัจจุบัน
 - [03. Meeting Logs](agile/03-meeting-backlogs.md) - บันทึกการประชุมของทีม
-- [05. System Test Reports](agile/05-report-backlog.md) - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด
 - [04. Sprint Retrospectives](agile/04-retrospectives-backlog.md) - บันทึกสรุปบทเรียนและแนวทางการปรับปรุงในแต่ละ Sprint
+- [05. System Test Reports](agile/05-report-backlog.md) - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด
 
 ---
 

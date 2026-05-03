@@ -3,10 +3,10 @@
 **Last Updated:** 2026-05-31 | **Maintained by:** Antigravity AI
 
 ## 🎯 Quick Access
-- **Game Concept & Architecture**: [../gdd/00-concept.md](../gdd/00-concept.md.md)
-- **Core Mechanics**: [../gdd/01-mechanics.md](../gdd/01-mechanics.md.md)
-- **Product Backlog**: [01-product-backlog](01-product-backlog.md)
-- **Current Sprint**: [02-sprint-planning](02-sprint-planning.md)
+- **Game Concept & Architecture**: [Game Concept & Architecture](../gdd/00-concept.md)
+- **Core Mechanics**: [Core Mechanics](../gdd/01-mechanics.md)
+- **Product Backlog**: [Product Backlog](../agile/01-product-backlog.md)
+- **Current Sprint**: [Current Sprint](../agile/02-sprint-planning.md)
 
 ---
 
