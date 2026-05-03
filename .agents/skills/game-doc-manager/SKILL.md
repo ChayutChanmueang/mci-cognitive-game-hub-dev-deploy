@@ -29,7 +29,7 @@ Three document groups, ordered by priority:
 | **Software Design** | How it's BUILT | System Design, Class Diagrams, Data Schema |
 | **Agile Management** | How it's MANAGED | Product Backlog, Sprint Plans, Reports |
 
-All documents live under `docs/` and cross-reference each other via links.
+All documents live under `docs/` and cross-reference each other via relative links.
 
 ---
 
@@ -105,7 +105,7 @@ Check for:
 - Features described in GDD but missing from the backlog.
 - Classes in Software Design not traceable to any GDD mechanic.
 - Sprint tasks that reference docs/features not yet written.
-- Broken `[[wikilinks]]` or missing cross-references.
+- Broken links or missing cross-references.
 Report findings as a checklist; offer to fix each one.
 
 ### Command: "create wiki" / "update wiki"
@@ -163,8 +163,8 @@ Steps:
 ---
 
 ## Related Documents
-- Mechanics: [[./01-mechanics.md]]
-- Backlog: [[../agile/01-product-backlog.md]]
+- Mechanics: [Core Mechanics](../gdd/01-mechanics.md)
+- Backlog: [Product Backlog](../agile/01-product-backlog.md)
 ```
 
 ### GDD — Core Mechanics (`docs/gdd/01-mechanics.md`)
@@ -185,7 +185,7 @@ Steps:
 ### [System Name]
 [Description of how this system works.]
 
-**Linked to Software Design:** [[../software/01-system-design.md]]
+**Linked to Software Design:** [System Design](../software/01-system-design.md)
 
 ## Win / Lose Conditions
 - **Win:** [Condition]
@@ -201,10 +201,10 @@ Steps:
 ## Must Have (MVP)
 | ID | User Story | Acceptance Criteria | Estimate | Status |
 |----|-----------|---------------------|----------|--------|
-| [[US-XX-XX]] | As a player, I want to [action] so that [outcome] | [Criteria] | [S/M/L] | [ ] |
+| [US-XX-XX](./user-stories/US-XX-XX.md) | As a player, I want to [action] so that [outcome] | [Criteria] | [S/M/L] | [ ] |
 
 ## Linked GDD Features
-- Derived from: [[../gdd/01-mechanics.md]], [[../gdd/00-concept.md]]
+- Derived from: [Core Mechanics](../gdd/01-mechanics.md), [Concept](../gdd/00-concept.md)
 ```
 
 ### Agile — Sprint Planning (`docs/agile/02-sprint-planning.md`)
@@ -216,10 +216,10 @@ Steps:
 ## 📅 Sprint Schedule Overview
 | Sprint | Timeline | Focus Area | Status |
 |:---|:---|:---|:---|
-| [[sprint-01]] | YYYY-MM-DD | [Focus] | Completed |
+| [sprint-01](./sprint-backlogs/sprint-01.md) | YYYY-MM-DD | [Focus] | Completed |
 
 ## 🚀 Sprint Details
-- **[[sprint-01]]**: [Focus Area]
+- **[sprint-01](./sprint-backlogs/sprint-01.md)**: [Focus Area]
 ```
 
 ### Agile — Sprint Plan (`docs/agile/sprint-backlogs/sprint-XX.md`)
@@ -241,7 +241,7 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Owner | Estimate | Status |
 |----|--------------|-------|----------|--------|
-| [[US-XX-XX]] | [Story title] | [Name] | [hrs] | [ ] |
+| [US-XX-XX](../user-stories/US-XX-XX.md) | [Story title] | [Name] | [hrs] | [ ] |
 
 ## 🛠 Sprint Specifics
 - **Definition of Done:** [...]
@@ -253,7 +253,7 @@ gantt
 # User Story: US-[Epic]-[Number] - [Title]
 
 **Status:** [✅ Done / 🔵 In Progress / 🏗 In-Progress]
-**Epic:** [[E[X]: Title]]
+**Epic:** [Epic Title](../01-product-backlog.md)
 **Owner:** [Name]
 
 ---
@@ -278,8 +278,8 @@ gantt
 ---
 
 ## 🔗 Related Files
-- Backlog: [[../01-product-backlog.md]]
-- GDD: [[../../gdd/[doc-name].md]]
+- Backlog: [Product Backlog](../01-product-backlog.md)
+- GDD: [Mechanics](../../gdd/01-mechanics.md)
 ```
 
 ### Knowledge Hub — Wiki Home (`docs/wiki/wiki.md`)
@@ -289,9 +289,9 @@ gantt
 **Last Updated:** YYYY-MM-DD | **Maintained by:** [Name/Role]
 
 ## 🎯 Quick Access
-- **[Concept & Architecture]**: [[../gdd/00-concept.md]]
-- **[Core Mechanics]**: [[../gdd/01-mechanics.md]]
-- **[Current Sprint]**: [[../agile/02-sprint-planning.md]]
+- **[Concept & Architecture]**: [Concept](../gdd/00-concept.md)
+- **[Core Mechanics]**: [Mechanics](../gdd/01-mechanics.md)
+- **[Current Sprint]**: [Sprint Planning](../agile/02-sprint-planning.md)
 ```
 ---
 
@@ -299,8 +299,8 @@ gantt
 *Ad-hoc research, experiment logs, and specialized guides.*
 
 ### 📊 Reports & Research
-- [[../agile/05-report-backlog.md|System Test Reports]]
-- [[../agile/04-retrospectives-backlog.md|Sprint Retrospectives]]
+- [System Test Reports](../agile/05-report-backlog.md)
+- [Sprint Retrospectives](../agile/04-retrospectives-backlog.md)
 
 ---
 *Powered by Antigravity Knowledge Management System.*
@@ -312,7 +312,7 @@ gantt
 
 **Project:** [Title]
 **Status:** [Active/Draft] | **Current Sprint:** [Sprint N]
-**Last Updated:** YYYY-MM-DD | **Knowledge Hub:** [[wiki/wiki.md|🌐 Project Wiki]]
+**Last Updated:** YYYY-MM-DD | **Knowledge Hub:** [Project Wiki](./wiki/wiki.md)
 
 ---
 
@@ -332,9 +332,9 @@ gantt
 ---
 
 ## 📚 Resources & Guidelines
-- [[wiki/wiki.md|🌐 Project Wiki]] - Central knowledge hub and logs
-- [[guidelines/system-test-guideline.md|Testing Guidelines]]
-- [[changelog.md|Documentation Changelog]]
+- [Project Wiki](./wiki/wiki.md) - Central knowledge hub and logs
+- [Testing Guidelines](./wiki/guidelines/system-test-guideline.md)
+- [Documentation Changelog](./changelog.md)
 
 ---
 *Generated by Antigravity AI Assistant.*
@@ -346,7 +346,7 @@ gantt
 
 - **Format:** Markdown (`.md`) — suitable for Git repos, Obsidian, GitHub Wiki, and VS Code.
 - Always include `**Version:**` and `**Last Updated:**` fields in every document header.
-- Use `[[wikilinks]]` for internal cross-references between docs.
+- Use relative links (`[Label](./path/to/file.md)`) for internal cross-references to ensure compatibility with VS Code and standard Markdown viewers.
 
 ---
 
@@ -361,3 +361,4 @@ gantt
 | `"check consistency"` | Cross-check all docs for conflicts/gaps |
 | `"retro sprint [N]"` | Generate retrospective template |
 | `"status"` | Show `docs/index.md` — what exists, what's missing |
+
