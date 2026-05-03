@@ -50,4 +50,4 @@
 ## 🚀 Development Status
 - **Core Logic:** [[US-E1-05]] (Done)
 - **UI & Thai Support:** [[US-E1-06]] (Done)
-- **Weekly Tracking:** [[S2-W04-Weekly-Backlog]]
+- **Weekly Tracking:** [[2026-04-28]]

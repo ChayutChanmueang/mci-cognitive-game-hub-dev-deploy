@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/changelog.md",
+                "file": "docs/agile/01-product-backlog.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "changelog"
+              "title": "01-product-backlog"
             }
           }
         ]
@@ -207,18 +207,18 @@
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
     "docs/agile/03-meeting-backlogs.md",
+    "docs/agile/04-retrospectives-backlog.md",
+    "docs/agile/meeting-backlogs/2026-04-28.md",
     "docs/agile/meeting-backlogs/2026-04-21.md",
-    "docs/agile/meeting-backlogs/2026-04-23.md",
-    "docs/agile/meeting-backlogs/S2-W03-Weekly-Backlog.md",
-    "docs/agile/meeting-backlogs/S2-W04-Weekly-Backlog.md",
-    "docs/index.md",
+    "docs/agile/meeting-backlogs/2026-04-07.md",
+    "docs/agile/meeting-backlogs/2026-04-14.md",
     "docs/agile/01-product-backlog.md",
     "docs/changelog.md",
+    "docs/index.md",
     "AGENTS.md",
     "README.md",
     "docs/software/02-class-diagram.md",
     "docs/agile/02-sprint-planning.md",
-    "docs/agile/04-retrospectives-backlog.md",
     "docs/agile/05-report-backlog.md",
     "docs/agile/kanban.md",
     "docs/agile/retrospectives/sprint-04-retro.md",
