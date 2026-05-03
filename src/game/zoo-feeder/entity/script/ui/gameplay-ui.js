@@ -1,7 +1,7 @@
-import StorageManager from "../../../../../core/storage-manager";
-import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel";
-import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
-import Entity from "../../entity";
+import StorageManager from "../../../../../core/storage-manager.js";
+import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
+import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
+import Entity from "../../entity.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){

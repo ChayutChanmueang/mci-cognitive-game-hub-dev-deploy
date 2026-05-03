@@ -1,0 +1,13 @@
+.daily-preset-edit-stage-popup__dialog {
+    width: min(100%, 520px);
+}
+
+.daily-preset-edit-stage-popup__fields {
+    display: grid;
+    gap: 12px;
+}
+
+.daily-preset-edit-stage-popup__fields md-filled-select,
+.daily-preset-edit-stage-popup__fields md-filled-text-field {
+    width: 100%;
+}

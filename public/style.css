@@ -35,7 +35,7 @@ body {
 
 body.game-mode {
     color: rgba(255, 255, 255, 0.87);
-    background: #000000;
+    background: #028af8;
     font-family: inherit;
 }
 
@@ -52,13 +52,38 @@ body.hub-mode {
 }
 
 #app.game-mode {
-    height: 100vh;
-    min-height: 0;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100svh;
     overflow: hidden;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block;
+    background: #028af8; /* Standard Game Background Blue */
+}
+
+#app.game-mode #game-container {
+    position: absolute;
+    inset: 0;
+    top: max(80px, calc(env(safe-area-inset-top) + 64px));
+    width: 100%;
+    height: calc(100% - max(80px, calc(env(safe-area-inset-top) + 64px)));
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0;
+}
+
+#app.game-mode #ui-root {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #app.landing-mode {
@@ -87,6 +112,14 @@ body.hub-mode {
 #game-container {
     width: 100%;
     height: 100%;
+}
+
+#game-container canvas {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
 }
 
 .game-container--hidden {
@@ -328,6 +361,18 @@ body.hub-mode {
     font-weight: 600;
 }
 
+.signup-age-value {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: rgba(53, 104, 89, 0.12);
+    color: #1e1b18;
+    font-size: clamp(1.0rem, 2.5vw, 1.3rem);
+    font-weight: 600;
+}
+
 .signup-feedback,
 .player-info-feedback {
     margin: 0;
@@ -430,7 +475,6 @@ body.hub-mode {
 
 .app-popup__header {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
     gap: 16px;
     align-items: start;
 }
@@ -475,6 +519,119 @@ body.hub-mode {
     justify-content: flex-end;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+.app-popup__dialog--success {
+    width: min(100%, 400px);
+    min-height: min(680px, calc(100svh - 48px));
+    grid-template-rows: 1fr auto;
+    align-content: stretch;
+    text-align: center;
+    padding: 24px 24px 28px;
+}
+
+.checkin-popup-success-layout {
+    min-height: 0;
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    padding: 40px 0 28px;
+}
+
+.checkin-popup-success-copy {
+    justify-items: center;
+    text-align: center;
+    gap: 0;
+}
+
+.checkin-popup-success-copy .checkin-success-emoji {
+    margin: 58px 0 48px;
+}
+
+.checkin-popup-success-copy p {
+    max-width: 320px;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}
+
+.checkin-popup-success-actions {
+    align-self: end;
+    justify-content: center;
+    padding-bottom: 0;
+}
+
+.app-popup__dialog--checkin-calendar {
+    width: min(100%, 400px);
+    min-height: min(680px, calc(100svh - 48px));
+    grid-template-rows: 1fr auto;
+    align-content: stretch;
+    overflow: hidden;
+    padding: 24px 24px 28px;
+}
+
+.checkin-popup-calendar-header {
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    text-align: center;
+    padding-bottom: 16px;
+    min-width: 0;
+}
+
+.checkin-popup-calendar-copy {
+    width: 100%;
+    min-width: 0;
+    justify-items: center;
+    text-align: center;
+}
+
+.checkin-popup-calendar-copy h2 {
+    color: var(--md-sys-color-on-surface);
+    font-size: 32px;
+}
+
+.checkin-popup-calendar-copy p {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 25px;
+}
+
+.checkin-popup-calendar-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--md-sys-color-outline-variant);
+    margin: 16px 0;
+}
+
+.app-popup__dialog--checkin-calendar .checkin-program-grid {
+    width: 100%;
+    justify-self: center;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    column-gap: 4px;
+    row-gap: 12px;
+}
+
+.app-popup__dialog--checkin-calendar .checkin-program-day {
+    min-width: 0;
+    justify-items: center;
+    gap: 4px;
+}
+
+.app-popup__dialog--checkin-calendar .checkin-program-day__number {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 19px;
+}
+
+.app-popup__dialog--checkin-calendar .checkin-program-day__box {
+    width: 100%;
+    min-height: 40px;
+}
+
+.app-popup__dialog--checkin-calendar .checkin-program-day__checkbox {
+    inline-size: 40px;
+    block-size: 40px;
+    --md-checkbox-container-size: 40px;
+    --md-checkbox-icon-size: 40px;
+    --md-checkbox-state-layer-size: 40px;
 }
 
 .hub-clean-screen {
@@ -564,7 +721,32 @@ body.hub-mode {
     place-items: center;
     font-size: 13px;
     font-weight: 800;
+    color: #111827;
+    text-shadow:
+        0 1px 2px rgba(255, 255, 255, 0.6),
+        0 0 1px rgba(15, 23, 42, 0.28);
+    transition: color 320ms ease, text-shadow 320ms ease, transform 320ms ease;
     pointer-events: none;
+}
+
+.hub-clean-progress.is-half-passed span {
+    color: #f8fafc;
+    text-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.85),
+        0 0 1px rgba(2, 6, 23, 0.65);
+    animation: hub-progress-text-pop 320ms ease;
+}
+
+@keyframes hub-progress-text-pop {
+    0% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.06);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .hub-clean-profile {
@@ -762,6 +944,18 @@ body.hub-mode {
     z-index: 30;
     left: 24px;
     bottom: 18px;
+    display: grid;
+    gap: 8px;
+}
+
+.hub-clean-quick-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.hub-clean-quick-menu md-menu {
+    min-width: 320px;
+    max-height: 320px;
 }
 
 .hub-clean-empty {
@@ -792,7 +986,156 @@ body.hub-mode {
     font-size: 30px;
 }
 
-@media (max-width: 420px) {
+.checkin-summary-screen {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 18px 18px calc(110px + env(safe-area-inset-bottom));
+    position: relative;
+}
+
+.checkin-summary-screen--success {
+    min-height: 100svh;
+    display: block;
+    padding: 0;
+    background: #e9e9e9;
+}
+
+.checkin-success-layout {
+    width: 100%;
+    min-height: 100svh;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 30px;
+    text-align: center;
+    padding: 24px 22px calc(120px + env(safe-area-inset-bottom));
+}
+
+.checkin-success-title {
+    margin: 0;
+    color: #0f0f0f;
+    font-size: clamp(1.6rem, 6.5vw, 2.2rem);
+    line-height: 1.05;
+    font-weight: 500;
+}
+
+.checkin-success-emoji {
+    font-size: clamp(5.2rem, 23vw, 7.8rem);
+    line-height: 1;
+}
+
+.checkin-success-message {
+    margin: 0;
+    color: #0f0f0f;
+    font-size: clamp(1.45rem, 5.8vw, 2rem);
+    line-height: 1.18;
+    font-weight: 500;
+}
+
+.checkin-floating-action {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 80;
+    display: grid;
+    justify-items: center;
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
+    pointer-events: none;
+}
+
+.checkin-floating-button {
+    width: min(100%, 360px);
+    pointer-events: auto;
+}
+
+.checkin-calendar-panel {
+    width: min(100%, 520px);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(183, 176, 168, 0.65);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--app-shadow);
+    padding: 20px 14px 18px;
+    color: var(--md-sys-color-on-surface);
+}
+
+.checkin-calendar-panel__header {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    margin-bottom: 24px;
+    margin-top: 12px;
+    text-align: center;
+}
+
+.checkin-calendar-panel__header h2 {
+    margin: 0;
+    color: var(--md-sys-color-on-surface);
+    font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1;
+    font-weight: 500;
+}
+
+.checkin-calendar-panel__header p {
+    margin: 0;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: clamp(1.45rem, 5.8vw, 2rem);
+    line-height: 1.1;
+    font-weight: 500;
+}
+
+.checkin-calendar-panel__divider {
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(183, 176, 168, 0.72);
+    margin-bottom: 56px;
+}
+
+.checkin-program-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    row-gap: 56px;
+    column-gap: 6px;
+}
+
+.checkin-program-day {
+    display: grid;
+    gap: 6px;
+}
+
+.checkin-program-day__number {
+    text-align: center;
+    color: var(--md-sys-color-on-surface);
+    font-size: clamp(1.25rem, 5vw, 1.8rem);
+    line-height: 1;
+    font-weight: 500;
+}
+
+.checkin-program-day__box {
+    min-height: 42px;
+    border-radius: 0;
+    border: 0;
+    background: rgba(255, 255, 255, 0);
+    display: grid;
+    place-items: center;
+}
+
+.checkin-program-day__checkbox {
+    display: block;
+    margin: 0;
+    inline-size: 56px;
+    block-size: 56px;
+    place-self: center;
+    pointer-events: none;
+    --md-checkbox-container-size: 56px;
+    --md-checkbox-icon-size: 56px;
+    --md-checkbox-state-layer-size: 56px;
+    --md-checkbox-container-shape: 10px;
+}
+
+@media (max-width: 560px) {
     #app:has(.signup-screen),
     #app:has(.player-info-screen) {
         padding: 0;
@@ -836,6 +1179,47 @@ body.hub-mode {
     .player-info-row--date {
         grid-template-columns: minmax(98px, auto) minmax(0, 1fr);
         gap: 8px;
+    }
+
+    .checkin-summary-screen {
+        padding: 12px 12px calc(104px + env(safe-area-inset-bottom));
+    }
+
+    .checkin-summary-screen--success {
+        padding: 0;
+    }
+
+    .checkin-success-layout {
+        min-height: 100svh;
+        gap: 22px;
+        padding: 16px 14px calc(112px + env(safe-area-inset-bottom));
+    }
+
+    .checkin-calendar-panel {
+        width: min(100%, 430px);
+        padding: 16px 10px 14px;
+        border-radius: 20px;
+    }
+
+    .checkin-program-grid {
+        row-gap: 24px;
+        column-gap: 6px;
+    }
+
+    .checkin-program-day__box {
+        min-height: 50px;
+    }
+
+    .checkin-calendar-panel__divider {
+        margin-bottom: 24px;
+    }
+
+    .checkin-program-day__checkbox {
+        inline-size: 40px;
+        block-size: 40px;
+        --md-checkbox-container-size: 40px;
+        --md-checkbox-icon-size: 40px;
+        --md-checkbox-state-layer-size: 40px;
     }
 }
 
@@ -933,3 +1317,223 @@ body.hub-mode {
         left: 61px;
     }
 }
+
+/* Minigame HUD Styles */
+.minigame-hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 20px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    font-family: "Noto Sans Thai", sans-serif;
+}
+
+.minigame-hud__topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(183, 176, 168, 0.4);
+    border-radius: 20px;
+    padding: 8px 16px;
+    box-shadow: 0 8px 32px rgba(53, 104, 89, 0.1);
+}
+
+.minigame-hud__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.minigame-hud__title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.minigame-hud__title {
+    margin: 0;
+    font-family: "Baloo 2", sans-serif;
+    font-size: 1.5rem;
+    color: var(--md-sys-color-primary);
+    line-height: 1;
+}
+
+.minigame-hud__level {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.2;
+}
+
+.minigame-hud__right {
+    display: flex;
+    align-items: center;
+}
+
+.minigame-hud__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.minigame-hud__stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--md-sys-color-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.minigame-hud__stat-value {
+    font-family: "Baloo 2", sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--md-sys-color-primary);
+    line-height: 1;
+}
+
+.minigame-hud__timer-wrap {
+    margin-top: 16px;
+    align-self: center;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.minigame-hud__timer-label {
+    background: rgba(53, 104, 89, 0.9);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-family: "Baloo 2", sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.minigame-hud__timer-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    --md-linear-progress-active-indicator-color: var(--md-sys-color-primary);
+    --md-linear-progress-track-color: rgba(255, 255, 255, 0.3);
+}
+
+.minigame-hud__timer-bar.warning {
+    --md-linear-progress-active-indicator-color: var(--md-sys-color-error);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.minigame-hud__stat-value.pulse {
+    animation: pulse 0.3s ease-out;
+}
+
+/* Result Panel Styles */
+.result-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.result-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(16, 18, 20, 0.4);
+    backdrop-filter: blur(8px);
+}
+
+.result-card {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 400px);
+    background: white;
+    border-radius: 32px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 24px 64px rgba(53, 104, 89, 0.25);
+    border: 1px solid rgba(183, 176, 168, 0.3);
+    text-align: center;
+}
+
+.result-icon {
+    font-size: 64px;
+    color: #C8A96E; /* Gold */
+    margin-bottom: 8px;
+}
+
+.result-card__header h2 {
+    margin: 0;
+    font-family: "Baloo 2", sans-serif;
+    font-size: 2.25rem;
+    color: var(--md-sys-color-primary);
+    line-height: 1;
+}
+
+.result-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.result-stat {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background: rgba(53, 104, 89, 0.05);
+    border-radius: 16px;
+}
+
+.result-stat--secondary {
+    background: rgba(183, 176, 168, 0.1);
+}
+
+.result-stat__label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--md-sys-color-on-surface-variant);
+    margin-bottom: 4px;
+}
+
+.result-stat__value {
+    font-family: "Baloo 2", sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--md-sys-color-primary);
+    line-height: 1;
+}
+
+.result-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.result-actions md-filled-button,
+.result-actions md-outlined-button {
+    width: 100%;
+}
+

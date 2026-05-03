@@ -11,14 +11,14 @@ export default class Conveyer extends Entity {
         this.speed = speed;
         this.scale = scale;
 
-        const _beltWidth = 225;
-        const _beltHeight = 1600;
-        const _cornerRadius = 25;
+        const _beltWidth = 250;
+        const _beltHeight = 1700;
+        const _cornerRadius = 70;
 
         // 1. Draw the Static Background (Image 2)
         this.beltBackground = scene.add.graphics();
         // Thick light-grey border (Stroke)
-        this.beltBackground.lineStyle(8, 0xe0e0e0, 1);
+        this.beltBackground.lineStyle(12, 0xe0e0e0, 1);
         // Dark grey interior (Fill)
         this.beltBackground.fillStyle(0x383838, 1);
         
@@ -46,14 +46,14 @@ export default class Conveyer extends Entity {
         this.conveyerArrows = scene.add.tileSprite(
             x,
             y + (_beltHeight / 2),
-            _beltWidth - 125, // Slightly thinner than belt interior
+            _beltWidth - 150, // Slightly thinner than belt interior
             _beltHeight - 20,
             _arrowTextureName
         );
         this.conveyerArrows.setDepth(-1);
 
         // Position the animal near the bottom
-        this.animal = new Animal(scene, x, y + _beltHeight + 200, 1.5);
+        this.animal = new Animal(scene, x, y + _beltHeight + 200, 0.75);
         this.foods = [];
     }
 
@@ -77,7 +77,7 @@ export default class Conveyer extends Entity {
 
     spawnFoods() {
         // Spawns fruit at the top (this.y)
-        const _fruit = new Fruit(this.scene, this.x, this.y, this, 1.5);
+        const _fruit = new Fruit(this.scene, this.x, this.y + 200, this, 0.75);
         
         // Ensure initial velocity is pointing downwards
         _fruit.setVelocityY(Math.abs(this.speed));
@@ -113,8 +113,10 @@ export default class Conveyer extends Entity {
     onRemoveFood(foodType) {
         if (foodType == this.animal.currentAnimal.AcceptableFoodType) {
             this.scene.onRemoveEatableFood();
+            return false;
         } else {
             this.scene.onRemoveUneatableFood();
+            return true;
         }
     }
 

@@ -1,0 +1,109 @@
+.daily-preset-tool-screen {
+    min-height: 100dvh;
+    display: grid;
+    background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+    overflow: auto;
+}
+
+.daily-preset-tool {
+    width: min(100%, 900px);
+    min-height: 100dvh;
+    justify-self: center;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    padding: 32px 24px 72px;
+}
+
+.daily-preset-tool__header {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 56px;
+    align-items: center;
+    gap: 16px;
+}
+
+.daily-preset-tool__header h1 {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+    line-height: 1.1;
+    font-weight: 600;
+}
+
+.daily-preset-tool__content {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    padding-top: clamp(48px, 9vh, 92px);
+}
+
+.daily-preset-tool__list {
+    width: min(100%, 560px);
+    display: grid;
+    gap: 28px;
+}
+
+.daily-preset-tool__status {
+    margin: 0;
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.daily-preset-tool__status--error {
+    color: var(--md-sys-color-error);
+}
+
+.daily-preset-card {
+    width: 100%;
+    min-height: 88px;
+    padding: 0;
+    --md-filled-tonal-button-container-height: 88px;
+    --md-filled-tonal-button-container-shape: 24px;
+}
+
+.daily-preset-card__inner {
+    width: 350px;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 12px;
+    padding: 14px 24px 14px 28px;
+}
+
+.daily-preset-card__copy {
+    min-width: 0;
+    display: grid;
+    justify-items: start;
+    gap: 2px;
+    text-align: left;
+}
+
+.daily-preset-card__copy strong {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    line-height: 1;
+    font-weight: 500;
+}
+
+.daily-preset-card__copy small {
+    font-size: clamp(0.8rem, 1.4vw, 1rem);
+    line-height: 1.2;
+    color: var(--md-sys-color-on-surface);
+}
+
+.daily-preset-card__icon {
+    justify-self: end;
+    font-size: clamp(2rem, 3.4vw, 2.75rem);
+    font-weight: 700;
+}
+
+.daily-preset-card__inner--add {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding-inline: 24px;
+}
+
+.daily-preset-card__add-icon {
+    font-size: clamp(2rem, 3.4vw, 2.75rem);
+    font-weight: 500;
+}

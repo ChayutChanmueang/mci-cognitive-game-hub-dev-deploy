@@ -10,6 +10,10 @@ function toggleFieldError(input, hasError) {
     }
 }
 
+function normalizeEmail(value) {
+    return String(value || "").trim().toLowerCase();
+}
+
 export function renderAdminLoginScreen(root, options = {}) {
     if (!root) {
         return;
@@ -25,14 +29,17 @@ export function renderAdminLoginScreen(root, options = {}) {
                 <h1 id="admin-login-title">ข้อมูลผู้ใช้งาน</h1>
 
                 <form id="admin-login-form" class="admin-login-form" novalidate>
-                    <label class="admin-login-label" for="admin-username-input">ชื่อผู้ใช้ผู้ดูแล :</label>
+                    <label class="admin-login-label" for="admin-email-input">อีเมลผู้ดูแล :</label>
                     <md-outlined-text-field
-                        id="admin-username-input"
+                        id="admin-email-input"
                         class="admin-login-field"
-                        label="กรอกชื่อผู้ใช้ผู้ดูแล"
+                        label="กรอกอีเมลผู้ดูแล"
+                        type="email"
+                        inputmode="email"
+                        autocomplete="username"
                         required
                         no-asterisk
-                        error-text="กรุณากรอกชื่อผู้ใช้ผู้ดูแล"
+                        error-text="กรุณากรอกอีเมลผู้ดูแลให้ถูกต้อง"
                     ></md-outlined-text-field>
 
                     <label class="admin-login-label" for="admin-password-input">รหัสผ่าน :</label>
@@ -41,6 +48,7 @@ export function renderAdminLoginScreen(root, options = {}) {
                         class="admin-login-field"
                         label="กรอกรหัสผ่าน"
                         type="password"
+                        autocomplete="current-password"
                         required
                         no-asterisk
                         error-text="กรุณากรอกรหัสผ่าน"
@@ -57,59 +65,58 @@ export function renderAdminLoginScreen(root, options = {}) {
     `;
 
     const form = root.querySelector("#admin-login-form");
-    const usernameInput = root.querySelector("#admin-username-input");
+    const emailInput = root.querySelector("#admin-email-input");
     const passwordInput = root.querySelector("#admin-password-input");
     const submitButton = root.querySelector("#admin-login-submit");
     const feedback = root.querySelector("#admin-login-feedback");
 
-    if (!form || !usernameInput || !passwordInput || !submitButton || !feedback) {
+    if (!form || !emailInput || !passwordInput || !submitButton || !feedback) {
         return;
     }
 
     const updateState = () => {
-        const hasUsername = String(usernameInput.value || "").trim().length > 0;
+        const email = normalizeEmail(emailInput.value);
         const hasPassword = String(passwordInput.value || "").trim().length > 0;
+        const hasEmail = email.length > 0;
 
-        submitButton.disabled = !(hasUsername && hasPassword);
+        submitButton.disabled = !(hasEmail && hasPassword);
         feedback.textContent = "";
-        toggleFieldError(usernameInput, false);
+        toggleFieldError(emailInput, false);
         toggleFieldError(passwordInput, false);
     };
 
-    usernameInput.addEventListener("input", updateState);
+    emailInput.addEventListener("input", updateState);
     passwordInput.addEventListener("input", updateState);
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const username = String(usernameInput.value || "").trim();
+        const email = normalizeEmail(emailInput.value);
         const password = String(passwordInput.value || "").trim();
 
-        if (!username || !password) {
-            toggleFieldError(usernameInput, !username);
+        if (!email || !password) {
+            toggleFieldError(emailInput, !email);
             toggleFieldError(passwordInput, !password);
             feedback.textContent = "";
             return;
         }
 
         submitButton.disabled = true;
-        usernameInput.disabled = true;
+        emailInput.disabled = true;
         passwordInput.disabled = true;
         feedback.textContent = "กำลังตรวจสอบข้อมูลผู้ดูแล...";
 
         try {
-            const accepted = await onSubmit({ username, password });
+            const accepted = await onSubmit({ email, password });
             if (accepted === false) {
-                usernameInput.disabled = false;
+                emailInput.disabled = false;
                 passwordInput.disabled = false;
                 updateState();
             }
         } catch (error) {
             console.error("Admin login flow failed:", error);
-            toggleFieldError(usernameInput, true);
-            toggleFieldError(passwordInput, true);
-            feedback.textContent = error?.message || "ไม่สามารถเข้าสู่ระบบผู้ดูแลได้";
-            usernameInput.disabled = false;
+            feedback.textContent = error?.message || "";
+            emailInput.disabled = false;
             passwordInput.disabled = false;
             submitButton.disabled = false;
         }

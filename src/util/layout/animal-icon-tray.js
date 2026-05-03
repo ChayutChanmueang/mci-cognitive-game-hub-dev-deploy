@@ -25,7 +25,7 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
             rowGap: 16,
             padding: 24,
             trayRadius: 28,
-            trayFillColor: 0xffffff,
+            trayFillColor: 0xdedede,
             trayFillAlpha: 1,
             trayStrokeColor: 0x5a697e,
             trayStrokeAlpha: 1,

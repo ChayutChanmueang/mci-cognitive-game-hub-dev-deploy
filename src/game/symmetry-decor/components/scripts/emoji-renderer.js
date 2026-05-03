@@ -26,6 +26,24 @@ export default class EmojiRenderer extends Component{
         ).setOrigin(0.5);
     }
     update(){
+        // Ensure the text object stays in the same container as the entity to sync coordinates
+        if (this.textObj.parentContainer !== this.entity.parentContainer) {
+            if (this.entity.parentContainer) {
+                this.entity.parentContainer.add(this.textObj);
+            } else {
+                this.scene.add.existing(this.textObj);
+            }
+        }
+
+        // Sync local position and depth
+        this.syncPos();
+        this.textObj.setDepth(this.entity.depth + 1);
+
+        // Eliminate drag lag by syncing immediately on drag events
+        this.entity.off('drag', this.syncPos, this);
+        this.entity.on('drag', this.syncPos, this);
+    }
+    syncPos() {
         this.textObj.x = this.entity.x;
         this.textObj.y = this.entity.y;
     }

@@ -2,8 +2,8 @@ import UIPanel from "../core/ui-panel";
 import {POPUP} from "../../constants";
 import { createThaiText, ThaiTextPresets } from "../../../../util/thai-text.js";
 export default class TutorialPanel extends UIPanel{
-    constructor(scene){
-        super(scene,scene.scale.width/2,scene.scale.height/2,800,1000);
+    constructor(scene, depth = 1000){
+        super(scene,scene.scale.width/2,scene.scale.height/2,800,1000, depth);
 
         //Relative to the main container
 
@@ -16,6 +16,11 @@ export default class TutorialPanel extends UIPanel{
         this.homeBtn = this.createButton(0,350, "START", () => {
             //this.scene.spawnFruit();
             this.hide();
+
+            if (scene.onCloseTutorial) {
+                scene.onCloseTutorial();
+                console.log("Stat")
+            }
         });
 
         //Relative to the sub container 1
