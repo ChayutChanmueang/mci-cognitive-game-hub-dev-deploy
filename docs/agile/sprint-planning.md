@@ -7,8 +7,8 @@
 | Sprint | Timeline | Focus Area | Key Deliverables |
 |:---|:---|:---|:---|
 | **Sprint 1** | Week 1-2 | Foundation & Zoo Games | Logic พื้นฐานของ Zoo Detective & Zoo Feeder (Completed) |
-| **Sprint 2** | Week 3-4 | **(Current)** UI & Data Setup | Zoo Games สมบูรณ์, Context Clues UI, Setup Database |
-| **Sprint 3** | Week 5-6 | Logic Games & Integration | Symmetry Decor, ระบบ Auth, ระบบบันทึกคะแนน (Score API) |
+| **Sprint 2** | Week 3-4 | UI & Data Setup | Zoo Games สมบูรณ์, Context Clues UI, Setup Database (Finalizing) |
+| **Sprint 3** | Week 5-6 | **(Next)** Logic Games & Integration | Symmetry Decor, ระบบ Auth, ระบบบันทึกคะแนน (Score API) |
 | **Sprint 4** | Week 7-8 | AR & Accessibility Polish | Postcard Reader (AR), Voice Over, UX Final Polish |
 
 ## 📊 Project Timeline (Gantt Chart)
@@ -20,9 +20,9 @@ gantt
     section Sprint 1
     Foundation & Zoo Games :done, s1, 2026-04-06, 14d
     section Sprint 2
-    UI & Data Setup        :active, s2, 2026-04-20, 14d
+    UI & Data Setup        :done, s2, 2026-04-20, 14d
     section Sprint 3
-    Logic Games & Integration :s3, after s2, 14d
+    Logic Games & Integration :active, s3, 2026-05-04, 14d
     section Sprint 4
     AR & Final Polish      :s4, after s3, 14d
 ```
@@ -31,15 +31,15 @@ gantt
 
 ## 🚀 Sprint Breakdown
 
-### Sprint 2: UI Interactive & Data Foundation (Current)
+### Sprint 2: UI Interactive & Data Foundation (Completed)
 **Goal:** ทำให้เกม Zoo ชุดแรกสมบูรณ์ 100% และเตรียมระบบฐานข้อมูลให้พร้อมใช้งาน
-- [ ] [[US-E1-02]] Zoo Detective UI & Feedback (Finish)
-- [ ] [[US-E1-04]] Zoo Feeder Interaction Logic (Finish)
-- [ ] [[US-E1-06]] UI สำหรับ Context Clues (Thai Support)
-- [ ] [[US-E2-01]] Setup Supabase Tables (Data Structure)
-- [ ] [[US-E3-01]] ปรับขนาด Font/ปุ่ม (Accessibility Basics)
+- [x] [[US-E1-02]] Zoo Detective UI & Feedback (Finish)
+- [x] [[US-E1-04]] Zoo Feeder Interaction Logic (Finish)
+- [x] [[US-E1-06]] UI สำหรับ Context Clues (Thai Support)
+- [ ] [[US-E2-01]] Setup Supabase Tables (Data Structure) - *In Progress: ติดปัญหา Sync ข้อมูล*
+- [x] [[US-E3-01]] ปรับขนาด Font/ปุ่ม (Accessibility Basics)
 
-### Sprint 3: Logic Games & Data Integration
+### Sprint 3: Logic Games & Data Integration (Next)
 **Goal:** เพิ่มเกมฝึกตรรกะและเชื่อมต่อระบบบันทึกข้อมูลผู้ป่วยจริง
 - [ ] [[US-E1-07]] Symmetry Decor - Grid & Mirroring
 - [ ] [[US-E2-02]] Authentication สำหรับแพทย์และผู้ป่วย

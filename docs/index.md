@@ -13,6 +13,7 @@
 - [[gdd/02-narrative.md|02. Narrative & Theme]] - เรื่องราวและบรรยากาศในเกม
 - [[gdd/03-art-direction.md|03. Art Direction]] - รูปแบบวิชวลและ UI/UX Guidelines
 - [[gdd/04-audio-direction.md|04. Audio Direction]] - แนวทางการใช้เสียงและดนตรี
+- [[gdd/minigames/README.md|Minigame Detailed Designs]] - รายละเอียดทางเทคนิคและกลไกเชิงลึกของแต่ละมินิเกม
 
 ---
 
@@ -30,7 +31,7 @@
 - [[agile/product-backlog.md|Product Backlog]] - รายการฟีเจอร์และ User Stories ทั้งหมด
 - [[agile/kanban.md|Kanban Board]] - สถานะงานปัจจุบัน
 - [[agile/sprint-planning.md|Sprint Planning]] - แผนการดำเนินงานภาพรวม
-- [[agile/reports/|System Test Reports]] - รายงานผลการทดสอบระบบในแต่ละสัปดาห์
+- [[agile/reports/index.md|System Test Reports]] - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด
 - [[agile/retrospectives/|Sprint Retrospectives]] - บันทึกการสรุปบทเรียนท้าย Sprint
 
 ---

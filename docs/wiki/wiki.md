@@ -29,6 +29,7 @@
 - [[Agentic-AI/PROJECT_AGENT_SKILL_USING.md|Agentic AI Skill Usage]] - คู่มือการใช้ Skill และ Agent ในโครงการ
 
 ### 📊 Reports & Research
+- [[../agile/reports/index.md|System Test Reports]] - **สรุปผลการทดสอบระบบและแดชบอร์ดคุณภาพ**
 - [[camt-fun/proposal.md|Project Proposal]] - เอกสารนำเสนอโครงการ
 - [[camt-fun/monthly-progress-plan.md|Monthly Progress Plan]] - แผนงานรายเดือน
 - [[camt-fun/260427-fun-report.md|Experiment Report (260427)]] - รายงานผลการทดลอง

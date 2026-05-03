@@ -2,11 +2,11 @@
 
 ---
 
-## *Document Version: 1.0*  
+## *Document Version: 1.1*  
 *Project: MCI Cognitive Games*  
-*Last Updated: 2026-04-21*
+*Last Updated: 2026-05-03*
 
-## 1. Game Architecture
+## 1. Game Architecture & ECS Lite
 
 ```mermaid
 classDiagram
@@ -16,19 +16,26 @@ classDiagram
         <<abstract>>
     }
 
-    class Boot {
-        +create(): void
+    class Entity {
+        -components: Component[]
+        +addComponent(ComponentClass, ...args): Component
+        +getComponent(ComponentClass): Component
+        +preUpdate(time, delta): void
+        +destroy(): void
     }
 
-    class Preloader {
-        +preload(): void
-        +create(): void
+    class Component {
+        <<abstract>>
+        -entity: Entity
+        -scene: Phaser.Scene
+        +awake(): void
+        +update(time, delta): void
+        +destroy(): void
     }
 
-    class MainMenu {
-        +create(): void
-    }
-
+    class Boot { +create(): void }
+    class Preloader { +preload(): void; +create(): void }
+    class MainMenu { +create(): void }
     class GameplayScene {
         -level: int
         -round: int
@@ -38,15 +45,13 @@ classDiagram
         +update(time, delta): void
     }
 
-    class GameOver {
-        +create(): void
-    }
-
     PhaserScene <|-- Boot
     PhaserScene <|-- Preloader
     PhaserScene <|-- MainMenu
     PhaserScene <|-- GameplayScene
-    PhaserScene <|-- GameOver
+    
+    Phaser.Physics.Arcade.Sprite <|-- Entity
+    Entity "1" *-- "many" Component
 ```
 
 ##  Core Base Classes

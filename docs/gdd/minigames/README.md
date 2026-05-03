@@ -20,23 +20,28 @@
 
 ### **1. Zoo Detective 🦁**
 *   **Key Concept**: การจัดวางสัตว์ตามคำใบ้และการสืบสวนทางตรรกะ (Logical Deduction).
-*   **Design Document**: [Procedural Generation System](procedural_generation_zoo_detective.md) - รายละเอียดอัลกอริทึมการสร้างปริศนาแบบสุ่ม.
+*   **Design Document**: [Zoo Detective GDD](gdd_zoo_detective.md) - แนวคิดและกลไกหลักของเกม.
+*   **Detailed Design**: [Procedural Generation System](procedural_generation_zoo_detective.md) - รายละเอียดอัลกอริทึมการสร้างปริศนาแบบสุ่ม.
 *   **สิ่งที่ต้องบันทึก**: Flowchart การให้คำใบ้, ตรรกะการตรวจสอบความถูกต้องของตำแหน่งที่วาง.
 
 ### **2. Context Clues 📝**
 *   **Key Concept**: การเรียนรู้และเดาคำศัพท์จากบริบทรอบข้าง (Contextual Learning).
+*   **Design Document**: [Context Clues GDD](gdd_context_clues.md) - รายละเอียดระบบการสุ่มโจทย์และการแสดงผลอิโมจิ.
 *   **สิ่งที่ต้องบันทึก**: โครงสร้างข้อมูลสำหรับ Question/Hint, วิธีการประเมินความสอดคล้องของคำตอบกับ Hint ที่กำหนด.
 
 ### **3. Zoo Feeder 🍎**
 *   **Key Concept**: การจัดการทรัพยากรและการจำลองปฏิสัมพันธ์ (Resource & Simulation Management).
+*   **Design Document**: [Zoo Feeder GDD](gdd_zoo_feeder.md) - ระบบสายพานลำเลียงและการจัดการ Spawner.
 *   **สิ่งที่ต้องบันทึก**: ลำดับการเคลื่อนไหว, เงื่อนไขที่ทำให้เกิดเหตุการณ์ต่างๆ ในระบบนิเวศของเกม.
 
 ### **4. Symmetry Decor 💎**
 *   **Key Concept**: การจัดองค์ประกอบตามหลักสมมาตร (Symmetry Principles).
+*   **Design Document**: [Symmetry Decor GDD](gdd_symmetry_decor.md) - กฎการสะท้อนภาพและระบบ Grid.
 *   **สิ่งที่ต้องบันทึก**: กฎเกณฑ์ในการสะท้อนภาพ, ขอบเขตของการตกแต่งที่อนุญาตให้ทำได้.
 
 ### **5. Postcard Reader 📬**
 *   **Key Concept**: การจัดเรียงข้อมูลเชิงลำดับและการเปรียบเทียบ (Sequencing & Comparison).
+*   **Design Document**: [Postcard Reader GDD](gdd_postcard_reader.md) - ระบบการจดจำข้อมูลและการทดสอบความจำ.
 *   **สิ่งที่ต้องบันทึก**: โครงสร้างของชุดการ์ด, ขั้นตอนในการเปิดเผยข้อมูล และวิธีการจับคู่/เชื่อมโยง.
 
 ---

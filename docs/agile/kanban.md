@@ -12,7 +12,6 @@ kanban-plugin: board
 
 
 ## 🔍 Review / Testing
-- [ ] [[US-E3-01]] Accessibility Basics (Large Buttons)
 
 
 ## ✅ Done
@@ -22,6 +21,8 @@ kanban-plugin: board
 - [ ] [[US-E1-04]] Zoo Feeder Interaction Logic
 - [ ] [[US-E1-05]] Context Clues Data Validation
 - [ ] [[US-E1-06]] Context Clues UI & Thai Support
+- [ ] [[US-E3-01]] Accessibility Basics (Large Buttons)
+- [ ] [[US-E3-03]] Game Hub & Navigation Flow
 
 
 
