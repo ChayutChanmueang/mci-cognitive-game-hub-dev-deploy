@@ -25,9 +25,9 @@ Three document groups, ordered by priority:
 
 | Group | Purpose | Key Docs |
 |-------|---------|----------|
-| **GDD** | What the game IS | Concept, Mechanics, Narrative, Art Direction |
-| **Software Design** | How it's BUILT | Architecture, System Design, Class Diagrams |
-| **Agile Management** | How it's MANAGED | Product Backlog, Sprint Plans, Retrospectives |
+| **GDD** | What the game IS | Concept & Architecture, Mechanics, Narrative |
+| **Software Design** | How it's BUILT | System Design, Class Diagrams, Data Schema |
+| **Agile Management** | How it's MANAGED | Product Backlog, Sprint Plans, Reports |
 
 All documents live under `docs/` and cross-reference each other via links.
 
@@ -186,41 +186,6 @@ Steps:
 ## Win / Lose Conditions
 - **Win:** [Condition]
 - **Lose:** [Condition]
-```
-
-### Software Design — Architecture (`docs/software/00-architecture.md`)
-```markdown
-# [Game Title] — Software Architecture
-
-**Version:** 0.1 | **Last Updated:** YYYY-MM-DD
-
-## Tech Stack
-| Layer | Technology | Notes |
-|-------|-----------|-------|
-| Engine | [e.g., Unity 2022 LTS] | |
-| Language | [e.g., C#] | |
-| Version Control | [e.g., Git / GitHub] | |
-| CI/CD | [e.g., GitHub Actions] | |
-
-## High-Level Architecture
-[Describe the major layers: Game Loop, Input, State Management, Rendering, Audio, Data/Save]
-
-```mermaid
-graph TD
-    Input --> GameLoop
-    GameLoop --> StateManager
-    StateManager --> Renderer
-    StateManager --> AudioManager
-    GameLoop --> DataManager
-```
-
-## Key Design Patterns Used
-- **[Pattern, e.g., Observer]:** [Where and why]
-- **[Pattern, e.g., State Machine]:** [Where and why]
-
-## Related Documents
-- System Design: [[./01-system-design.md]]
-- GDD Mechanics: [[../gdd/01-mechanics.md]]
 ```
 
 ### Agile — Product Backlog (`docs/agile/product-backlog.md`)

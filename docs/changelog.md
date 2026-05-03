@@ -8,6 +8,7 @@ All notable changes to the game documentation suite will be documented in this f
 - Renamed `docs/gdd/00-concept.md` to "Game Concept & Architecture".
 - Updated all cross-references in `README.md`, `docs/index.md`, `docs/wiki/wiki.md`, and other GDD files.
 - Updated `game-doc-manager` skill definition to reflect the new documentation structure.
+- Updated `docs/software/01-system-design.md` to reflect current architectural patterns (ECS Lite, UIPanel, Object Pooling, Layout Management).
 
 ### Removed
 - `docs/software/00-architecture.md` (Redundant).
