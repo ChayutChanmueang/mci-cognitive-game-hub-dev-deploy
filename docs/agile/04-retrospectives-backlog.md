@@ -11,10 +11,10 @@
 
 | Sprint        | ช่วงเวลา              | หัวข้อหลัก                           | ลิงก์เอกสาร            |
 | :------------ | :-------------------- | :----------------------------------- | :--------------------- |
-| [[Sprint-01]] | มีนาคม 2026           | การวางรากฐานและระบบ Logic เบื้องต้น  | [[sprint-01-retro.md]] |
-| [[Sprint-02]] | เมษายน - พฤษภาคม 2026 | **UI Interactive & Data Foundation** | [[sprint-02-retro.md]] |
-| [[Sprint-03]] | เมษายน 2026           | **Logic Games & Integration**        | [[sprint-03-retro.md]] |
-| [[Sprint-04]] | พฤษภาคม 2026          | **Final Polish & Alternative Games** | [[sprint-04-retro.md]] |
+| [ มีนาคม 2026           | การวางรากฐานและระบบ Logic เบื้องต้น  | [[sprint-01-retro.md](Sprint-01]] ) |
+| [ เมษายน - พฤษภาคม 2026 | **UI Interactive & Data Foundation** | [[sprint-02-retro.md](Sprint-02]] ) |
+| [ เมษายน 2026           | **Logic Games & Integration**        | [[sprint-03-retro.md](Sprint-03]] ) |
+| [ พฤษภาคม 2026          | **Final Polish & Alternative Games** | [[sprint-04-retro.md](Sprint-04]] ) |
 
 ---
 

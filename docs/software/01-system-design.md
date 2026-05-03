@@ -88,5 +88,9 @@
 ---
 
 ## Related Documents
-- Architecture: [[../gdd/00-concept.md]]
-- GDD Mechanics: [[../gdd/01-mechanics.md]]
+- Architecture: [[Concept]](../gdd/00-concept.md)
+- GDD Mechanics: [[Mechanics]](../gdd/01-mechanics.md)
+\
+
+---
+[? Back to Index](../index.md)\

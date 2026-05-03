@@ -433,3 +433,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 - รองรับ Anonymous Login สำหรับผู้ที่ไม่ต้องการสร้างบัญชี
 - Row Level Security (RLS) สำหรับความปลอดภัยของข้อมูล
 - ทุกตารางมีการสร้าง Index สำหรับ Query ที่ใช้บ่อย
+\
+
+---
+[? Back to Index](../index.md)\

@@ -50,6 +50,6 @@
 ---
 
 ## 🚀 Development Status
-- **Physics & Conveyor:** [[US-E1-03]] (Done)
-- **Interaction Logic:** [[US-E1-04]] (In Progress)
-- **Weekly Tracking:** [[2026-04-21]]
+- **Physics & Conveyor:** [US-E1-03](../../agile/user-stories/US-E1-03.md) (Done)
+- **Interaction Logic:** [US-E1-04](../../agile/user-stories/US-E1-04.md) (In Progress)
+- **Weekly Tracking:** [2026-04-21](../../agile/meeting-backlogs/2026-04-21.md) (In Progress)

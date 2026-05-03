@@ -708,3 +708,7 @@ classDiagram
 - ใช้ `<<enumeration>>` สำหรับ enums
 - Entity-Component pattern ใช้ในเกมทั้งหมด
 - ทุก Scene สืบทอดจาก `Phaser.Scene`
+\
+
+---
+[? Back to Index](../index.md)\
