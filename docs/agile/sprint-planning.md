@@ -4,12 +4,12 @@
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
-| Sprint        | Timeline | Focus Area                           | Key Deliverables                                                |
-| :------------ | :------- | :----------------------------------- | :-------------------------------------------------------------- |
-| [[sprint-01]] | Week 1-2 | Foundation & Zoo Games               | Logic พื้นฐานของ Zoo Detective & Zoo Feeder (Completed)         |
-| [[sprint-02]] | Week 3-4 | UI & Data Setup                      | Zoo Games สมบูรณ์, Context Clues UI, Setup Database (Completed) |
-| [[sprint-03]] | Week 5-6 | Logic Games & Integration            |                                                                 |
-| [[sprint-04]] | Week 7-8 | **(Current)** Final Polish & Variety |                                                                 |
+| Sprint | Timeline | Focus Area | Status |
+|:---|:---|:---|:---|
+| [[sprint-01]] | Week 1-2 | Foundation & Zoo Games | Completed |
+| [[sprint-02]] | Week 3-4 | UI & Data Setup | Completed |
+| [[sprint-03]] | Week 5-6 | Logic Games & Integration | Completed |
+| [[sprint-04]] | Week 7-8 | **(Current)** Final Polish & Variety | In-Progress |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -31,16 +31,12 @@ gantt
 
 ## 🚀 Sprint Details
 
-### [[sprint-02]]
-**Goal:** ทำให้เกม Zoo ชุดแรกสมบูรณ์ 100% และเตรียมระบบฐานข้อมูลให้พร้อมใช้งาน
+ดูรายละเอียดงานในแต่ละ Sprint ได้ที่ลิงก์ด้านล่าง:
 
-### [[sprint-03]]
-**Goal:** เพิ่มเกมฝึกตรรกะ (Symmetry Decor), เชื่อมต่อระบบ Authentication และแก้ไขปัญหาความเสถียรของข้อมูล
-
-### [[sprint-04]]
-**Goal:** ส่งมอบเกมทางเลือกอื่นๆ เพิ่มเติม และปรับปรุงความง่ายในการใช้งาน (UX) สำหรับผู้สูงอายุ
-
----
+- **[[sprint-01]]**: Foundation & Zoo Games
+- **[[sprint-02]]**: UI Interactive & Data Foundation
+- **[[sprint-03]]**: Logic Games & Data Integration
+- **[[sprint-04]]**: Final Polish & Alternative Games
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
