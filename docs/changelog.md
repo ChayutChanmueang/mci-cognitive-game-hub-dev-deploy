@@ -2,6 +2,18 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+## [2026-05-31] - Project Completion & Handover
+### Added
+- Delivered `Postcard Reader` minigame with expanded memory challenges.
+- Implemented project-wide `VoiceService` for Thai instruction text-to-speech.
+- Created `Final System Test Report` (v1.0) and confirmed stable status.
+- Created `Sprint 04 Retrospective` and finalized documentation suite.
+
+### Changed
+- Updated all minigames to use Thai UI elements and centralized Voice Over system.
+- Completed all outstanding User Stories in the Product Backlog.
+- Set project status to ✅ Completed in the Project Index.
+
 ## [2026-05-03] - Architecture & Project Alignment
 ### Added
 - Created `docs/agile/reports/index.md` as the master index and dashboard for all system test reports.

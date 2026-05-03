@@ -197,7 +197,10 @@ export default class UITestScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
 
     this.gameplayUI.showGameOverPanel(this.score);
-    EventBus.emit('minigame:game-over', { score: this.score });
+    EventBus.emit('minigame:game-over', { 
+        score: this.score,
+        level: this.level
+    });
 
     //console.log("Highscore: " + StorageManager.get('highscore'));
   }

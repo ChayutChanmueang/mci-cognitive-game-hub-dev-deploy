@@ -45,13 +45,17 @@ class Database {
             return this.client;
         }
 
-        if (!this.supabaseUrl || !this.supabaseAnonKey) {
+        // Re-read from env to handle cases where they might be populated late or constructor missed them
+        const url = import.meta.env.VITE_SUPABASE_URL || this.supabaseUrl;
+        const key = import.meta.env.VITE_SUPABASE_ANON_KEY || this.supabaseAnonKey;
+
+        if (!url || !key) {
             throw new Error(
-                "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in the frontend environment.",
+                "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Please check your environment variables.",
             );
         }
 
-        this.client = createClient(this.supabaseUrl, this.supabaseAnonKey, {
+        this.client = createClient(url, key, {
             auth: {
                 autoRefreshToken: true,
                 persistSession: true,
@@ -66,6 +70,7 @@ class Database {
         if (!this.authReadyPromise) {
             this.authReadyPromise = this.ensureSignedIn().catch((error) => {
                 this.authReadyPromise = null;
+                console.error("Auth initialization failed:", error);
                 throw error;
             });
         }
@@ -74,23 +79,24 @@ class Database {
     }
 
     async ensureSignedIn() {
-        const client = this.getClient();
-        const { data, error } = await client.auth.getSession();
+        let lastError = null;
+        for (let i = 0; i < 3; i++) {
+            try {
+                const client = this.getClient();
+                const { data, error } = await client.auth.getSession();
 
-        if (error) {
-            throw error;
+                if (error) throw error;
+                if (data.session) return data.session;
+
+                const anonymousResult = await this.signInAnonymously();
+                if (anonymousResult.session) return anonymousResult.session;
+            } catch (err) {
+                lastError = err;
+                console.warn(`Auth attempt ${i + 1} failed, retrying...`, err);
+                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+            }
         }
-
-        if (data.session) {
-            return data.session;
-        }
-
-        const anonymousResult = await this.signInAnonymously();
-        if (!anonymousResult.session) {
-            throw new Error("Anonymous sign-in did not return a session");
-        }
-
-        return anonymousResult.session;
+        throw lastError || new Error("Failed to ensure sign-in after multiple attempts");
     }
 
     async signInAnonymously() {
@@ -411,6 +417,22 @@ class Database {
         return data || null;
     }
 
+    async _withRetry(operation, maxRetries = 3) {
+        let lastError = null;
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                return await operation();
+            } catch (err) {
+                lastError = err;
+                console.warn(`Database operation attempt ${i + 1} failed, retrying...`, err);
+                if (i < maxRetries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+                }
+            }
+        }
+        throw lastError;
+    }
+
     async submitGameData({ gid, score = null, level = null, startedAt, endedAt }) {
         const session = await this.initAuth();
         const user = session?.user || (await this.getCurrentUser());
@@ -456,18 +478,17 @@ class Database {
             ended_at: normalizedEndedAt.toISOString(),
         };
 
-        const client = this.getClient();
-        const { data, error } = await client
-            .from(USER_GAME_DATA_TABLE)
-            .insert([payload])
-            .select("id, gid, started_at, ended_at")
-            .maybeSingle();
+        return this._withRetry(async () => {
+            const client = this.getClient();
+            const { data, error } = await client
+                .from(USER_GAME_DATA_TABLE)
+                .insert([payload])
+                .select("id, gid, started_at, ended_at")
+                .maybeSingle();
 
-        if (error) {
-            throw error;
-        }
-
-        return data || payload;
+            if (error) throw error;
+            return data || payload;
+        });
     }
 
     async addUserGameHistory({
@@ -1034,16 +1055,22 @@ class Database {
             gid: parsedGid,
         };
 
-        const client = this.getClient();
-        const { error } = await client
-            .from(USER_EVENT_LOG_TABLE)
-            .insert([payload]);
+        return this._withRetry(async () => {
+            const client = this.getClient();
+            const { error } = await client
+                .from(USER_EVENT_LOG_TABLE)
+                .insert([payload]);
 
-        if (error) {
-            throw error;
-        }
-
-        return payload;
+            if (error) {
+                // If it's a foreign key error, retrying won't help, but we log it specifically
+                if (error.code === "23503") {
+                    console.error(`Logging failed: Event ID "${parsedEventId}" not found in database lookup table.`, error);
+                    return payload; // Return payload to indicate "processed" even if failed to save
+                }
+                throw error;
+            }
+            return payload;
+        });
     }
 }
 

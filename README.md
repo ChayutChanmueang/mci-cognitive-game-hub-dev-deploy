@@ -77,15 +77,28 @@ This project leverages cutting-edge AI orchestration for both development and do
 ### 🧭 Master Navigation
 - [**Project Index**](docs/index.md) - The central hub for all documentation
 - [**Knowledge Wiki**](docs/wiki/wiki.md) - Detailed technical guides and research
-
 ### 📘 Game Design (GDD)
 - [**Game Concept & Architecture**](docs/gdd/00-concept.md) - Vision, USPs, and Technical Overview
 - [**Core Mechanics**](docs/gdd/01-mechanics.md) - Gameplay rules and loops
+- [**Minigame Detailed Designs**](docs/gdd/minigames/README.md) - In-depth mechanics for all 5 games
 
 ### 💻 Software Design
-- [**System Design**](docs/software/01-system-design.md) - Subsystems and patterns
+- [**System Design**](docs/software/01-system-design.md) - ECS Lite, UIPanel, and utilities
 - [**Database Schema**](docs/software/03-data-schema.md) - Supabase data structures
 
+### 🚀 Agile & Quality
+- [**System Test Reports**](docs/agile/reports/index.md) - QA Dashboard and stable status
+- [**Sprint Retrospectives**](docs/agile/retrospectives/index.md) - Lessons learned and project closure
+
+---
+
+## 🛠 Features
+- **5 Cognitive Games:** Targeting Memory, Attention, Language, and Executive Function.
+- **Thai Voice Over:** Automatic instructions and text-to-speech for elderly accessibility.
+- **Cloud Backend:** Real-time synchronization and data logging with Supabase.
+- **Adaptive UI:** Responsive layout designed specifically for MCI patients and healthcare providers.
+
+## 🚀 Quick Start
 ### 🚀 Project Management
 - [**Product Backlog**](docs/agile/product-backlog.md) - Feature list and status
 - [**Sprint Planning**](docs/agile/sprint-planning.md) - Project roadmap and timeline

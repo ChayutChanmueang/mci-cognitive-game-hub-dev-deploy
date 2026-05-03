@@ -1,58 +1,76 @@
-import UIPanel from "../../../common/ui/core/ui-panel-base";
-import game_db from "/src/util/minigame-db-util.js";
+import UIPage from "../core/ui-page";
 import Theme from "../../../../util/game-theme.js";
+import { createThaiText } from "../../../../util/thai-text.js";
 
-export default class GameOverPanel extends UIPanel {
+export default class GameOverPanel extends UIPage {
     constructor(scene) {
-        super(scene, scene.scale.width / 2, scene.scale.height / 2, 450, 600);
+        super(scene, scene.scale.width / 2, scene.scale.height / 2, {
+            overlayEnable: true,
+            size: { x: 500, y: 700 },
+            strokeEnable: true
+        });
 
-        this.finalScore = 0;
+        this.panelBg.setScale(1.5);
+        this.panelBg.setFillStyle(Theme.colors.surface, 0.95);
+        this.panelBg.setStrokeStyle(4, Theme.colors.primary, 1);
 
-        const textStyle = {
-            fontFamily: Theme.fonts.main,
-            color: '#' + Theme.colors.onSurface.toString(16).padStart(6, '0'),
-            align: 'center'
-        };
+        this.titleText = createThaiText(
+            scene,
+            0,
+            -220,
+            "สรุปผลการเล่น",
+            {
+                fontSize: "72px",
+                fontStyle: "bold",
+                color: Theme.colors.primary,
+            },
+            { origin: 0.5 },
+        );
 
-        this.titleText = scene.add.text(0, -220, "จบภารกิจ!", {
-            ...textStyle,
-            fontSize: '56px',
-            fontStyle: 'bold',
-            color: '#' + Theme.colors.primary.toString(16).padStart(6, '0')
-        }).setOrigin(0.5);
+        this.scoreLabel = createThaiText(
+            scene,
+            0,
+            -100,
+            "คะแนนที่คุณทำได้",
+            {
+                fontSize: "32px",
+                color: Theme.colors.onSurfaceVariant,
+            },
+            { origin: 0.5 },
+        );
 
-        this.scoreLabel = scene.add.text(0, -120, "คะแนนที่คุณทำได้", {
-            ...textStyle,
-            fontSize: '24px',
-            color: '#' + Theme.colors.onSurfaceVariant.toString(16).padStart(6, '0')
-        }).setOrigin(0.5);
+        this.scoreText = createThaiText(
+            scene,
+            0,
+            0,
+            "0",
+            {
+                fontSize: "120px",
+                fontStyle: "bold",
+                color: Theme.colors.onSurface,
+            },
+            { origin: 0.5 },
+        );
 
-        this.scoreText = scene.add.text(0, -60, "0", {
-            ...textStyle,
-            fontSize: '84px',
-            fontStyle: 'bold',
-            color: '#' + Theme.colors.onSurface.toString(16).padStart(6, '0')
-        }).setOrigin(0.5);
+        this.highscoreText = createThaiText(
+            scene,
+            0,
+            120,
+            "คะแนนสูงสุด: 0",
+            {
+                fontSize: "32px",
+                color: Theme.colors.onSurfaceVariant,
+            },
+            { origin: 0.5 },
+        );
 
-        this.highscoreText = scene.add.text(0, 40, "คะแนนสูงสุด: 0", {
-            ...textStyle,
-            fontSize: '28px',
-            color: '#' + Theme.colors.onSurfaceVariant.toString(16).padStart(6, '0')
-        }).setOrigin(0.5);
-
-        this.restartBtn = this.createButton(0, 160, "เล่นอีกครั้ง", Theme.colors.primary, Theme.colors.onPrimary, () => {
-            if (this.scene.restartGame) {
-                this.scene.restartGame();
-                return;
-            }
+        this.restartBtn = this.createButton(0, 250, "เล่นรอบใหม่", () => {
             this.scene.scene.restart();
         });
 
-        this.homeBtn = this.createButton(0, 250, "กลับหน้าหลัก", Theme.colors.outline, Theme.colors.onSurface, () => {
+        this.homeBtn = this.createButton(0, 380, "กลับหน้าหลัก", () => {
+            // Note: Navigation handled by React via EventBus signals in main system
             this.scene.scene.start('main-menu-scene');
-            game_db.pushGameData(this.finalScore, this.scene.level, this.scene.gameStartedAt, this.scene.gameEndedAt)
-                .then(() => console.log("Game data saved"))
-                .catch((error) => console.error("Failed to save game data:", error));
         });
 
         this.addElements([
@@ -67,7 +85,6 @@ export default class GameOverPanel extends UIPanel {
 
     setFinalScore(score) {
         this.scoreText.setText(score.toString());
-        this.finalScore = score;
     }
 
     setHighscore(score) {
@@ -78,6 +95,35 @@ export default class GameOverPanel extends UIPanel {
         this.setFinalScore(0);
         this.setHighscore(0);
         this.forceHide();
+    }
+
+    createButton(x, y, text, onClick) {
+        const width = 350;
+        const height = 90;
+        const bg = this.scene.add.rectangle(x, y, width, height, Theme.colors.primary, 1).setInteractive({ useHandCursor: true });
+        
+        const label = createThaiText(
+            this.scene,
+            x,
+            y,
+            text,
+            {
+                fontSize: "42px",
+                fontStyle: "bold",
+                color: "#ffffff",
+            },
+            { origin: 0.5 },
+        );
+
+        bg.on('pointerdown', () => {
+            bg.setFillStyle(Theme.colors.primaryDark);
+            onClick();
+        });
+
+        bg.on('pointerover', () => bg.setFillStyle(Theme.colors.primaryLight));
+        bg.on('pointerout', () => bg.setFillStyle(Theme.colors.primary));
+
+        return [bg, label];
     }
 }
 

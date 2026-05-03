@@ -243,7 +243,10 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI?.setElapsedTime(elapsedMs);
         this.gameplayUI?.setScore(this.allScore);
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
-        EventBus.emit('minigame:game-over', { score: this.allScore });
+        EventBus.emit('minigame:game-over', { 
+            score: this.allScore,
+            level: this.level
+        });
 
     }
 
@@ -327,7 +330,7 @@ export default class GameplayScene extends Phaser.Scene {
         for (const cell of this.gridBoard.getCells()) {
             cell.container.setSize(cell.size, cell.size);
             cell.container.setInteractive(
-                new Phaser.Geom.Rectangle(cell.size / 2, cell.size / 2, cell.size, cell.size),
+                new Phaser.Geom.Rectangle(0, 0, cell.size, cell.size),
                 Phaser.Geom.Rectangle.Contains
             );
             cell.container.on("pointerdown", () => {

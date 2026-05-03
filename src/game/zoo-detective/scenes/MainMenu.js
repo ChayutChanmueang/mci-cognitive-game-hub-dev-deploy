@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
+import VoiceService from "../../../core/voice-service.js";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -27,12 +28,14 @@ export default class MainMenuScene extends Phaser.Scene {
       this,
       this.scale.width / 2,
       this.scale.height / 2 - 250,
-      "MAIN MENU",
+      "นักสืบสวนสัตว์",
       ThaiTextPresets.menuTitle,
       { origin: 0.5 }
     );
     this.titleText.setDepth(100);
 
+    // Voice Over Instructions
+    VoiceService.speak("ยินดีต้อนรับสู่เกมนักสืบสวนสัตว์ วางสัตว์ลงในตารางให้ถูกต้องตามคำใบ้ที่กำหนดครับ");
   }
   createButton(x,y,text,onClick){
         const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});

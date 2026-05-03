@@ -28,6 +28,7 @@ import { EventBus } from "./core/EventBus.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
 import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
+import MiniGameDBUtil from "./util/minigame-db-util.js";
 
 
 
@@ -1013,13 +1014,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             };
 
-            const handleGameOver = ({ score }) => {
+            const handleGameOver = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
                 const resultPanel = new MinigameResultPanel(uiRoot, {
                     score,
-                    highScore: StorageManager.get('highscore', 0),
-                    gameTitle: selectedGame?.name
+                    highScore: StorageManager.get("highscore", 0),
+                    gameTitle: selectedGame?.name,
                 });
                 resultPanel.render();
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level}`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
             };
 
             const handleRetry = () => {

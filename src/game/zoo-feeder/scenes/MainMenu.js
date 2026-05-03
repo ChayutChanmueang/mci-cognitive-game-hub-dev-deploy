@@ -1,4 +1,7 @@
 import Phaser from "phaser";
+import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
+import VoiceService from "../../../core/voice-service.js";
+
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
     super("main-menu-scene");
@@ -21,18 +24,24 @@ export default class MainMenuScene extends Phaser.Scene {
     this.hardBtn = this.createButton(this.scale.width/2 ,(this.scale.height/2) + 100, "HARD", () => {
             this.scene.start('ui-test-scene',{ conveyerNums: 3 })
         });
-    this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"ZOO FEEDER",{
-            fontSize: '96px', fontStyle: 'bold'
-        }).setOrigin(0.5);
+    this.titleText = createThaiText(
+      this,
+      this.scale.width / 2,
+      this.scale.height / 2 - 250,
+      "คนเลี้ยงสัตว์",
+      ThaiTextPresets.menuTitle,
+      { origin: 0.5 }
+    );
     this.titleText.setDepth(100);
-    console.log(this.titleText.x, this.titleText.y);
+
+    // Voice Over Instructions
+    VoiceService.speak("ยินดีต้อนรับสู่เกมคนเลี้ยงสัตว์ เลือกอาหารที่ถูกต้องให้ตรงกับสัตว์ที่เดินผ่านมาบนสายพานครับ");
   }
+
   createButton(x,y,text,onClick){
         const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});
         bg.setScale(1.5);
-        const label = this.add.text(x,y,text,{
-            fontSize: '28px', fontStyle: 'bold'
-        }).setOrigin(0.5);
+        const label = createThaiText(this, x, y, text, ThaiTextPresets.buttonLabel, { origin: 0.5 });
         label.setScale(1.5);
 
         bg.on('pointerdown',onClick);

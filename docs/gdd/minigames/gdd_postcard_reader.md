@@ -42,11 +42,11 @@
 
 *   **Framework:** Phaser 3.
 *   **Architecture:** ใช้รูปแบบ **ECS Lite** เพื่อจัดการ UI Elements และ Gameplay Logic แยกกันอย่างชัดเจน.
-*   **Future Feature:** มีแผนพัฒนาระบบการอ่านข้อมูลด้วย AR (Augmented Reality) ในอนาคต (Sprint 4).
+*   **Polish Focus:** เน้นการแสดงผลที่ชัดเจนและระบบเสียงอ่าน (Voice Over) เพื่อช่วยผู้สูงอายุจดจำข้อมูลได้ดียิ่งขึ้น.
 
 ---
 
 ## 🚀 Development Status
-- **Core Logic:** [[US-E1-08]] (Not Started - Planned for Sprint 4)
-- **UI Elements:** [[US-E1-08]] (Drafting)
+- **Core Logic:** [[US-E1-08]] (Done)
+- **UI Elements:** [[US-E1-08]] (Done)
 - **Weekly Tracking:** [[S2-W04-Weekly-Backlog]]

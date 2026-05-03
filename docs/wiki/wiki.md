@@ -1,6 +1,6 @@
 # 🌐 MCI Cognitive Games — Knowledge Wiki
 
-**Last Updated:** 2026-05-02 | **Maintained by:** Antigravity AI
+**Last Updated:** 2026-05-31 | **Maintained by:** Antigravity AI
 
 ## 🎯 Quick Access
 - **Game Concept & Architecture**: [[../gdd/00-concept.md]]
@@ -14,7 +14,7 @@
 | Group                            | Description          | Status                            |                   |
 | :------------------------------- | :------------------- | :-------------------------------- | ----------------- |
 | **[[../index.md#game-design-gdd  | Game Design]]**      | Concept, Mechanics, Art, Audio    | 🟢 Active         |
-| **[[../index.md#software-design  | Software Design]]**  | Architecture, System, Data Schema | 🟡 In-Progress    |
+| **[[../index.md#software-design  | Software Design]]**  | Architecture, System, Data Schema | 🟢 Stable         |
 | **[[../index.md#agile-management | Agile Management]]** | Backlog, Sprints, Test Reports    | 🟢 Updated Weekly |
 
 ---

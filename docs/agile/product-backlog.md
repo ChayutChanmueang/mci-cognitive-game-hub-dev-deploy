@@ -19,7 +19,7 @@
 | [[US-E1-05]] | ระบบคลังคำถามและประมวลผล Context Clues | Med | S1 | ✅ Done |
 | [[US-E1-06]] | UI สำหรับการตอบคำถามภาษาไทย (Context Clues) | Med | S2 | ✅ Done |
 | [[US-E1-07]] | ระบบ Grid และการวาดภาพสะท้อน (Symmetry Decor) | Med | S3 | ✅ Done |
-| [[US-E1-08]] | ระบบการ์ดและการอ่านข้อมูล AR (Postcard Reader) | Low | S4 | ⚪ Not Started |
+| [[US-E1-08]] | ระบบการ์ดและการอ่านทำความเข้าใจ (Postcard Reader) | Low | S4 | ✅ Done |
 
 ### E2: Patient Data & Tracking (P1)
 | ID | User Story | Priority | Sprint | Status |
@@ -32,7 +32,7 @@
 | ID | User Story | Priority | Sprint | Status |
 |---|---|---|---|---|
 | [[US-E3-01]] | ปรับแต่งขนาด Font และปุ่มสำหรับผู้สูงอายุ (Standard) | High | S2 | ✅ Done |
-| [[US-E3-02]] | ระบบ Voice Over คำแนะนำการเล่นเกม | Low | S4 | ⚪ Not Started |
+| [[US-E3-02]] | ระบบ Voice Over คำแนะนำการเล่นเกม | Low | S4 | ✅ Done |
 | [[US-E3-03]] | ระบบ Game Hub และการนำทาง (Navigation) | High | S2 | ✅ Done |
 
 ---

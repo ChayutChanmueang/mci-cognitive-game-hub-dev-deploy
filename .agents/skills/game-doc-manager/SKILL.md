@@ -237,7 +237,7 @@ gantt
     section Sprint 3
     Logic Games & Integration :s3, after s2, 14d
     section Sprint 4
-    AR & Final Polish      :s4, after s3, 14d
+    Final Polish & Optimization :s4, after s3, 14d
 ```
 
 ## 📈 Milestone Strategy
