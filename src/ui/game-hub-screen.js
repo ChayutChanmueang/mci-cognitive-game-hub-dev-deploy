@@ -2,7 +2,6 @@ import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
 
-const DEFAULT_START_GAME_GID = "ATTN001";
 const REST_GAME_GID = "REST001";
 
 const CATEGORY_META = Object.freeze({
@@ -27,21 +26,6 @@ const CATEGORY_META = Object.freeze({
         description: "ฝึกการวางแผน ตัดสินใจ จัดลำดับ และควบคุมการทำงานหลายขั้นตอน",
     },
 });
-
-const FALLBACK_GAMES = Object.freeze([
-    { id: "fallback-attn-001", gid: "ATTN001", name: "Zoo Feeder", mci_group: "Attention" },
-    { id: "fallback-mem-001", gid: "MEM001", name: "Postcard Reader", mci_group: "Memory" },
-    { id: "fallback-lang-001", gid: "LANG001", name: "Context Clues", mci_group: "Language" },
-    { id: "fallback-vis-001", gid: "VIS001", name: "Symmetry Decor", mci_group: "Visuospatial" },
-    { id: "fallback-exec-001", gid: "EXEC001", name: "Gamehub Puzzle", mci_group: "Executive" },
-]);
-const DAY_ONE_PRESET_GIDS_MOCK = Object.freeze([
-    "ATTN001",
-    "LANG001",
-    "MEM001",
-    "EXEC001",
-    "VIS001",
-]);
 
 function escapeHtml(value) {
     return String(value || "")
@@ -74,6 +58,8 @@ export function createGameHubState() {
         programGames: [],
         allGames: [],
         restGame: null,
+        dailyProgram: null,
+        dailyGoal: "",
         historyRecords: [],
         autoCheckInLoading: false,
         autoCheckInCompletedKey: "",
@@ -243,11 +229,10 @@ function buildAllGames(gameListItems) {
     const normalized = (gameListItems || []).map((item, index) =>
         normalizeGame(item, index, item?.mci_group || "Attention"),
     );
-    const source = normalized.length ? normalized : FALLBACK_GAMES;
     const uniqueGames = [];
     const seen = new Set();
 
-    source.forEach((item) => {
+    normalized.forEach((item) => {
         const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
         if (!game.gid || seen.has(game.gid)) {
             return;
@@ -259,58 +244,32 @@ function buildAllGames(gameListItems) {
     return uniqueGames;
 }
 
-function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = DAY_ONE_PRESET_GIDS_MOCK.length) {
-    // TODO: Replace this mock preset GID set (derived from CSV day-1 sample) with DB preset data when preset table is ready.
-    const presetGids = DAY_ONE_PRESET_GIDS_MOCK;
-    const normalizedGameList = (gameListItems || []).map((item, index) =>
-        normalizeGame(item, index, item?.mci_group || "Attention"),
-    );
-    const gameMapByGid = new Map();
+function buildProgramGamesFromDailyProgram(dailyProgram) {
+    const rows = Array.isArray(dailyProgram?.games) ? dailyProgram.games : [];
 
-    normalizedGameList.forEach((game) => {
-        if (game.gid) {
-            gameMapByGid.set(game.gid, game);
+    return rows.map((item, index) => {
+        const game = normalizeGame(item, index, item?.mci_group || "Attention");
+        if (!game.gid || game.gid === REST_GAME_GID) {
+            return null;
         }
-    });
 
-    const selectedGames = presetGids
-        .map((gid) => gameMapByGid.get(gid))
-        .filter(Boolean);
-
-    const selectedGids = new Set(selectedGames.map((game) => game.gid));
-    const remainingGames = normalizedGameList.filter((game) => !selectedGids.has(game.gid));
-    const merged = [...selectedGames, ...remainingGames, ...FALLBACK_GAMES];
-    const uniqueGames = [];
-    const seen = new Set();
-
-    for (const item of merged) {
-        const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
-        if (!game.gid || game.gid === REST_GAME_GID || seen.has(game.gid)) {
-            continue;
-        }
-        seen.add(game.gid);
-        uniqueGames.push(game);
-    }
-
-    if (preferredGameGid) {
-        uniqueGames.sort((firstGame, secondGame) => {
-            if (firstGame.gid === preferredGameGid) {
-                return -1;
-            }
-            if (secondGame.gid === preferredGameGid) {
-                return 1;
-            }
-            return 0;
-        });
-    }
-
-    const target = Math.max(1, Number(gameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
-    return uniqueGames.slice(0, target);
+        return {
+            ...game,
+            presetDataId: item?.preset_data_id ?? item?.presetDataId ?? null,
+            dailyPresetId: item?.daily_preset_id ?? item?.dailyPresetId ?? null,
+            programId: item?.program_id ?? item?.programId ?? dailyProgram?.programId ?? null,
+            stage: Number(item?.stage),
+            level: Number(item?.level),
+            day: Number(item?.day ?? dailyProgram?.programDay),
+            loop: Number(item?.loop || dailyProgram?.dailyPreset?.loop || 1),
+            goal: String(item?.goal || dailyProgram?.dailyPreset?.goal || "").trim(),
+        };
+    }).filter(Boolean);
 }
 
 function buildDailyProgramNodes(games, restGame) {
     const gameNodes = (games || []).map((game, index) => ({
-        id: `game-${String(game?.gid || index)}`,
+        id: `game-${String(game?.presetDataId || game?.gid || index)}`,
         type: "game",
         gid: String(game?.gid || "").trim(),
         title: game?.displayName || game?.th_name || game?.name || `เกมที่ ${index + 1}`,
@@ -396,17 +355,23 @@ class HubElement {
 class DailyGoalTopBar extends HubElement {
     html() {
         const completedGameCount = Math.max(0, Number(this.options.completedGameCount) || 0);
-        const dailyGameTarget = Math.max(1, Number(this.options.dailyGameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
-        const progress = Math.min(1, completedGameCount / dailyGameTarget);
+        const dailyGameTarget = Math.max(0, Number(this.options.dailyGameTarget) || 0);
+        const progress = dailyGameTarget > 0
+            ? Math.min(1, completedGameCount / dailyGameTarget)
+            : 0;
         const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const patientLabel = this.options.patientLabel || "ผู้เล่น";
+        const dailyGoal = String(this.options.dailyGoal || "").trim()
+            || (dailyGameTarget > 0
+                ? `ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน`
+                : "ยังไม่พบรายการเกมประจำวัน");
 
         return `
             <header class="hub-clean-topbar">
                 <div class="hub-clean-goal">
                     <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
                     <h1>เป้าหมายของวันนี้</h1>
-                    <p>ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน</p>
+                    <p>${escapeHtml(dailyGoal)}</p>
                     <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
                         <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedGameCount} จาก ${dailyGameTarget} เกม"></md-linear-progress>
                         <span>${completedGameCount}/${dailyGameTarget}</span>
@@ -642,6 +607,7 @@ class HubMapScreen extends HubElement {
         this.addChild(new DailyGoalTopBar({
             dailyGameTarget: this.options.dailyGameTarget,
             completedGameCount: this.options.completedGameCount,
+            dailyGoal: this.options.dailyGoal,
             patientLabel: this.options.patientLabel,
             onProfile: this.options.onProfile,
         }), this.element?.querySelector("[data-topbar]"));
@@ -723,13 +689,13 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const {
         loadGameList,
+        loadDailyProgram = null,
         loadHistoryRecords = null,
         loadCompletedGameHistoryRecords = null,
         loadInstantNodeHistoryRecords = null,
         patientHn = "",
         programDate = null,
         completedCount = 0,
-        preferredGameGid = DEFAULT_START_GAME_GID,
         onLaunchGame = () => {},
         onRestNode = async () => {},
         onCheckInNode = async () => {},
@@ -753,6 +719,9 @@ export async function renderGameHubScreen(root, options = {}) {
     if (!Array.isArray(state.historyRecords)) {
         state.historyRecords = [];
     }
+    if (typeof state.dailyGoal !== "string") {
+        state.dailyGoal = "";
+    }
     if (typeof state.autoCheckInLoading !== "boolean") {
         state.autoCheckInLoading = false;
     }
@@ -770,10 +739,7 @@ export async function renderGameHubScreen(root, options = {}) {
         const programNodes = buildDailyProgramNodes(state.programGames, state.restGame);
         const derivedCompletedCount = getSequentialCompletedCount(programNodes, state.historyRecords);
         const resolvedCompletedCount = Math.max(0, Number(completedCount) || 0, derivedCompletedCount);
-        const resolvedDailyGameTarget = Math.max(
-            1,
-            programNodes.filter((node) => node.type === "game").length || DAY_ONE_PRESET_GIDS_MOCK.length,
-        );
+        const resolvedDailyGameTarget = programNodes.filter((node) => node.type === "game").length;
         const resolvedCompletedGameCount = Math.min(
             resolvedDailyGameTarget,
             getCompletedGameCount(programNodes, resolvedCompletedCount),
@@ -783,6 +749,7 @@ export async function renderGameHubScreen(root, options = {}) {
             dailyGameTarget: resolvedDailyGameTarget,
             completedCount: resolvedCompletedCount,
             completedGameCount: resolvedCompletedGameCount,
+            dailyGoal: state.dailyGoal,
             patientLabel,
             selectableGames: state.allGames,
             isLoading: (state.programLoading && !state.programInitialized) || state.historyLoading,
@@ -876,21 +843,26 @@ export async function renderGameHubScreen(root, options = {}) {
                     : [];
                 state.allGames = buildAllGames(gameListItems);
                 state.restGame = findRestGame(state.allGames);
-                state.programGames = buildProgramGamesFromPreset(
-                    state.allGames,
-                    preferredGameGid,
-                    DAY_ONE_PRESET_GIDS_MOCK.length,
-                );
+                let dailyProgram = null;
+                if (typeof loadDailyProgram === "function" && parsedPatientHn) {
+                    try {
+                        dailyProgram = await loadDailyProgram({ hn: parsedPatientHn });
+                    } catch (error) {
+                        console.warn("Unable to load daily game program:", error);
+                    }
+                }
+                const dailyProgramGames = buildProgramGamesFromDailyProgram(dailyProgram);
+                state.dailyProgram = dailyProgram || null;
+                state.dailyGoal = String(dailyProgram?.dailyPreset?.goal || dailyProgramGames[0]?.goal || "").trim();
+                state.programGames = dailyProgramGames;
                 state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
                 state.allGames = buildAllGames([]);
                 state.restGame = null;
-                state.programGames = buildProgramGamesFromPreset(
-                    state.allGames,
-                    preferredGameGid,
-                    DAY_ONE_PRESET_GIDS_MOCK.length,
-                );
+                state.dailyProgram = null;
+                state.dailyGoal = "";
+                state.programGames = [];
                 state.programError = error?.message || "Unable to load game list";
             }
 

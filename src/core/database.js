@@ -12,8 +12,11 @@ const USER_PATIENT_DATA_TABLE = "user_patient_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
 const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
+const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
+const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
 const DEFAULT_GAME_PROFILE_PROGRAM_ID = 2;
+const DAY_MS = 24 * 60 * 60 * 1000;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
     START_PLAY_GAME: "SPG",
@@ -41,6 +44,10 @@ class Database {
             start,
             end,
         };
+    }
+
+    getLocalDayStart(dateValue) {
+        return this.getLocalDayRange(dateValue).start;
     }
 
     getClient() {
@@ -548,6 +555,180 @@ class Database {
         }
 
         return data || null;
+    }
+
+    async getDailyGameProgramByHn({
+        hn,
+        currentDate = new Date(),
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedCurrentDate = new Date(currentDate);
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (Number.isNaN(parsedCurrentDate.getTime())) {
+            throw new Error("Invalid currentDate");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const [patientResult, profileResult] = await Promise.all([
+            client
+                .from(USER_PATIENT_DATA_TABLE)
+                .select("hn, started_program")
+                .eq("hn", parsedHn)
+                .maybeSingle(),
+            client
+                .from(USER_GAME_PROFILE_DATA_TABLE)
+                .select("id, hn, program, created_at")
+                .eq("hn", parsedHn)
+                .order("created_at", { ascending: false })
+                .limit(1),
+        ]);
+
+        if (patientResult.error) {
+            throw patientResult.error;
+        }
+
+        if (profileResult.error) {
+            throw profileResult.error;
+        }
+
+        const patient = patientResult.data || null;
+        const profile = Array.isArray(profileResult.data) ? profileResult.data[0] : null;
+        const programId = Number(profile?.program);
+        const startedProgram = new Date(patient?.started_program || "");
+
+        if (!patient?.hn) {
+            throw new Error("Patient profile not found");
+        }
+
+        if (!Number.isInteger(programId) || programId <= 0) {
+            throw new Error("Game program profile not found");
+        }
+
+        if (Number.isNaN(startedProgram.getTime())) {
+            throw new Error("Invalid started_program");
+        }
+
+        const { data: programRows, error: programRowsError } = await client
+            .from(GAME_LEVEL_PRESET_DATA_TABLE)
+            .select("id, gpid, gdid, gid, stage, level, day")
+            .eq("gpid", programId)
+            .order("day", { ascending: true })
+            .order("stage", { ascending: true })
+            .order("id", { ascending: true });
+
+        if (programRowsError) {
+            throw programRowsError;
+        }
+
+        const allProgramRows = programRows || [];
+        const programDayCount = allProgramRows.reduce((maxDay, row) => {
+            const day = Number(row?.day);
+            return Number.isFinite(day) ? Math.max(maxDay, Math.floor(day)) : maxDay;
+        }, 0);
+
+        if (!programDayCount) {
+            return {
+                hn: parsedHn,
+                programId,
+                profileId: profile?.id || null,
+                startedProgram: startedProgram.toISOString(),
+                programDay: 0,
+                rawProgramDay: 0,
+                programDayCount: 0,
+                programStarted: false,
+                programEnded: false,
+                programEndDate: null,
+                dailyPreset: null,
+                games: [],
+            };
+        }
+
+        const startDay = this.getLocalDayStart(startedProgram);
+        const todayDay = this.getLocalDayStart(parsedCurrentDate);
+        const rawProgramDay = Math.floor((todayDay.getTime() - startDay.getTime()) / DAY_MS) + 1;
+        const programDay = Math.min(Math.max(rawProgramDay, 1), programDayCount);
+        const programEndDay = new Date(startDay);
+        programEndDay.setDate(programEndDay.getDate() + programDayCount - 1);
+        const dailyRows = allProgramRows.filter((row) => Number(row?.day) === programDay);
+        const dailyPresetIds = [...new Set(
+            dailyRows
+                .map((row) => Number(row?.gdid))
+                .filter((id) => Number.isInteger(id) && id > 0),
+        )];
+        const gameGids = [...new Set(
+            dailyRows
+                .map((row) => String(row?.gid || "").trim())
+                .filter(Boolean),
+        )];
+
+        const [dailyPresetResult, gameListResult] = await Promise.all([
+            dailyPresetIds.length
+                ? client
+                    .from(GAME_DAILY_PRESET_DATA_TABLE)
+                    .select("id, gpid, goal, loop, created_at")
+                    .in("id", dailyPresetIds)
+                : Promise.resolve({ data: [], error: null }),
+            gameGids.length
+                ? client
+                    .from(GAME_LIST_TABLE)
+                    .select("id, gid, name, th_name, mci_group, max_score, created_at")
+                    .in("gid", gameGids)
+                : Promise.resolve({ data: [], error: null }),
+        ]);
+
+        if (dailyPresetResult.error) {
+            throw dailyPresetResult.error;
+        }
+
+        if (gameListResult.error) {
+            throw gameListResult.error;
+        }
+
+        const dailyPresetMap = new Map(
+            (dailyPresetResult.data || []).map((item) => [Number(item?.id), item]),
+        );
+        const gameMap = new Map(
+            (gameListResult.data || []).map((item) => [String(item?.gid || "").trim(), item]),
+        );
+        const fallbackDailyPreset = dailyPresetMap.get(dailyPresetIds[0]) || null;
+        const games = dailyRows.map((row) => {
+            const gid = String(row?.gid || "").trim();
+            const game = gameMap.get(gid) || { gid, name: gid };
+            const dailyPreset = dailyPresetMap.get(Number(row?.gdid)) || fallbackDailyPreset;
+
+            return {
+                ...game,
+                preset_data_id: row?.id ?? null,
+                daily_preset_id: row?.gdid ?? null,
+                program_id: row?.gpid ?? programId,
+                stage: Number(row?.stage),
+                level: Number(row?.level),
+                day: Number(row?.day),
+                loop: Number(dailyPreset?.loop || 1),
+                goal: dailyPreset?.goal || "",
+            };
+        });
+
+        return {
+            hn: parsedHn,
+            programId,
+            profileId: profile?.id || null,
+            startedProgram: startedProgram.toISOString(),
+            programDay,
+            rawProgramDay,
+            programDayCount,
+            programStarted: rawProgramDay >= 1,
+            programEnded: rawProgramDay > programDayCount,
+            programEndDate: programEndDay.toISOString(),
+            dailyPreset: fallbackDailyPreset,
+            games,
+        };
     }
 
     async submitGameData({ gid, score = null, level = null, startedAt, endedAt }) {
