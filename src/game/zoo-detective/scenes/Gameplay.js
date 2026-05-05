@@ -69,6 +69,9 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI.setScore(this.allScore);
         this.gameplayUI.setElapsedTime(0);
 
+        this.gameStartedAt = new Date();
+        this.gameEndedAt = new Date();
+
         this.resetGameTimer();
         this.onCloseTutorial = () => {
             this.startGameTimer();
@@ -216,6 +219,8 @@ export default class GameplayScene extends Phaser.Scene {
         } else {
             this.puzzleTimer.stop();
         }
+
+        this.gameEndedAt = new Date();
 
         const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
         this.gameplayUI?.setElapsedTime(elapsedMs);

@@ -43,6 +43,7 @@ export default class GameplayScene extends Phaser.Scene {
     // this.titleText.setDepth(100);
 
     this.gameStartedAt = new Date();
+    this.gameEndedAt = new Date();
 
     this.level = data.level || 1;
 
@@ -332,28 +333,12 @@ export default class GameplayScene extends Phaser.Scene {
     const storedHighScore = StorageManager.get("highscore-MEM001", 0);
     const endedAt = new Date();
 
-    db.submitGameData({
-      gid: GAME_ID,
-      score: this.score,
-      level: this.level,
-      startedAt: this.gameStartedAt,
-      endedAt,
-    })
-      .then(() => {
-        if (this.isRestarting || !this.sys.isActive()) {
-          return;
-        }
+    if (this.score > storedHighScore) {
+      StorageManager.save("highscore-MEM001", this.score);
+      this.gameplayUI.setGameOverHighscore(this.score);
+    }
 
-        console.log("Saved game data to Supabase");
-
-        if (this.score > storedHighScore) {
-          StorageManager.save("highscore-MEM001", this.score);
-          this.gameplayUI.setGameOverHighscore(this.score);
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to save game data:", error);
-      });
+    this.gameEndedAt = new Date();
 
     this.gameplayUI.showGameOverPanel(this.score);
     //console.log("Highscore: " + StorageManager.get('highscore'));

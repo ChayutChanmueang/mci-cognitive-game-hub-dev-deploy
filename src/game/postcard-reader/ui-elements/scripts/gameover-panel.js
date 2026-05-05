@@ -1,5 +1,6 @@
 import { createThaiText } from "../../../../util/thai-text";
 import UIPage from "../core/ui-page";
+import game_db from "/src/util/minigame-db-util.js";
 
 
 export default class GameOverPanel extends UIPage{
@@ -9,6 +10,8 @@ export default class GameOverPanel extends UIPage{
             size: {x:400, y:450},
             strokeEnable: true
         });
+
+        this.finalScore = 0;
 
         this.panelBg.setScale(1.5);
 
@@ -75,6 +78,13 @@ export default class GameOverPanel extends UIPage{
 
         this.homeBtn = this.createButton(0,225, "กลับหน้าหลัก", () => {
             this.scene.scene.start('main-menu-scene')
+
+            //Save game data to database
+            game_db.pushGameData(this.finalScore, this.scene.level, this.scene.gameStartedAt, this.scene.gameEndedAt).then(() => {
+                console.log("Game data saved to database.");
+            }).catch((error) => {
+                console.error("Failed to save game data:", error);
+            });
         });
 
         this.addElements([this.titleText, this.scoreText, this.highscoreText, ...this.restartBtn,...this.homeBtn]);
@@ -82,6 +92,7 @@ export default class GameOverPanel extends UIPage{
 
     setFinalScore(score){
         this.scoreText.setText("คะแนน: " + score);
+        this.finalScore = score;
     }
     setHighscore(score){
         this.highscoreText.setText("คะแนนสูงสุด: " + score);

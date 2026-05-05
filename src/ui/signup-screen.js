@@ -1,4 +1,9 @@
 import { calculateAgeFromBirthDate } from "../util/patient-date-util.js";
+import {
+    formatThaiPhoneNumber,
+    isCompleteThaiPhoneNumber,
+    normalizeThaiPhoneNumber,
+} from "../util/phone-number-util.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -115,7 +120,7 @@ export function renderSignupScreen(root, options = {}) {
                             <span>เบอร์โทร :</span>
                             <md-outlined-text-field
                                 id="signup-phone"
-                                placeholder="เช่น 0812345678"
+                                placeholder="เช่น 081-234-5678"
                                 aria-label="เบอร์โทร"
                                 type="tel"
                                 inputmode="tel"
@@ -237,6 +242,18 @@ export function renderSignupScreen(root, options = {}) {
     birthDateField?.addEventListener("change", updateAgeDisplay);
     updateAgeDisplay();
 
+    const updatePhoneDisplay = () => {
+        if (!phoneField) {
+            return;
+        }
+
+        phoneField.value = formatThaiPhoneNumber(phoneField.value);
+        clearFieldError(phoneField);
+    };
+
+    phoneField?.addEventListener("input", updatePhoneDisplay);
+    phoneField?.addEventListener("change", updatePhoneDisplay);
+
     const requiredFields = [
         firstnameField,
         lastnameField,
@@ -263,7 +280,7 @@ export function renderSignupScreen(root, options = {}) {
             hn: String(initialHn || "").trim(),
             firstname: String(firstnameField?.value || "").trim(),
             lastname: String(lastnameField?.value || "").trim(),
-            phone: String(phoneField?.value || "").trim(),
+            phone: normalizeThaiPhoneNumber(phoneField?.value),
             birthDate: String(birthDateField?.value || "").trim(),
             gender: String(genderField?.value || "").trim(),
             educationLevel: String(educationLevelField?.value || "").trim(),
@@ -286,6 +303,9 @@ export function renderSignupScreen(root, options = {}) {
 
         if (!formData.phone) {
             setFieldError(phoneField, "กรุณากรอกเบอร์โทร");
+            hasInvalidField = true;
+        } else if (!isCompleteThaiPhoneNumber(formData.phone)) {
+            setFieldError(phoneField, "กรุณากรอกเบอร์โทร 10 หลัก");
             hasInvalidField = true;
         }
 

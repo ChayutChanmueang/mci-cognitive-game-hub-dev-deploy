@@ -73,6 +73,7 @@ export default class UITestScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isRestarting = false;
     this.gameStartedAt = new Date();
+    this.gameEndedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();
@@ -191,31 +192,14 @@ export default class UITestScene extends Phaser.Scene {
       this.time.removeEvent(this.spawnFruitTimer);
       this.spawnFruitTimer = undefined;
     }
-    const storedHighScore = StorageManager.get("highscore", 0);
-    const endedAt = new Date();
+    const storedHighScore = StorageManager.get('highscore', 0);
 
-    db.submitGameData({
-      gid: GAME_ID,
-      score: this.score,
-      level: this.conveyerNums,
-      startedAt: this.gameStartedAt,
-      endedAt,
-    })
-      .then(() => {
-        if (this.isRestarting || !this.sys.isActive()) {
-          return;
-        }
+    if (this.score > storedHighScore) {
+      StorageManager.save('highscore', this.score);
+      this.gameplayUI.setGameOverHighscore(this.score);
+    }
 
-        console.log("Saved game data to Supabase");
-
-        if (this.score > storedHighScore) {
-          StorageManager.save("highscore", this.score);
-          this.gameplayUI.setGameOverHighscore(this.score);
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to save game data:", error);
-      });
+    this.gameEndedAt = new Date();
 
     this.gameplayUI.showGameOverPanel(this.score);
     //console.log("Highscore: " + StorageManager.get('highscore'));
