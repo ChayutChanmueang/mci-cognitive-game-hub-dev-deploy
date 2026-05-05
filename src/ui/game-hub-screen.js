@@ -56,6 +56,7 @@ function normalizeGame(item, index, fallbackCategory = "Attention") {
 export function createGameHubState() {
     return {
         programGames: [],
+        programDays: [],
         allGames: [],
         restGame: null,
         dailyProgram: null,
@@ -63,6 +64,7 @@ export function createGameHubState() {
         historyRecords: [],
         autoCheckInLoading: false,
         autoCheckInCompletedKey: "",
+        includeNextProgramDay: false,
         programInitialized: false,
         programLoading: false,
         historyLoading: false,
@@ -121,8 +123,10 @@ function getProgramDateRange(programDate = null) {
 
 function normalizeHistoryRecord(item) {
     const gid = String(item?.gid || "").trim();
+    const stage = item?.stage == null || item?.stage === "" ? null : Number(item.stage);
     return {
         gid,
+        stage,
         rest: gid === REST_GAME_GID,
         checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]) || !gid,
         playedAt: item?.start_at || item?.startAt || item?.played_at || item?.playedAt || null,
@@ -136,8 +140,10 @@ function isNodeMatchedByHistory(node, historyRecord) {
     }
 
     if (node.type === "game") {
+        const nodeStage = node.stage == null || node.stage === "" ? null : Number(node.stage);
         return Boolean(historyRecord.gid)
             && historyRecord.gid === node.gid
+            && (nodeStage == null || historyRecord.stage == null || Number(historyRecord.stage) === nodeStage)
             && Boolean(historyRecord.endAt);
     }
 
@@ -245,7 +251,9 @@ function buildAllGames(gameListItems) {
 }
 
 function buildProgramGamesFromDailyProgram(dailyProgram) {
-    const rows = Array.isArray(dailyProgram?.games) ? dailyProgram.games : [];
+    const rows = Array.isArray(dailyProgram?.games)
+        ? dailyProgram.games
+        : [];
 
     return rows.map((item, index) => {
         const game = normalizeGame(item, index, item?.mci_group || "Attention");
@@ -267,11 +275,41 @@ function buildProgramGamesFromDailyProgram(dailyProgram) {
     }).filter(Boolean);
 }
 
+function buildProgramDaysFromDailyProgram(dailyProgram) {
+    const days = Array.isArray(dailyProgram?.days) ? dailyProgram.days : [];
+
+    if (!days.length && Array.isArray(dailyProgram?.games)) {
+        return [{
+            day: Number(dailyProgram?.programDay || 1),
+            goal: String(dailyProgram?.dailyPreset?.goal || "").trim(),
+            loop: Number(dailyProgram?.dailyPreset?.loop || 1),
+            games: buildProgramGamesFromDailyProgram(dailyProgram),
+        }];
+    }
+
+    return days.map((dayItem) => {
+        const dayProgram = {
+            ...dailyProgram,
+            dailyPreset: dayItem?.dailyPreset || dailyProgram?.dailyPreset || null,
+            games: Array.isArray(dayItem?.games) ? dayItem.games : [],
+        };
+
+        return {
+            day: Number(dayItem?.day),
+            goal: String(dayItem?.goal || dayItem?.dailyPreset?.goal || "").trim(),
+            loop: Number(dayItem?.loop || dayItem?.dailyPreset?.loop || 1),
+            games: buildProgramGamesFromDailyProgram(dayProgram),
+        };
+    }).filter((dayItem) => Number.isFinite(dayItem.day));
+}
+
 function buildDailyProgramNodes(games, restGame) {
     const gameNodes = (games || []).map((game, index) => ({
         id: `game-${String(game?.presetDataId || game?.gid || index)}`,
         type: "game",
         gid: String(game?.gid || "").trim(),
+        stage: game?.stage ?? null,
+        day: game?.day ?? null,
         title: game?.displayName || game?.th_name || game?.name || `เกมที่ ${index + 1}`,
         gameNumber: index + 1,
         gameData: game,
@@ -304,6 +342,43 @@ function buildDailyProgramNodes(games, restGame) {
         ...gameNodes.slice(splitIndex),
         checkInNode,
     ];
+}
+
+function buildProgramDaySections(programDays, restGame) {
+    return (programDays || []).map((dayItem) => ({
+        ...dayItem,
+        nodes: buildDailyProgramNodes(dayItem?.games || [], restGame),
+    }));
+}
+
+function flattenProgramDaySections(daySections) {
+    return (daySections || []).flatMap((dayItem) => dayItem?.nodes || []);
+}
+
+function getProgramDayCompletion(daySection, historyRecords) {
+    const nodes = daySection?.nodes || [];
+    const completedCount = getSequentialCompletedCount(nodes, historyRecords);
+    const gameTarget = nodes.filter((node) => node.type === "game").length;
+    const completedGameCount = Math.min(gameTarget, getCompletedGameCount(nodes, completedCount));
+
+    return {
+        completedCount,
+        completedGameCount,
+        gameTarget,
+        isComplete: nodes.length > 0 && completedCount >= nodes.length,
+    };
+}
+
+function areProgramDayGamesComplete(daySection, historyRecords) {
+    const gameNodes = (daySection?.nodes || []).filter((node) => node?.type === "game");
+    if (!gameNodes.length) {
+        return false;
+    }
+
+    const normalizedHistory = (historyRecords || []).map((record) => normalizeHistoryRecord(record));
+    return gameNodes.every((node) =>
+        normalizedHistory.some((historyRecord) => isNodeMatchedByHistory(node, historyRecord)),
+    );
 }
 
 class HubElement {
@@ -361,6 +436,7 @@ class DailyGoalTopBar extends HubElement {
             : 0;
         const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const patientLabel = this.options.patientLabel || "ผู้เล่น";
+        const programDay = Number(this.options.programDay) || 1;
         const dailyGoal = String(this.options.dailyGoal || "").trim()
             || (dailyGameTarget > 0
                 ? `ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน`
@@ -370,7 +446,7 @@ class DailyGoalTopBar extends HubElement {
             <header class="hub-clean-topbar">
                 <div class="hub-clean-goal">
                     <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
-                    <h1>เป้าหมายของวันนี้</h1>
+                    <h1>เป้าหมายของวันที่ ${programDay}</h1>
                     <p>${escapeHtml(dailyGoal)}</p>
                     <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
                         <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedGameCount} จาก ${dailyGameTarget} เกม"></md-linear-progress>
@@ -499,12 +575,7 @@ class LevelMap extends HubElement {
             <section class="hub-clean-stage">
                 <div class="hub-clean-scroll" data-hub-scroll>
                     <div class="hub-clean-content">
-                        <div class="hub-clean-day-divider">
-                            <span></span>
-                            <strong>วันที่ 1</strong>
-                            <span></span>
-                        </div>
-                        <div class="hub-clean-levels" data-level-list></div>
+                        <div data-day-section-list></div>
                         ${this.options.isLoading ? this.loadingHtml() : ""}
                     </div>
                 </div>
@@ -539,29 +610,54 @@ class LevelMap extends HubElement {
 
         requestAnimationFrame(() => {
             if (scrollArea) {
-                scrollArea.scrollTop = Math.max(0, Number(this.options.initialScrollTop) || 0);
+                const initialScrollTop = Math.max(0, Number(this.options.initialScrollTop) || 0);
+                if (initialScrollTop > 0) {
+                    scrollArea.scrollTop = initialScrollTop;
+                } else {
+                    const currentDay = Number(this.options.currentProgramDay);
+                    const currentSection = Number.isFinite(currentDay)
+                        ? this.element?.querySelector(`[data-program-day="${currentDay}"]`)
+                        : null;
+                    if (currentSection) {
+                        scrollArea.scrollTop = Math.max(0, currentSection.offsetTop - scrollArea.offsetTop);
+                    }
+                }
                 updateFab();
             }
         });
     }
 
     renderNodes() {
-        const nodes = this.options.nodes || [];
-        const completedCount = Math.min(
-            nodes.length,
-            Math.max(0, Number(this.options.completedCount) || 0),
-        );
-        const currentNodeIndex = completedCount >= nodes.length ? -1 : completedCount;
-        const list = this.element?.querySelector("[data-level-list]");
+        const daySections = Array.isArray(this.options.daySections) ? this.options.daySections : [];
+        const list = this.element?.querySelector("[data-day-section-list]");
 
-        nodes.forEach((node, index) => {
-            this.addChild(new LevelNode({
-                nodeData: node,
-                index,
-                isDone: index < completedCount,
-                isCurrent: currentNodeIndex >= 0 && index === currentNodeIndex,
-                onAction: this.options.onNodeAction,
-            }), list);
+        daySections.forEach((daySection) => {
+            const nodes = daySection?.nodes || [];
+            const completion = getProgramDayCompletion(daySection, this.options.historyRecords || []);
+            const currentNodeIndex = completion.completedCount >= nodes.length ? -1 : completion.completedCount;
+            const section = document.createElement("section");
+            section.className = "hub-clean-day-section";
+            section.dataset.programDay = String(daySection?.day || "");
+            section.innerHTML = `
+                <div class="hub-clean-day-divider">
+                    <span></span>
+                    <strong>วันที่ ${escapeHtml(daySection?.day || "")}</strong>
+                    <span></span>
+                </div>
+                <div class="hub-clean-levels" data-level-list></div>
+            `;
+            list?.append(section);
+
+            const nodeList = section.querySelector("[data-level-list]");
+            nodes.forEach((node, index) => {
+                this.addChild(new LevelNode({
+                    nodeData: node,
+                    index,
+                    isDone: index < completion.completedCount,
+                    isCurrent: currentNodeIndex >= 0 && index === currentNodeIndex,
+                    onAction: this.options.onNodeAction,
+                }), nodeList);
+            });
         });
     }
 }
@@ -608,6 +704,7 @@ class HubMapScreen extends HubElement {
             dailyGameTarget: this.options.dailyGameTarget,
             completedGameCount: this.options.completedGameCount,
             dailyGoal: this.options.dailyGoal,
+            programDay: this.options.programDay,
             patientLabel: this.options.patientLabel,
             onProfile: this.options.onProfile,
         }), this.element?.querySelector("[data-topbar]"));
@@ -617,6 +714,9 @@ class HubMapScreen extends HubElement {
             completedCount: this.options.completedCount,
             isLoading: this.options.isLoading,
             initialScrollTop: this.options.initialScrollTop,
+            daySections: this.options.daySections,
+            historyRecords: this.options.historyRecords,
+            currentProgramDay: this.options.programDay,
             onScrollChange: this.options.onScrollChange,
             onNodeAction: this.options.onNodeAction,
         }), this.element?.querySelector("[data-stage]"));
@@ -713,6 +813,9 @@ export async function renderGameHubScreen(root, options = {}) {
     if (!Array.isArray(state.programGames)) {
         state.programGames = [];
     }
+    if (!Array.isArray(state.programDays)) {
+        state.programDays = [];
+    }
     if (!Array.isArray(state.allGames)) {
         state.allGames = [];
     }
@@ -728,6 +831,9 @@ export async function renderGameHubScreen(root, options = {}) {
     if (typeof state.autoCheckInCompletedKey !== "string") {
         state.autoCheckInCompletedKey = "";
     }
+    if (typeof state.includeNextProgramDay !== "boolean") {
+        state.includeNextProgramDay = false;
+    }
 
     let activeScreen = null;
     const patientLabel = getPatientLabel();
@@ -736,20 +842,43 @@ export async function renderGameHubScreen(root, options = {}) {
     const render = () => {
         activeScreen?.destroy();
         root.innerHTML = "";
-        const programNodes = buildDailyProgramNodes(state.programGames, state.restGame);
-        const derivedCompletedCount = getSequentialCompletedCount(programNodes, state.historyRecords);
-        const resolvedCompletedCount = Math.max(0, Number(completedCount) || 0, derivedCompletedCount);
-        const resolvedDailyGameTarget = programNodes.filter((node) => node.type === "game").length;
+        const allDaySections = buildProgramDaySections(state.programDays, state.restGame);
+        const currentProgramDay = Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
+        const rawCurrentDaySection = allDaySections.find((dayItem) => Number(dayItem?.day) === currentProgramDay)
+            || allDaySections[allDaySections.length - 1]
+            || { nodes: [] };
+        const rawCurrentDayCompletion = getProgramDayCompletion(rawCurrentDaySection, state.historyRecords);
+        const shouldShowNextDay = state.includeNextProgramDay
+            || rawCurrentDayCompletion.isComplete
+            || areProgramDayGamesComplete(rawCurrentDaySection, state.historyRecords);
+        const daySections = allDaySections.filter((dayItem) => {
+            const day = Number(dayItem?.day);
+            return day <= currentProgramDay || (shouldShowNextDay && day === currentProgramDay + 1);
+        });
+        const programNodes = flattenProgramDaySections(daySections);
+        const currentDaySection = daySections.find((dayItem) => Number(dayItem?.day) === currentProgramDay)
+            || daySections[daySections.length - 1]
+            || { nodes: [] };
+        const currentDayCompletion = getProgramDayCompletion(currentDaySection, state.historyRecords);
+        const resolvedCompletedCount = Math.max(
+            0,
+            Number(completedCount) || 0,
+            currentDayCompletion.completedCount,
+        );
+        const resolvedDailyGameTarget = currentDayCompletion.gameTarget;
         const resolvedCompletedGameCount = Math.min(
             resolvedDailyGameTarget,
-            getCompletedGameCount(programNodes, resolvedCompletedCount),
+            currentDayCompletion.completedGameCount,
         );
         activeScreen = new HubMapScreen({
             nodes: programNodes,
+            daySections,
+            historyRecords: state.historyRecords,
             dailyGameTarget: resolvedDailyGameTarget,
             completedCount: resolvedCompletedCount,
             completedGameCount: resolvedCompletedGameCount,
             dailyGoal: state.dailyGoal,
+            programDay: currentProgramDay,
             patientLabel,
             selectableGames: state.allGames,
             isLoading: (state.programLoading && !state.programInitialized) || state.historyLoading,
@@ -827,14 +956,17 @@ export async function renderGameHubScreen(root, options = {}) {
         root.append(activeScreen.render());
     };
 
-    const loadProgramGames = async () => {
+    const loadProgramGames = async (force = false) => {
         if (state.programLoading) {
             return;
         }
 
-        if (!state.programInitialized) {
+        if (force || !state.programInitialized) {
             state.programLoading = true;
-            state.programGames = [];
+            if (!state.programInitialized) {
+                state.programGames = [];
+                state.programDays = [];
+            }
             render();
 
             try {
@@ -846,15 +978,25 @@ export async function renderGameHubScreen(root, options = {}) {
                 let dailyProgram = null;
                 if (typeof loadDailyProgram === "function" && parsedPatientHn) {
                     try {
-                        dailyProgram = await loadDailyProgram({ hn: parsedPatientHn });
+                        dailyProgram = await loadDailyProgram({
+                            hn: parsedPatientHn,
+                            windowBefore: state.includeNextProgramDay ? 1 : 2,
+                            windowAfter: 1,
+                        });
                     } catch (error) {
                         console.warn("Unable to load daily game program:", error);
                     }
                 }
                 const dailyProgramGames = buildProgramGamesFromDailyProgram(dailyProgram);
+                const dailyProgramDays = buildProgramDaysFromDailyProgram(dailyProgram);
                 state.dailyProgram = dailyProgram || null;
-                state.dailyGoal = String(dailyProgram?.dailyPreset?.goal || dailyProgramGames[0]?.goal || "").trim();
+                const currentDay = Number(dailyProgram?.programDay || dailyProgramDays[0]?.day || 1);
+                const currentDayItem = dailyProgramDays.find((dayItem) => Number(dayItem?.day) === currentDay)
+                    || dailyProgramDays[dailyProgramDays.length - 1]
+                    || null;
+                state.dailyGoal = String(currentDayItem?.goal || dailyProgram?.dailyPreset?.goal || dailyProgramGames[0]?.goal || "").trim();
                 state.programGames = dailyProgramGames;
+                state.programDays = dailyProgramDays;
                 state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
@@ -863,6 +1005,7 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.dailyProgram = null;
                 state.dailyGoal = "";
                 state.programGames = [];
+                state.programDays = [];
                 state.programError = error?.message || "Unable to load game list";
             }
 
@@ -943,10 +1086,14 @@ export async function renderGameHubScreen(root, options = {}) {
         render();
 
         try {
-            const gids = state.programGames
+            const allProgramGames = (state.programDays || []).flatMap((dayItem) => dayItem?.games || []);
+            const gids = allProgramGames
                 .map((game) => String(game?.gid || "").trim())
                 .filter(Boolean);
-            const { playedFrom, playedTo } = getProgramDateRange(programDate);
+            const startDate = state.dailyProgram?.startedProgram || programDate || null;
+            const endDate = state.dailyProgram?.programEndDate || programDate || null;
+            const { playedFrom } = getProgramDateRange(startDate);
+            const { playedTo } = getProgramDateRange(endDate);
 
             if (
                 typeof loadCompletedGameHistoryRecords === "function"
@@ -992,11 +1139,32 @@ export async function renderGameHubScreen(root, options = {}) {
             state.historyLoading = false;
             render();
 
+            const currentProgramNodes = buildDailyProgramNodes(
+                (state.programDays || []).find((dayItem) => Number(dayItem?.day) === Number(state.dailyProgram?.programDay))?.games
+                    || state.programGames,
+                state.restGame,
+            );
             await maybeAutoCheckIn({
-                programNodes: buildDailyProgramNodes(state.programGames, state.restGame),
+                programNodes: currentProgramNodes,
                 historyRecords: state.historyRecords,
                 playedFrom,
             });
+
+            const currentDay = Number(state.dailyProgram?.programDay);
+            const currentDaySection = buildProgramDaySections(state.programDays, state.restGame)
+                .find((dayItem) => Number(dayItem?.day) === currentDay);
+            const currentDayCompletion = getProgramDayCompletion(currentDaySection, state.historyRecords);
+            const currentDayGamesComplete = areProgramDayGamesComplete(currentDaySection, state.historyRecords);
+            if (
+                (currentDayCompletion.isComplete || currentDayGamesComplete)
+                && !state.includeNextProgramDay
+                && currentDay < Number(state.dailyProgram?.programDayCount || 0)
+            ) {
+                state.includeNextProgramDay = true;
+                await loadProgramGames(true);
+                await loadPlayedHistory(true);
+                return;
+            }
         } catch (error) {
             console.warn("Unable to load played game history:", error);
             state.historyRecords = [];

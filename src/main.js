@@ -46,6 +46,10 @@ const SELECTED_GAME_STORAGE = Object.freeze({
     name: "selected_game_name",
     thName: "selected_game_th_name",
     group: "selected_game_group",
+    stage: "selected_game_stage",
+    level: "selected_game_level",
+    day: "selected_game_day",
+    presetDataId: "selected_game_preset_data_id",
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -113,6 +117,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 || selectedGame?.name
                 || fallback,
         ).trim();
+
+    const getGameHistoryNodeKey = (selectedGame) => {
+        const gid = String(selectedGame?.gid || "").trim();
+        const stage = selectedGame?.stage == null || selectedGame?.stage === ""
+            ? ""
+            : String(selectedGame.stage).trim();
+        return stage ? `${gid}:stage-${stage}` : gid;
+    };
 
     const getHubRouteHash = (options = {}) => {
         const scene = options?.scene === "selection" ? "selection" : DEFAULT_HUB_SCENE;
@@ -231,6 +243,10 @@ document.addEventListener("DOMContentLoaded", () => {
             String(selectedGame?.th_name || selectedGame?.thName || selectedGame?.displayName || "").trim(),
         );
         sessionStorage.setItem(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
     };
 
     const getPersistedSelectedGame = () => {
@@ -238,6 +254,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const name = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.name) || "").trim();
         const thName = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.thName) || "").trim();
         const mciGroup = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.group) || "").trim();
+        const stage = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.stage) || "").trim();
+        const level = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.level) || "").trim();
+        const day = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.day) || "").trim();
+        const presetDataId = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.presetDataId) || "").trim();
 
         if (!gid || !name) {
             return null;
@@ -249,6 +269,10 @@ document.addEventListener("DOMContentLoaded", () => {
             th_name: thName,
             displayName: thName || name,
             mci_group: mciGroup || "Attention",
+            stage: stage ? Number(stage) : null,
+            level: level ? Number(level) : null,
+            day: day ? Number(day) : null,
+            presetDataId: presetDataId ? Number(presetDataId) : null,
         };
     };
 
@@ -286,16 +310,19 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.setItem(PENDING_GAME_HISTORY_STORAGE.map, JSON.stringify(normalizedMap));
     };
 
-    const setPendingGameHistoryByGid = (gid, historyRecord, fallbackStartAt = "") => {
-        const parsedGid = String(gid || "").trim();
-        if (!parsedGid || !historyRecord?.id) {
+    const setPendingGameHistoryByKey = (nodeKey, selectedGame, historyRecord, fallbackStartAt = "") => {
+        const parsedNodeKey = String(nodeKey || "").trim();
+        const parsedGid = String(selectedGame?.gid || historyRecord?.gid || "").trim();
+        if (!parsedNodeKey || !parsedGid || !historyRecord?.id) {
             return;
         }
 
         const historyMap = readPendingGameHistoryMap();
-        historyMap[parsedGid] = {
+        historyMap[parsedNodeKey] = {
             id: Number(historyRecord.id),
             gid: parsedGid,
+            stage: historyRecord.stage ?? selectedGame?.stage ?? null,
+            nodeKey: parsedNodeKey,
             hn: String(historyRecord.hn || "").trim(),
             startAt: String(historyRecord.start_at || historyRecord.startAt || fallbackStartAt || "").trim(),
             endAt: historyRecord.end_at || null,
@@ -304,14 +331,14 @@ document.addEventListener("DOMContentLoaded", () => {
         writePendingGameHistoryMap(historyMap);
     };
 
-    const removePendingGameHistoryByGid = (gid) => {
-        const parsedGid = String(gid || "").trim();
-        if (!parsedGid) {
+    const removePendingGameHistoryByKey = (nodeKey) => {
+        const parsedNodeKey = String(nodeKey || "").trim();
+        if (!parsedNodeKey) {
             return;
         }
 
         const historyMap = readPendingGameHistoryMap();
-        delete historyMap[parsedGid];
+        delete historyMap[parsedNodeKey];
         writePendingGameHistoryMap(historyMap);
     };
 
@@ -324,6 +351,10 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.name);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.thName);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.group);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.stage);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.level);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.day);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.presetDataId);
     };
 
     const clearPatientClientState = () => {
@@ -386,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
-            loadDailyProgram: ({ hn }) => db.getDailyGameProgramByHn({ hn }),
+            loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
             loadCompletedGameHistoryRecords: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getCompletedUserGameHistoryByHn({
                     hn,
@@ -430,6 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const selectedGid = String(selectedGame?.gid || "").trim();
+                const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
                 try {
                     // Start a game history row here. Game completion should later update this row
                     // with end_at and user_game_data_id via db.completeUserGameHistory(...).
@@ -437,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const historyRecord = await db.addUserGameHistory({
                         hn: patientCode,
                         gid: selectedGid,
+                        stage: selectedGame?.stage ?? null,
                         startAt: startedAt,
                         userGameDataId: null,
                     });
@@ -445,7 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         throw new Error("Missing user_game_history id");
                     }
 
-                    setPendingGameHistoryByGid(selectedGid, historyRecord, startedAt);
+                    setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
                 } catch (error) {
                     console.warn("Unable to write launch history:", error);
                     await showPopup({
@@ -459,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
-                sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedGid);
+                sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                 navigateTo(getGameRouteHash(selectedGame));
             },
             // Test-only shortcut: opens a selected game without creating normal history.
@@ -483,7 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 persistSelectedGame(selectedGame);
                 sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
-                removePendingGameHistoryByGid(selectedGid);
+                removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
                 navigateTo(getGameRouteHash(selectedGame));
             },
             // Test-only shortcut: clears today's hub history so QA can replay the daily path.
@@ -595,6 +628,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     await db.addUserGameHistory({
                         hn: patientCode,
                         gid: node.gid,
+                        stage: node.stage ?? null,
                         startAt: startAt.toISOString(),
                         endAt: endAt ? endAt.toISOString() : null,
                         userGameDataId: null,
@@ -647,7 +681,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 persistSelectedGame(restGame);
                 sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
-                removePendingGameHistoryByGid(restGame.gid);
+                removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
                 navigateTo(getGameRouteHash(restGame));
                 return { redirected: true };
             },
@@ -1180,7 +1214,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error(`Unable to fetch game by gid ${route.gid}:`, error);
             }
 
-            selectedGame = selectedGame || getPersistedSelectedGameByGid(route.gid);
+            const persistedGame = getPersistedSelectedGameByGid(route.gid);
+            selectedGame = selectedGame || persistedGame;
+            if (selectedGame && persistedGame) {
+                selectedGame = {
+                    ...selectedGame,
+                    stage: persistedGame.stage,
+                    level: persistedGame.level,
+                    day: persistedGame.day,
+                    presetDataId: persistedGame.presetDataId,
+                    displayName: persistedGame.displayName || selectedGame.displayName,
+                    th_name: persistedGame.th_name || selectedGame.th_name,
+                };
+            }
 
             if (currentRenderVersion !== routeRenderVersion) {
                 return;
@@ -1212,8 +1258,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const pendingLaunchGid = sessionStorage.getItem(PENDING_GAME_LAUNCH_KEY) || "";
-            if (hasStarted && pendingLaunchGid === selectedGame.gid) {
+            const pendingLaunchKey = sessionStorage.getItem(PENDING_GAME_LAUNCH_KEY) || "";
+            const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+            if (hasStarted && pendingLaunchKey === selectedNodeKey) {
                 sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
                 try {
                     await db.logUserEvent("SPG", selectedGame.gid);
@@ -1225,7 +1272,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
             if (!hasStarted) {
-                removePendingGameHistoryByGid(selectedGame.gid);
+                removePendingGameHistoryByKey(selectedNodeKey);
                 navigateTo(ROUTES.hub, { replace: true });
             }
         }

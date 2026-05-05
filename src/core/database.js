@@ -560,6 +560,10 @@ class Database {
     async getDailyGameProgramByHn({
         hn,
         currentDate = new Date(),
+        dayFrom = null,
+        dayTo = null,
+        windowBefore = 2,
+        windowAfter = 0,
     }) {
         const parsedHn = String(hn || "").trim();
         const parsedCurrentDate = new Date(currentDate);
@@ -655,14 +659,30 @@ class Database {
         const programDay = Math.min(Math.max(rawProgramDay, 1), programDayCount);
         const programEndDay = new Date(startDay);
         programEndDay.setDate(programEndDay.getDate() + programDayCount - 1);
+        const requestedDayFrom = Number(dayFrom);
+        const requestedDayTo = Number(dayTo);
+        const safeWindowBefore = Math.max(0, Number(windowBefore) || 0);
+        const safeWindowAfter = Math.max(0, Number(windowAfter) || 0);
+        const resolvedDayFrom = Number.isFinite(requestedDayFrom)
+            ? Math.floor(requestedDayFrom)
+            : programDay - safeWindowBefore;
+        const resolvedDayTo = Number.isFinite(requestedDayTo)
+            ? Math.floor(requestedDayTo)
+            : programDay + safeWindowAfter;
+        const visibleDayFrom = Math.max(1, Math.min(resolvedDayFrom, programDayCount));
+        const visibleDayTo = Math.max(visibleDayFrom, Math.min(resolvedDayTo, programDayCount));
+        const visibleRows = allProgramRows.filter((row) => {
+            const day = Number(row?.day);
+            return day >= visibleDayFrom && day <= visibleDayTo;
+        });
         const dailyRows = allProgramRows.filter((row) => Number(row?.day) === programDay);
         const dailyPresetIds = [...new Set(
-            dailyRows
+            visibleRows
                 .map((row) => Number(row?.gdid))
                 .filter((id) => Number.isInteger(id) && id > 0),
         )];
         const gameGids = [...new Set(
-            dailyRows
+            visibleRows
                 .map((row) => String(row?.gid || "").trim())
                 .filter(Boolean),
         )];
@@ -697,7 +717,7 @@ class Database {
             (gameListResult.data || []).map((item) => [String(item?.gid || "").trim(), item]),
         );
         const fallbackDailyPreset = dailyPresetMap.get(dailyPresetIds[0]) || null;
-        const games = dailyRows.map((row) => {
+        const buildGameEntry = (row) => {
             const gid = String(row?.gid || "").trim();
             const game = gameMap.get(gid) || { gid, name: gid };
             const dailyPreset = dailyPresetMap.get(Number(row?.gdid)) || fallbackDailyPreset;
@@ -713,7 +733,22 @@ class Database {
                 loop: Number(dailyPreset?.loop || 1),
                 goal: dailyPreset?.goal || "",
             };
-        });
+        };
+        const days = [];
+
+        for (let day = visibleDayFrom; day <= visibleDayTo; day += 1) {
+            const dayRows = visibleRows.filter((row) => Number(row?.day) === day);
+            const dayPreset = dailyPresetMap.get(Number(dayRows[0]?.gdid)) || fallbackDailyPreset;
+            days.push({
+                day,
+                goal: dayPreset?.goal || "",
+                loop: Number(dayPreset?.loop || 1),
+                dailyPreset: dayPreset || null,
+                games: dayRows.map((row) => buildGameEntry(row)),
+            });
+        }
+
+        const games = dailyRows.map((row) => buildGameEntry(row));
 
         return {
             hn: parsedHn,
@@ -723,10 +758,13 @@ class Database {
             programDay,
             rawProgramDay,
             programDayCount,
+            visibleDayFrom,
+            visibleDayTo,
             programStarted: rawProgramDay >= 1,
             programEnded: rawProgramDay > programDayCount,
             programEndDate: programEndDay.toISOString(),
             dailyPreset: fallbackDailyPreset,
+            days,
             games,
         };
     }
@@ -793,6 +831,7 @@ class Database {
     async addUserGameHistory({
         hn,
         gid = null,
+        stage = null,
         startAt = null,
         endAt = null,
         playedAt = null,
@@ -804,6 +843,7 @@ class Database {
     }) {
         const parsedHn = String(hn || "").trim();
         const parsedGid = gid == null ? "" : String(gid).trim();
+        const parsedStage = stage == null || stage === "" ? null : Number(stage);
         const parsedStartAt = new Date(startAt || playedAt || new Date().toISOString());
         const parsedEndAt = endAt == null ? null : new Date(endAt);
         const parsedUserGameDataId = userGameDataId == null ? null : Number(userGameDataId);
@@ -819,6 +859,10 @@ class Database {
 
         if (Boolean(rest) && !parsedGid) {
             throw new Error("Invalid rest gid");
+        }
+
+        if (parsedStage != null && !Number.isFinite(parsedStage)) {
+            throw new Error("Invalid stage");
         }
 
         if (Number.isNaN(parsedStartAt.getTime())) {
@@ -842,6 +886,7 @@ class Database {
         const payload = {
             hn: parsedHn,
             gid: parsedGid || null,
+            stage: parsedStage,
             start_at: parsedStartAt.toISOString(),
             user_game_data_id: parsedUserGameDataId,
         };
@@ -856,7 +901,7 @@ class Database {
             const { start, end } = this.getLocalDayRange(parsedStartAt);
             const { data: existingRows, error: existingError } = await client
                 .from(USER_GAME_HISTORY_TABLE)
-                .select("id, hn, gid, start_at, end_at, user_game_data_id")
+                .select("id, hn, gid, stage, start_at, end_at, user_game_data_id")
                 .eq("hn", parsedHn)
                 .eq("gid", parsedGid)
                 .gte("start_at", start.toISOString())
@@ -868,7 +913,10 @@ class Database {
                 throw existingError;
             }
 
-            const existingHistory = (existingRows || []).find((row) => !row?.end_at) || existingRows?.[0] || null;
+            const matchedRows = parsedStage == null
+                ? (existingRows || []).filter((row) => row?.stage == null)
+                : (existingRows || []).filter((row) => Number(row?.stage) === parsedStage);
+            const existingHistory = matchedRows.find((row) => !row?.end_at) || matchedRows[0] || null;
             if (existingHistory?.id) {
                 return existingHistory;
             }
@@ -877,7 +925,7 @@ class Database {
         const insertHistory = async (insertPayload) => client
             .from(USER_GAME_HISTORY_TABLE)
             .insert([insertPayload])
-            .select("id, hn, gid, start_at, end_at, user_game_data_id, \"check-in\"")
+            .select("id, hn, gid, stage, start_at, end_at, user_game_data_id, \"check-in\"")
             .maybeSingle();
 
         let insertPayload = payload;
@@ -937,7 +985,7 @@ class Database {
                 start_at: parsedStartAt.toISOString(),
             })
             .eq("id", parsedHistoryId)
-            .select("id, hn, gid, start_at, end_at, user_game_data_id")
+            .select("id, hn, gid, stage, start_at, end_at, user_game_data_id")
             .maybeSingle();
 
         if (error) {
@@ -978,7 +1026,7 @@ class Database {
                 user_game_data_id: parsedUserGameDataId,
             })
             .eq("id", parsedHistoryId)
-            .select("id, hn, gid, start_at, end_at, user_game_data_id")
+            .select("id, hn, gid, stage, start_at, end_at, user_game_data_id")
             .maybeSingle();
 
         if (error) {
@@ -992,11 +1040,13 @@ class Database {
      * Example game-completion flow:
      *
      * const pendingHistoryMapKey = "pending_game_history_by_gid";
+     * const stage = sessionStorage.getItem("selected_game_stage") || "";
+     * const historyKey = stage ? `${gid}:stage-${stage}` : gid;
      * const pendingHistoryMap = JSON.parse(sessionStorage.getItem(pendingHistoryMapKey) || "{}");
-     * const pendingHistory = pendingHistoryMap[gid];
+     * const pendingHistory = pendingHistoryMap[historyKey];
      *
      * if (!pendingHistory?.id) {
-     *     throw new Error(`Missing pending user_game_history for ${gid}`);
+     *     throw new Error(`Missing pending user_game_history for ${historyKey}`);
      * }
      *
      * const endedAt = new Date().toISOString();
@@ -1014,7 +1064,7 @@ class Database {
      *     userGameDataId: gameData.id,
      * });
      *
-     * delete pendingHistoryMap[gid];
+     * delete pendingHistoryMap[historyKey];
      * if (Object.keys(pendingHistoryMap).length > 0) {
      *     sessionStorage.setItem(pendingHistoryMapKey, JSON.stringify(pendingHistoryMap));
      * } else {
@@ -1048,7 +1098,7 @@ class Database {
         const client = this.getClient();
         let query = client
             .from(USER_GAME_HISTORY_TABLE)
-            .select("id, gid, start_at, end_at, user_game_data_id")
+            .select("id, gid, stage, start_at, end_at, user_game_data_id")
             .eq("hn", parsedHn)
             .in("gid", parsedGids)
             .not("end_at", "is", null);
@@ -1128,7 +1178,7 @@ class Database {
             ? applyDateRange(
                 client
                     .from(USER_GAME_HISTORY_TABLE)
-                    .select("id, gid, start_at, end_at, user_game_data_id")
+                    .select("id, gid, stage, start_at, end_at, user_game_data_id")
                     .eq("hn", parsedHn)
                     .eq("gid", parsedRestGid),
             )
@@ -1136,7 +1186,7 @@ class Database {
         const checkInQuery = applyDateRange(
             client
                 .from(USER_GAME_HISTORY_TABLE)
-                .select("id, gid, start_at, end_at, user_game_data_id")
+                .select("id, gid, stage, start_at, end_at, user_game_data_id")
                 .eq("hn", parsedHn)
                 .eq("check-in", true),
         );
@@ -1155,7 +1205,7 @@ class Database {
             resolvedCheckInResult = await applyDateRange(
                 client
                     .from(USER_GAME_HISTORY_TABLE)
-                    .select("id, gid, start_at, end_at, user_game_data_id")
+                    .select("id, gid, stage, start_at, end_at, user_game_data_id")
                     .eq("hn", parsedHn)
                     .eq("check_in", true),
             );
@@ -1165,7 +1215,7 @@ class Database {
             resolvedCheckInResult = await applyDateRange(
                 client
                     .from(USER_GAME_HISTORY_TABLE)
-                    .select("id, gid, start_at, end_at, user_game_data_id")
+                    .select("id, gid, stage, start_at, end_at, user_game_data_id")
                     .eq("hn", parsedHn)
                     .is("gid", null),
             );
@@ -1263,7 +1313,7 @@ class Database {
         const client = this.getClient();
         let query = client
             .from(USER_GAME_HISTORY_TABLE)
-            .select("gid, start_at, end_at, user_game_data_id, \"check-in\"")
+            .select("gid, stage, start_at, end_at, user_game_data_id, \"check-in\"")
             .eq("hn", parsedHn);
 
         if (playedFrom) {
