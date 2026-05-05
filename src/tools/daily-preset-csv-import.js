@@ -1,6 +1,9 @@
 const DAY_HEADER = "วันที่";
 const DAILY_GOAL_HEADER = "เป้าหมายประจำวัน";
+const DAILY_LOOP_HEADER = "จำนวนรอบการเล่น";
 
+// Future CSV daily fields: add a header constant, detect it in parseDailyPresetCsv,
+// assign row values in buildRows, and return a hasX flag for the editor.
 const THAI_DIFFICULTY_LEVELS = Object.freeze({
     "ง่าย": 1,
     "กลาง": 2,
@@ -150,6 +153,15 @@ function isRestValue(value) {
     return !text || text.includes("พัก") || /^\d+\s*นาที$/u.test(text);
 }
 
+function normalizeDailyLoop(value) {
+    const parsedLoop = Number(normalizeCell(value));
+    if (!Number.isFinite(parsedLoop)) {
+        return 1;
+    }
+
+    return Math.max(1, Math.min(32767, Math.round(parsedLoop)));
+}
+
 function parseCustomStageValue(value, gameOptions) {
     const text = normalizeCell(value);
     if (isRestValue(text)) {
@@ -176,7 +188,7 @@ function parseCustomStageValue(value, gameOptions) {
     };
 }
 
-function buildRows(records, stageHeaders, hasDailyGoal, parseStageValue) {
+function buildRows(records, stageHeaders, hasDailyGoal, hasDailyLoop, parseStageValue) {
     const stageFields = stageHeaders.map((_, index) => `stage${index + 1}`);
     const rows = records.map((record, rowIndex) => {
         const row = {
@@ -185,6 +197,10 @@ function buildRows(records, stageHeaders, hasDailyGoal, parseStageValue) {
 
         if (hasDailyGoal) {
             row.dailyGoal = record[DAILY_GOAL_HEADER] || "";
+        }
+
+        if (hasDailyLoop) {
+            row.dailyLoop = normalizeDailyLoop(record[DAILY_LOOP_HEADER]);
         }
 
         stageHeaders.forEach((header, index) => {
@@ -198,6 +214,7 @@ function buildRows(records, stageHeaders, hasDailyGoal, parseStageValue) {
         rows,
         stageFields,
         hasDailyGoal,
+        hasDailyLoop,
     };
 }
 
@@ -208,6 +225,7 @@ export function parseDailyPresetCsv(csvText, importType, gameOptions = []) {
     const records = sectionToObjects(mainSection)
         .filter((record) => normalizeCell(record[DAY_HEADER]));
     const hasDailyGoal = headers.includes(DAILY_GOAL_HEADER);
+    const hasDailyLoop = headers.includes(DAILY_LOOP_HEADER);
 
     if (!records.length) {
         throw new Error("CSV ไม่มีข้อมูลวันที่");
@@ -215,12 +233,12 @@ export function parseDailyPresetCsv(csvText, importType, gameOptions = []) {
 
     if (importType === "normal") {
         const stageHeaders = getStageHeaders(headers);
-        return buildRows(records, stageHeaders, hasDailyGoal, parseNormalStageValue);
+        return buildRows(records, stageHeaders, hasDailyGoal, hasDailyLoop, parseNormalStageValue);
     }
 
     if (importType === "custom-1") {
         const stageHeaders = getCustomStageHeaders(headers);
-        return buildRows(records, stageHeaders, hasDailyGoal, (value) => parseCustomStageValue(value, gameOptions));
+        return buildRows(records, stageHeaders, hasDailyGoal, hasDailyLoop, (value) => parseCustomStageValue(value, gameOptions));
     }
 
     throw new Error("ไม่รู้จักประเภทข้อมูลนำเข้า");

@@ -11,9 +11,13 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 const DEFAULT_STAGE_COUNT = 3;
 const DAILY_GOAL_FIELD = "dailyGoal";
+const DAILY_LOOP_FIELD = "dailyLoop";
 const DAY_FIELD = "day";
 const ROW_ID_FIELD = "__presetRowId";
 
+// Future optional daily fields: add a field constant here, track a hasX flag in
+// renderDailyPresetEditor, add a locked column in buildColumnDefs, wire add/remove
+// handlers, include it in add-day fields, CSV import/export, and onSavePreset.
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -116,7 +120,16 @@ function getDefaultStageFields() {
     return Array.from({ length: DEFAULT_STAGE_COUNT }, (_, index) => `stage${index + 1}`);
 }
 
-function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow, gameNameByGid) {
+function normalizeDailyLoop(value) {
+    const parsedLoop = Number(value);
+    if (!Number.isFinite(parsedLoop)) {
+        return 1;
+    }
+
+    return Math.max(1, Math.min(32767, Math.round(parsedLoop)));
+}
+
+function buildColumnDefs(stageFields, hasDailyGoal, hasDailyLoop, onRemoveColumn, onRemoveRow, gameNameByGid) {
     const stageColumns = stageFields.map((field, index) => ({
         field,
         headerName: `ด่านที่ ${index + 1}`,
@@ -161,6 +174,28 @@ function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow,
         ]
         : [];
 
+    const dailyLoopColumn = hasDailyLoop
+        ? [
+            {
+                field: DAILY_LOOP_FIELD,
+                headerName: "จำนวนรอบการเล่น",
+                editable: true,
+                width: 170,
+                minWidth: 150,
+                cellEditor: "agNumberCellEditor",
+                valueParser: (params) => normalizeDailyLoop(params.newValue),
+                lockPosition: "left",
+                suppressMovable: true,
+                headerComponent: DeletableHeader,
+                headerComponentParams: {
+                    field: DAILY_LOOP_FIELD,
+                    columnType: "dailyLoop",
+                    onRemoveColumn,
+                },
+            },
+        ]
+        : [];
+
     return [
         {
             field: DAY_FIELD,
@@ -189,14 +224,15 @@ function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow,
             },
         },
         ...dailyGoalColumn,
+        ...dailyLoopColumn,
         ...stageColumns,
     ];
 }
 
-function getRowsWithField(rowData, field) {
+function getRowsWithField(rowData, field, defaultValue = "") {
     return rowData.map((row) => ({
         ...row,
-        [field]: "",
+        [field]: defaultValue,
     }));
 }
 
@@ -301,6 +337,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         initialRows = null,
         initialStageFields = null,
         initialHasDailyGoal = false,
+        initialHasDailyLoop = false,
         onBack = () => {},
         onSavePreset = async () => {},
         onDeletePreset = async () => {},
@@ -321,6 +358,7 @@ export function renderDailyPresetEditor(root, options = {}) {
     }, DEFAULT_STAGE_COUNT) + 1;
     let nextRowId = 1;
     let hasDailyGoal = Boolean(initialHasDailyGoal);
+    let hasDailyLoop = Boolean(initialHasDailyLoop);
     const sourceRows = Array.isArray(initialRows) ? initialRows : DEFAULT_ROWS;
     let rowData = sourceRows.map((row) => ({
         [ROW_ID_FIELD]: nextRowId++,
@@ -411,10 +449,28 @@ export function renderDailyPresetEditor(root, options = {}) {
         gridApi.setGridOption("columnDefs", getGridColumns());
         gridApi.setGridOption("rowData", rowData);
     };
+    const addDailyLoop = () => {
+        if (hasDailyLoop) {
+            return;
+        }
+
+        hasDailyLoop = true;
+        rowData = getRowsWithField(rowData, DAILY_LOOP_FIELD, 1);
+        gridApi.setGridOption("columnDefs", getGridColumns());
+        gridApi.setGridOption("rowData", rowData);
+    };
     const removeColumn = (field, columnType) => {
         if (columnType === "dailyGoal") {
             hasDailyGoal = false;
             rowData = getRowsWithoutField(rowData, DAILY_GOAL_FIELD);
+            gridApi.setGridOption("columnDefs", getGridColumns());
+            gridApi.setGridOption("rowData", rowData);
+            return;
+        }
+
+        if (columnType === "dailyLoop") {
+            hasDailyLoop = false;
+            rowData = getRowsWithoutField(rowData, DAILY_LOOP_FIELD);
             gridApi.setGridOption("columnDefs", getGridColumns());
             gridApi.setGridOption("rowData", rowData);
             return;
@@ -464,7 +520,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         stageFields = displayedStageFields;
         gridApi.setGridOption("columnDefs", getGridColumns());
     };
-    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow, gameNameByGid);
+    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, hasDailyLoop, removeColumn, removeRow, gameNameByGid);
     const replacePresetRows = (importedPreset) => {
         stageFields = importedPreset.stageFields.length
             ? [...importedPreset.stageFields]
@@ -474,6 +530,7 @@ export function renderDailyPresetEditor(root, options = {}) {
             return Number.isFinite(stageId) ? Math.max(max, stageId) : max;
         }, DEFAULT_STAGE_COUNT) + 1;
         hasDailyGoal = Boolean(importedPreset.hasDailyGoal);
+        hasDailyLoop = Boolean(importedPreset.hasDailyLoop);
         rowData = importedPreset.rows.map((row) => ({
             [ROW_ID_FIELD]: nextRowId++,
             ...row,
@@ -500,6 +557,10 @@ export function renderDailyPresetEditor(root, options = {}) {
 
                 if (hasDailyGoal) {
                     record["เป้าหมายประจำวัน"] = row[DAILY_GOAL_FIELD] || "";
+                }
+
+                if (hasDailyLoop) {
+                    record["จำนวนรอบการเล่น"] = normalizeDailyLoop(row[DAILY_LOOP_FIELD]);
                 }
 
                 stageFields.forEach((field, index) => {
@@ -531,6 +592,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         const columns = [
             "วันที่",
             ...(hasDailyGoal ? ["เป้าหมายประจำวัน"] : []),
+            ...(hasDailyLoop ? ["จำนวนรอบการเล่น"] : []),
             ...stageFields.map((_, index) => `ด่านที่ ${index + 1}`),
         ];
         const gameReferenceRecords = getCsvGameReferenceRecords();
@@ -575,6 +637,17 @@ export function renderDailyPresetEditor(root, options = {}) {
             ]
             : [];
 
+        const dailyLoopFields = hasDailyLoop
+            ? [
+                {
+                    field: DAILY_LOOP_FIELD,
+                    label: "จำนวนรอบการเล่น",
+                    value: 1,
+                    inputType: "number",
+                },
+            ]
+            : [];
+
         const stageInputFields = stageFields.map((field, index) => ({
             field,
             type: "stage",
@@ -582,7 +655,7 @@ export function renderDailyPresetEditor(root, options = {}) {
             value: null,
         }));
 
-        return [...dailyGoalFields, ...stageInputFields];
+        return [...dailyGoalFields, ...dailyLoopFields, ...stageInputFields];
     };
 
     gridApi = createGrid(gridEl, {
@@ -650,6 +723,7 @@ export function renderDailyPresetEditor(root, options = {}) {
             rowData,
             stageFields,
             hasDailyGoal,
+            hasDailyLoop,
         });
     });
     root.querySelector("[data-delete-preset]")?.addEventListener("click", async () => {
@@ -690,7 +764,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         }
     });
     root.querySelector("[data-add-stage]")?.addEventListener("click", async () => {
-        const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal });
+        const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal, hasDailyLoop });
 
         if (fieldType === "stage") {
             addStage();
@@ -699,6 +773,11 @@ export function renderDailyPresetEditor(root, options = {}) {
 
         if (fieldType === "dailyGoal") {
             addDailyGoal();
+            return;
+        }
+
+        if (fieldType === "dailyLoop") {
+            addDailyLoop();
         }
     });
     root.querySelector("[data-add-day]")?.addEventListener("click", async () => {
@@ -719,6 +798,9 @@ export function renderDailyPresetEditor(root, options = {}) {
         };
         if (hasDailyGoal) {
             nextRow[DAILY_GOAL_FIELD] = values[DAILY_GOAL_FIELD] || "";
+        }
+        if (hasDailyLoop) {
+            nextRow[DAILY_LOOP_FIELD] = normalizeDailyLoop(values[DAILY_LOOP_FIELD]);
         }
         stageFields.forEach((field) => {
             nextRow[field] = values[field] || "";

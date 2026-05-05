@@ -14,8 +14,11 @@ export function showDailyPresetAddFieldPopup(options = {}) {
         return Promise.resolve(null);
     }
 
+    // Future field options: add a hasX flag here, add one radio choice below,
+    // return a stable value, then handle that value in daily-preset-editor.js.
     const {
         hasDailyGoal = false,
+        hasDailyLoop = false,
     } = options;
 
     return new Promise((resolve) => {
@@ -61,6 +64,18 @@ export function showDailyPresetAddFieldPopup(options = {}) {
                         <span>
                             <strong>เพิ่มเป้าหมายประจำวัน</strong>
                             <small>${escapeHtml(hasDailyGoal ? "เพิ่มเป้าหมายประจำวันแล้ว" : "เพิ่มช่องข้อความเป้าหมายประจำวัน")}</small>
+                        </span>
+                    </label>
+                    <label class="daily-preset-add-field-popup__choice ${hasDailyLoop ? "daily-preset-add-field-popup__choice--disabled" : ""}">
+                        <input
+                            type="radio"
+                            name="daily-preset-field-type"
+                            value="dailyLoop"
+                            ${hasDailyLoop ? "disabled" : ""}
+                        >
+                        <span>
+                            <strong>เพิ่มจำนวนรอบการเล่น</strong>
+                            <small>${escapeHtml(hasDailyLoop ? "เพิ่มจำนวนรอบการเล่นแล้ว" : "เพิ่มช่องตัวเลขจำนวนรอบการเล่น")}</small>
                         </span>
                     </label>
                 </div>

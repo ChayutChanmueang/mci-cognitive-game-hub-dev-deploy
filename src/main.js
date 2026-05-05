@@ -753,10 +753,13 @@ document.addEventListener("DOMContentLoaded", () => {
             name: "Preset",
             isNew: true,
         };
+        // Future editor metadata flags: default them here, pass them into
+        // renderDailyPresetEditor, and forward them to saveGameLevelPreset.
         let presetEditorData = {
             rows: null,
             stageFields: null,
             hasDailyGoal: false,
+            hasDailyLoop: false,
         };
 
         if (!isNewPreset) {
@@ -797,6 +800,7 @@ document.addEventListener("DOMContentLoaded", () => {
             initialRows: presetEditorData.rows,
             initialStageFields: presetEditorData.stageFields,
             initialHasDailyGoal: presetEditorData.hasDailyGoal,
+            initialHasDailyLoop: presetEditorData.hasDailyLoop,
             onBack: () => navigateTo(ROUTES.dailyPresetTool),
             onSavePreset: async (presetData) => {
                 const name = String(presetData.name || "").trim();
@@ -818,6 +822,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         rows: presetData.rowData,
                         stageFields: presetData.stageFields,
                         hasDailyGoal: presetData.hasDailyGoal,
+                        hasDailyLoop: presetData.hasDailyLoop,
                     });
 
                     await showPopup({
