@@ -452,16 +452,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                if (selectedGid === "REST001") {
-                    await showPopup({
-                        title: "เกมพัก",
-                        message: "รายการนี้เป็นจุดพักสำหรับ flow หลัก ไม่ได้มีหน้าจอเกมให้เล่นโดยตรง",
-                        confirmText: "รับทราบ",
-                        icon: "info",
-                    });
-                    return;
-                }
-
                 const hasConfirmed = await showPopup({
                     title: "เปิดเกมทดสอบ",
                     message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} โดยไม่บันทึกประวัติใช่หรือไม่`,
@@ -609,11 +599,24 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             // Test-only placeholder: daily game data management tools will be wired here later.
             onTestDailyDataTools: async () => {},
-            onRestNode: async () => {
-                const restGame = await db.getGameByGid("REST001");
+            onRestNode: async (selectedNode) => {
+                const nodeGame = selectedNode?.gameData || null;
+                const restGame = nodeGame?.gid ? nodeGame : await db.getGameByGid("REST001");
 
                 if (!restGame?.gid) {
                     throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการเข้าเกม",
+                    message: `ต้องการเปิดเกม ${restGame?.name || "พัก"} ใช่หรือไม่`,
+                    confirmText: "เริ่มเกม",
+                    cancelText: "ยกเลิก",
+                    icon: "play_circle",
+                });
+
+                if (!hasConfirmed) {
+                    return { cancelled: true };
                 }
 
                 await db.addUserGameHistory({
@@ -624,6 +627,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     rest: true,
                     checkIn: false,
                 });
+
+                persistSelectedGame(restGame);
+                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                removePendingGameHistoryByGid(restGame.gid);
+                navigateTo(getGameRouteHash(restGame));
+                return { redirected: true };
             },
             onCheckInNode: async () => {
                 await db.addUserGameHistory({
