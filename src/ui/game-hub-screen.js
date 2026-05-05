@@ -54,11 +54,15 @@ function escapeHtml(value) {
 
 function normalizeGame(item, index, fallbackCategory = "Attention") {
     const category = String(item?.mci_group || fallbackCategory || "Attention").trim();
+    const name = String(item?.name || `เกมที่ ${index + 1}`).trim();
+    const thName = String(item?.th_name || item?.thName || "").trim();
 
     return {
         id: item?.id ?? `${category}-${index}`,
         gid: String(item?.gid || `${category}-${index}`).trim(),
-        name: String(item?.name || `เกมที่ ${index + 1}`).trim(),
+        name,
+        th_name: thName,
+        displayName: thName || name,
         mci_group: category,
         max_score: item?.max_score ?? null,
         created_at: item?.created_at ?? null,
@@ -309,7 +313,7 @@ function buildDailyProgramNodes(games, restGame) {
         id: `game-${String(game?.gid || index)}`,
         type: "game",
         gid: String(game?.gid || "").trim(),
-        title: game?.name || `เกมที่ ${index + 1}`,
+        title: game?.displayName || game?.th_name || game?.name || `เกมที่ ${index + 1}`,
         gameNumber: index + 1,
         gameData: game,
     }));
@@ -323,7 +327,7 @@ function buildDailyProgramNodes(games, restGame) {
         id: "rest-node",
         type: "rest",
         gid: REST_GAME_GID,
-        title: restGame?.name || "พักยืดเส้นยืดสาย",
+        title: restGame?.displayName || restGame?.th_name || restGame?.name || "พักยืดเส้นยืดสาย",
         gameData: restGame,
         emoji: "🏋️",
     };
@@ -463,11 +467,12 @@ class GameLaunchCard extends HubElement {
 
         const game = node.gameData || {};
         const categoryId = game.mci_group || "Attention";
+        const gameDisplayName = game.displayName || game.th_name || game.name || node.title || "เกมฝึกสมอง";
 
         return `
             <article class="hub-clean-current-card">
                 <p>${escapeHtml(getCategoryLabel(categoryId))}</p>
-                <h2>${escapeHtml(game.name || "เกมฝึกสมอง")}</h2>
+                <h2>${escapeHtml(gameDisplayName)}</h2>
                 <span>${escapeHtml(getCategoryDescription(categoryId))}</span>
                 <md-outlined-button data-hub-launch-game type="button">เริ่มเกม</md-outlined-button>
             </article>
@@ -601,7 +606,7 @@ class HubMapScreen extends HubElement {
         const selectableGames = Array.isArray(this.options.selectableGames) ? this.options.selectableGames : [];
         const menuItems = selectableGames.map((game) => `
             <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
-                <div slot="headline">${escapeHtml(game.name || game.gid || "เกม")}</div>
+                <div slot="headline">${escapeHtml(game.displayName || game.th_name || game.name || game.gid || "เกม")}</div>
                 <div slot="supporting-text">${escapeHtml(game.gid || "")}</div>
             </md-menu-item>
         `).join("");

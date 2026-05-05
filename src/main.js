@@ -45,6 +45,7 @@ const PENDING_GAME_HISTORY_STORAGE = Object.freeze({
 const SELECTED_GAME_STORAGE = Object.freeze({
     gid: "selected_game_gid",
     name: "selected_game_name",
+    thName: "selected_game_th_name",
     group: "selected_game_group",
 });
 
@@ -104,6 +105,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return `${GAME_ROUTE_PREFIX}${gid}/${slug}`;
     };
+
+    const getGameDisplayName = (selectedGame, fallback = "นี้") =>
+        String(
+            selectedGame?.displayName
+                || selectedGame?.th_name
+                || selectedGame?.thName
+                || selectedGame?.name
+                || fallback,
+        ).trim();
 
     const getHubRouteHash = (options = {}) => {
         const scene = options?.scene === "selection" ? "selection" : DEFAULT_HUB_SCENE;
@@ -217,12 +227,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const persistSelectedGame = (selectedGame) => {
         sessionStorage.setItem(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
         sessionStorage.setItem(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
+        sessionStorage.setItem(
+            SELECTED_GAME_STORAGE.thName,
+            String(selectedGame?.th_name || selectedGame?.thName || selectedGame?.displayName || "").trim(),
+        );
         sessionStorage.setItem(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
     };
 
     const getPersistedSelectedGame = () => {
         const gid = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.gid) || "").trim();
         const name = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.name) || "").trim();
+        const thName = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.thName) || "").trim();
         const mciGroup = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.group) || "").trim();
 
         if (!gid || !name) {
@@ -232,6 +247,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return {
             gid,
             name,
+            th_name: thName,
+            displayName: thName || name,
             mci_group: mciGroup || "Attention",
         };
     };
@@ -306,6 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.gid);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.name);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.thName);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.group);
     };
 
@@ -402,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
             onLaunchGame: async (selectedGame) => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการเข้าเกม",
-                    message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} ใช่หรือไม่`,
+                    message: `ต้องการเปิดเกม ${getGameDisplayName(selectedGame)} ใช่หรือไม่`,
                     confirmText: "เริ่มเกม",
                     cancelText: "ยกเลิก",
                     icon: "play_circle",
@@ -454,7 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const hasConfirmed = await showPopup({
                     title: "เปิดเกมทดสอบ",
-                    message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} โดยไม่บันทึกประวัติใช่หรือไม่`,
+                    message: `ต้องการเปิดเกม ${getGameDisplayName(selectedGame)} โดยไม่บันทึกประวัติใช่หรือไม่`,
                     confirmText: "เปิดเกม",
                     cancelText: "ยกเลิก",
                     icon: "sports_esports",

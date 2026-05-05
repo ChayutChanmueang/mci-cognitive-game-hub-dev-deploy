@@ -342,7 +342,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(GAME_LIST_TABLE)
-            .select("id, gid, name, mci_group, created_at")
+            .select("id, gid, name, th_name, mci_group, created_at")
             .order("created_at", { ascending: true });
 
         if (error) {
@@ -367,7 +367,7 @@ class Database {
         const rangeEnd = offset + pageSize - 1;
         const { data, error, count } = await client
             .from(GAME_LIST_TABLE)
-            .select("id, gid, name, mci_group, max_score, created_at", { count: "exact" })
+            .select("id, gid, name, th_name, mci_group, max_score, created_at", { count: "exact" })
             .eq("mci_group", parsedGroup)
             .order("created_at", { ascending: true })
             .range(offset, rangeEnd);
@@ -400,7 +400,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(GAME_LIST_TABLE)
-            .select("id, gid, name, mci_group, created_at")
+            .select("id, gid, name, th_name, mci_group, created_at")
             .eq("gid", parsedGid)
             .maybeSingle();
 
