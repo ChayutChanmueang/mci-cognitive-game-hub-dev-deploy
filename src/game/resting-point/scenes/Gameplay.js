@@ -1,300 +1,54 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import Entity from "../entity/entity";
-import DraggableComponent from "../components/scripts/draggable";
-import SocketComponent from "../components/scripts/socket";
-import EntityGrid from "../entity/entityGrid";
-import NonDraggableComponent from "../components/scripts/non-draggable";
 import { Difficulty, GameLevels, Config } from "../constants";
-import SolutionSocketComponent from "../components/scripts/solutionSocket";
-import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
 
-import LevelGenerator from "../components/scripts/level-generator";
-
 import EmojiRenderer from "../components/scripts/emoji-renderer";
+import CircleButton from "../entity/script/circleButton";
+import SpriteRenderer from "../components/scripts/sprite-renderer";
+
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
     super("gameplay-scene");
-    this.stage = 1;
-    this.allScore = 0;
-    this.isGameEnded = false;
-    this.levelGenerator = new LevelGenerator();
+    this.maxPush = 20
+    this.currentPush = 0;
   }
 
   preload() {
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
+    
+    this.load.image('stretch_left', 'assets/resting-point/stretch_left.png')
+    this.load.image('stretch_right', 'assets/resting-point/stretch_right.png')
   }
 
   create(data) {
-    this.sceneData = { ...data };
-    this.level = data.level || Difficulty.EASY;
-    this.stage = 1;
-    this.allScore = 0;
-    this.isGameEnded = false;
-
-    this.constructGrid(true);
-
-    this.gameStartedAt = new Date();
-    this.gameEndedAt = new Date();
-
-    this.gameplayUI = new GameplayUI(this, 0, 0);
-    
-    // Hide old internal Phaser UI
-    this.gameplayUI.uiBackground.setVisible(false);
-    this.gameplayUI.currentScore.setVisible(false);
-    this.gameplayUI.currentLives.setVisible(false);
-
-    // Initial HUD State
-    const maxRound = Config.MaxRound[this.level];
-    const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
-    EventBus.emit('minigame:score', { score: this.allScore });
-    EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}/${maxRound}` });
-    EventBus.emit('minigame:tick', { timeLeft: maxTimeS, maxTime: maxTimeS });
-
-    this.events.on('socketFilled', (socketComponent, entity) => {
-      if (this.isGameEnded) return;
-
-      console.log(`Locked into ${socketComponent.name}`);
-      if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
-        var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
-        if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
-          console.log("Correct Socket");
-          if (this.checkIfAllSocketIsFilledCorrectly()) {
-            console.log("Game Complete");
-            this.handleRoundComplete();
-          }
-        }
+    this.button = new CircleButton(this,this.scale.width/2,750,100,() => {
+      this.currentPush++;
+      console.log("Current Push : " + this.currentPush + "/" + this.maxPush);
+      if(this.currentPush%2 == 0){
+        this.spriteRenderer.changeSprite('stretch_left');
+      }
+      else{
+        this.spriteRenderer.changeSprite('stretch_right');
+      }
+      if(this.currentPush >= this.maxPush){
+        this.onGameOver();
       }
     });
 
-    this.levelStartTime = this.time.now;
-    this.levelIsActive = true;
+    this.sprite = new Entity(this,this.scale.width/2,500,'stretch_left');
+    this.spriteRenderer = this.sprite.addComponent(SpriteRenderer,'stretch_left');
+    this.spriteRenderer.changeSprite('stretch_left');
   }
 
-  handleRoundComplete() {
-    if (this.isGameEnded) return;
-
-    const maxRound = Config.MaxRound[this.level];
-    const addScore = Config.IncreaseScore[this.level];
-    this.allScore += addScore;
-
-    EventBus.emit('minigame:score', { score: this.allScore });
-
-    if (this.stage < maxRound) {
-        this.stage++;
-        EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}/${maxRound}` });
-        
-        // Show brief success feedback before next round
-        this.time.delayedCall(1000, () => {
-            this.constructGrid(true);
-        });
-    } else {
-        this.onGameOver("success");
-    }
-  }
-
-  onGameOver(status = "success") {
-    if (this.isGameEnded) return;
-    this.isGameEnded = true;
-    this.levelIsActive = false;
-    this.gameEndedAt = new Date();
-
-    const finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
-    
-    this.gameplayUI.showGameOverPanel(finalTime);
-    EventBus.emit('minigame:game-over', { 
-      score: this.allScore, 
-      level: getDifficultyLevelNumber(this.level) 
-    });
+  onGameOver() {
+    console.log("Complete");
   }
 
   update() {
-    if (this.isGameEnded || !this.levelIsActive) return;
-
-    const elapsePlaytimeMS = this.time.now - this.levelStartTime;
-    const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);
     
-    const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
-    EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
-
-    if (elapsePlaytimeMS >= Config.TimeLimitMs) {
-      this.onGameOver("failure");
-    }
-  }
-
-  constructGrid(isProcedural = false) {
-    if (this.grid) {
-        this.grid.destroy();
-    }
-
-    var _gridConfig, _level, _solution;
-
-    if (isProcedural) {
-      const baseConfig = this.configMaker(this.level, this.stage);
-      const generatedData = this.levelGenerator.generate(baseConfig, this.stage);
-      _gridConfig = generatedData.GRIDCONFIG;
-      _level = generatedData.LEVEL;
-      _solution = generatedData.SOLUTION;
-    } else {
-      _gridConfig = GameLevels[Difficulty.EASY][0].GRIDCONFIG;
-      _level = GameLevels[Difficulty.EASY][0].LEVEL;
-      _solution = GameLevels[Difficulty.EASY][0].SOLUTION;
-    }
-
-    this.levelSolution = _solution;
-
-    // Adjust grid position based on screen width
-    const gridX = (this.scale.width - (_gridConfig.width || 900)) / 2;
-    this.grid = new EntityGrid(this, gridX, 450, _gridConfig);
-
-    let currentEntity = 0;
-    let currentCorrectSocket = 0;
-
-    for (let i = 0; i < _gridConfig.columns; i++) {
-      for (let j = 0; j < _gridConfig.rows; j++) {
-        const cell = new Entity(this, 0, 0, '__WHITE');
-        cell.setTint(0xffffff);
-        cell.alpha = 0.05;
-        const socket = cell.addComponent(SocketComponent, `Socket ${i},${j}`);
-        this.grid.addEntityAt(i, j, cell);
-
-        if (currentEntity < _level.length) {
-          if (_level[currentEntity].POS.X === i && _level[currentEntity].POS.Y === j) {
-            if (_level[currentEntity].DRAGGABLE) {
-              const box = new Entity(this, 0, 0, '__WHITE');
-              box.setTint(_level[currentEntity].Color);
-              box.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
-              box.setDepth(100);
-              
-              const drag = box.addComponent(DraggableComponent);
-              const data = box.addComponent(DraggableDataComponent, _level[currentEntity]);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                box.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
-
-              socket.attach(box);
-              drag.currentSocket = socket;
-              data.socket = socket;
-            } else {
-              const blocker = new Entity(this, 0, 0, '__WHITE');
-              blocker.setTint(_level[currentEntity].Color);
-              blocker.alpha = 0.6;
-              blocker.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
-              blocker.setDepth(100);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                blocker.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
-              
-              blocker.addComponent(NonDraggableComponent, socket);
-            }
-            currentEntity++;
-          }
-        }
-        
-        if (currentCorrectSocket < _solution.length) {
-          if (_solution[currentCorrectSocket].POS.X === i && _solution[currentCorrectSocket].POS.Y === j) {
-            cell.addComponent(SolutionSocketComponent, _solution[currentCorrectSocket]);
-            currentCorrectSocket++;
-          }
-        }
-      }
-    }
-    this.grid.sort('depth');
-  }
-
-  configMaker(_Difficulty = Difficulty.EASY, _Level = 1) {
-    var config = {
-      width: 900,
-      height: 900,
-      columns: 0,
-      rows: 0,
-      padding: 0,
-      itemCount: 0,
-      showSymmetryLine: true,
-      symmetryType: null
-    };
-    switch (_Difficulty) {
-      case Difficulty.EASY:
-        config.columns = 4;
-        config.rows = 4;
-        config.itemCount = Math.min(5, 3 + Math.floor((_Level - 1) / 2));
-        config.symmetryType = ['L-R', 'T-B'][Math.floor(Math.random() * 2)];
-        break;
-      case Difficulty.NORMAL:
-        config.columns = (_Level % 2 !== 0) ? 4 : 6;
-        config.rows = config.columns;
-        config.itemCount = Math.min(8, 3 + Math.floor((_Level - 1) / 2));
-        let normalModes = ['L-R', 'T-B'];
-        if (_Level >= 5) normalModes = ['L-R', 'T-B', 'R-L', 'B-T', 'QUADRANT'];
-        else if (_Level >= 3) normalModes = ['L-R', 'T-B', 'R-L', 'B-T'];
-        config.symmetryType = normalModes[Math.floor(Math.random() * normalModes.length)];
-        break;
-      case Difficulty.HARD:
-        if (_Level >= 7) {
-          const cycle = _Level % 3;
-          if (cycle === 1) { config.columns = 4; config.rows = 4; }
-          else if (cycle === 2) { config.columns = 6; config.rows = 6; }
-          else { config.columns = 8; config.rows = 6; }
-        } else {
-          config.columns = (_Level % 2 !== 0) ? 4 : 6;
-          config.rows = config.columns;
-        }
-        config.itemCount = Math.min(8, 3 + Math.floor((_Level - 1) / 2));
-        let hardModes = ['L-R', 'T-B', 'R-L', 'B-T', 'QUADRANT', 'FOUR_WAY', 'DIAGONAL'];
-        if (config.columns !== config.rows) {
-          hardModes = hardModes.filter(mode => mode !== 'FOUR_WAY' && mode !== 'DIAGONAL');
-        }
-        config.symmetryType = hardModes[Math.floor(Math.random() * hardModes.length)];
-        break;
-    }
-
-    // Ensure cells are square by adjusting height based on the column/row ratio
-    if (config.columns > 0 && config.rows > 0) {
-        config.height = config.width * (config.rows / config.columns);
-    }
-
-    return config;
-  }
-
-  checkIfAllSocketIsFilledCorrectly() {
-    const _solution = this.levelSolution;
-    for (var i = 0; i < _solution.length; i++) {
-      const cell = this.grid.getEntityAt(_solution[i].POS.X, _solution[i].POS.Y);
-      const socket = cell.getComponent(SocketComponent);
-      const solution = cell.getComponent(SolutionSocketComponent);
-      
-      if (!socket.occupant) return false;
-      if (!solution.checkEntity(socket.occupant.getComponent(DraggableDataComponent))) return false;
-    }
-    return true;
-  }
-
-  createButton(x, y, text, onClick) {
-    const bg = this.add.rectangle(x, y, 200, 60, 0x00aa00, 1).setInteractive({ useHandCursor: true });
-    bg.setScale(1.5);
-    const label = this.add.text(x, y, text, {
-      fontSize: '28px', fontStyle: 'bold'
-    }).setOrigin(0.5);
-    label.setScale(1.5);
-
-    bg.on('pointerdown', onClick);
-
-    bg.on('pointerover', () => bg.setFillStyle(0x00ff00));
-    bg.on('pointerout', () => bg.setFillStyle(0x00aa00));
-
-    return [bg, label];
   }
 }

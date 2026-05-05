@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 
-import MainMenuScene from './scenes/MainMenu';
+//import MainMenuScene from './scenes/MainMenu';
 import GameplayScene from './scenes/Gameplay';
 import { Boot } from './scenes/Boot';
 import { Preloader } from './scenes/Preloader';
@@ -24,11 +24,11 @@ const config = {
         default: 'arcade', 
         arcade: {
             gravity: { y: 0 }, // 0 for top-down, 300 for platformers
-            debug: false      // Keep this true while debugging!
+            debug: true      // Keep this true while debugging!
         }
     },
     scene: [
-        MainMenuScene,
+        //MainMenuScene,
         GameplayScene,
         Boot,
         Preloader,
