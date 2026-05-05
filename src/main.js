@@ -862,7 +862,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     return false;
                 }
 
+                await db.validatePatientSignupDependencies(formData);
                 const createdPatient = await db.createPatientProfile(formData);
+
+                try {
+                    await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
+                } catch (error) {
+                    // TODO: Replace this client-side compensation with a Supabase RPC transaction
+                    // that creates user_patient_data and user_game_profile_data atomically.
+                    console.error("Unable to create user game profile after patient signup:", error);
+                    try {
+                        await db.deletePatientProfileByHn({ hn: createdPatient?.hn || formData?.hn });
+                    } catch (rollbackError) {
+                        console.error("Unable to rollback patient after game profile failure:", rollbackError);
+                    }
+                    throw error;
+                }
+
                 await rememberPatientSession(createdPatient);
                 sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
                 sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);

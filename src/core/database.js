@@ -9,8 +9,11 @@ const USER_GAME_DATA_TABLE = "user_game_data";
 const USER_GAME_HISTORY_TABLE = "user_game_history";
 const USER_EVENT_LOG_TABLE = "user_event_log";
 const USER_PATIENT_DATA_TABLE = "user_patient_data";
+const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
+const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
 const DEFAULT_GAME_PAGE_SIZE = 10;
+const DEFAULT_GAME_PROFILE_PROGRAM_ID = 2;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
     START_PLAY_GAME: "SPG",
@@ -334,6 +337,142 @@ class Database {
         }
 
         return data || payload;
+    }
+
+    async validatePatientSignupDependencies({
+        hn,
+        phone,
+        defaultProgramId = DEFAULT_GAME_PROFILE_PROGRAM_ID,
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedPhone = normalizeThaiPhoneNumber(phone);
+        const parsedProgramId = Number(defaultProgramId);
+
+        if (!parsedHn) {
+            throw new Error("Missing patient ID");
+        }
+
+        if (!parsedPhone) {
+            throw new Error("กรุณากรอกเบอร์โทร");
+        }
+
+        if (!isCompleteThaiPhoneNumber(parsedPhone)) {
+            throw new Error("กรุณากรอกเบอร์โทร 10 หลัก");
+        }
+
+        if (!Number.isInteger(parsedProgramId) || parsedProgramId <= 0) {
+            throw new Error("Invalid default game profile program");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const [
+            patientResult,
+            phoneResult,
+            profileResult,
+            programResult,
+        ] = await Promise.all([
+            client
+                .from(USER_PATIENT_DATA_TABLE)
+                .select("id")
+                .eq("hn", parsedHn)
+                .maybeSingle(),
+            client
+                .from(USER_PATIENT_DATA_TABLE)
+                .select("id")
+                .eq("phone", parsedPhone)
+                .maybeSingle(),
+            client
+                .from(USER_GAME_PROFILE_DATA_TABLE)
+                .select("id")
+                .eq("hn", parsedHn)
+                .maybeSingle(),
+            client
+                .from(GAME_LEVEL_PRESET_LIST_TABLE)
+                .select("id")
+                .eq("id", parsedProgramId)
+                .maybeSingle(),
+        ]);
+
+        if (patientResult.error) {
+            throw patientResult.error;
+        }
+
+        if (phoneResult.error) {
+            throw phoneResult.error;
+        }
+
+        if (profileResult.error) {
+            throw profileResult.error;
+        }
+
+        if (programResult.error) {
+            throw programResult.error;
+        }
+
+        if (patientResult.data?.id) {
+            throw new Error("Patient ID นี้ถูกใช้งานแล้ว");
+        }
+
+        if (phoneResult.data?.id) {
+            throw new Error("เบอร์โทรนี้ถูกใช้งานแล้ว");
+        }
+
+        if (profileResult.data?.id) {
+            throw new Error("Game profile นี้ถูกสร้างไว้แล้ว");
+        }
+
+        if (!programResult.data?.id) {
+            throw new Error("Default game profile program does not exist");
+        }
+
+        return true;
+    }
+
+    async createUserGameProfile({ hn }) {
+        const parsedHn = String(hn || "").trim();
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .insert([{ hn: parsedHn }])
+            .select("id, hn, program, created_at")
+            .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || { hn: parsedHn };
+    }
+
+    async deletePatientProfileByHn({ hn }) {
+        const parsedHn = String(hn || "").trim();
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { error } = await client
+            .from(USER_PATIENT_DATA_TABLE)
+            .delete()
+            .eq("hn", parsedHn);
+
+        if (error) {
+            throw error;
+        }
+
+        return true;
     }
 
     async getGameList() {
