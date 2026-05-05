@@ -324,6 +324,7 @@ function buildDailyProgramNodes(games, restGame) {
         type: "rest",
         gid: REST_GAME_GID,
         title: restGame?.name || "พักยืดเส้นยืดสาย",
+        gameData: restGame,
         emoji: "🏋️",
     };
     const checkInNode = {
@@ -812,7 +813,10 @@ export async function renderGameHubScreen(root, options = {}) {
                     }
 
                     if (selectedNode?.type === "rest") {
-                        await onRestNode(selectedNode);
+                        const result = await onRestNode(selectedNode);
+                        if (result?.redirected || result?.cancelled) {
+                            return;
+                        }
                         await loadPlayedHistory(true);
                         return;
                     }
