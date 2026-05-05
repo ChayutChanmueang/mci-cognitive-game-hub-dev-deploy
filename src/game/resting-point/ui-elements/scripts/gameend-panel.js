@@ -18,7 +18,7 @@ export default class GameEndPanel extends UIPage {
             scene,
             0,
             -200,
-            "สรุปผลการเล่น",
+            "เก่งมาก !!!",
             {
                 fontSize: "72px",
                 fontStyle: "bold",
@@ -31,17 +31,17 @@ export default class GameEndPanel extends UIPage {
             scene,
             0,
             0,
-            "จำนวนด่านที่ผ่าน: 0",
+            "ยืดเส้นยืดสายเสร็จแล้วกลับไปเล่นเกมกันต่อ",
             {
                 fontSize: "48px",
                 fontStyle: "bold",
                 color: Theme.colors.onSurface,
             },
-            { origin: 0.5 },
+            { origin: 0.5, wrapWidth: 700 },
         );
 
         this.homeBtn = this.createButton(0, 225, "กลับหน้าหลัก", () => {
-            this.scene.scene.start('main-menu-scene');
+            //this.scene.scene.start('main-menu-scene');
         });
 
         this.addElements([this.titleText, this.scoreText, ...this.homeBtn]);
