@@ -4,6 +4,8 @@ import Clickable from "../../components/scripts/clickable";
 import TriggerListener from "../../components/scripts/trigger-listener";
 import { FoodTypes, FoodSpriteLibrary } from "../../constants";
 import SpriteRenderer from "../../components/scripts/sprite-renderer";
+import ShadowComponent from "../../components/scripts/shadow";
+import TextPopup from "./popup-text";
 
 export default class Fruit extends Entity {
     constructor(scene, x, y, converyerBelt = null, sizeScale = 1) {
@@ -48,7 +50,9 @@ export default class Fruit extends Entity {
                     callbackScope: this,
                     loop: false
                 })
-                this.converyerBelt.onRemoveFood(this.currentFoodType);
+                if(!this.converyerBelt.onRemoveFood(this.currentFoodType)){
+                    new TextPopup(this.scene,this.x,this.y,"ทิ้งทำไม","#ff0000");
+                }
             }
         })
 
@@ -58,6 +62,8 @@ export default class Fruit extends Entity {
             }
             this.destroy();
         })
+
+        this.addComponent(ShadowComponent,{radius: 100,alpha: 0.2,offset: - 25});
 
         this.setCollideWorldBounds(true);
     }
