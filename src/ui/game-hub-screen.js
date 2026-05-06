@@ -532,8 +532,8 @@ export async function renderGameHubScreen(root, options = {}) {
         if (node.type === "checkin") {
             return `
                 <article class="hub-clean-current-card">
-                    <p>ภารกิจครบแล้ว</p>
-                    <h2>เช็คชื่อ</h2>
+                    <p>เล่นเกมครบทั้งหมดแล้ว</p>
+                    <h2>เช็คชื่อแล้ว</h2>
                     <span>ยินดีด้วยคุณเล่นเกมครบแล้ว รอเล่นเกมวันถัดไปนะ</span>
                 </article>
             `;
@@ -713,7 +713,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
             const dailyProgram = await loadProgramWindow({
                 windowBefore: 2,
-                windowAfter: 1,
+                windowAfter: 0,
             });
 
             state.dailyProgram = dailyProgram || null;
@@ -897,9 +897,26 @@ export async function renderGameHubScreen(root, options = {}) {
 
         const sections = buildDaySections(state.programDays, state.restGame);
         const currentSection = getCurrentDaySection(sections);
-        const dayHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), currentDay);
         const playableNodes = getPlayableNodes(currentSection.nodes);
-        if (!playableNodes.length || getSequentialCompletedCount(playableNodes, dayHistory) < playableNodes.length) {
+        if (!playableNodes.length) {
+            return;
+        }
+
+        const currentDate = getProgramDayDate(getStartedProgram(), currentDay);
+        const checkInRecord = await db.getUserCheckInHistoryForDate({
+            hn: patientHn,
+            date: currentDate,
+        });
+        if (!checkInRecord?.id) {
+            return;
+        }
+
+        const completionStatus = await db.hasCompletedGameHubNodesForDate({
+            hn: patientHn,
+            nodes: playableNodes,
+            date: currentDate,
+        });
+        if (!completionStatus.complete) {
             return;
         }
 
