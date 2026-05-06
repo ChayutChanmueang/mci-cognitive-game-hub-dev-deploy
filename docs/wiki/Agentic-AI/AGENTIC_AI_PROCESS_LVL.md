@@ -1,64 +1,64 @@
-# 🤖 Agentic AI Implementation Process (Levels of Usage)
+# 🎮 Agentic AI Implementation: Game Dev Maturity Model
 
-**Version:** 1.0 | **Last Updated:** 2026-05-06 | **Owner:** Project Developer
+**Version:** 1.1 | **Last Updated:** 2026-05-06 | **Owner:** Project Developer
 
-เอกสารฉบับนี้อธิบายถึงกระบวนการและระดับการใช้งาน Agentic AI ในโปรเจค MCI Cognitive Games เพื่อเพิ่มประสิทธิภาพในการพัฒนา ลดการใช้ Token และรักษามาตรฐานของคุณภาพโค้ด
-
----
-
-## 📊 AI Usage Levels (LvL)
-
-เราแบ่งการใช้งาน AI ออกเป็น 4 ระดับ ตามความซับซ้อนและประสิทธิภาพ:
-
-### 🛡️ LvL 1: Foundation (Basic Rules)
-ระดับพื้นฐานที่ใช้ควบคุมพฤติกรรมของ AI ผ่านไฟล์กฎเกณฑ์ส่วนกลาง ช่วยให้ AI เข้าใจบริบทของโปรเจคทันทีที่เริ่มเซสชัน
-- **ไฟล์สำคัญ**:
-  - `AGENTS.md`: กำหนดแนวทางหลักของโปรเจค ข้อมูลสแต็กเทคโนโลยี และคำสั่งที่จำเป็น
-  - `.agents/rules/`: เก็บกฎเฉพาะทาง เช่น กฎการใช้ Graphify
-- **ประโยชน์**: AI สามารถเริ่มงานได้ทันทีโดยไม่ต้องถามซ้ำเกี่ยวกับโครงสร้างโปรเจคหรือคำสั่งพื้นฐาน
-
-### 🧩 LvL 2: Specialized Skills (Domain Expertise)
-การเพิ่มความสามารถเฉพาะทางให้กับ AI ผ่านระบบ Skill ที่ปรับแต่งมาเพื่อโปรเจคนี้โดยเฉพาะ
-- **Location**: `.agents\skills\**`
-- **Skills ที่ใช้งานหลัก**:
-  - `phaser-best-practices` / `writing-phaser-3-games`: สำหรับการเขียนโค้ดเกมที่มีประสิทธิภาพและถูกต้องตาม Lifecycle
-  - `javascript-mastery`: สำหรับมาตรฐานโค้ด JS และการแก้ปัญหา Logic ที่ซับซับซ้อน
-  - `game-ui-ux-web`: สำหรับการออกแบบ UI ด้วย Material UI (MUI) และการเชื่อมต่อกับ Phaser
-  - `game-doc-manager`: สำหรับการรักษาความสอดคล้องของเอกสารทั้งหมด
-- **ประโยชน์**: AI ทำงานได้เหมือนผู้เชี่ยวชาญในแต่ละสาขา ลดข้อผิดพลาดทางเทคนิค (Syntax/Pattern)
-
-### 📉 LvL 3: Token Reduction & Efficiency (Knowledge Graph)
-การใช้เครื่องมือวิเคราะห์โค้ดเบสเพื่อลดการอ่านไฟล์ซ้ำซ้อนและประหยัด Context Window
-- **Tool**: `graphify` (กำหนดใน `@.agents/workflows/graphify.md`)
-- **กระบวนการ**:
-  - ใช้ Graphify สร้าง Knowledge Graph ของโค้ดเบสไว้ที่ `graphify-out/`
-  - AI จะใช้ `GRAPH_REPORT.md` เพื่อทำความเข้าใจ "God Nodes" และโครงสร้างความสัมพันธ์ของ Community แทนการไล่หาไฟล์ด้วย `grep`
-  - **ประโยชน์**: ลดการใช้ Token อย่างมหาศาล และทำให้ AI เห็นภาพรวมสถาปัตยกรรม (High-level architecture) ได้แม่นยำกว่าการอ่านไฟล์ทีละไฟล์
-
-### 📝 LvL 4: Integrated Documentation (Design-Driven Development)
-ระดับสูงสุดคือการใช้เอกสารงานออกแบบและบริหารจัดการเป็น "Source of Truth" ในการสั่งงาน AI
-- **เอกสารที่เกี่ยวข้อง**:
-  - **GDD (Game Design Document)**: ควบคุม "What" (Concept, Mechanics, Art)
-  - **Software Design**: ควบคุม "How" (System Design, Class Diagram, Schema)
-  - **Agile Management**: ควบคุม "When" (Product Backlog, Sprint Planning, User Stories)
-- **กระบวนการ**: AI จะไม่อ้างอิงแค่โค้ดเดิม แต่จะอ่าน GDD และ Software Design เพื่อให้แน่ใจว่าฟีเจอร์ใหม่ตรงตามงานออกแบบ และอัปเดต Backlog/Sprint อัตโนมัติเมื่อทำงานเสร็จ
-- **ประโยชน์**: มั่นใจได้ว่าโค้ดที่พัฒนาขึ้นตรงตามความต้องการทางธุรกิจ (Business Requirements) และเอกสารโครงการจะไม่ล้าสมัย (Always Sync)
+เอกสารฉบับนี้อธิบายถึงระดับความเชี่ยวชาญและการประยุกต์ใช้ Agentic AI ในกระบวนการพัฒนาเกม MCI Cognitive Games เพื่อให้ AI ทำงานได้เสมือนเป็น "ทีมงานที่มีประสิทธิภาพ" มากกว่าเป็นแค่เครื่องมือพิมพ์ข้อความ
 
 ---
 
-## 🛠 วิธีการใช้งานในเซสชัน
-เมื่อต้องการให้ AI ทำงานในระดับต่างๆ สามารถสั่งการได้ดังนี้:
-1. **LvL 2**: "ใช้ skill [ชื่อ skill] เพื่อช่วยออกแบบ..."
-2. **LvL 3**: "อ้างอิงจาก graphify report เพื่อหาจุดที่ต้องแก้ไข..."
-3. **LvL 4**: "ตรวจสอบ GDD และ Software Design ก่อนเริ่มเขียนโค้ด..."
+## 📊 4 Levels of AI Maturity (ระดับการใช้งาน)
+
+เราแบ่งการทำงานของ AI ออกเป็น 4 ระดับตามความซับซ้อนของ Context และความสามารถในการตัดสินใจ:
+
+### 🛡️ LvL 1: The Junior (Foundation & Rules)
+**ระดับพื้นฐาน**: AI เข้าใจบริบทกว้างๆ ของโปรเจคและปฏิบัติตามกฎเหล็กของทีม
+*   **Context**: รู้ว่านี่คือโปรเจคเกมอะไร, ใช้ Stack อะไร (Phaser 3, Vite, React) และต้องรันคำสั่งอะไร
+*   **Tools**: `AGENTS.md`, `.agents/rules/`
+*   **Game Dev Example**: "ช่วยสร้าง Phaser Scene พื้นฐานสำหรับด่านใหม่ โดยใช้ความละเอียด 800x600 ตามที่ระบุใน AGENTS.md"
+
+### 🧩 LvL 2: The Specialist (Domain Expertise)
+**ระดับเชี่ยวชาญเฉพาะทาง**: AI เข้าถึงคลังความรู้ (Skill) เฉพาะด้านเพื่อเขียนโค้ดที่ซับซ้อนและมีประสิทธิภาพ
+*   **Context**: เข้าใจ Patterns เฉพาะทาง เช่น Object Pooling, Scene Lifecycle, และการทำ Responsive UI สำหรับมือถือ
+*   **Tools**: `.agents/skills/` (e.g., `phaser-best-practices`, `game-ui-ux-web`)
+*   **Game Dev Example**: "ใช้ skill `phaser-best-practices` เพื่อสร้างระบบกระสุน (Projectiles) โดยใช้ระบบ Object Pooling เพื่อไม่ให้เกมกระตุกเวลาเล่นบนมือถือ"
+
+### 📉 LvL 3: The Architect (Structural Efficiency)
+**ระดับสถาปนิก**: AI มองเห็นภาพรวมความสัมพันธ์ของโค้ดทั้งโปรเจค (High-level architecture) และทำงานได้อย่างคุ้มค่า Token
+*   **Context**: เข้าใจ Dependency ของ Module ต่างๆ, รู้ว่าจุดไหนเป็น "God Node" ที่ห้ามแตะต้อง และสามารถวิเคราะห์ผลกระทบ (Impact Analysis) ได้
+*   **Tools**: `graphify`, Knowledge Graphs, `graphify-out/GRAPH_REPORT.md`
+*   **Game Dev Example**: "ตรวจสอบ Knowledge Graph ว่าการแก้ไข `VoiceService` จะส่งผลกระทบต่อมินิเกมด่านไหนบ้าง ก่อนที่จะทำการ Refactor โค้ดทั้งหมด"
+
+### 📝 LvL 4: The Producer (Design-Driven Development)
+**ระดับสูงสุด**: AI ทำงานโดยอ้างอิงจาก "ความต้องการทางธุรกิจและงานออกแบบ" เป็นหลัก (Source of Truth)
+*   **Context**: เชื่อมโยงโค้ดเข้ากับ GDD, Software Design และ Agile Backlog อย่างสมบูรณ์
+*   **Tools**: `docs/gdd/`, `docs/software/`, `docs/agile/`
+*   **Game Dev Example**: "อ่านเอกสาร GDD ของเกม 'Zoo Feeder', ตรวจสอบโครงสร้างฐานข้อมูลใน Software Design, แล้วทำการ Implement ฟีเจอร์เก็บคะแนนพร้อมอัปเดต Product Backlog เมื่อเสร็จสิ้น"
+
+---
+
+## 🤖 Core Operational Workflow (วงจรการทำงาน)
+
+ในทุกระดับ (LvL) AI จะต้องทำงานภายใต้วงจร **Think-then-Execute** เพื่อความปลอดภัย:
+
+1.  **Ask (Inquiry)**: วิจัยข้อมูลจากโค้ดเบสหรืออินเทอร์เน็ต (เช่น "หาตัวอย่างการทำ Drag & Drop ใน Phaser")
+2.  **Plan (Strategy)**: สร้างแผนงานใน `PLAN.md` และรอการอนุมัติ (เช่น "วางแผนแก้ระบบ Collision โดยอ้างอิง GDD")
+3.  **Act (Execution)**: ลงมือแก้ไขโค้ดด้วยเครื่องมือเฉพาะทาง (เช่น `replace`, `write_file`)
+4.  **Validate (Verification)**: ตรวจสอบความถูกต้องเสมอด้วย `npm test` หรือ `tsc` (Zero-Trust Policy)
+
+---
+
+## 🚀 Advanced Mastery: การควบคุม AI ขั้นสูง
+
+1.  **Persistent Memory**: บันทึกการตัดสินใจลงใน `MEMORY.md` เพื่อให้ AI "จำได้" ข้ามเซสชัน ไม่ต้องเริ่มนับหนึ่งใหม่
+2.  **Sub-agents**: แบ่งงานสเกลใหญ่ให้ Agent เฉพาะทาง (เช่น ให้ `codebase_investigator` ไปขุดหา Bug ในขณะที่เราออกแบบฟีเจอร์ใหม่)
+3.  **Strategic Detour**: หาก AI แก้ปัญหาเดิมเกิน 3 รอบไม่สำเร็จ ผู้พัฒนาต้องแทรกแซง (HITL) หรือสั่งให้เปลี่ยนวิธีคิดใหม่ทันที
 
 ---
 
 ## 🔗 Related Documents
-- [🌐 Project Wiki](../wiki.md)
-- [JavaScript Mastery Skill](../wiki/agentic-ai/PROJECT_AGENT_SKILL_USING.md)
-- [System Design](../../software/01-system-design.md)
-- [Product Backlog](../../agile/01-product-backlog.md)
+- [🌐 Project Wiki](../wiki.md) | [🛠️ Specialized Skills Usage](PROJECT_AGENT_SKILL_USING.md)
+- [📘 Game Design (GDD)](../../index.md#game-design-gdd) | [💻 Software Design](../../index.md#software-design)
+- [🚀 Agile Management](../../index.md#agile-management)
 
 ---
 *Generated by Antigravity AI Assistant using game-doc-manager skill.*
