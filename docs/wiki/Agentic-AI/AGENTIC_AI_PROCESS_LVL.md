@@ -52,10 +52,20 @@
 
 ### 🛠️ การเตรียมตัวสำหรับ Multi-agent (Preparation Checklist)
 เพื่อให้ทีม AI ทำงานได้อย่างมีประสิทธิภาพ ผู้พัฒนาควรเตรียมความพร้อมดังนี้:
-*   **Shared Source of Truth**: มั่นใจว่า GDD, Software Design และ AGENTS.md อัปเดตล่าสุด AI ทุกตัวต้อง "เห็นภาพเดียวกัน"
+*   **Shared Source of Truth**: มั่นใจว่า GDD, Software Design และ `GEMINI.md` (หรือ `AGENTS.md`) อัปเดตล่าสุด AI ทุกตัวต้อง "เห็นภาพเดียวกัน"
 *   **Clear Boundaries**: แบ่ง Folder และ Module ให้ชัดเจน (เช่น `src/game/`, `src/ui/`) เพื่อลดการแก้ไขไฟล์ทับซ้อนกันระหว่าง Agent
 *   **Robust Tooling**: เตรียมคำสั่งตรวจสอบอัตโนมัติ (เช่น `npm test`, `npm run lint`) ให้พร้อมใช้งาน เพื่อให้ QA Agent ทำงานได้
-*   **Memory Hooks**: ใช้ `MEMORY.md` บันทึก "การตัดสินใจเชิงสถาปัตยกรรม" เพื่อให้ Agent ตัวใหม่ที่ถูกเรียกมา (Invoked) เข้าใจบริบทได้ทันทีโดยไม่ต้องอ่านโค้ดทั้งหมดใหม่
+
+### 🧠 Memory Tiers: การบริหารจัดการความจำของ Agent
+เราแบ่งระดับความจำออกเป็น 2 ประเภทหลักเพื่อความปลอดภัยและความต่อเนื่อง:
+1.  **Shared Project Memory (Team-Wide)**: 
+    *   **File**: `AGENTS.md` (Committed to Git)
+    *   **Purpose**: เก็บ "การตัดสินใจเชิงสถาปัตยกรรม" (Architecture Decisions) และกฎที่ทุกคนในทีมรวมถึง Agent ทุกตัว (Multi-agent compatible) ต้องปฏิบัติตาม
+    *   **Usage**: บันทึก Context ที่มีผลระยะยาวต่อโปรเจค
+2.  **Private Project Memory (Personal)**:
+    *   **File**: `MEMORY.md` (Not Committed / Local Only)
+    *   **Purpose**: เก็บโน้ตส่วนตัว, การตั้งค่าเฉพาะเครื่อง (Local Setup), หรือบริบทชั่วคราวที่ User ต้องการให้ Agent จำได้เฉพาะในเครื่องนี้
+    *   **Usage**: บันทึกสิ่งที่ "ส่วนตัว" หรือ "ชั่วคราว" ที่ไม่อยากให้ขึ้นไปบน Source Control
 
 ---
 
