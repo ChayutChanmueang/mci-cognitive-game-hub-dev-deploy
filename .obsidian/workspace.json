@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/software/06-ui-design-wireframes.md",
+                "file": "docs/gdd/minigames/gdd_context_clues.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "06-ui-design-wireframes"
+              "title": "gdd_context_clues"
             }
           }
         ]
@@ -33,7 +33,7 @@
       {
         "id": "325a5901e53fb8ec",
         "type": "tabs",
-        "dimension": 73.7583395107487,
+        "dimension": 54.20439844760673,
         "children": [
           {
             "id": "b80327e6fc02f4b7",
@@ -80,7 +80,7 @@
       {
         "id": "32f3ad212bd9a38b",
         "type": "tabs",
-        "dimension": 26.241660489251295,
+        "dimension": 45.79560155239327,
         "children": [
           {
             "id": "d38b6c8f78515a24",
@@ -206,32 +206,33 @@
   },
   "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
-    "docs/gdd/00-concept.md",
-    "docs/software/02-class-diagram.md",
-    "docs/software/01-system-design.md",
     "docs/gdd/01-mechanics.md",
-    "docs/gdd/02-narrative.md",
-    "docs/gdd/03-art-direction.md",
+    "docs/gdd/00-concept.md",
     "docs/gdd/04-audio-direction.md",
-    "docs/software/06-ui-design-wireframes.md",
-    "docs/software/05-voice-service.md",
-    "docs/software/04-ui-components.md",
-    "docs/software/03-data-schema.md",
-    "docs/agile/01-product-backlog.md",
-    "docs/index.md",
-    "docs/agile/meeting-backlogs/2026-04-21.md",
-    "docs/agile/sprint-backlogs/sprint-01.md",
-    "docs/agile/user-stories/US-E2-01.md",
-    "docs/agile/user-stories/US-E1-08.md",
-    "docs/agile/user-stories/US-E1-07.md",
-    "docs/agile/user-stories/US-E1-06.md",
-    "docs/agile/user-stories/US-E1-05.md",
-    "docs/agile/user-stories/US-E1-04.md",
-    "docs/agile/user-stories/US-E1-03.md",
-    "docs/agile/user-stories/US-E1-02.md",
-    "docs/agile/user-stories/US-E1-01.md",
+    "docs/gdd/03-art-direction.md",
+    "docs/gdd/02-narrative.md",
     "docs/agile/sprint-backlogs/sprint-05.md",
+    "docs/agile/meeting-backlogs/2026-05-06.md",
+    "docs/agile/meeting-backlogs/2026-04-14+template.md",
+    "docs/agile/meeting-backlogs/2026-04-21.md",
+    "docs/agile/meeting-backlogs/2026-04-28.md",
+    "docs/agile/meeting-backlogs/2026-04-07.md",
     "docs/agile/02-sprint-planning.md",
+    "docs/agile/01-product-backlog.md",
+    "docs/agile/sprint-backlogs/sprint-04.md",
+    "docs/agile/sprint-backlogs/sprint-03.md",
+    "docs/agile/sprint-backlogs/sprint-02.md",
+    "docs/agile/sprint-backlogs/sprint-01.md",
+    "docs/agile/retrospectives/sprint-04-retro.md",
+    "docs/agile/retrospectives/sprint-03-retro.md",
+    "docs/agile/retrospectives/sprint-02-retro.md",
+    "docs/agile/retrospectives/sprint-01-retro.md",
+    "docs/agile/reports/260531_Final_System_Test_Report.md",
+    "docs/agile/reports/260503_Sprint3_Integration_Test_Report.md",
+    "docs/agile/reports/260502_1640_Minigame_Hotfix_Report.md",
+    "docs/agile/reports/260425_2237_GameLoop_Test01_Report.md",
+    "docs/agile/reports/bugs/BUG-003.md",
+    "screenshot.png",
     "docs/agile/Weekly-Backlogs",
     "docs/agile/reports/polish",
     "docs/agile/reports/qa",
@@ -242,7 +243,6 @@
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/ReplaceSliderConfig.js",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/ReplaceChildrenConfig.js",
     "node_modules/phaser3-rex-plugins/templates/ui/maker/builders/utils/MergeStyle.js",
-    "screenshot.png",
     "Idea.canvas",
     "Untitled.canvas",
     "Untitled 1.canvas"

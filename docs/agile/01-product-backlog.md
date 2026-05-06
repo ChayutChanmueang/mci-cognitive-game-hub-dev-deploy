@@ -29,11 +29,11 @@
 | [US-E2-03](user-stories/US-E2-03.md) | API สำหรับส่งคะแนนและเวลาที่ใช้ในแต่ละเกม | High | S3 | ✅ Done |
 
 ### E3: Accessibility & UX (P2)
-| ID | User Story | Priority | Sprint | Status |
-|---|---|---|---|---|
-| [US-E3-01](user-stories/US-E3-01.md) | ปรับแต่งขนาด Font และปุ่มสำหรับผู้สูงอายุ (Standard) | High | S2 | 🏗 In-Progress |
-| [US-E3-02](user-stories/US-E3-02.md) | ระบบ Voice Over คำแนะนำการเล่นเกม | Low | S4 | 🏗 In-Progress |
-| [US-E3-03](user-stories/US-E3-03.md) | ระบบ Game Hub และการนำทาง (Navigation) | High | S2 | ✅ Done |
+| ID                                   | User Story                                           | Priority | Sprint | Status         |
+| ------------------------------------ | ---------------------------------------------------- | -------- | ------ | -------------- |
+| [US-E3-01](user-stories/US-E3-01.md) | ปรับแต่งขนาด Font และปุ่มสำหรับผู้สูงอายุ (Standard) | High     | S2     | 🏗 In-Progress |
+| [US-E3-02](user-stories/US-E3-02.md) | ระบบ Voice Over คำแนะนำการเล่นเกม                    | Low      | S4     | 🏗 In-Progress |
+| [US-E3-03](user-stories/US-E3-03.md) | ระบบ Game Hub และการนำทาง (Navigation)               | High     | S2     | ✅ Done         |
 
 ---
 

@@ -7,12 +7,12 @@
 
 ## 📋 Backlog
 
-| Priority | Feature/Task | Description | Status |
-| :--- | :--- | :--- | :--- |
-| P1 | Bug Fixes | Fix critical issues found during final testing. | To Do |
-| P1 | Feedback Loop | Incorporate feedback from initial user sessions. | To Do |
-| P2 | Documentation | Finalize system documentation. | To Do |
-| P3 | Performance | General performance tuning. | To Do |
+| Priority | Feature/Task  | Description                                      | Status |
+| :------- | :------------ | :----------------------------------------------- | :----- |
+| P1       | Bug Fixes     | Fix critical issues found during final testing.  | To Do  |
+| P1       | Feedback Loop | Incorporate feedback from initial user sessions. | To Do  |
+| P2       | Documentation | Finalize system documentation.                   | To Do  |
+| P3       | Performance   | General performance tuning.                      | To Do  |
 
 ---
 
