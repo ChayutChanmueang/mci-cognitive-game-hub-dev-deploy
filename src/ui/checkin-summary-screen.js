@@ -47,6 +47,139 @@ function buildDayItems(dayCount, checkInDates) {
     return items;
 }
 
+export function showCheckInPopup(options = {}) {
+    if (typeof document === "undefined") {
+        return Promise.resolve(false);
+    }
+
+    const {
+        checkInDates = [],
+        defaultDayCount = 14,
+        dismissible = false,
+    } = options;
+
+    return new Promise((resolve) => {
+        const overlay = document.createElement("div");
+        const titleId = `popup-title-${Date.now()}`;
+        const messageId = `popup-message-${Date.now()}`;
+
+        const state = {
+            step: "success",
+            dayCount: clampDayCount(defaultDayCount),
+        };
+
+        overlay.className = "app-popup";
+        
+        let settled = false;
+
+        const cleanup = (result) => {
+            if (settled) {
+                return;
+            }
+
+            settled = true;
+            overlay.remove();
+            document.removeEventListener("keydown", onKeyDown);
+            resolve(result);
+        };
+
+        const onKeyDown = (event) => {
+            if (event.key === "Escape" && dismissible) {
+                cleanup(false);
+            }
+        };
+
+        const render = () => {
+            if (state.step === "success") {
+                overlay.innerHTML = `
+                    <div class="app-popup__backdrop"></div>
+                    <div
+                        class="app-popup__dialog app-popup__dialog--success"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="${titleId}"
+                        aria-describedby="${messageId}"
+                    >
+                        <div class="checkin-popup-success-layout">
+                            <div class="app-popup__copy checkin-popup-success-copy">
+                                <h2 id="${titleId}" style="color: var(--md-sys-color-primary); font-size: 39px;">เก่งมาก !!!</h2>
+                                <div class="checkin-success-emoji" aria-hidden="true" style="font-size: 83px;">😊</div>
+                                <p id="${messageId}" style="margin-top: 8px; font-size: 22px;">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อยแล้ว</p>
+                            </div>
+                        </div>
+                        <div class="app-popup__actions checkin-popup-success-actions">
+                            <md-filled-button type="button" data-checkin-next style="width: 100%;">
+                                ต่อไป
+                            </md-filled-button>
+                        </div>
+                    </div>
+                `;
+
+                overlay.querySelector("[data-checkin-next]")?.addEventListener("click", () => {
+                    state.step = "calendar";
+                    render();
+                });
+            } else {
+                const dayItems = buildDayItems(state.dayCount, checkInDates);
+                const dayCellsHtml = dayItems.map((item) => `
+                    <div class="checkin-program-day">
+                        <span class="checkin-program-day__number">${escapeHtml(String(item.id))}</span>
+                        <div class="checkin-program-day__box">
+                            <md-checkbox
+                                class="checkin-program-day__checkbox"
+                                aria-label="วันที่ ${escapeHtml(String(item.id))}"
+                                ${item.done ? "checked" : ""}
+                            ></md-checkbox>
+                        </div>
+                    </div>
+                `).join("");
+
+                overlay.innerHTML = `
+                    <div class="app-popup__backdrop"></div>
+                    <div
+                        class="app-popup__dialog app-popup__dialog--checkin-calendar"
+                        role="dialog"
+                        aria-modal="true"
+                    >
+                        <div class="app-popup__header checkin-popup-calendar-header">
+                            <div class="app-popup__copy checkin-popup-calendar-copy">
+                                <h2>เป้าหมายของฉัน</h2>
+                                <p>เล่นเกมติดต่อกัน ${state.dayCount} วัน</p>
+                                <div class="checkin-popup-calendar-divider"></div>
+                                <div class="checkin-program-grid" role="list" aria-label="ความคืบหน้าการฝึกสมอง">
+                                    ${dayCellsHtml}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="app-popup__actions checkin-popup-success-actions">
+                            <md-filled-button type="button" data-back-home style="width: 100%;">
+                                กลับสู่หน้าหลัก
+                            </md-filled-button>
+                        </div>
+                    </div>
+                `;
+
+                overlay.querySelector("[data-back-home]")?.addEventListener("click", () => {
+                    cleanup(true);
+                });
+            }
+
+            const backdrop = overlay.querySelector(".app-popup__backdrop");
+            backdrop?.addEventListener("click", () => {
+                if (dismissible) {
+                    cleanup(false);
+                }
+            });
+        };
+
+        render();
+
+        document.body.appendChild(overlay);
+        document.addEventListener("keydown", onKeyDown);
+    });
+}
+
+// Keep the old function for backward compatibility or remove it if not needed anywhere else
 export function renderCheckInSummaryScreen(root, options = {}) {
     if (!root) {
         return;
@@ -58,69 +191,11 @@ export function renderCheckInSummaryScreen(root, options = {}) {
         onBackHome = () => {},
     } = options;
 
-    const state = {
-        step: "success",
-        dayCount: clampDayCount(defaultDayCount),
-    };
-
-    const render = () => {
-        if (state.step === "success") {
-            root.innerHTML = `
-                <section class="checkin-summary-screen checkin-summary-screen--success">
-                    <article class="checkin-success-layout">
-                        <h1 class="checkin-success-title">เก่งมาก !!!</h1>
-                        <div class="checkin-success-emoji" aria-hidden="true">😊</div>
-                        <p class="checkin-success-message">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อยแล้ว</p>
-                    </article>
-                    <div class="checkin-floating-action">
-                        <md-filled-button class="login-submit-button checkin-floating-button" type="button" data-checkin-next>ต่อไป</md-filled-button>
-                    </div>
-                </section>
-            `;
-
-            root.querySelector("[data-checkin-next]")?.addEventListener("click", () => {
-                state.step = "calendar";
-                render();
-            });
-            return;
-        }
-
-        const dayItems = buildDayItems(state.dayCount, checkInDates);
-        const dayCellsHtml = dayItems.map((item) => `
-            <div class="checkin-program-day">
-                <span class="checkin-program-day__number">${escapeHtml(String(item.id))}</span>
-                <div class="checkin-program-day__box">
-                    <md-checkbox
-                        class="checkin-program-day__checkbox"
-                        aria-label="วันที่ ${escapeHtml(String(item.id))}"
-                        ${item.done ? "checked" : ""}
-                    ></md-checkbox>
-                </div>
-            </div>
-        `).join("");
-
-        root.innerHTML = `
-            <section class="checkin-summary-screen">
-                <article class="checkin-calendar-panel">
-                    <header class="checkin-calendar-panel__header">
-                        <h2>เป้าหมายของฉัน</h2>
-                        <p>เล่นเกมติดต่อกัน ${state.dayCount} วัน</p>
-                    </header>
-                    <div class="checkin-calendar-panel__divider" aria-hidden="true"></div>
-                    <div class="checkin-program-grid" role="list" aria-label="ความคืบหน้าการฝึกสมอง">
-                        ${dayCellsHtml}
-                    </div>
-                </article>
-                <div class="checkin-floating-action">
-                    <md-filled-button class="login-submit-button checkin-floating-button" type="button" data-back-home>กลับสู่หน้าหลัก</md-filled-button>
-                </div>
-            </section>
-        `;
-
-        root.querySelector("[data-back-home]")?.addEventListener("click", () => {
-            onBackHome();
-        });
-    };
-
-    render();
+    showCheckInPopup({
+        checkInDates,
+        defaultDayCount,
+        dismissible: false
+    }).then(() => {
+        onBackHome();
+    });
 }

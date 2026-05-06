@@ -33,7 +33,6 @@ const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
 const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
-const HUB_DEFAULT_START_GAME_GID = "ATTN001";
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
@@ -45,7 +44,12 @@ const PENDING_GAME_HISTORY_STORAGE = Object.freeze({
 const SELECTED_GAME_STORAGE = Object.freeze({
     gid: "selected_game_gid",
     name: "selected_game_name",
+    thName: "selected_game_th_name",
     group: "selected_game_group",
+    stage: "selected_game_stage",
+    level: "selected_game_level",
+    day: "selected_game_day",
+    presetDataId: "selected_game_preset_data_id",
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -103,6 +107,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return `${GAME_ROUTE_PREFIX}${gid}/${slug}`;
+    };
+
+    const getGameDisplayName = (selectedGame, fallback = "นี้") =>
+        String(
+            selectedGame?.displayName
+                || selectedGame?.th_name
+                || selectedGame?.thName
+                || selectedGame?.name
+                || fallback,
+        ).trim();
+
+    const getGameHistoryNodeKey = (selectedGame) => {
+        const gid = String(selectedGame?.gid || "").trim();
+        const stage = selectedGame?.stage == null || selectedGame?.stage === ""
+            ? ""
+            : String(selectedGame.stage).trim();
+        return stage ? `${gid}:stage-${stage}` : gid;
     };
 
     const getHubRouteHash = (options = {}) => {
@@ -217,13 +238,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const persistSelectedGame = (selectedGame) => {
         sessionStorage.setItem(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
         sessionStorage.setItem(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
+        sessionStorage.setItem(
+            SELECTED_GAME_STORAGE.thName,
+            String(selectedGame?.th_name || selectedGame?.thName || selectedGame?.displayName || "").trim(),
+        );
         sessionStorage.setItem(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
+        sessionStorage.setItem(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
     };
 
     const getPersistedSelectedGame = () => {
         const gid = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.gid) || "").trim();
         const name = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.name) || "").trim();
+        const thName = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.thName) || "").trim();
         const mciGroup = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.group) || "").trim();
+        const stage = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.stage) || "").trim();
+        const level = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.level) || "").trim();
+        const day = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.day) || "").trim();
+        const presetDataId = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.presetDataId) || "").trim();
 
         if (!gid || !name) {
             return null;
@@ -232,7 +266,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return {
             gid,
             name,
+            th_name: thName,
+            displayName: thName || name,
             mci_group: mciGroup || "Attention",
+            stage: stage ? Number(stage) : null,
+            level: level ? Number(level) : null,
+            day: day ? Number(day) : null,
+            presetDataId: presetDataId ? Number(presetDataId) : null,
         };
     };
 
@@ -270,16 +310,19 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.setItem(PENDING_GAME_HISTORY_STORAGE.map, JSON.stringify(normalizedMap));
     };
 
-    const setPendingGameHistoryByGid = (gid, historyRecord, fallbackStartAt = "") => {
-        const parsedGid = String(gid || "").trim();
-        if (!parsedGid || !historyRecord?.id) {
+    const setPendingGameHistoryByKey = (nodeKey, selectedGame, historyRecord, fallbackStartAt = "") => {
+        const parsedNodeKey = String(nodeKey || "").trim();
+        const parsedGid = String(selectedGame?.gid || historyRecord?.gid || "").trim();
+        if (!parsedNodeKey || !parsedGid || !historyRecord?.id) {
             return;
         }
 
         const historyMap = readPendingGameHistoryMap();
-        historyMap[parsedGid] = {
+        historyMap[parsedNodeKey] = {
             id: Number(historyRecord.id),
             gid: parsedGid,
+            stage: historyRecord.stage ?? selectedGame?.stage ?? null,
+            nodeKey: parsedNodeKey,
             hn: String(historyRecord.hn || "").trim(),
             startAt: String(historyRecord.start_at || historyRecord.startAt || fallbackStartAt || "").trim(),
             endAt: historyRecord.end_at || null,
@@ -288,14 +331,14 @@ document.addEventListener("DOMContentLoaded", () => {
         writePendingGameHistoryMap(historyMap);
     };
 
-    const removePendingGameHistoryByGid = (gid) => {
-        const parsedGid = String(gid || "").trim();
-        if (!parsedGid) {
+    const removePendingGameHistoryByKey = (nodeKey) => {
+        const parsedNodeKey = String(nodeKey || "").trim();
+        if (!parsedNodeKey) {
             return;
         }
 
         const historyMap = readPendingGameHistoryMap();
-        delete historyMap[parsedGid];
+        delete historyMap[parsedNodeKey];
         writePendingGameHistoryMap(historyMap);
     };
 
@@ -306,7 +349,12 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.gid);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.name);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.thName);
         sessionStorage.removeItem(SELECTED_GAME_STORAGE.group);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.stage);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.level);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.day);
+        sessionStorage.removeItem(SELECTED_GAME_STORAGE.presetDataId);
     };
 
     const clearPatientClientState = () => {
@@ -369,6 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
+            loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
             loadCompletedGameHistoryRecords: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getCompletedUserGameHistoryByHn({
                     hn,
@@ -383,7 +432,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     startTo: playedTo,
                 }),
             completedCount: 0,
-            preferredGameGid: HUB_DEFAULT_START_GAME_GID,
             patientHn: patientCode,
             patientCode,
             patientLabel,
@@ -402,7 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
             onLaunchGame: async (selectedGame) => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการเข้าเกม",
-                    message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} ใช่หรือไม่`,
+                    message: `ต้องการเปิดเกม ${getGameDisplayName(selectedGame)} ใช่หรือไม่`,
                     confirmText: "เริ่มเกม",
                     cancelText: "ยกเลิก",
                     icon: "play_circle",
@@ -413,6 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const selectedGid = String(selectedGame?.gid || "").trim();
+                const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
                 try {
                     // Start a game history row here. Game completion should later update this row
                     // with end_at and user_game_data_id via db.completeUserGameHistory(...).
@@ -420,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const historyRecord = await db.addUserGameHistory({
                         hn: patientCode,
                         gid: selectedGid,
+                        stage: selectedGame?.stage ?? null,
                         startAt: startedAt,
                         userGameDataId: null,
                     });
@@ -428,7 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         throw new Error("Missing user_game_history id");
                     }
 
-                    setPendingGameHistoryByGid(selectedGid, historyRecord, startedAt);
+                    setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
                 } catch (error) {
                     console.warn("Unable to write launch history:", error);
                     await showPopup({
@@ -442,28 +492,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
-                sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedGid);
+                sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                 navigateTo(getGameRouteHash(selectedGame));
             },
-            onQuickLaunchGame: async (selectedGame) => {
+            // Test-only shortcut: opens a selected game without creating normal history.
+            onTestQuickLaunchGame: async (selectedGame) => {
                 const selectedGid = String(selectedGame?.gid || "").trim();
                 if (!selectedGid) {
                     return;
                 }
 
-                if (selectedGid === "REST001") {
-                    await showPopup({
-                        title: "เกมพัก",
-                        message: "รายการนี้เป็นจุดพักสำหรับ flow หลัก ไม่ได้มีหน้าจอเกมให้เล่นโดยตรง",
-                        confirmText: "รับทราบ",
-                        icon: "info",
-                    });
-                    return;
-                }
-
                 const hasConfirmed = await showPopup({
                     title: "เปิดเกมทดสอบ",
-                    message: `ต้องการเปิดเกม ${selectedGame?.name || "นี้"} โดยไม่บันทึกประวัติใช่หรือไม่`,
+                    message: `ต้องการเปิดเกม ${getGameDisplayName(selectedGame)} โดยไม่บันทึกประวัติใช่หรือไม่`,
                     confirmText: "เปิดเกม",
                     cancelText: "ยกเลิก",
                     icon: "sports_esports",
@@ -475,10 +516,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 persistSelectedGame(selectedGame);
                 sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
-                removePendingGameHistoryByGid(selectedGid);
+                removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
                 navigateTo(getGameRouteHash(selectedGame));
             },
-            onClearTodayHistory: async () => {
+            // Test-only shortcut: clears today's hub history so QA can replay the daily path.
+            onTestClearTodayHistory: async () => {
                 if (!patientCode) {
                     await showPopup({
                         title: "ไม่พบผู้เล่น",
@@ -520,11 +562,112 @@ document.addEventListener("DOMContentLoaded", () => {
                     icon: "check_circle",
                 });
             },
-            onRestNode: async () => {
-                const restGame = await db.getGameByGid("REST001");
+            // Test-only shortcut: writes fake completed history rows for games and rest only.
+            onTestCompleteAll: async ({ nodes = [], playedFrom = null, playedTo = null } = {}) => {
+                if (!patientCode) {
+                    await showPopup({
+                        title: "ไม่พบผู้เล่น",
+                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถบันทึกประวัติได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                    });
+                    return;
+                }
+
+                const playableNodes = (Array.isArray(nodes) ? nodes : [])
+                    .filter((node) => ["game", "rest"].includes(node?.type));
+
+                if (!playableNodes.length) {
+                    await showPopup({
+                        title: "ไม่พบรายการเกม",
+                        message: "ยังไม่มีรายการภารกิจประจำวันที่ใช้บันทึกข้อมูลทดสอบได้",
+                        confirmText: "รับทราบ",
+                        icon: "info",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "บันทึกว่าเล่นครบทั้งหมด",
+                    message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพัก โดยไม่บันทึกเช็คชื่อ",
+                    confirmText: "บันทึกข้อมูลทดสอบ",
+                    cancelText: "ยกเลิก",
+                    icon: "checklist",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                const parsedFrom = playedFrom ? new Date(playedFrom) : null;
+                const parsedTo = playedTo ? new Date(playedTo) : null;
+                const intervalMs = 2000;
+                let baseTime = new Date();
+                baseTime.setMilliseconds(0);
+
+                if (parsedFrom && !Number.isNaN(parsedFrom.getTime()) && baseTime < parsedFrom) {
+                    baseTime = new Date(parsedFrom);
+                }
+
+                if (parsedTo && !Number.isNaN(parsedTo.getTime())) {
+                    const latestBaseTime = parsedTo.getTime() - (playableNodes.length * intervalMs) - 1000;
+                    if (baseTime.getTime() > latestBaseTime) {
+                        const minimumBaseTime = parsedFrom && !Number.isNaN(parsedFrom.getTime())
+                            ? parsedFrom.getTime()
+                            : latestBaseTime;
+                        baseTime = new Date(Math.max(minimumBaseTime, latestBaseTime));
+                    }
+                }
+
+                for (const [index, node] of playableNodes.entries()) {
+                    const startAt = new Date(baseTime.getTime() + (index * intervalMs));
+                    const endAt = node.type === "game"
+                        ? new Date(startAt.getTime() + 1000)
+                        : null;
+
+                    await db.addUserGameHistory({
+                        hn: patientCode,
+                        gid: node.gid,
+                        stage: node.stage ?? null,
+                        startAt: startAt.toISOString(),
+                        endAt: endAt ? endAt.toISOString() : null,
+                        userGameDataId: null,
+                        rest: node.type === "rest",
+                        checkIn: false,
+                        reuseExisting: false,
+                    });
+                }
+
+                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                writePendingGameHistoryMap({});
+
+                await showPopup({
+                    title: "บันทึกสำเร็จ",
+                    message: "ระบบเพิ่มประวัติทดสอบว่าเล่นเกมครบทั้งหมดแล้ว",
+                    confirmText: "รับทราบ",
+                    icon: "check_circle",
+                });
+            },
+            // Test-only placeholder: daily game data management tools will be wired here later.
+            onTestDailyDataTools: async () => {},
+            onRestNode: async (selectedNode) => {
+                const nodeGame = selectedNode?.gameData || null;
+                const restGame = nodeGame?.gid ? nodeGame : await db.getGameByGid("REST001");
 
                 if (!restGame?.gid) {
                     throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการเข้าเกม",
+                    message: `ต้องการเปิดเกม ${restGame?.name || "พัก"} ใช่หรือไม่`,
+                    confirmText: "เริ่มเกม",
+                    cancelText: "ยกเลิก",
+                    icon: "play_circle",
+                });
+
+                if (!hasConfirmed) {
+                    return { cancelled: true };
                 }
 
                 await db.addUserGameHistory({
@@ -535,6 +678,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     rest: true,
                     checkIn: false,
                 });
+
+                persistSelectedGame(restGame);
+                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
+                navigateTo(getGameRouteHash(restGame));
+                return { redirected: true };
             },
             onCheckInNode: async () => {
                 await db.addUserGameHistory({
@@ -549,7 +698,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 navigateTo(ROUTES.checkInSummary);
                 return { redirected: true };
             },
-            onLogout: async () => {
+            // Test-only hub control: leaves the patient/admin test session from this screen.
+            onTestLogout: async () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
@@ -745,7 +895,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     return false;
                 }
 
+                await db.validatePatientSignupDependencies(formData);
                 const createdPatient = await db.createPatientProfile(formData);
+
+                try {
+                    await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
+                } catch (error) {
+                    // TODO: Replace this client-side compensation with a Supabase RPC transaction
+                    // that creates user_patient_data and user_game_profile_data atomically.
+                    console.error("Unable to create user game profile after patient signup:", error);
+                    try {
+                        await db.deletePatientProfileByHn({ hn: createdPatient?.hn || formData?.hn });
+                    } catch (rollbackError) {
+                        console.error("Unable to rollback patient after game profile failure:", rollbackError);
+                    }
+                    throw error;
+                }
+
                 await rememberPatientSession(createdPatient);
                 sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
                 sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
@@ -1048,7 +1214,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error(`Unable to fetch game by gid ${route.gid}:`, error);
             }
 
-            selectedGame = selectedGame || getPersistedSelectedGameByGid(route.gid);
+            const persistedGame = getPersistedSelectedGameByGid(route.gid);
+            selectedGame = selectedGame || persistedGame;
+            if (selectedGame && persistedGame) {
+                selectedGame = {
+                    ...selectedGame,
+                    stage: persistedGame.stage,
+                    level: persistedGame.level,
+                    day: persistedGame.day,
+                    presetDataId: persistedGame.presetDataId,
+                    displayName: persistedGame.displayName || selectedGame.displayName,
+                    th_name: persistedGame.th_name || selectedGame.th_name,
+                };
+            }
 
             if (currentRenderVersion !== routeRenderVersion) {
                 return;
@@ -1080,8 +1258,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const pendingLaunchGid = sessionStorage.getItem(PENDING_GAME_LAUNCH_KEY) || "";
-            if (hasStarted && pendingLaunchGid === selectedGame.gid) {
+            const pendingLaunchKey = sessionStorage.getItem(PENDING_GAME_LAUNCH_KEY) || "";
+            const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+            if (hasStarted && pendingLaunchKey === selectedNodeKey) {
                 sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
                 try {
                     await db.logUserEvent("SPG", selectedGame.gid);
@@ -1093,7 +1272,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
             if (!hasStarted) {
-                removePendingGameHistoryByGid(selectedGame.gid);
+                removePendingGameHistoryByKey(selectedNodeKey);
                 navigateTo(ROUTES.hub, { replace: true });
             }
         }

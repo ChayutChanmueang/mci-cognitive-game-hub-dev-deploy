@@ -43,6 +43,9 @@ export default class GameplayScene extends Phaser.Scene {
     // }
     this.constructGrid(true);
 
+    this.gameStartedAt = new Date();
+    this.gameEndedAt = new Date();
+
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.setScore(this.stage);
 
@@ -72,6 +75,8 @@ export default class GameplayScene extends Phaser.Scene {
     //this.gameplayUI.TemplatePanel.show();
     this.finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
     this.fullPlaytime = ((this.time.now - this.startTime) / 1000).toFixed(2);
+    this.gameEndedAt = new Date();
+
     // this.gameplayUI.showGameOverPanel(this.finalTime);
     // console.log("Final Playtime : " + this.finalTime);
     // this.stage++;
@@ -86,6 +91,7 @@ export default class GameplayScene extends Phaser.Scene {
       console.log("Final Playtime : " + this.finalTime);
       //console.log(this.fullPlaytime);
     }
+
     this.levelIsActive = false;
     console.log(this.fullPlaytime);
 

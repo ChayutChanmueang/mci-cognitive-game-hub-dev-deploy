@@ -26,3 +26,4 @@ dist-ssr
 public/js/material-web docs-components
 .env.example
 .ai
+public/js/material-components material-web/*

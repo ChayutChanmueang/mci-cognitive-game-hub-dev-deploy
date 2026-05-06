@@ -1,6 +1,7 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
+import { showCheckInPopup } from "./checkin-summary-screen.js";
+import db from "../core/database.js";
 
-const DEFAULT_START_GAME_GID = "ATTN001";
 const REST_GAME_GID = "REST001";
 
 const CATEGORY_META = Object.freeze({
@@ -26,21 +27,6 @@ const CATEGORY_META = Object.freeze({
     },
 });
 
-const FALLBACK_GAMES = Object.freeze([
-    { id: "fallback-attn-001", gid: "ATTN001", name: "Zoo Feeder", mci_group: "Attention" },
-    { id: "fallback-mem-001", gid: "MEM001", name: "Postcard Reader", mci_group: "Memory" },
-    { id: "fallback-lang-001", gid: "LANG001", name: "Context Clues", mci_group: "Language" },
-    { id: "fallback-vis-001", gid: "VIS001", name: "Symmetry Decor", mci_group: "Visuospatial" },
-    { id: "fallback-exec-001", gid: "EXEC001", name: "Gamehub Puzzle", mci_group: "Executive" },
-]);
-const DAY_ONE_PRESET_GIDS_MOCK = Object.freeze([
-    "ATTN001",
-    "LANG001",
-    "MEM001",
-    "EXEC001",
-    "VIS001",
-]);
-
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -52,11 +38,15 @@ function escapeHtml(value) {
 
 function normalizeGame(item, index, fallbackCategory = "Attention") {
     const category = String(item?.mci_group || fallbackCategory || "Attention").trim();
+    const name = String(item?.name || `เกมที่ ${index + 1}`).trim();
+    const thName = String(item?.th_name || item?.thName || "").trim();
 
     return {
         id: item?.id ?? `${category}-${index}`,
         gid: String(item?.gid || `${category}-${index}`).trim(),
-        name: String(item?.name || `เกมที่ ${index + 1}`).trim(),
+        name,
+        th_name: thName,
+        displayName: thName || name,
         mci_group: category,
         max_score: item?.max_score ?? null,
         created_at: item?.created_at ?? null,
@@ -66,9 +56,15 @@ function normalizeGame(item, index, fallbackCategory = "Attention") {
 export function createGameHubState() {
     return {
         programGames: [],
+        programDays: [],
         allGames: [],
         restGame: null,
+        dailyProgram: null,
+        dailyGoal: "",
         historyRecords: [],
+        autoCheckInLoading: false,
+        autoCheckInCompletedKey: "",
+        includeNextProgramDay: false,
         programInitialized: false,
         programLoading: false,
         historyLoading: false,
@@ -127,8 +123,10 @@ function getProgramDateRange(programDate = null) {
 
 function normalizeHistoryRecord(item) {
     const gid = String(item?.gid || "").trim();
+    const stage = item?.stage == null || item?.stage === "" ? null : Number(item.stage);
     return {
         gid,
+        stage,
         rest: gid === REST_GAME_GID,
         checkIn: Boolean(item?.checkIn || item?.check_in || item?.["check-in"]) || !gid,
         playedAt: item?.start_at || item?.startAt || item?.played_at || item?.playedAt || null,
@@ -142,8 +140,10 @@ function isNodeMatchedByHistory(node, historyRecord) {
     }
 
     if (node.type === "game") {
+        const nodeStage = node.stage == null || node.stage === "" ? null : Number(node.stage);
         return Boolean(historyRecord.gid)
             && historyRecord.gid === node.gid
+            && (nodeStage == null || historyRecord.stage == null || Number(historyRecord.stage) === nodeStage)
             && Boolean(historyRecord.endAt);
     }
 
@@ -191,6 +191,53 @@ function getSequentialCompletedCount(nodes, historyRecords) {
     return completedCount;
 }
 
+function getCheckInDateKey(programDate = null) {
+    const anchor = programDate ? new Date(programDate) : new Date();
+    const safeAnchor = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+    const year = safeAnchor.getFullYear();
+    const month = String(safeAnchor.getMonth() + 1).padStart(2, "0");
+    const day = String(safeAnchor.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function getProgramDayAnchorDate(startedProgram, programDay = 1) {
+    const anchor = startedProgram ? new Date(startedProgram) : new Date();
+    const safeAnchor = Number.isNaN(anchor.getTime()) ? new Date() : anchor;
+    const dayStart = new Date(safeAnchor);
+    dayStart.setHours(0, 0, 0, 0);
+    const offsetDays = Math.max(0, (Number(programDay) || 1) - 1);
+    dayStart.setDate(dayStart.getDate() + offsetDays);
+    return dayStart;
+}
+
+function getAutoCheckInTargetNodes(nodes) {
+    return (nodes || []).filter((node) => node?.type === "game" || node?.type === "rest");
+}
+
+function getHistoryRecordsByDateKey(historyRecords, dateKey) {
+    if (!dateKey) {
+        return historyRecords || [];
+    }
+
+    return (historyRecords || []).filter((record) => {
+        const key = getCheckInDateKey(record?.playedAt);
+        return key === dateKey;
+    });
+}
+
+function getHistoryRecordsForProgramDay(historyRecords, startedProgram, programDay) {
+    const anchor = getProgramDayAnchorDate(startedProgram, programDay);
+    const key = getCheckInDateKey(anchor);
+    return getHistoryRecordsByDateKey(historyRecords, key);
+}
+
+function hasCheckInRecord(historyRecords, dateKey = "") {
+    const scopedHistory = getHistoryRecordsByDateKey(historyRecords, dateKey);
+    return (scopedHistory || [])
+        .map((record) => normalizeHistoryRecord(record))
+        .some((record) => record.checkIn === true);
+}
+
 function getCompletedGameCount(nodes, completedNodeCount) {
     const safeCompletedNodeCount = Math.max(0, Number(completedNodeCount) || 0);
     return (nodes || [])
@@ -213,11 +260,10 @@ function buildAllGames(gameListItems) {
     const normalized = (gameListItems || []).map((item, index) =>
         normalizeGame(item, index, item?.mci_group || "Attention"),
     );
-    const source = normalized.length ? normalized : FALLBACK_GAMES;
     const uniqueGames = [];
     const seen = new Set();
 
-    source.forEach((item) => {
+    normalized.forEach((item) => {
         const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
         if (!game.gid || seen.has(game.gid)) {
             return;
@@ -229,61 +275,67 @@ function buildAllGames(gameListItems) {
     return uniqueGames;
 }
 
-function buildProgramGamesFromPreset(gameListItems, preferredGameGid, gameTarget = DAY_ONE_PRESET_GIDS_MOCK.length) {
-    // TODO: Replace this mock preset GID set (derived from CSV day-1 sample) with DB preset data when preset table is ready.
-    const presetGids = DAY_ONE_PRESET_GIDS_MOCK;
-    const normalizedGameList = (gameListItems || []).map((item, index) =>
-        normalizeGame(item, index, item?.mci_group || "Attention"),
-    );
-    const gameMapByGid = new Map();
+function buildProgramGamesFromDailyProgram(dailyProgram) {
+    const rows = Array.isArray(dailyProgram?.games)
+        ? dailyProgram.games
+        : [];
 
-    normalizedGameList.forEach((game) => {
-        if (game.gid) {
-            gameMapByGid.set(game.gid, game);
+    return rows.map((item, index) => {
+        const game = normalizeGame(item, index, item?.mci_group || "Attention");
+        if (!game.gid || game.gid === REST_GAME_GID) {
+            return null;
         }
-    });
 
-    const selectedGames = presetGids
-        .map((gid) => gameMapByGid.get(gid))
-        .filter(Boolean);
+        return {
+            ...game,
+            presetDataId: item?.preset_data_id ?? item?.presetDataId ?? null,
+            dailyPresetId: item?.daily_preset_id ?? item?.dailyPresetId ?? null,
+            programId: item?.program_id ?? item?.programId ?? dailyProgram?.programId ?? null,
+            stage: Number(item?.stage),
+            level: Number(item?.level),
+            day: Number(item?.day ?? dailyProgram?.programDay),
+            loop: Number(item?.loop || dailyProgram?.dailyPreset?.loop || 1),
+            goal: String(item?.goal || dailyProgram?.dailyPreset?.goal || "").trim(),
+        };
+    }).filter(Boolean);
+}
 
-    const selectedGids = new Set(selectedGames.map((game) => game.gid));
-    const remainingGames = normalizedGameList.filter((game) => !selectedGids.has(game.gid));
-    const merged = [...selectedGames, ...remainingGames, ...FALLBACK_GAMES];
-    const uniqueGames = [];
-    const seen = new Set();
+function buildProgramDaysFromDailyProgram(dailyProgram) {
+    const days = Array.isArray(dailyProgram?.days) ? dailyProgram.days : [];
 
-    for (const item of merged) {
-        const game = normalizeGame(item, uniqueGames.length, item?.mci_group || "Attention");
-        if (!game.gid || game.gid === REST_GAME_GID || seen.has(game.gid)) {
-            continue;
-        }
-        seen.add(game.gid);
-        uniqueGames.push(game);
+    if (!days.length && Array.isArray(dailyProgram?.games)) {
+        return [{
+            day: Number(dailyProgram?.programDay || 1),
+            goal: String(dailyProgram?.dailyPreset?.goal || "").trim(),
+            loop: Number(dailyProgram?.dailyPreset?.loop || 1),
+            games: buildProgramGamesFromDailyProgram(dailyProgram),
+        }];
     }
 
-    if (preferredGameGid) {
-        uniqueGames.sort((firstGame, secondGame) => {
-            if (firstGame.gid === preferredGameGid) {
-                return -1;
-            }
-            if (secondGame.gid === preferredGameGid) {
-                return 1;
-            }
-            return 0;
-        });
-    }
+    return days.map((dayItem) => {
+        const dayProgram = {
+            ...dailyProgram,
+            dailyPreset: dayItem?.dailyPreset || dailyProgram?.dailyPreset || null,
+            games: Array.isArray(dayItem?.games) ? dayItem.games : [],
+        };
 
-    const target = Math.max(1, Number(gameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
-    return uniqueGames.slice(0, target);
+        return {
+            day: Number(dayItem?.day),
+            goal: String(dayItem?.goal || dayItem?.dailyPreset?.goal || "").trim(),
+            loop: Number(dayItem?.loop || dayItem?.dailyPreset?.loop || 1),
+            games: buildProgramGamesFromDailyProgram(dayProgram),
+        };
+    }).filter((dayItem) => Number.isFinite(dayItem.day));
 }
 
 function buildDailyProgramNodes(games, restGame) {
     const gameNodes = (games || []).map((game, index) => ({
-        id: `game-${String(game?.gid || index)}`,
+        id: `game-${String(game?.presetDataId || game?.gid || index)}`,
         type: "game",
         gid: String(game?.gid || "").trim(),
-        title: game?.name || `เกมที่ ${index + 1}`,
+        stage: game?.stage ?? null,
+        day: game?.day ?? null,
+        title: game?.displayName || game?.th_name || game?.name || `เกมที่ ${index + 1}`,
         gameNumber: index + 1,
         gameData: game,
     }));
@@ -297,23 +349,52 @@ function buildDailyProgramNodes(games, restGame) {
         id: "rest-node",
         type: "rest",
         gid: REST_GAME_GID,
-        title: restGame?.name || "พักยืดเส้นยืดสาย",
+        title: restGame?.displayName || restGame?.th_name || restGame?.name || "พักยืดเส้นยืดสาย",
+        gameData: restGame,
         emoji: "🏋️",
     };
-    const checkInNode = {
-        id: "checkin-node",
-        type: "checkin",
-        gid: "",
-        title: "เช็คชื่อ",
-        emoji: "🏁",
-    };
-
     return [
         ...gameNodes.slice(0, splitIndex),
         restNode,
         ...gameNodes.slice(splitIndex),
-        checkInNode,
     ];
+}
+
+function buildProgramDaySections(programDays, restGame) {
+    return (programDays || []).map((dayItem) => ({
+        ...dayItem,
+        nodes: buildDailyProgramNodes(dayItem?.games || [], restGame),
+    }));
+}
+
+function flattenProgramDaySections(daySections) {
+    return (daySections || []).flatMap((dayItem) => dayItem?.nodes || []);
+}
+
+function getProgramDayCompletion(daySection, historyRecords) {
+    const nodes = daySection?.nodes || [];
+    const completedCount = getSequentialCompletedCount(nodes, historyRecords);
+    const gameTarget = nodes.filter((node) => node.type === "game").length;
+    const completedGameCount = Math.min(gameTarget, getCompletedGameCount(nodes, completedCount));
+
+    return {
+        completedCount,
+        completedGameCount,
+        gameTarget,
+        isComplete: nodes.length > 0 && completedCount >= nodes.length,
+    };
+}
+
+function areProgramDayGamesComplete(daySection, historyRecords) {
+    const gameNodes = (daySection?.nodes || []).filter((node) => node?.type === "game");
+    if (!gameNodes.length) {
+        return false;
+    }
+
+    const normalizedHistory = (historyRecords || []).map((record) => normalizeHistoryRecord(record));
+    return gameNodes.every((node) =>
+        normalizedHistory.some((historyRecord) => isNodeMatchedByHistory(node, historyRecord)),
+    );
 }
 
 class HubElement {
@@ -365,17 +446,24 @@ class HubElement {
 class DailyGoalTopBar extends HubElement {
     html() {
         const completedGameCount = Math.max(0, Number(this.options.completedGameCount) || 0);
-        const dailyGameTarget = Math.max(1, Number(this.options.dailyGameTarget) || DAY_ONE_PRESET_GIDS_MOCK.length);
-        const progress = Math.min(1, completedGameCount / dailyGameTarget);
+        const dailyGameTarget = Math.max(0, Number(this.options.dailyGameTarget) || 0);
+        const progress = dailyGameTarget > 0
+            ? Math.min(1, completedGameCount / dailyGameTarget)
+            : 0;
         const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const patientLabel = this.options.patientLabel || "ผู้เล่น";
+        const programDay = Number(this.options.programDay) || 1;
+        const dailyGoal = String(this.options.dailyGoal || "").trim()
+            || (dailyGameTarget > 0
+                ? `ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน`
+                : "ยังไม่พบรายการเกมประจำวัน");
 
         return `
             <header class="hub-clean-topbar">
                 <div class="hub-clean-goal">
                     <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
-                    <h1>เป้าหมายของวันนี้</h1>
-                    <p>ทำภารกิจ ${dailyGameTarget} เกม ให้ครบตามแผนประจำวัน</p>
+                    <h1>เป้าหมายของวันที่ ${programDay}</h1>
+                    <p>${escapeHtml(dailyGoal)}</p>
                     <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
                         <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${completedGameCount} จาก ${dailyGameTarget} เกม"></md-linear-progress>
                         <span>${completedGameCount}/${dailyGameTarget}</span>
@@ -423,24 +511,14 @@ class GameLaunchCard extends HubElement {
             `;
         }
 
-        if (type === "checkin") {
-            return `
-                <article class="hub-clean-current-card">
-                    <p>ภารกิจครบแล้ว</p>
-                    <h2>${escapeHtml(node.title || "เช็คชื่อ")}</h2>
-                    <span>กดเช็คชื่อเพื่อบันทึกว่าเป้าหมายประจำวันสำเร็จแล้ว</span>
-                    <md-outlined-button data-hub-launch-game type="button">เช็คชื่อ</md-outlined-button>
-                </article>
-            `;
-        }
-
         const game = node.gameData || {};
         const categoryId = game.mci_group || "Attention";
+        const gameDisplayName = game.displayName || game.th_name || game.name || node.title || "เกมฝึกสมอง";
 
         return `
             <article class="hub-clean-current-card">
                 <p>${escapeHtml(getCategoryLabel(categoryId))}</p>
-                <h2>${escapeHtml(game.name || "เกมฝึกสมอง")}</h2>
+                <h2>${escapeHtml(gameDisplayName)}</h2>
                 <span>${escapeHtml(getCategoryDescription(categoryId))}</span>
                 <md-outlined-button data-hub-launch-game type="button">เริ่มเกม</md-outlined-button>
             </article>
@@ -448,8 +526,9 @@ class GameLaunchCard extends HubElement {
     }
 
     bind() {
+        const node = this.options.nodeData || {};
         this.on(this.element?.querySelector("[data-hub-launch-game]"), "click", () => {
-            this.options.onAction?.(this.options.nodeData);
+            this.options.onAction?.(node);
         });
     }
 }
@@ -502,12 +581,7 @@ class LevelMap extends HubElement {
             <section class="hub-clean-stage">
                 <div class="hub-clean-scroll" data-hub-scroll>
                     <div class="hub-clean-content">
-                        <div class="hub-clean-day-divider">
-                            <span></span>
-                            <strong>วันที่ 1</strong>
-                            <span></span>
-                        </div>
-                        <div class="hub-clean-levels" data-level-list></div>
+                        <div data-day-section-list></div>
                         ${this.options.isLoading ? this.loadingHtml() : ""}
                     </div>
                 </div>
@@ -542,29 +616,59 @@ class LevelMap extends HubElement {
 
         requestAnimationFrame(() => {
             if (scrollArea) {
-                scrollArea.scrollTop = Math.max(0, Number(this.options.initialScrollTop) || 0);
+                const initialScrollTop = Math.max(0, Number(this.options.initialScrollTop) || 0);
+                if (initialScrollTop > 0) {
+                    scrollArea.scrollTop = initialScrollTop;
+                } else {
+                    const currentDay = Number(this.options.currentProgramDay);
+                    const currentSection = Number.isFinite(currentDay)
+                        ? this.element?.querySelector(`[data-program-day="${currentDay}"]`)
+                        : null;
+                    if (currentSection) {
+                        scrollArea.scrollTop = Math.max(0, currentSection.offsetTop - scrollArea.offsetTop);
+                    }
+                }
                 updateFab();
             }
         });
     }
 
     renderNodes() {
-        const nodes = this.options.nodes || [];
-        const completedCount = Math.min(
-            nodes.length,
-            Math.max(0, Number(this.options.completedCount) || 0),
-        );
-        const currentNodeIndex = completedCount >= nodes.length ? -1 : completedCount;
-        const list = this.element?.querySelector("[data-level-list]");
+        const daySections = Array.isArray(this.options.daySections) ? this.options.daySections : [];
+        const list = this.element?.querySelector("[data-day-section-list]");
 
-        nodes.forEach((node, index) => {
-            this.addChild(new LevelNode({
-                nodeData: node,
-                index,
-                isDone: index < completedCount,
-                isCurrent: currentNodeIndex >= 0 && index === currentNodeIndex,
-                onAction: this.options.onNodeAction,
-            }), list);
+        daySections.forEach((daySection) => {
+            const nodes = daySection?.nodes || [];
+            const dayHistory = getHistoryRecordsForProgramDay(
+                this.options.historyRecords || [],
+                this.options.startedProgram,
+                Number(daySection?.day || 1),
+            );
+            const completion = getProgramDayCompletion(daySection, dayHistory);
+            const currentNodeIndex = completion.completedCount >= nodes.length ? -1 : completion.completedCount;
+            const section = document.createElement("section");
+            section.className = "hub-clean-day-section";
+            section.dataset.programDay = String(daySection?.day || "");
+            section.innerHTML = `
+                <div class="hub-clean-day-divider">
+                    <span></span>
+                    <strong>วันที่ ${escapeHtml(daySection?.day || "")}</strong>
+                    <span></span>
+                </div>
+                <div class="hub-clean-levels" data-level-list></div>
+            `;
+            list?.append(section);
+
+            const nodeList = section.querySelector("[data-level-list]");
+            nodes.forEach((node, index) => {
+                this.addChild(new LevelNode({
+                    nodeData: node,
+                    index,
+                    isDone: index < completion.completedCount,
+                    isCurrent: currentNodeIndex >= 0 && index === currentNodeIndex,
+                    onAction: this.options.onNodeAction,
+                }), nodeList);
+            });
         });
     }
 }
@@ -574,7 +678,7 @@ class HubMapScreen extends HubElement {
         const selectableGames = Array.isArray(this.options.selectableGames) ? this.options.selectableGames : [];
         const menuItems = selectableGames.map((game) => `
             <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
-                <div slot="headline">${escapeHtml(game.name || game.gid || "เกม")}</div>
+                <div slot="headline">${escapeHtml(game.displayName || game.th_name || game.name || game.gid || "เกม")}</div>
                 <div slot="supporting-text">${escapeHtml(game.gid || "")}</div>
             </md-menu-item>
         `).join("");
@@ -590,14 +694,16 @@ class HubMapScreen extends HubElement {
                     <div data-topbar></div>
                     <div data-stage></div>
                     <div class="hub-clean-logout">
-                        <md-filled-button data-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
+                        <md-filled-button data-test-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
+                        <md-filled-button data-test-complete-all type="button">เล่นเกมครบทั้งหมด</md-filled-button>
                         <span class="hub-clean-quick-menu">
-                            <md-filled-button data-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
-                            <md-menu data-quick-game-menu positioning="popover">
+                            <md-filled-button data-test-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
+                            <md-menu data-test-quick-game-menu positioning="popover">
                                 ${menuContent}
                             </md-menu>
                         </span>
-                        <md-filled-button data-logout type="button">ออกจากระบบ</md-filled-button>
+                        <md-filled-button data-test-daily-data-tools type="button">เครื่องมือจัดการข้อมูลรายวันเกม</md-filled-button>
+                        <md-filled-button data-test-logout type="button">ออกจากระบบ</md-filled-button>
                     </div>
                 </div>
             </section>
@@ -608,6 +714,8 @@ class HubMapScreen extends HubElement {
         this.addChild(new DailyGoalTopBar({
             dailyGameTarget: this.options.dailyGameTarget,
             completedGameCount: this.options.completedGameCount,
+            dailyGoal: this.options.dailyGoal,
+            programDay: this.options.programDay,
             patientLabel: this.options.patientLabel,
             onProfile: this.options.onProfile,
         }), this.element?.querySelector("[data-topbar]"));
@@ -617,6 +725,10 @@ class HubMapScreen extends HubElement {
             completedCount: this.options.completedCount,
             isLoading: this.options.isLoading,
             initialScrollTop: this.options.initialScrollTop,
+            daySections: this.options.daySections,
+            historyRecords: this.options.historyRecords,
+            startedProgram: this.options.startedProgram,
+            currentProgramDay: this.options.programDay,
             onScrollChange: this.options.onScrollChange,
             onNodeAction: this.options.onNodeAction,
         }), this.element?.querySelector("[data-stage]"));
@@ -626,12 +738,13 @@ class HubMapScreen extends HubElement {
                 .map((game) => [String(game?.gid || "").trim(), game])
                 .filter(([gid]) => Boolean(gid)),
         );
-        const quickGameTrigger = this.element?.querySelector("[data-quick-game-trigger]");
-        const quickGameMenu = this.element?.querySelector("[data-quick-game-menu]");
-        if (quickGameMenu && quickGameTrigger) {
-            quickGameMenu.anchorElement = quickGameTrigger;
-            this.on(quickGameTrigger, "click", () => {
-                quickGameMenu.open = !quickGameMenu.open;
+        // Test-only hub controls for QA shortcuts; the real game flow uses onNodeAction.
+        const testQuickGameTrigger = this.element?.querySelector("[data-test-quick-game-trigger]");
+        const testQuickGameMenu = this.element?.querySelector("[data-test-quick-game-menu]");
+        if (testQuickGameMenu && testQuickGameTrigger) {
+            testQuickGameMenu.anchorElement = testQuickGameTrigger;
+            this.on(testQuickGameTrigger, "click", () => {
+                testQuickGameMenu.open = !testQuickGameMenu.open;
             });
         }
 
@@ -644,23 +757,39 @@ class HubMapScreen extends HubElement {
                     return;
                 }
 
-                await this.options.onQuickGameSelect?.(selectedGame);
-                if (quickGameMenu) {
-                    quickGameMenu.open = false;
+                await this.options.onTestQuickGameSelect?.(selectedGame);
+                if (testQuickGameMenu) {
+                    testQuickGameMenu.open = false;
                 }
             });
         });
 
-        this.on(this.element?.querySelector("[data-clear-history]"), "click", async () => {
+        this.on(this.element?.querySelector("[data-test-clear-history]"), "click", async () => {
             try {
-                await this.options.onClearHistory?.();
+                await this.options.onTestClearHistory?.();
             } catch (error) {
-                console.error("Unable to clear today history:", error);
+                console.error("Unable to clear test history:", error);
             }
         });
 
-        this.on(this.element?.querySelector("[data-logout]"), "click", () => {
-            this.options.onLogout?.();
+        this.on(this.element?.querySelector("[data-test-complete-all]"), "click", async () => {
+            try {
+                await this.options.onTestCompleteAll?.();
+            } catch (error) {
+                console.error("Unable to write complete-all test history:", error);
+            }
+        });
+
+        this.on(this.element?.querySelector("[data-test-daily-data-tools]"), "click", async () => {
+            try {
+                await this.options.onTestDailyDataTools?.();
+            } catch (error) {
+                console.error("Unable to open daily game data test tools:", error);
+            }
+        });
+
+        this.on(this.element?.querySelector("[data-test-logout]"), "click", () => {
+            this.options.onTestLogout?.();
         });
     }
 }
@@ -672,19 +801,20 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const {
         loadGameList,
+        loadDailyProgram = null,
         loadHistoryRecords = null,
         loadCompletedGameHistoryRecords = null,
         loadInstantNodeHistoryRecords = null,
         patientHn = "",
         programDate = null,
         completedCount = 0,
-        preferredGameGid = DEFAULT_START_GAME_GID,
         onLaunchGame = () => {},
         onRestNode = async () => {},
-        onCheckInNode = async () => {},
-        onQuickLaunchGame = async () => {},
-        onClearTodayHistory = async () => {},
-        onLogout = () => {},
+        onTestQuickLaunchGame = async () => {},
+        onTestClearTodayHistory = async () => {},
+        onTestCompleteAll = async () => {},
+        onTestDailyDataTools = async () => {},
+        onTestLogout = () => {},
         onProfile = () => {},
         onStateChange = () => {},
         sharedState = null,
@@ -694,11 +824,26 @@ export async function renderGameHubScreen(root, options = {}) {
     if (!Array.isArray(state.programGames)) {
         state.programGames = [];
     }
+    if (!Array.isArray(state.programDays)) {
+        state.programDays = [];
+    }
     if (!Array.isArray(state.allGames)) {
         state.allGames = [];
     }
     if (!Array.isArray(state.historyRecords)) {
         state.historyRecords = [];
+    }
+    if (typeof state.dailyGoal !== "string") {
+        state.dailyGoal = "";
+    }
+    if (typeof state.autoCheckInLoading !== "boolean") {
+        state.autoCheckInLoading = false;
+    }
+    if (typeof state.autoCheckInCompletedKey !== "string") {
+        state.autoCheckInCompletedKey = "";
+    }
+    if (typeof state.includeNextProgramDay !== "boolean") {
+        state.includeNextProgramDay = false;
     }
 
     let activeScreen = null;
@@ -708,22 +853,56 @@ export async function renderGameHubScreen(root, options = {}) {
     const render = () => {
         activeScreen?.destroy();
         root.innerHTML = "";
-        const programNodes = buildDailyProgramNodes(state.programGames, state.restGame);
-        const derivedCompletedCount = getSequentialCompletedCount(programNodes, state.historyRecords);
-        const resolvedCompletedCount = Math.max(0, Number(completedCount) || 0, derivedCompletedCount);
-        const resolvedDailyGameTarget = Math.max(
-            1,
-            programNodes.filter((node) => node.type === "game").length || DAY_ONE_PRESET_GIDS_MOCK.length,
+        const allDaySections = buildProgramDaySections(state.programDays, state.restGame);
+        const currentProgramDay = Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
+        const startedProgramForHistory = state.dailyProgram?.startedProgram || programDate;
+        const rawCurrentDayHistory = getHistoryRecordsForProgramDay(
+            state.historyRecords,
+            startedProgramForHistory,
+            currentProgramDay,
         );
+        const rawCurrentDaySection = allDaySections.find((dayItem) => Number(dayItem?.day) === currentProgramDay)
+            || allDaySections[allDaySections.length - 1]
+            || { nodes: [] };
+        const rawCurrentDayCompletion = getProgramDayCompletion(rawCurrentDaySection, rawCurrentDayHistory);
+        const shouldShowNextDay = state.includeNextProgramDay
+            || rawCurrentDayCompletion.isComplete
+            || areProgramDayGamesComplete(rawCurrentDaySection, rawCurrentDayHistory);
+        const daySections = allDaySections.filter((dayItem) => {
+            const day = Number(dayItem?.day);
+            return day <= currentProgramDay || (shouldShowNextDay && day === currentProgramDay + 1);
+        });
+        const programNodes = flattenProgramDaySections(daySections);
+        const currentDaySection = daySections.find((dayItem) => Number(dayItem?.day) === currentProgramDay)
+            || daySections[daySections.length - 1]
+            || { nodes: [] };
+        const currentDayHistory = getHistoryRecordsForProgramDay(
+            state.historyRecords,
+            startedProgramForHistory,
+            currentProgramDay,
+        );
+        const currentDayCompletion = getProgramDayCompletion(currentDaySection, currentDayHistory);
+        const resolvedCompletedCount = Math.max(
+            0,
+            Number(completedCount) || 0,
+            currentDayCompletion.completedCount,
+        );
+        const resolvedDailyGameTarget = currentDayCompletion.gameTarget;
         const resolvedCompletedGameCount = Math.min(
             resolvedDailyGameTarget,
-            getCompletedGameCount(programNodes, resolvedCompletedCount),
+            currentDayCompletion.completedGameCount,
         );
+
         activeScreen = new HubMapScreen({
             nodes: programNodes,
+            daySections,
+            historyRecords: state.historyRecords,
+            startedProgram: startedProgramForHistory,
             dailyGameTarget: resolvedDailyGameTarget,
             completedCount: resolvedCompletedCount,
             completedGameCount: resolvedCompletedGameCount,
+            dailyGoal: state.dailyGoal,
+            programDay: currentProgramDay,
             patientLabel,
             selectableGames: state.allGames,
             isLoading: (state.programLoading && !state.programInitialized) || state.historyLoading,
@@ -732,14 +911,25 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.scrollTop = scrollTop;
             },
             onProfile,
-            onLogout,
-            onQuickGameSelect: async (selectedGame) => {
-                await onQuickLaunchGame(selectedGame);
+            onTestLogout,
+            onTestQuickGameSelect: async (selectedGame) => {
+                await onTestQuickLaunchGame(selectedGame);
             },
-            onClearHistory: async () => {
-                await onClearTodayHistory();
+            onTestClearHistory: async () => {
+                await onTestClearTodayHistory();
                 await loadPlayedHistory(true);
             },
+            onTestCompleteAll: async () => {
+                const { playedFrom, playedTo } = getProgramDateRange(programDate);
+                await onTestCompleteAll({
+                    nodes: programNodes,
+                    historyRecords: state.historyRecords,
+                    playedFrom,
+                    playedTo,
+                });
+                await loadPlayedHistory(true);
+            },
+            onTestDailyDataTools,
             onNodeAction: async (selectedNode) => {
                 try {
                     if (selectedNode?.type === "game") {
@@ -748,19 +938,14 @@ export async function renderGameHubScreen(root, options = {}) {
                     }
 
                     if (selectedNode?.type === "rest") {
-                        await onRestNode(selectedNode);
+                        const result = await onRestNode(selectedNode);
+                        if (result?.redirected || result?.cancelled) {
+                            return;
+                        }
                         await loadPlayedHistory(true);
                         return;
                     }
 
-                    if (selectedNode?.type === "checkin") {
-                        const result = await onCheckInNode(selectedNode);
-                        if (result?.redirected) {
-                            return;
-                        }
-
-                        await loadPlayedHistory(true);
-                    }
                 } catch (error) {
                     console.error("Unable to handle selected node action:", error);
                 }
@@ -769,14 +954,17 @@ export async function renderGameHubScreen(root, options = {}) {
         root.append(activeScreen.render());
     };
 
-    const loadProgramGames = async () => {
+    const loadProgramGames = async (force = false) => {
         if (state.programLoading) {
             return;
         }
 
-        if (!state.programInitialized) {
+        if (force || !state.programInitialized) {
             state.programLoading = true;
-            state.programGames = [];
+            if (!state.programInitialized) {
+                state.programGames = [];
+                state.programDays = [];
+            }
             render();
 
             try {
@@ -785,21 +973,37 @@ export async function renderGameHubScreen(root, options = {}) {
                     : [];
                 state.allGames = buildAllGames(gameListItems);
                 state.restGame = findRestGame(state.allGames);
-                state.programGames = buildProgramGamesFromPreset(
-                    state.allGames,
-                    preferredGameGid,
-                    DAY_ONE_PRESET_GIDS_MOCK.length,
-                );
+                let dailyProgram = null;
+                if (typeof loadDailyProgram === "function" && parsedPatientHn) {
+                    try {
+                        dailyProgram = await loadDailyProgram({
+                            hn: parsedPatientHn,
+                            windowBefore: state.includeNextProgramDay ? 1 : 2,
+                            windowAfter: 1,
+                        });
+                    } catch (error) {
+                        console.warn("Unable to load daily game program:", error);
+                    }
+                }
+                const dailyProgramGames = buildProgramGamesFromDailyProgram(dailyProgram);
+                const dailyProgramDays = buildProgramDaysFromDailyProgram(dailyProgram);
+                state.dailyProgram = dailyProgram || null;
+                const currentDay = Number(dailyProgram?.programDay || dailyProgramDays[0]?.day || 1);
+                const currentDayItem = dailyProgramDays.find((dayItem) => Number(dayItem?.day) === currentDay)
+                    || dailyProgramDays[dailyProgramDays.length - 1]
+                    || null;
+                state.dailyGoal = String(currentDayItem?.goal || dailyProgram?.dailyPreset?.goal || dailyProgramGames[0]?.goal || "").trim();
+                state.programGames = dailyProgramGames;
+                state.programDays = dailyProgramDays;
                 state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
                 state.allGames = buildAllGames([]);
                 state.restGame = null;
-                state.programGames = buildProgramGamesFromPreset(
-                    state.allGames,
-                    preferredGameGid,
-                    DAY_ONE_PRESET_GIDS_MOCK.length,
-                );
+                state.dailyProgram = null;
+                state.dailyGoal = "";
+                state.programGames = [];
+                state.programDays = [];
                 state.programError = error?.message || "Unable to load game list";
             }
 
@@ -807,6 +1011,59 @@ export async function renderGameHubScreen(root, options = {}) {
             state.programLoading = false;
             onStateChange({ scene: "intro", activeCategory: "Attention" });
             render();
+        }
+    };
+
+    const maybeAutoCheckIn = async ({
+        programNodes,
+        historyRecords,
+        checkInKey = "",
+    }) => {
+        const targetNodes = getAutoCheckInTargetNodes(programNodes);
+
+        if (!parsedPatientHn || !targetNodes.length) {
+            return;
+        }
+
+        if (state.autoCheckInLoading || state.autoCheckInCompletedKey === checkInKey) {
+            return;
+        }
+
+        if (hasCheckInRecord(historyRecords)) {
+            state.autoCheckInCompletedKey = checkInKey;
+            return;
+        }
+
+        const completedTargetCount = getSequentialCompletedCount(targetNodes, historyRecords);
+        if (completedTargetCount < targetNodes.length) {
+            return;
+        }
+
+        state.autoCheckInLoading = true;
+
+        try {
+            const checkInRecord = await db.addUserGameHistory({
+                hn: parsedPatientHn,
+                checkIn: true,
+                startAt: new Date().toISOString(),
+            });
+
+            state.historyRecords = [
+                ...state.historyRecords,
+                normalizeHistoryRecord(checkInRecord),
+            ];
+            state.autoCheckInCompletedKey = checkInKey;
+            render();
+
+            const checkInDates = await db.getUserCheckInDatesByHn({ hn: parsedPatientHn });
+            await showCheckInPopup({
+                checkInDates,
+                defaultDayCount: options.defaultDayCount || 14,
+            });
+        } catch (error) {
+            console.error("Unable to auto check in completed daily program:", error);
+        } finally {
+            state.autoCheckInLoading = false;
         }
     };
 
@@ -826,10 +1083,14 @@ export async function renderGameHubScreen(root, options = {}) {
         render();
 
         try {
-            const gids = state.programGames
+            const allProgramGames = (state.programDays || []).flatMap((dayItem) => dayItem?.games || []);
+            const gids = allProgramGames
                 .map((game) => String(game?.gid || "").trim())
                 .filter(Boolean);
-            const { playedFrom, playedTo } = getProgramDateRange(programDate);
+            const startDate = state.dailyProgram?.startedProgram || programDate || null;
+            const endDate = state.dailyProgram?.programEndDate || programDate || null;
+            const { playedFrom } = getProgramDateRange(startDate);
+            const { playedTo } = getProgramDateRange(endDate);
 
             if (
                 typeof loadCompletedGameHistoryRecords === "function"
@@ -872,6 +1133,41 @@ export async function renderGameHubScreen(root, options = {}) {
             }
 
             state.historyError = "";
+            state.historyLoading = false;
+            render();
+
+            const currentProgramDay = Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
+            const currentDayAnchor = getProgramDayAnchorDate(
+                state.dailyProgram?.startedProgram || programDate,
+                currentProgramDay,
+            );
+            const currentDayKey = getCheckInDateKey(currentDayAnchor);
+            const currentDayHistory = getHistoryRecordsByDateKey(state.historyRecords, currentDayKey);
+            const currentProgramNodes = buildDailyProgramNodes(
+                (state.programDays || []).find((dayItem) => Number(dayItem?.day) === currentProgramDay)?.games
+                    || state.programGames,
+                state.restGame,
+            );
+            await maybeAutoCheckIn({
+                programNodes: currentProgramNodes,
+                historyRecords: currentDayHistory,
+                checkInKey: currentDayKey,
+            });
+
+            const currentDaySection = buildProgramDaySections(state.programDays, state.restGame)
+                .find((dayItem) => Number(dayItem?.day) === currentProgramDay);
+            const currentDayCompletion = getProgramDayCompletion(currentDaySection, currentDayHistory);
+            const currentDayGamesComplete = areProgramDayGamesComplete(currentDaySection, currentDayHistory);
+            if (
+                (currentDayCompletion.isComplete || currentDayGamesComplete)
+                && !state.includeNextProgramDay
+                && currentProgramDay < Number(state.dailyProgram?.programDayCount || 0)
+            ) {
+                state.includeNextProgramDay = true;
+                await loadProgramGames(true);
+                await loadPlayedHistory(true);
+                return;
+            }
         } catch (error) {
             console.warn("Unable to load played game history:", error);
             state.historyRecords = [];
