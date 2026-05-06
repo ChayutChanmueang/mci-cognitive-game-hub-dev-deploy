@@ -79,6 +79,7 @@ export default class UITestScene extends Phaser.Scene {
 
     // Initial state to HUD
     EventBus.emit('minigame:score', { score: this.score });
+    EventBus.emit('minigame:lives', { lives: this.lives });
     EventBus.emit('minigame:tick', { timeLeft: 180 }); // 3 minutes
 
     this.conveyerNums = data.conveyerNums || 3;
@@ -176,6 +177,7 @@ export default class UITestScene extends Phaser.Scene {
   removeLives(removedLives) {
     this.lives -= removedLives
     console.log("Current Lives: " + this.lives);
+    EventBus.emit('minigame:lives', { lives: Math.max(0, this.lives) });
     if (this.lives >= 0) {
       this.gameplayUI.setLives(this.lives);
     }

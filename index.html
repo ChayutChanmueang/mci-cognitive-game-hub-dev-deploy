@@ -15,15 +15,15 @@
 <body>
     <script>
       window.addEventListener('error', function(e) {
-        fetch('http://localhost:9999', { method: 'POST', body: 'ERROR: ' + e.message + '\n' + e.error?.stack });
+        fetch('http://localhost:9999', { method: 'POST', body: 'ERROR: ' + e.message + '\n' + e.error?.stack }).catch(() => {});
       });
       window.addEventListener('unhandledrejection', function(e) {
-        fetch('http://localhost:9999', { method: 'POST', body: 'UNHANDLED REJECTION: ' + e.reason?.message + '\n' + e.reason?.stack });
+        fetch('http://localhost:9999', { method: 'POST', body: 'UNHANDLED REJECTION: ' + e.reason?.message + '\n' + e.reason?.stack }).catch(() => {});
       });
       // Monkey patch console.error
       const origError = console.error;
       console.error = function(...args) {
-        fetch('http://localhost:9999', { method: 'POST', body: 'CONSOLE ERROR: ' + args.map(a => a?.stack || a).join(' ') });
+        fetch('http://localhost:9999', { method: 'POST', body: 'CONSOLE ERROR: ' + args.map(a => a?.stack || a).join(' ') }).catch(() => {});
         origError.apply(console, args);
       };
     </script>

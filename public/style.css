@@ -66,9 +66,9 @@ body.hub-mode {
 #app.game-mode #game-container {
     position: absolute;
     inset: 0;
-    top: max(80px, calc(env(safe-area-inset-top) + 64px));
+    top: 0;
     width: 100%;
-    height: calc(100% - max(80px, calc(env(safe-area-inset-top) + 64px)));
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
