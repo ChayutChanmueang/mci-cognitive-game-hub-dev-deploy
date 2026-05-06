@@ -52,6 +52,7 @@ export default class UITestScene extends Phaser.Scene {
 
   create(data) {
     console.log("UI test scene");
+    EventBus.emit('minigame:show-hud');
 
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
@@ -113,6 +114,10 @@ export default class UITestScene extends Phaser.Scene {
 
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
 
+  }
+
+  startTimer() {
+    if (this.countdownTimer) return;
     this.countdownTimer = this.time.addEvent({
       delay: 1000,
       callback: () => {
@@ -123,9 +128,9 @@ export default class UITestScene extends Phaser.Scene {
         }
       },
       repeat: 179,
-    })
-
+    });
   }
+
   update(time, delta) {
     for (const _conveyer of this.conveyers) {
       _conveyer.update(time, delta);

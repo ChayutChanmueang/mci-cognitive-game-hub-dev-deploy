@@ -175,5 +175,8 @@ export default class TutorialPanel extends UIPanel {
 
     onHide() {
         this.scene.spawnFruit();
+        if (this.scene.startTimer) {
+            this.scene.startTimer();
+        }
     }
 }
