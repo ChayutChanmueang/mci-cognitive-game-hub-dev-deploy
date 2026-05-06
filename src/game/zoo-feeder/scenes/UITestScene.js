@@ -37,10 +37,22 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.png')
     this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.png')
     this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.png')
+    //Animal Icon
+    this.load.image("bear_icon", "assets/zoo-feeder/animal/icons/H_Bear.png");
+    this.load.image("cow_icon", "assets/zoo-feeder/animal/icons/H_Cow.png");
+    this.load.image("elephant_icon", "assets/zoo-feeder/animal/icons/H_ele.png");
+    this.load.image("fox_icon", "assets/zoo-feeder/animal/icons/H_Fox.png");
+    this.load.image("lion_icon", "assets/zoo-feeder/animal/icons/H_Li.png");
+    this.load.image("panda_icon", "assets/zoo-feeder/animal/icons/H_Pan.png");
+    //Emote
+    this.load.image("popup_emote", "assets/zoo-feeder/etc/Popup.png");
+    this.load.image("emote_sad", "assets/zoo-feeder/etc/Emoji_None.png");
+    this.load.image("emote_happy", "assets/zoo-feeder/etc/Emoji_Smile.png");
   }
 
   create(data) {
     console.log("UI test scene");
+    EventBus.emit('minigame:show-hud');
 
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
@@ -102,6 +114,10 @@ export default class UITestScene extends Phaser.Scene {
 
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
 
+  }
+
+  startTimer() {
+    if (this.countdownTimer) return;
     this.countdownTimer = this.time.addEvent({
       delay: 1000,
       callback: () => {
@@ -112,9 +128,9 @@ export default class UITestScene extends Phaser.Scene {
         }
       },
       repeat: 179,
-    })
-
+    });
   }
+
   update(time, delta) {
     for (const _conveyer of this.conveyers) {
       _conveyer.update(time, delta);

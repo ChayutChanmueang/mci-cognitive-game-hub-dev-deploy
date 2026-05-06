@@ -31,6 +31,9 @@ export class MinigameHUD {
         this.boundOnTick = this.onTick.bind(this);
 
         this.boundOnGameOver = this.onGameOver.bind(this);
+        this.boundOnShow = this.show.bind(this);
+        this.boundOnHide = this.hide.bind(this);
+        this.boundOnMenuMode = this.menuMode.bind(this);
     }
 
     render() {
@@ -87,6 +90,9 @@ export class MinigameHUD {
         EventBus.on("minigame:level", this.boundOnLevel);
         EventBus.on("minigame:tick", this.boundOnTick);
         EventBus.on("minigame:game-over", this.boundOnGameOver);
+        EventBus.on("minigame:show-hud", this.boundOnShow);
+        EventBus.on("minigame:hide-hud", this.boundOnHide);
+        EventBus.on("minigame:menu-mode", this.boundOnMenuMode);
     }
 
     onScoreUpdate({ score }) {
@@ -129,11 +135,65 @@ export class MinigameHUD {
         // Handle game over (maybe show result panel)
     }
 
+    show() {
+        if (this.element) {
+            this.element.style.display = "";
+            const topbar = this.element.querySelector(".minigame-hud__topbar");
+            if (topbar) {
+                topbar.style.background = "";
+                topbar.style.boxShadow = "";
+                topbar.style.pointerEvents = "auto";
+            }
+            const titleGroup = this.element.querySelector(".minigame-hud__title-group");
+            if (titleGroup) titleGroup.style.display = "";
+            
+            const rightGroup = this.element.querySelector(".minigame-hud__right");
+            if (rightGroup) rightGroup.style.display = "";
+            
+            const timerWrap = this.element.querySelector(".minigame-hud__timer-wrap");
+            if (timerWrap) timerWrap.style.display = "";
+        }
+    }
+
+    hide() {
+        if (this.element) {
+            this.element.style.display = "none";
+        }
+    }
+
+    menuMode() {
+        if (this.element) {
+            this.element.style.display = "";
+            const topbar = this.element.querySelector(".minigame-hud__topbar");
+            if (topbar) {
+                topbar.style.background = "transparent";
+                topbar.style.boxShadow = "none";
+                topbar.style.pointerEvents = "none"; // Let clicks pass through background
+            }
+            
+            // Re-enable pointer events for the back button so it remains clickable
+            const exitBtn = this.element.querySelector("#hud-exit-button");
+            if (exitBtn) exitBtn.style.pointerEvents = "auto";
+
+            const titleGroup = this.element.querySelector(".minigame-hud__title-group");
+            if (titleGroup) titleGroup.style.display = "none";
+            
+            const rightGroup = this.element.querySelector(".minigame-hud__right");
+            if (rightGroup) rightGroup.style.display = "none";
+            
+            const timerWrap = this.element.querySelector(".minigame-hud__timer-wrap");
+            if (timerWrap) timerWrap.style.display = "none";
+        }
+    }
+
     destroy() {
         EventBus.off("minigame:score", this.boundOnScore);
         EventBus.off("minigame:level", this.boundOnLevel);
         EventBus.off("minigame:tick", this.boundOnTick);
         EventBus.off("minigame:game-over", this.boundOnGameOver);
+        EventBus.off("minigame:show-hud", this.boundOnShow);
+        EventBus.off("minigame:hide-hud", this.boundOnHide);
+        EventBus.off("minigame:menu-mode", this.boundOnMenuMode);
         this.element?.remove();
     }
 
