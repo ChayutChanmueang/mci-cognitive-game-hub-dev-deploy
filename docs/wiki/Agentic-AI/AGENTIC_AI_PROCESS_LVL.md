@@ -1,64 +1,82 @@
 # 🎮 Agentic AI Implementation: Game Dev Maturity Model
 
-**Version:** 1.1 | **Last Updated:** 2026-05-06 | **Owner:** Project Developer
+**Version:** 1.2 | **Last Updated:** 2026-05-06 | **Owner:** Project Developer
 
-เอกสารฉบับนี้อธิบายถึงระดับความเชี่ยวชาญและการประยุกต์ใช้ Agentic AI ในกระบวนการพัฒนาเกม MCI Cognitive Games เพื่อให้ AI ทำงานได้เสมือนเป็น "ทีมงานที่มีประสิทธิภาพ" มากกว่าเป็นแค่เครื่องมือพิมพ์ข้อความ
+เอกสารฉบับนี้อธิบายถึงลำดับขั้นความเชี่ยวชาญ (Maturity Model) ของการใช้ Agentic AI ในโปรเจค MCI Cognitive Games เพื่อให้ AI พัฒนาจากการเป็นแค่ "ผู้ช่วยพิมพ์โค้ด" ไปสู่การเป็น "ทีมสถาปนิกและผู้ผลิตเกมอัจฉริยะ"
 
 ---
 
-## 📊 4 Levels of AI Maturity (ระดับการใช้งาน)
+## 📊 5 Levels of AI Maturity (ระดับความก้าวหน้า)
 
-เราแบ่งการทำงานของ AI ออกเป็น 4 ระดับตามความซับซ้อนของ Context และความสามารถในการตัดสินใจ:
+จากการวิจัยและแนวทางปฏิบัติระดับสากล เราแบ่งระดับการใช้งาน AI ออกเป็น 5 ขั้นดังนี้:
 
 ### 🛡️ LvL 1: The Junior (Foundation & Rules)
-**ระดับพื้นฐาน**: AI เข้าใจบริบทกว้างๆ ของโปรเจคและปฏิบัติตามกฎเหล็กของทีม
-*   **Context**: รู้ว่านี่คือโปรเจคเกมอะไร, ใช้ Stack อะไร (Phaser 3, Vite, React) และต้องรันคำสั่งอะไร
+**ความสามารถ**: ทำงานตามคำสั่งเฉพาะหน้าที่ชัดเจนและปฏิบัติตามกฎเหล็กพื้นฐาน
+*   **Context**: เข้าใจ Stack เทคโนโลยี (Phaser, React, Vite) ผ่านไฟล์กำหนดค่า
 *   **Tools**: `AGENTS.md`, `.agents/rules/`
-*   **Game Dev Example**: "ช่วยสร้าง Phaser Scene พื้นฐานสำหรับด่านใหม่ โดยใช้ความละเอียด 800x600 ตามที่ระบุใน AGENTS.md"
+*   **Game Dev Example**: "สร้าง Template ของ `Phaser.Scene` โดยต้องมีเมธอด `preload`, `create` และ `update` ตามมาตรฐานโปรเจค"
 
 ### 🧩 LvL 2: The Specialist (Domain Expertise)
-**ระดับเชี่ยวชาญเฉพาะทาง**: AI เข้าถึงคลังความรู้ (Skill) เฉพาะด้านเพื่อเขียนโค้ดที่ซับซ้อนและมีประสิทธิภาพ
-*   **Context**: เข้าใจ Patterns เฉพาะทาง เช่น Object Pooling, Scene Lifecycle, และการทำ Responsive UI สำหรับมือถือ
-*   **Tools**: `.agents/skills/` (e.g., `phaser-best-practices`, `game-ui-ux-web`)
-*   **Game Dev Example**: "ใช้ skill `phaser-best-practices` เพื่อสร้างระบบกระสุน (Projectiles) โดยใช้ระบบ Object Pooling เพื่อไม่ให้เกมกระตุกเวลาเล่นบนมือถือ"
+**ความสามารถ**: ประยุกต์ใช้ Patterns การพัฒนาเกมระดับสูงเพื่อแก้ปัญหาเฉพาะด้าน
+*   **Context**: เข้าใจเรื่อง Performance, Memory Management และ Game Lifecycle
+*   **Tools**: `.agents/skills/` (เช่น `phaser-best-practices`, `writing-phaser-3-games`)
+*   **Game Dev Example**: "ใช้ skill `phaser` เพื่อออกแบบระบบดักจับ Input ของมือถือให้ลื่นไหลเหมือนเล่นบน Desktop"
 
-### 📉 LvL 3: The Architect (Structural Efficiency)
-**ระดับสถาปนิก**: AI มองเห็นภาพรวมความสัมพันธ์ของโค้ดทั้งโปรเจค (High-level architecture) และทำงานได้อย่างคุ้มค่า Token
-*   **Context**: เข้าใจ Dependency ของ Module ต่างๆ, รู้ว่าจุดไหนเป็น "God Node" ที่ห้ามแตะต้อง และสามารถวิเคราะห์ผลกระทบ (Impact Analysis) ได้
-*   **Tools**: `graphify`, Knowledge Graphs, `graphify-out/GRAPH_REPORT.md`
-*   **Game Dev Example**: "ตรวจสอบ Knowledge Graph ว่าการแก้ไข `VoiceService` จะส่งผลกระทบต่อมินิเกมด่านไหนบ้าง ก่อนที่จะทำการ Refactor โค้ดทั้งหมด"
+### 📉 LvL 3: The Architect (Structural awareness)
+**ความสามารถ**: วิเคราะห์ความสัมพันธ์ของโค้ดทั้งระบบเพื่อเพิ่มประสิทธิภาพและลด Token
+*   **Context**: มองเห็น Dependency Graph และเข้าใจผลกระทบของการแก้ไขโค้ดข้าม Module
+*   **Tools**: `graphify`, `graphify-out/GRAPH_REPORT.md`
+*   **Game Dev Example**: "ตรวจสอบผ่าน Graphify ว่าหากเปลี่ยนโครงสร้างของ `EventBus` จะส่งผลกระทบต่อระบบ UI ตัวไหนบ้าง"
 
 ### 📝 LvL 4: The Producer (Design-Driven Development)
-**ระดับสูงสุด**: AI ทำงานโดยอ้างอิงจาก "ความต้องการทางธุรกิจและงานออกแบบ" เป็นหลัก (Source of Truth)
-*   **Context**: เชื่อมโยงโค้ดเข้ากับ GDD, Software Design และ Agile Backlog อย่างสมบูรณ์
+**ความสามารถ**: ตัดสินใจแก้ไขโค้ดโดยอ้างอิงจากงานออกแบบและสถานะของโครงการ
+*   **Context**: เชื่อมโยง Logical Code เข้ากับ GDD, Software Design และ Agile Backlog
 *   **Tools**: `docs/gdd/`, `docs/software/`, `docs/agile/`
-*   **Game Dev Example**: "อ่านเอกสาร GDD ของเกม 'Zoo Feeder', ตรวจสอบโครงสร้างฐานข้อมูลใน Software Design, แล้วทำการ Implement ฟีเจอร์เก็บคะแนนพร้อมอัปเดต Product Backlog เมื่อเสร็จสิ้น"
+*   **Game Dev Example**: "อ่าน GDD ด่าน 'Context Clues' และอัปเดต User Story ใน Backlog ให้เป็น Done หลังจาก Implement ฟีเจอร์เสร็จ"
+
+### 🤖 LvL 5: The Orchestrator (Autonomous Collaboration) - *New!*
+**ความสามารถ**: วางแผน ปฏิบัติ ตรวจสอบความผิดพลาด และสั่งงาน Sub-agents ตัวอื่นโดยอัตโนมัติ
+*   **Context**: การทำงานแบบ Multi-agent และการแก้ไขปัญหาเชิงสถาปัตยกรรมที่ซับซ้อนด้วยตนเอง
+*   **Tools**: `invoke_agent`, `MEMORY.md`, Recursive reasoning loops
+*   **Game Dev Example**: "ส่ง `codebase_investigator` ไปวิเคราะห์ Memory Leak ในระบบ Animation และสั่งให้แก้ไฟล์ทั้งหมดพร้อมรัน Test ยืนยันผลโดยไม่ต้องรอคำสั่งทีละขั้นตอน"
 
 ---
 
-## 🤖 Core Operational Workflow (วงจรการทำงาน)
+## ⚙️ Core Operational Workflow: The "Reasoning Loop"
 
-ในทุกระดับ (LvL) AI จะต้องทำงานภายใต้วงจร **Think-then-Execute** เพื่อความปลอดภัย:
+เพื่อให้ AI ทำงานได้อย่างแม่นยำในทุกระดับ เราใช้กระบวนการ **ReAct (Reason + Act)** ซึ่งขยายความได้ดังนี้:
 
-1.  **Ask (Inquiry)**: วิจัยข้อมูลจากโค้ดเบสหรืออินเทอร์เน็ต (เช่น "หาตัวอย่างการทำ Drag & Drop ใน Phaser")
-2.  **Plan (Strategy)**: สร้างแผนงานใน `PLAN.md` และรอการอนุมัติ (เช่น "วางแผนแก้ระบบ Collision โดยอ้างอิง GDD")
-3.  **Act (Execution)**: ลงมือแก้ไขโค้ดด้วยเครื่องมือเฉพาะทาง (เช่น `replace`, `write_file`)
-4.  **Validate (Verification)**: ตรวจสอบความถูกต้องเสมอด้วย `npm test` หรือ `tsc` (Zero-Trust Policy)
+### 🔍 1. Ask (Inquiry & Research)
+*   **Goal**: สร้างความเข้าใจ (Mental Model) ก่อนลงมือ
+*   **Action**: ค้นหาไฟล์ด้วย `grep_search`, ค้นหาอินเทอร์เน็ตผ่าน `google_web_search`
+*   **Rule**: ห้ามแก้ไขไฟล์เด็ดขาด เน้นการตั้งสมมติฐานและการวิจัย
+
+### 🗺️ 2. Plan (Strategy & Decomposition)
+*   **Goal**: แบ่งงานใหญ่เป็นงานย่อย (Task Decomposition) เพื่อลดความผิดพลาด
+*   **Action**: ใช้ `enter_plan_mode` เพื่อเขียน `PLAN.md`
+*   **Technique**: **Chain of Thought (CoT)** - ให้ AI อธิบายเหตุผลในแต่ละขั้นตอนว่าทำไมถึงเลือกวิธีนี้
+
+### 🛠️ 3. Act (Execution & Implementation)
+*   **Goal**: เปลี่ยนแผนเป็นโค้ดจริงอย่าง "ศัลยกรรม" (Surgical Edits)
+*   **Action**: ใช้ `replace` หรือ `write_file`
+*   **Rule**: แก้ไขเฉพาะจุดที่เกี่ยวข้อง ไม่แก้โค้ดที่ไม่เกี่ยวข้องเพื่อป้องกันผลกระทบข้างเคียง
+
+### 🧪 4. Validate (Verification Loop)
+*   **Goal**: ยืนยันว่างานสำเร็จตาม Acceptance Criteria (Zero-Trust Policy)
+*   **Action**: รัน `npm test`, `tsc`, หรือตรวจสอบผลลัพธ์ผ่าน `run_shell_command`
+*   **Rule**: **"หลักฐานเชิงประจักษ์สำคัญกว่าคำยืนยันของ AI"**
+
+### 🔄 5. Reflect & Correct (Self-Correction)
+*   **Goal**: ตรวจสอบความล้มเหลวและเปลี่ยนกลยุทธ์ (Backtracking)
+*   **Action**: หากรัน Test ไม่ผ่าน AI จะต้องวิเคราะห์สาเหตุ (Error Analysis) และเสนอแผนแก้ไขใหม่ (Re-planning)
 
 ---
 
-## 🚀 Advanced Mastery: การควบคุม AI ขั้นสูง
+## 📚 อ้างอิงและองค์ความรู้เพิ่มเติม
 
-1.  **Persistent Memory**: บันทึกการตัดสินใจลงใน `MEMORY.md` เพื่อให้ AI "จำได้" ข้ามเซสชัน ไม่ต้องเริ่มนับหนึ่งใหม่
-2.  **Sub-agents**: แบ่งงานสเกลใหญ่ให้ Agent เฉพาะทาง (เช่น ให้ `codebase_investigator` ไปขุดหา Bug ในขณะที่เราออกแบบฟีเจอร์ใหม่)
-3.  **Strategic Detour**: หาก AI แก้ปัญหาเดิมเกิน 3 รอบไม่สำเร็จ ผู้พัฒนาต้องแทรกแซง (HITL) หรือสั่งให้เปลี่ยนวิธีคิดใหม่ทันที
-
----
-
-## 🔗 Related Documents
-- [🌐 Project Wiki](../wiki.md) | [🛠️ Specialized Skills Usage](PROJECT_AGENT_SKILL_USING.md)
-- [📘 Game Design (GDD)](../../index.md#game-design-gdd) | [💻 Software Design](../../index.md#software-design)
-- [🚀 Agile Management](../../index.md#agile-management)
+1.  **ReAct Pattern**: การผสมผสานระหว่าง Reasoning และ Acting เพื่อให้ Agent มีความฉลาดในการตอบสนองต่อสภาพแวดล้อม [Ref: arXiv:2210.03629]
+2.  **Autonomous Agent Maturity**: ลำดับขั้นการพัฒนา Agent จาก Chatbot สู่ Orchestrator [Ref: Salesforce/Microsoft AI Models]
+3.  **Human-in-the-loop (HITL)**: ความสำคัญของการมีมนุษย์ตรวจสอบในจุดตัดสินใจสำคัญ (Critical Approval Gates) เพื่อความปลอดภัยของระบบ
 
 ---
-*Generated by Antigravity AI Assistant using game-doc-manager skill.*
+*Generated by Antigravity AI Assistant (Level 5 Orchestrator) using game-doc-manager skill.*
