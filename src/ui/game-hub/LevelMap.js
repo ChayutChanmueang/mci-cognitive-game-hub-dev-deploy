@@ -1,20 +1,20 @@
 ﻿import { HubElement } from "./HubElement.js";
-import { LevelNode } from "./LevelNode.js";
-import { GameHubUtils } from "../../core/game-hub-screen/GameHubUtils.js";
-import { GameHubHistoryManager } from "../../core/game-hub-screen/GameHubHistoryManager.js";
+import { DaySection } from "./DaySection.js";
 import { DomObjectPool } from "../../core/game-hub-screen/DomObjectPool.js";
 
 /**
  * LevelMap
- * Component สำหรับวาดเส้นทางแผนที่ของเกมทั้งหมด (รองรับ Object Pool)
+ * Component สำหรับวาดเส้นทางแผนที่ของเกมทั้งหมด
+ * คลาสนี้จัดการ Object Pool สำหรับ "DaySection" (กลุ่มของวัน)
+ * และส่งต่อหน้าที่จัดการ LevelNode ไปให้ DaySection
  */
 export class LevelMap extends HubElement {
     constructor(options = {}) {
         super(options);
-        // สร้าง Object Pool สำหรับนำ UI Node มารีไซเคิล
-        this.nodePool = new DomObjectPool({
-            createMember: (opt) => new LevelNode(opt),
-            maxSize: 30
+        // สร้าง Object Pool สำหรับนำ DaySection Component มารีไซเคิล
+        this.daySectionPool = new DomObjectPool({
+            createMember: (opt) => new DaySection(opt),
+            maxSize: 10 // จำนวนวันน่าจะไม่เกิน 10 วันที่แสดงพร้อมกันบนหน้าจอ
         });
     }
 
@@ -52,7 +52,7 @@ export class LevelMap extends HubElement {
             this.options.onScrollChange?.(value);
         };
 
-        this.renderNodes();
+        this.renderDaySections();
         this.on(scrollArea, "scroll", updateFab, { passive: true });
         this.on(scrollTop, "click", () => scrollArea?.scrollTo({ top: 0, behavior: "smooth" }));
 
@@ -75,53 +75,35 @@ export class LevelMap extends HubElement {
         });
     }
 
-    renderNodes() {
-        const daySections = Array.isArray(this.options.daySections) ? this.options.daySections : [];
+    renderDaySections() {
+        const daySectionsData = Array.isArray(this.options.daySections) ? this.options.daySections : [];
         const list = this.element?.querySelector("[data-day-section-list]");
 
-        // คืนค่า Node เก่ากลับเข้า Object Pool ก่อนทำการเรนเดอร์ใหม่
-        this.nodePool.releaseAll();
+        // 1. คืน DaySection เก่ากลับเข้า Object Pool
+        this.daySectionPool.releaseAll();
+        // เคลียร์ children ออกให้หมดก่อน
+        this.children = [];
+        
+        if (!list) return;
+        list.innerHTML = ""; // เคลียร์ DOM container เก่า
 
-        daySections.forEach((daySection) => {
-            const nodes = daySection?.nodes || [];
-            const dayHistory = GameHubHistoryManager.getHistoryRecordsForProgramDay(
-                this.options.historyRecords || [],
-                this.options.startedProgram,
-                Number(daySection?.day || 1),
-            );
-            const completion = GameHubHistoryManager.getProgramDayCompletion(daySection, dayHistory);
-            const currentNodeIndex = completion.completedCount >= nodes.length ? -1 : completion.completedCount;
-            const section = document.createElement("section");
-            section.className = "hub-clean-day-section";
-            section.dataset.programDay = String(daySection?.day || "");
-            section.innerHTML = `
-                <div class="hub-clean-day-divider">
-                    <span></span>
-                    <strong>วันที่ ${GameHubUtils.escapeHtml(daySection?.day || "")}</strong>
-                    <span></span>
-                </div>
-                <div class="hub-clean-levels" data-level-list></div>
-            `;
-            list?.append(section);
-
-            const nodeList = section.querySelector("[data-level-list]");
-            nodes.forEach((node, index) => {
-                // ดึง Node ออกมาจาก Object Pool (หรือสร้างใหม่ถ้าไม่มี)
-                const levelNode = this.nodePool.acquire({
-                    nodeData: node,
-                    index,
-                    isDone: index < completion.completedCount,
-                    isCurrent: currentNodeIndex >= 0 && index === currentNodeIndex,
-                    onAction: this.options.onNodeAction,
-                });
-                this.addChild(levelNode, nodeList);
+        // 2. ดึง DaySection ออกมาจาก Pool ตามข้อมูลและวาดลง DOM
+        daySectionsData.forEach((daySectionData) => {
+            const daySectionComponent = this.daySectionPool.acquire({
+                daySectionData: daySectionData,
+                historyRecords: this.options.historyRecords,
+                startedProgram: this.options.startedProgram,
+                onNodeAction: this.options.onNodeAction
             });
+            
+            // ให้ LevelMap เก็บ DaySection ไว้ในฐานะลูก
+            this.addChild(daySectionComponent, list);
         });
     }
 
     destroy() {
         super.destroy();
-        // คืนหน่วยความจำในส่วนของ Object Pool อย่างสมบูรณ์
-        this.nodePool.destroy();
+        // คืนหน่วยความจำของ DaySection Pool
+        this.daySectionPool.destroy();
     }
 }

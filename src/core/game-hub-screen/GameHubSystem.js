@@ -39,25 +39,9 @@ export class GameHubSystem {
         const currentProgramDay = Number(this.state.dailyProgram?.programDay || this.state.programDays[0]?.day || 1);
         const startedProgramForHistory = this.state.dailyProgram?.startedProgram || this.options.programDate;
         
-        const rawCurrentDayHistory = GameHubHistoryManager.getHistoryRecordsForProgramDay(
-            this.state.historyRecords,
-            startedProgramForHistory,
-            currentProgramDay,
-        );
-        
-        const rawCurrentDaySection = allDaySections.find((dayItem) => Number(dayItem?.day) === currentProgramDay)
-            || allDaySections[allDaySections.length - 1]
-            || { nodes: [] };
-            
-        const rawCurrentDayCompletion = GameHubHistoryManager.getProgramDayCompletion(rawCurrentDaySection, rawCurrentDayHistory);
-        const shouldShowNextDay = this.state.includeNextProgramDay
-            || rawCurrentDayCompletion.isComplete
-            || GameHubHistoryManager.areProgramDayGamesComplete(rawCurrentDaySection, rawCurrentDayHistory);
-            
-        const daySections = allDaySections.filter((dayItem) => {
-            const day = Number(dayItem?.day);
-            return day <= currentProgramDay || (shouldShowNextDay && day === currentProgramDay + 1);
-        });
+        // **[REMOVED BUG]** ลบ Filter ที่ซับซ้อนและทำงานผิดพลาดออก
+        // ให้ UI แสดงผลทุกวัน (DaySection) ที่ถูกโหลดเข้ามาใน State โดยตรง
+        const daySections = allDaySections;
         
         const programNodes = GameHubProgramBuilder.flattenProgramDaySections(daySections);
         const currentDaySection = daySections.find((dayItem) => Number(dayItem?.day) === currentProgramDay)
@@ -166,17 +150,21 @@ export class GameHubSystem {
                 let dailyProgram = null;
                 if (typeof this.options.loadDailyProgram === "function" && this.parsedPatientHn) {
                     try {
+                        // **[CORRECTED LOGIC]** ปรับการโหลด Window ให้ชัดเจนและถูกต้อง
+                        // ถ้าเล่นวันปัจจุบันจบ (includeNextProgramDay) จะโหลด [day-1, day, day+1, day+2]
+                        // ถ้ายังไม่จบ จะโหลด [day-2, day-1, day, day+1]
                         dailyProgram = await this.options.loadDailyProgram({
                             hn: this.parsedPatientHn,
                             windowBefore: this.state.includeNextProgramDay ? 1 : 2,
-                            windowAfter: 1,
+                            windowAfter: this.state.includeNextProgramDay ? 2 : 1,
                         });
                     } catch (error) {
                         console.warn("Unable to load daily game program:", error);
                     }
                 }
                 
-                const dailyProgramGames = GameHubProgramBuilder.buildProgramGamesFromDailyProgram(dailyProgram);
+                // **[CORRECTED LOGIC]** ใช้ข้อมูล `days` ที่มาจาก `dailyProgram` โดยตรง
+                // ซึ่งเป็น Array ของวันทั้งหมดใน Window ที่โหลดมา
                 const dailyProgramDays = GameHubProgramBuilder.buildProgramDaysFromDailyProgram(dailyProgram);
                 
                 this.state.dailyProgram = dailyProgram || null;
@@ -185,9 +173,8 @@ export class GameHubSystem {
                     || dailyProgramDays[dailyProgramDays.length - 1]
                     || null;
                     
-                this.state.dailyGoal = String(currentDayItem?.goal || dailyProgram?.dailyPreset?.goal || dailyProgramGames[0]?.goal || "").trim();
-                this.state.programGames = dailyProgramGames;
-                this.state.programDays = dailyProgramDays;
+                this.state.dailyGoal = String(currentDayItem?.goal || dailyProgram?.dailyPreset?.goal || "").trim();
+                this.state.programDays = dailyProgramDays; // <--- ใช้ข้อมูลที่ถูกต้อง
                 this.state.programError = "";
             } catch (error) {
                 console.warn("Unable to load game list:", error);
@@ -276,6 +263,7 @@ export class GameHubSystem {
             const gids = allProgramGames.map((game) => String(game?.gid || "").trim()).filter(Boolean);
             const startDate = this.state.dailyProgram?.startedProgram || this.options.programDate || null;
             const endDate = this.state.dailyProgram?.programEndDate || this.options.programDate || null;
+            
             const { playedFrom } = GameHubUtils.getProgramDateRange(startDate);
             const { playedTo } = GameHubUtils.getProgramDateRange(endDate);
 
@@ -313,6 +301,7 @@ export class GameHubSystem {
             );
             const currentDayKey = GameHubDataNormalizer.getCheckInDateKey(currentDayAnchor);
             const currentDayHistory = GameHubHistoryManager.getHistoryRecordsByDateKey(this.state.historyRecords, currentDayKey);
+            
             const currentProgramNodes = GameHubProgramBuilder.buildDailyProgramNodes(
                 (this.state.programDays || []).find((dayItem) => Number(dayItem?.day) === currentProgramDay)?.games || this.state.programGames,
                 this.state.restGame,
@@ -326,18 +315,21 @@ export class GameHubSystem {
 
             const currentDaySection = GameHubProgramBuilder.buildProgramDaySections(this.state.programDays, this.state.restGame)
                 .find((dayItem) => Number(dayItem?.day) === currentProgramDay);
-            const currentDayCompletion = GameHubHistoryManager.getProgramDayCompletion(currentDaySection, currentDayHistory);
-            const currentDayGamesComplete = GameHubHistoryManager.areProgramDayGamesComplete(currentDaySection, currentDayHistory);
-            
-            if (
-                (currentDayCompletion.isComplete || currentDayGamesComplete)
-                && !this.state.includeNextProgramDay
-                && currentProgramDay < Number(this.state.dailyProgram?.programDayCount || 0)
-            ) {
-                this.state.includeNextProgramDay = true;
-                await this.loadProgramGames(true);
-                await this.loadPlayedHistory(true);
-                return;
+                
+            if (currentDaySection) {
+                const currentDayCompletion = GameHubHistoryManager.getProgramDayCompletion(currentDaySection, currentDayHistory);
+                const currentDayGamesComplete = GameHubHistoryManager.areProgramDayGamesComplete(currentDaySection, currentDayHistory);
+                
+                if (
+                    (currentDayCompletion.isComplete || currentDayGamesComplete)
+                    && !this.state.includeNextProgramDay
+                    && currentProgramDay < Number(this.state.dailyProgram?.programDayCount || 0)
+                ) {
+                    this.state.includeNextProgramDay = true;
+                    await this.loadProgramGames(true);
+                    await this.loadPlayedHistory(true);
+                    return;
+                }
             }
         } catch (error) {
             console.warn("Unable to load played game history:", error);

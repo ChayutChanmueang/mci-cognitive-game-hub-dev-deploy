@@ -16,9 +16,11 @@ export class GameHubHistoryManager {
 
         if (node.type === "game") {
             const nodeStage = node.stage == null || node.stage === "" ? null : Number(node.stage);
+            const recordStage = historyRecord.stage == null || historyRecord.stage === "" ? null : Number(historyRecord.stage);
+            
             return Boolean(historyRecord.gid)
                 && historyRecord.gid === node.gid
-                && (nodeStage == null || historyRecord.stage == null || Number(historyRecord.stage) === nodeStage)
+                && (nodeStage == null || recordStage == null || recordStage === nodeStage)
                 && Boolean(historyRecord.endAt);
         }
 
