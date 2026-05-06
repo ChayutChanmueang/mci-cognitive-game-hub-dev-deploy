@@ -37,6 +37,17 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.png')
     this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.png')
     this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.png')
+    //Animal Icon
+    this.load.image("bear_icon", "assets/zoo-feeder/animal/icons/H_Bear.png");
+    this.load.image("cow_icon", "assets/zoo-feeder/animal/icons/H_Cow.png");
+    this.load.image("elephant_icon", "assets/zoo-feeder/animal/icons/H_ele.png");
+    this.load.image("fox_icon", "assets/zoo-feeder/animal/icons/H_Fox.png");
+    this.load.image("lion_icon", "assets/zoo-feeder/animal/icons/H_Li.png");
+    this.load.image("panda_icon", "assets/zoo-feeder/animal/icons/H_Pan.png");
+    //Emote
+    this.load.image("popup_emote", "assets/zoo-feeder/etc/Popup.png");
+    this.load.image("emote_sad", "assets/zoo-feeder/etc/Emoji_None.png");
+    this.load.image("emote_happy", "assets/zoo-feeder/etc/Emoji_Smile.png");
   }
 
   create(data) {
