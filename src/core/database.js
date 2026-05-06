@@ -24,10 +24,11 @@ const EVENT_IDS = Object.freeze({
 
 class Database {
     constructor() {
+        const env = import.meta.env || {};
         this.client = null;
         this.authReadyPromise = null;
-        this.supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-        this.supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+        this.supabaseUrl = env.VITE_SUPABASE_URL || "";
+        this.supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || "";
     }
 
     getLocalDayRange(dateValue) {
@@ -659,8 +660,8 @@ class Database {
         const programDay = Math.min(Math.max(rawProgramDay, 1), programDayCount);
         const programEndDay = new Date(startDay);
         programEndDay.setDate(programEndDay.getDate() + programDayCount - 1);
-        const requestedDayFrom = Number(dayFrom);
-        const requestedDayTo = Number(dayTo);
+        const requestedDayFrom = dayFrom == null || dayFrom === "" ? NaN : Number(dayFrom);
+        const requestedDayTo = dayTo == null || dayTo === "" ? NaN : Number(dayTo);
         const safeWindowBefore = Math.max(0, Number(windowBefore) || 0);
         const safeWindowAfter = Math.max(0, Number(windowAfter) || 0);
         const resolvedDayFrom = Number.isFinite(requestedDayFrom)

@@ -20,7 +20,7 @@ export class GameHubHistoryManager {
             
             return Boolean(historyRecord.gid)
                 && historyRecord.gid === node.gid
-                && (nodeStage == null || recordStage == null || recordStage === nodeStage)
+                && (nodeStage == null ? recordStage == null : recordStage === nodeStage)
                 && Boolean(historyRecord.endAt);
         }
 

@@ -1,7 +1,6 @@
 ﻿/**
  * HubElement
- * คลาสพื้นฐานสำหรับ UI Component สร้างโดยใช้เทคนิค OOP
- * ใช้ร่วมกับ DomObjectPool ได้
+ * คลาสพื้นฐานสำหรับ UI Component ของหน้า Game Hub
  */
 export class HubElement {
     constructor(options = {}) {

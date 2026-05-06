@@ -62,6 +62,7 @@ export class HubMapScreen extends HubElement {
             daySections: this.options.daySections,
             historyRecords: this.options.historyRecords,
             startedProgram: this.options.startedProgram,
+            activeProgramDay: this.options.activeProgramDay,
             currentProgramDay: this.options.programDay,
             onScrollChange: this.options.onScrollChange,
             onNodeAction: this.options.onNodeAction,

@@ -1,23 +1,7 @@
-﻿import { HubElement } from "./HubElement.js";
+import { HubElement } from "./HubElement.js";
 import { DaySection } from "./DaySection.js";
-import { DomObjectPool } from "../../core/game-hub-screen/DomObjectPool.js";
 
-/**
- * LevelMap
- * Component สำหรับวาดเส้นทางแผนที่ของเกมทั้งหมด
- * คลาสนี้จัดการ Object Pool สำหรับ "DaySection" (กลุ่มของวัน)
- * และส่งต่อหน้าที่จัดการ LevelNode ไปให้ DaySection
- */
 export class LevelMap extends HubElement {
-    constructor(options = {}) {
-        super(options);
-        // สร้าง Object Pool สำหรับนำ DaySection Component มารีไซเคิล
-        this.daySectionPool = new DomObjectPool({
-            createMember: (opt) => new DaySection(opt),
-            maxSize: 10 // จำนวนวันน่าจะไม่เกิน 10 วันที่แสดงพร้อมกันบนหน้าจอ
-        });
-    }
-
     html() {
         return `
             <section class="hub-clean-stage">
@@ -57,53 +41,42 @@ export class LevelMap extends HubElement {
         this.on(scrollTop, "click", () => scrollArea?.scrollTo({ top: 0, behavior: "smooth" }));
 
         requestAnimationFrame(() => {
-            if (scrollArea) {
-                const initialScrollTop = Math.max(0, Number(this.options.initialScrollTop) || 0);
-                if (initialScrollTop > 0) {
-                    scrollArea.scrollTop = initialScrollTop;
-                } else {
-                    const currentDay = Number(this.options.currentProgramDay);
-                    const currentSection = Number.isFinite(currentDay)
-                        ? this.element?.querySelector(`[data-program-day="${currentDay}"]`)
-                        : null;
-                    if (currentSection) {
-                        scrollArea.scrollTop = Math.max(0, currentSection.offsetTop - scrollArea.offsetTop);
-                    }
-                }
-                updateFab();
+            if (!scrollArea) {
+                return;
             }
+
+            const initialScrollTop = Math.max(0, Number(this.options.initialScrollTop) || 0);
+            if (initialScrollTop > 0) {
+                scrollArea.scrollTop = initialScrollTop;
+            } else {
+                const activeDay = Number(this.options.activeProgramDay || this.options.currentProgramDay);
+                const activeSection = Number.isFinite(activeDay)
+                    ? this.element?.querySelector(`[data-program-day="${activeDay}"]`)
+                    : null;
+                if (activeSection) {
+                    scrollArea.scrollTop = Math.max(0, activeSection.offsetTop - scrollArea.offsetTop);
+                }
+            }
+            updateFab();
         });
     }
 
     renderDaySections() {
-        const daySectionsData = Array.isArray(this.options.daySections) ? this.options.daySections : [];
         const list = this.element?.querySelector("[data-day-section-list]");
+        const daySections = Array.isArray(this.options.daySections) ? this.options.daySections : [];
 
-        // 1. คืน DaySection เก่ากลับเข้า Object Pool
-        this.daySectionPool.releaseAll();
-        // เคลียร์ children ออกให้หมดก่อน
-        this.children = [];
-        
-        if (!list) return;
-        list.innerHTML = ""; // เคลียร์ DOM container เก่า
+        if (!list) {
+            return;
+        }
 
-        // 2. ดึง DaySection ออกมาจาก Pool ตามข้อมูลและวาดลง DOM
-        daySectionsData.forEach((daySectionData) => {
-            const daySectionComponent = this.daySectionPool.acquire({
-                daySectionData: daySectionData,
-                historyRecords: this.options.historyRecords,
+        daySections.forEach((daySection) => {
+            this.addChild(new DaySection({
+                daySectionData: daySection,
+                historyRecords: this.options.historyRecords || [],
                 startedProgram: this.options.startedProgram,
-                onNodeAction: this.options.onNodeAction
-            });
-            
-            // ให้ LevelMap เก็บ DaySection ไว้ในฐานะลูก
-            this.addChild(daySectionComponent, list);
+                activeProgramDay: this.options.activeProgramDay,
+                onNodeAction: this.options.onNodeAction,
+            }), list);
         });
-    }
-
-    destroy() {
-        super.destroy();
-        // คืนหน่วยความจำของ DaySection Pool
-        this.daySectionPool.destroy();
     }
 }
