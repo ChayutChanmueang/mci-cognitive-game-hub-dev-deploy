@@ -1234,6 +1234,184 @@ class Database {
         ));
     }
 
+    getDateRangeForLocalDay(dateValue = new Date()) {
+        const start = this.getLocalDayStart(new Date(dateValue));
+        const end = new Date(start);
+        end.setDate(end.getDate() + 1);
+
+        return {
+            start,
+            end,
+        };
+    }
+
+    async getUserCheckInHistoryForDate({
+        hn,
+        date = new Date(),
+    }) {
+        const parsedHn = String(hn || "").trim();
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { start, end } = this.getDateRangeForLocalDay(date);
+        const selectColumns = "id, gid, stage, start_at, end_at, user_game_data_id";
+        const withDateRange = (query) => query
+            .gte("start_at", start.toISOString())
+            .lt("start_at", end.toISOString())
+            .order("start_at", { ascending: false })
+            .limit(1);
+
+        let result = await withDateRange(
+            client
+                .from(USER_GAME_HISTORY_TABLE)
+                .select(selectColumns)
+                .eq("hn", parsedHn)
+                .eq("check-in", true),
+        );
+
+        if (result.error) {
+            result = await withDateRange(
+                client
+                    .from(USER_GAME_HISTORY_TABLE)
+                    .select(selectColumns)
+                    .eq("hn", parsedHn)
+                    .eq("check_in", true),
+            );
+        }
+
+        if (result.error) {
+            result = await withDateRange(
+                client
+                    .from(USER_GAME_HISTORY_TABLE)
+                    .select(selectColumns)
+                    .eq("hn", parsedHn)
+                    .is("gid", null),
+            );
+        }
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        return Array.isArray(result.data) && result.data.length ? result.data[0] : null;
+    }
+
+    async addUserCheckInHistoryIfMissing({
+        hn,
+        date = new Date(),
+        startAt = new Date().toISOString(),
+    }) {
+        const existingRecord = await this.getUserCheckInHistoryForDate({ hn, date });
+        if (existingRecord?.id) {
+            return {
+                record: {
+                    ...existingRecord,
+                    "check-in": true,
+                },
+                created: false,
+            };
+        }
+
+        const record = await this.addUserGameHistory({
+            hn,
+            gid: null,
+            startAt,
+            userGameDataId: null,
+            rest: false,
+            checkIn: true,
+        });
+
+        return {
+            record,
+            created: true,
+        };
+    }
+
+    async hasCompletedGameHubNodesForDate({
+        hn,
+        nodes = [],
+        date = new Date(),
+        restGid = "REST001",
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const playableNodes = (Array.isArray(nodes) ? nodes : [])
+            .filter((node) => ["game", "rest"].includes(node?.type));
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (!playableNodes.length) {
+            return {
+                complete: false,
+                completedCount: 0,
+                requiredCount: 0,
+                missingNodes: [],
+            };
+        }
+
+        const gids = [...new Set(playableNodes
+            .map((node) => String(node?.gid || (node?.type === "rest" ? restGid : "")).trim())
+            .filter(Boolean))];
+        const { start, end } = this.getDateRangeForLocalDay(date);
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_GAME_HISTORY_TABLE)
+            .select("id, gid, stage, start_at, end_at, user_game_data_id")
+            .eq("hn", parsedHn)
+            .in("gid", gids)
+            .gte("start_at", start.toISOString())
+            .lt("start_at", end.toISOString())
+            .order("start_at", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        const rows = data || [];
+        const isMatched = (node, row) => {
+            if (node?.type === "rest") {
+                return String(row?.gid || "").trim() === restGid;
+            }
+
+            const nodeStage = node?.stage == null || node?.stage === "" ? null : Number(node.stage);
+            const rowStage = row?.stage == null || row?.stage === "" ? null : Number(row.stage);
+
+            return String(row?.gid || "").trim() === String(node?.gid || "").trim()
+                && (nodeStage == null ? rowStage == null : rowStage === nodeStage)
+                && Boolean(row?.end_at);
+        };
+        const matchedIds = new Set();
+        const missingNodes = [];
+
+        for (const node of playableNodes) {
+            const matchedRow = rows.find((row) => !matchedIds.has(row?.id) && isMatched(node, row));
+            if (matchedRow?.id) {
+                matchedIds.add(matchedRow.id);
+            } else {
+                missingNodes.push({
+                    type: node?.type || "",
+                    gid: node?.gid || "",
+                    stage: node?.stage ?? null,
+                });
+            }
+        }
+
+        return {
+            complete: missingNodes.length === 0,
+            completedCount: playableNodes.length - missingNodes.length,
+            requiredCount: playableNodes.length,
+            missingNodes,
+        };
+    }
+
     async getUserCheckInDatesByHn({ hn }) {
         const parsedHn = String(hn || "").trim();
 

@@ -219,11 +219,21 @@ function buildDayNodes(dayItem, restGame) {
         gameData: restGame || { gid: REST_GAME_GID, name: "REST001", displayName: "พักยืดเส้นยืดสาย" },
         emoji: "🏋️",
     };
+    const checkInNode = {
+        id: `checkin-${dayItem.day}`,
+        type: "checkin",
+        gid: "",
+        stage: null,
+        day: Number(dayItem.day),
+        title: "เช็คชื่อ",
+        emoji: "🏁",
+    };
 
     return [
         ...gameNodes.slice(0, splitIndex),
         restNode,
         ...gameNodes.slice(splitIndex),
+        checkInNode,
     ];
 }
 
@@ -254,6 +264,10 @@ function nodeMatchesHistory(node, record) {
 
     if (node?.type === "rest") {
         return record.gid === REST_GAME_GID;
+    }
+
+    if (node?.type === "checkin") {
+        return record.checkIn === true;
     }
 
     return false;
@@ -305,6 +319,10 @@ function getDayCompletion(daySection, historyRecords) {
 
 function hasCheckInRecord(historyRecords) {
     return (historyRecords || []).some((record) => normalizeHistoryRecord(record).checkIn);
+}
+
+function getPlayableNodes(nodes) {
+    return (nodes || []).filter((node) => node.type === "game" || node.type === "rest");
 }
 
 function createGameHubInitialState() {
@@ -375,16 +393,7 @@ export async function renderGameHubScreen(root, options = {}) {
         const currentDay = getCurrentProgramDay();
         return sections.find((section) => Number(section.day) === currentDay) || sections[0] || { day: currentDay, nodes: [] };
     };
-    const getActiveDay = (sections) => {
-        const currentDay = getCurrentProgramDay();
-        const openSection = sections
-            .filter((section) => Number(section.day) >= currentDay)
-            .find((section) => {
-                const history = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), Number(section.day));
-                return !getDayCompletion(section, history).isComplete;
-            });
-        return Number(openSection?.day || currentDay);
-    };
+    const getActiveDay = () => getCurrentProgramDay();
 
     const render = () => {
         cleanup();
@@ -393,7 +402,7 @@ export async function renderGameHubScreen(root, options = {}) {
         const currentSection = getCurrentDaySection(sections);
         const currentHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), currentDay);
         const currentCompletion = getDayCompletion(currentSection, currentHistory);
-        const activeDay = getActiveDay(sections);
+        const activeDay = getActiveDay();
         const progress = currentCompletion.gameTarget > 0
             ? Math.min(1, currentCompletion.completedGameCount / currentCompletion.gameTarget)
             : 0;
@@ -496,9 +505,14 @@ export async function renderGameHubScreen(root, options = {}) {
             : node.type === "game"
                 ? String(node.gameNumber || index + 1)
                 : node.emoji || "•";
+        const sideLabel = node.type === "checkin" && isDone
+            ? "เช็คชื่อแล้ว"
+            : node.type === "checkin"
+                ? "รอเช็คชื่อ"
+                : node.title || `เกมที่ ${index + 1}`;
         const side = isCurrent
             ? renderCurrentCard(node)
-            : `<div class="hub-clean-game-pill">${escapeHtml(node.title || `เกมที่ ${index + 1}`)}</div>`;
+            : `<div class="hub-clean-game-pill">${escapeHtml(sideLabel)}</div>`;
 
         return `
             <div class="${classes}">
@@ -511,6 +525,16 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const renderCurrentCard = (node) => {
+        if (node.type === "checkin") {
+            return `
+                <article class="hub-clean-current-card">
+                    <p>ภารกิจครบแล้ว</p>
+                    <h2>เช็คชื่อ</h2>
+                    <span>ยินดีด้วยคุณเล่นเกมครบแล้ว รอเล่นเกมวันถัดไปนะ</span>
+                </article>
+            `;
+        }
+
         if (node.type === "rest") {
             return `
                 <article class="hub-clean-current-card">
@@ -760,29 +784,42 @@ export async function renderGameHubScreen(root, options = {}) {
         const currentSection = getCurrentDaySection(sections);
         const dayHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), currentDay);
         const dayKey = getDateKey(getProgramDayDate(getStartedProgram(), currentDay));
+        const playableNodes = getPlayableNodes(currentSection.nodes);
+        const checkInDate = getProgramDayDate(getStartedProgram(), currentDay);
 
-        if (!patientHn || !currentSection.nodes?.length || state.autoCheckInLoading || state.autoCheckInCompletedKey === dayKey) {
+        if (!patientHn || !playableNodes.length || state.autoCheckInLoading || state.autoCheckInCompletedKey === dayKey) {
             return;
         }
 
-        if (hasCheckInRecord(dayHistory)) {
+        const existingCheckIn = hasCheckInRecord(dayHistory)
+            || await db.getUserCheckInHistoryForDate({
+                hn: patientHn,
+                date: checkInDate,
+            });
+
+        if (existingCheckIn) {
             state.autoCheckInCompletedKey = dayKey;
             return;
         }
 
-        const completion = getDayCompletion(currentSection, dayHistory);
-        if (!completion.isComplete) {
+        const completionStatus = await db.hasCompletedGameHubNodesForDate({
+            hn: patientHn,
+            nodes: playableNodes,
+            date: checkInDate,
+        });
+
+        if (!completionStatus.complete) {
             return;
         }
 
         state.autoCheckInLoading = true;
         try {
-            const record = await db.addUserGameHistory({
+            const result = await db.addUserCheckInHistoryIfMissing({
                 hn: patientHn,
-                checkIn: true,
+                date: checkInDate,
                 startAt: new Date().toISOString(),
             });
-            state.historyRecords = [...state.historyRecords, normalizeHistoryRecord(record)];
+            state.historyRecords = [...state.historyRecords, normalizeHistoryRecord(result.record)];
             state.autoCheckInCompletedKey = dayKey;
             render();
 
@@ -808,7 +845,8 @@ export async function renderGameHubScreen(root, options = {}) {
         const sections = buildDaySections(state.programDays, state.restGame);
         const currentSection = getCurrentDaySection(sections);
         const dayHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), currentDay);
-        if (!getDayCompletion(currentSection, dayHistory).isComplete) {
+        const playableNodes = getPlayableNodes(currentSection.nodes);
+        if (!playableNodes.length || getSequentialCompletedCount(playableNodes, dayHistory) < playableNodes.length) {
             return;
         }
 
