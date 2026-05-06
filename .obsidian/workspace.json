@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "fb1d168743c8d53f",
+        "id": "9e8011aaaff355ef",
         "type": "tabs",
         "children": [
           {
-            "id": "17a5741ca0b696af",
+            "id": "3e42e5dc7d4ff18f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/gdd/03-art-direction.md",
+                "file": "docs/Game Design Document V.1.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "03-art-direction"
+              "title": "Game Design Document V.1"
             }
           }
         ]
@@ -33,7 +33,7 @@
       {
         "id": "325a5901e53fb8ec",
         "type": "tabs",
-        "dimension": 54.20439844760673,
+        "dimension": 73.7583395107487,
         "children": [
           {
             "id": "b80327e6fc02f4b7",
@@ -80,7 +80,7 @@
       {
         "id": "32f3ad212bd9a38b",
         "type": "tabs",
-        "dimension": 45.79560155239327,
+        "dimension": 26.241660489251295,
         "children": [
           {
             "id": "d38b6c8f78515a24",
@@ -204,44 +204,46 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "17a5741ca0b696af",
+  "active": "3e42e5dc7d4ff18f",
   "lastOpenFiles": [
-    "docs/gdd/02-narrative.md",
-    "docs/gdd/01-mechanics.md",
-    "docs/gdd/00-concept.md",
-    "docs/agile/sprint-backlogs/sprint-02.md",
-    "docs/agile/02-sprint-planning.md",
-    "docs/software/02-class-diagram.md",
-    "docs/software/01-system-design.md",
-    "docs/agile/01-product-backlog.md",
+    "docs/changelog.md",
+    "docs/wiki/wiki.md",
+    "docs/wiki/guidelines/ux-ui-modernization-guidelines.md",
+    "docs/wiki/guidelines/ux-ui-guidelines.md",
+    "docs/wiki/guidelines/system-test-guideline.md",
+    "docs/wiki/guidelines/system-test-gameloop-guideline.md",
+    "docs/wiki/development/SETUP.md",
+    "docs/wiki/development/Documentation_Overhaul_Report.md",
+    "docs/wiki/agentic-ai/AGENTIC_AI_PROCESS_LVL.md",
+    "docs/wiki/agentic-ai/PROJECT_AGENT_SKILL_USING.md",
+    "AGENTS.md",
     "docs/Game Design Document V.1.md",
-    "docs/agile/03-meeting-backlogs.md",
-    "docs/agile/04-retrospectives-backlog.md",
-    "image4.md",
-    "docs/wiki/camt-fun/ex047-test-improvement-report.md",
-    "docs/wiki/camt-fun/monthly-progress-plan.md",
-    "docs/wiki/camt-fun/260427-fun-report.md",
-    "docs/wiki/camt-fun/proposal.md",
-    "docs/agile/sprint-backlogs/sprint-05.md",
-    "docs/agile/user-stories/US-E2-01.md",
+    "docs/index.md",
+    "src/game/resting-point/entity/script/ui/gameplay-ui.js",
+    "src/game/resting-point/ui-elements/scripts/template-panel.js",
+    "src/game/resting-point/ui-elements/scripts/gameover-panel.js",
+    "src/game/resting-point/ui-elements/scripts/gameend-panel.js",
+    "src/game/resting-point/ui-elements/core/ui-panel.js",
+    "src/game/resting-point/ui-elements/core/ui-page.js",
+    "src/game/resting-point/entity/script/ui",
+    "src/game/resting-point/entity/script/circleButton.js",
+    "src/game/resting-point/components/scripts/trigger-listener.js",
+    "src/game/resting-point/components/scripts/sprite-renderer.js",
+    "public/assets/resting-point/stretch_right.png",
+    "public/assets/resting-point/stretch_left.png",
+    "docs/gamehub/gamehub-rebuild-spec.md",
     "docs/agile/user-stories/US-E2-06.md",
     "docs/agile/user-stories/US-E2-05.md",
     "docs/agile/user-stories/US-E2-04.md",
-    "node_modules/handlebars/lib",
-    "node_modules/csv-parse/lib/utils/underscore.js",
-    "node_modules/csv-parse/lib/utils/ResizeableBuffer.js",
-    "node_modules/csv-parse/lib/utils/is_object.js",
-    "node_modules/csv-parse/lib/api/normalize_options.js",
-    "node_modules/csv-parse/lib/api/normalize_columns_array.js",
-    "node_modules/csv-parse/lib/api/init_state.js",
-    "node_modules/csv-parse/lib/api/index.js",
-    "node_modules/csv-parse/lib/api/CsvError.js",
-    "node_modules/csv-parse/lib/sync.js",
-    "node_modules/uglify-js/README.md",
-    "node_modules/neo-async/README.md",
-    "node_modules/js-yaml/README.md",
-    "node_modules/ws/README.md",
-    "node_modules/loose-envify/README.md",
+    "docs/agile/reports/260506_Test_Plan_Sprint05_Initial.md",
+    "docs/agile/meeting-backlogs/2026-05-06.md",
+    "docs/agile/meeting-backlogs/2026-04-14+template.md",
+    "docs/software/06-ui-design-wireframes.md",
+    "docs/gdd/00-concept.md",
+    "docs/software/02-class-diagram.md",
+    "docs/software/01-system-design.md",
+    "docs/gdd/01-mechanics.md",
+    "docs/gdd/02-narrative.md",
     "screenshot.png",
     "Idea.canvas",
     "Untitled.canvas",
