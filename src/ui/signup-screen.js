@@ -51,6 +51,24 @@ function isValidDateValue(value) {
     return !Number.isNaN(parsedDate.getTime());
 }
 
+function getSignupErrorCode(error) {
+    const message = String(error?.message || "").toLowerCase();
+
+    if (message.includes("phone") || message.includes("เบอร์โทร")) {
+        return "ERR_SIGNUP_PHONE";
+    }
+
+    if (message.includes("patient id") || message.includes("hn")) {
+        return "ERR_SIGNUP_HN";
+    }
+
+    if (message.includes("game") || message.includes("profile")) {
+        return "ERR_SIGNUP_GAME_PROFILE";
+    }
+
+    return "ERR_SIGNUP_CREATE";
+}
+
 export function renderSignupScreen(root, options = {}) {
     if (!root) {
         return;
@@ -349,10 +367,12 @@ export function renderSignupScreen(root, options = {}) {
                 return;
             }
         } catch (error) {
+            // TODO: Remove this debug log before production release after signup errors are fully monitored.
             console.error("Patient signup flow failed:", error);
-            const message = error?.message || "ไม่สามารถบันทึกข้อมูลผู้ป่วยได้";
+            const errorCode = getSignupErrorCode(error);
+            const message = `ไม่สามารถบันทึกข้อมูลผู้ป่วยได้ (${errorCode})`;
 
-            if (message.includes("เบอร์โทร")) {
+            if (errorCode === "ERR_SIGNUP_PHONE") {
                 setFieldError(phoneField, message);
             }
 
