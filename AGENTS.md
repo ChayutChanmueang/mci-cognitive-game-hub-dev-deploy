@@ -41,7 +41,7 @@ To disable:
 ## Memory Tiers & Project Instructions
 To ensure consistency across different Agent sessions, this project uses a tiered memory system:
 
-### 1. Shared Project Instructions (`GEMINI.md`)
+### 1. Shared Project Instructions (`AGENTS.md`)
 - **Status:** Committed to Git.
 - **Role:** Foundational Mandates & Team-shared conventions.
 - **Content:** Architecture decisions, UI/UX guidelines reference, and core workflows.
