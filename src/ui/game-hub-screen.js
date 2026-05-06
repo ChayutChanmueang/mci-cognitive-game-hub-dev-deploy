@@ -317,12 +317,17 @@ function getDayCompletion(daySection, historyRecords) {
     };
 }
 
-function hasCheckInRecord(historyRecords) {
-    return (historyRecords || []).some((record) => normalizeHistoryRecord(record).checkIn);
-}
-
 function getPlayableNodes(nodes) {
     return (nodes || []).filter((node) => node.type === "game" || node.type === "rest");
+}
+
+function getCheckInStartAtForDate(dateValue) {
+    const targetDate = getLocalDayStart(dateValue);
+    const today = getLocalDayStart(new Date());
+
+    return targetDate.getTime() === today.getTime()
+        ? new Date().toISOString()
+        : targetDate.toISOString();
 }
 
 function createGameHubInitialState() {
@@ -335,7 +340,6 @@ function createGameHubInitialState() {
         loading: false,
         historyLoading: false,
         autoCheckInLoading: false,
-        autoCheckInCompletedKey: "",
         scrollTop: 0,
         error: "",
     };
@@ -768,7 +772,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
             state.historyLoading = false;
             render();
-            await maybeAutoCheckIn();
+            await syncVisibleCheckIns();
             await ensureNextDayVisible();
         } catch (error) {
             console.warn("Unable to load game hub history:", error);
@@ -778,28 +782,27 @@ export async function renderGameHubScreen(root, options = {}) {
         }
     };
 
-    const maybeAutoCheckIn = async () => {
-        const currentDay = getCurrentProgramDay();
-        const sections = buildDaySections(state.programDays, state.restGame);
-        const currentSection = getCurrentDaySection(sections);
-        const dayHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), currentDay);
-        const dayKey = getDateKey(getProgramDayDate(getStartedProgram(), currentDay));
-        const playableNodes = getPlayableNodes(currentSection.nodes);
-        const checkInDate = getProgramDayDate(getStartedProgram(), currentDay);
+    const syncCheckInForDaySection = async (section) => {
+        const programDay = Number(section?.day);
+        const playableNodes = getPlayableNodes(section?.nodes || []);
+        const checkInDate = getProgramDayDate(getStartedProgram(), programDay);
+        const dayKey = getDateKey(checkInDate);
 
-        if (!patientHn || !playableNodes.length || state.autoCheckInLoading || state.autoCheckInCompletedKey === dayKey) {
-            return;
+        if (!patientHn || !Number.isFinite(programDay) || !playableNodes.length) {
+            return { dayKey, created: false, record: null };
         }
 
-        const existingCheckIn = hasCheckInRecord(dayHistory)
-            || await db.getUserCheckInHistoryForDate({
-                hn: patientHn,
-                date: checkInDate,
-            });
+        const existingCheckIn = await db.getUserCheckInHistoryForDate({
+            hn: patientHn,
+            date: checkInDate,
+        });
 
-        if (existingCheckIn) {
-            state.autoCheckInCompletedKey = dayKey;
-            return;
+        if (existingCheckIn?.id) {
+            return {
+                dayKey,
+                created: false,
+                record: existingCheckIn,
+            };
         }
 
         const completionStatus = await db.hasCompletedGameHubNodesForDate({
@@ -809,27 +812,77 @@ export async function renderGameHubScreen(root, options = {}) {
         });
 
         if (!completionStatus.complete) {
+            return { dayKey, created: false, record: null };
+        }
+
+        const result = await db.addUserCheckInHistoryIfMissing({
+            hn: patientHn,
+            date: checkInDate,
+            startAt: getCheckInStartAtForDate(checkInDate),
+        });
+
+        return {
+            dayKey,
+            created: Boolean(result.created),
+            record: result.record || null,
+        };
+    };
+
+    const syncVisibleCheckIns = async () => {
+        if (!patientHn || state.autoCheckInLoading) {
+            return;
+        }
+
+        const sections = buildDaySections(state.programDays, state.restGame);
+        const currentDay = getCurrentProgramDay();
+        const sectionsToSync = sections.filter((section) => Number(section?.day) <= currentDay);
+        if (!sectionsToSync.length) {
             return;
         }
 
         state.autoCheckInLoading = true;
-        try {
-            const result = await db.addUserCheckInHistoryIfMissing({
-                hn: patientHn,
-                date: checkInDate,
-                startAt: new Date().toISOString(),
-            });
-            state.historyRecords = [...state.historyRecords, normalizeHistoryRecord(result.record)];
-            state.autoCheckInCompletedKey = dayKey;
-            render();
 
-            const checkInDates = await db.getUserCheckInDatesByHn({ hn: patientHn });
-            await showCheckInPopup({
-                checkInDates,
-                defaultDayCount: options.defaultDayCount || 14,
-            });
+        try {
+            const syncedRecords = [];
+            let currentDayCheckInCreated = false;
+            const existingStateKeys = new Set(
+                state.historyRecords.map((record) => `${record.gid || ""}:${record.stage ?? ""}:${record.playedAt || ""}`),
+            );
+
+            for (const section of sectionsToSync) {
+                const result = await syncCheckInForDaySection(section);
+                if (result.record) {
+                    const normalizedRecord = normalizeHistoryRecord(result.record);
+                    const stateKey = `${normalizedRecord.gid || ""}:${normalizedRecord.stage ?? ""}:${normalizedRecord.playedAt || ""}`;
+                    if (!existingStateKeys.has(stateKey)) {
+                        existingStateKeys.add(stateKey);
+                        syncedRecords.push(normalizedRecord);
+                    }
+                }
+                if (result.created) {
+                    if (Number(section.day) === currentDay) {
+                        currentDayCheckInCreated = true;
+                    }
+                }
+            }
+
+            if (syncedRecords.length) {
+                state.historyRecords = [
+                    ...state.historyRecords,
+                    ...syncedRecords,
+                ];
+                render();
+            }
+
+            if (currentDayCheckInCreated) {
+                const checkInDates = await db.getUserCheckInDatesByHn({ hn: patientHn });
+                await showCheckInPopup({
+                    checkInDates,
+                    defaultDayCount: options.defaultDayCount || 14,
+                });
+            }
         } catch (error) {
-            console.error("Unable to auto check in game hub day:", error);
+            console.error("Unable to sync game hub check-in records:", error);
         } finally {
             state.autoCheckInLoading = false;
         }
