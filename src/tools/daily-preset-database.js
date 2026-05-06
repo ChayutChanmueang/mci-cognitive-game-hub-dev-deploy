@@ -34,6 +34,15 @@ function normalizePresetName(name) {
     return parsedName;
 }
 
+function normalizeDailyLoop(loop) {
+    const parsedLoop = Number(loop);
+    if (!Number.isFinite(parsedLoop)) {
+        return 1;
+    }
+
+    return Math.max(1, Math.min(32767, Math.round(parsedLoop)));
+}
+
 export async function getGameLevelPresetLists() {
     await db.initAuth();
 
@@ -121,9 +130,12 @@ export async function getGameLevelPresetEditorData(id) {
     await db.initAuth();
     const client = db.getClient();
 
+    // Future daily-level fields live in game_daily_preset_data. Select them here,
+    // map them into editor row fields below, return a hasX flag, and write them
+    // again in saveGameLevelPreset dailyPayloads with a safe default.
     const { data: dailyRows, error: dailyError } = await client
         .from(GAME_DAILY_PRESET_DATA_TABLE)
-        .select("id, goal")
+        .select("id, goal, loop")
         .eq("gpid", parsedPresetId)
         .order("id", { ascending: true });
 
@@ -157,6 +169,7 @@ export async function getGameLevelPresetEditorData(id) {
     }, 0);
     const stageFields = Array.from({ length: maxStage || 3 }, (_, index) => `stage${index + 1}`);
     const hasDailyGoal = (dailyRows || []).some((row) => String(row.goal || "").trim());
+    const hasDailyLoop = (dailyRows || []).some((row) => normalizeDailyLoop(row.loop) !== 1);
 
     const rows = (dailyRows || []).map((dailyRow, index) => {
         const dailyLevels = levelsByDailyId.get(Number(dailyRow.id)) || [];
@@ -167,6 +180,10 @@ export async function getGameLevelPresetEditorData(id) {
 
         if (hasDailyGoal) {
             row.dailyGoal = dailyRow.goal || "";
+        }
+
+        if (hasDailyLoop) {
+            row.dailyLoop = normalizeDailyLoop(dailyRow.loop);
         }
 
         stageFields.forEach((field) => {
@@ -193,6 +210,7 @@ export async function getGameLevelPresetEditorData(id) {
         rows,
         stageFields,
         hasDailyGoal,
+        hasDailyLoop,
     };
 }
 
@@ -301,6 +319,7 @@ export async function saveGameLevelPreset({
     rows = [],
     stageFields = [],
     hasDailyGoal = false,
+    hasDailyLoop = false,
 }) {
     const preset = id
         ? await updateGameLevelPresetList(id, { name, description })
@@ -331,6 +350,7 @@ export async function saveGameLevelPreset({
     const dailyPayloads = rows.map((row) => ({
         gpid: parsedPresetId,
         goal: hasDailyGoal ? String(row.dailyGoal || "").trim() || null : null,
+        loop: hasDailyLoop ? normalizeDailyLoop(row.dailyLoop) : 1,
     }));
 
     if (!dailyPayloads.length) {
