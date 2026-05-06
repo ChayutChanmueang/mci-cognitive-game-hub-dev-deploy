@@ -2,6 +2,11 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+## [2026-05-06] - Agentic AI Documentation
+### Added
+- Created `docs/wiki/Agentic-AI/AGENTIC_AI_PROCESS_LVL.md` explaining the 4 levels of Agentic AI implementation (Foundation, Specialized Skills, Token Reduction, Integrated Documentation).
+- Updated `docs/wiki/wiki.md` with links to the new AI process document and improved existing links.
+
 ## [2026-05-06] - Product Backlog & User Stories Update
 ### Changed
 - Overhauled `docs/agile/01-product-backlog.md` based on "Game Design Document V.1.md".
