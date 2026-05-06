@@ -11,10 +11,14 @@
             "id": "17a5741ca0b696af",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "docs/software/01-system-design.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "01-system-design"
             }
           }
         ]
@@ -202,6 +206,9 @@
   },
   "active": "17a5741ca0b696af",
   "lastOpenFiles": [
+    "docs/agile/03-meeting-backlogs.md",
+    "docs/agile/04-retrospectives-backlog.md",
+    "docs/agile/01-product-backlog.md",
     "image4.md",
     "docs/Game Design Document V.1.md",
     "docs/wiki/camt-fun/ex047-test-improvement-report.md",
@@ -210,7 +217,6 @@
     "docs/wiki/camt-fun/proposal.md",
     "docs/agile/sprint-backlogs/sprint-05.md",
     "docs/agile/02-sprint-planning.md",
-    "docs/agile/01-product-backlog.md",
     "docs/agile/user-stories/US-E2-01.md",
     "docs/agile/user-stories/US-E2-06.md",
     "docs/agile/user-stories/US-E2-05.md",
@@ -236,8 +242,6 @@
     "docs/index.md",
     "docs/gdd/01-mechanics.md",
     "docs/wiki/guidelines/system-test-guideline.md",
-    "AGENTS.md",
-    "docs/gdd/minigames/gdd_context_clues.md",
     "screenshot.png",
     "Idea.canvas",
     "Untitled.canvas",
