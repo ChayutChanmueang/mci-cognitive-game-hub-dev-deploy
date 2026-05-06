@@ -4,6 +4,7 @@ All notable changes to the game documentation suite will be documented in this f
 
 ## [2026-05-06] - Agentic AI Documentation
 ### Added
+- Integrated Mermaid diagrams (5 Levels of Maturity, Multi-agent Collaboration, and Reasoning Loop) into `docs/wiki/Agentic-AI/AGENTIC_AI_PROCESS_LVL.md` to enhance visual understanding of the maturity model and workflows.
 - Created `docs/wiki/Agentic-AI/AGENTIC_AI_PROCESS_LVL.md` explaining the 4 levels of Agentic AI implementation (Foundation, Specialized Skills, Token Reduction, Integrated Documentation).
 - Updated `docs/wiki/wiki.md` with links to the new AI process document and improved existing links.
 

@@ -8,6 +8,17 @@
 
 ## 📊 5 Levels of AI Maturity (ระดับความก้าวหน้า)
 
+```mermaid
+graph TD
+    L1[<b>LvL 1: The Junior</b><br/>ตามกฎพื้นฐาน & Template] --> L2[<b>LvL 2: The Specialist</b><br/>ใช้ Pattern การพัฒนาเกม]
+    L2 --> L3[<b>LvL 3: The Architect</b><br/>มองภาพรวม Dependency Graph]
+    L3 --> L4[<b>LvL 4: The Producer</b><br/>ตัดสินใจตาม GDD & Backlog]
+    L4 --> L5[<b>LvL 5: The Orchestrator</b><br/>คุมทีม Sub-agents ทำงานอัตโนมัติ]
+
+    style L1 fill:#f9f,stroke:#333,stroke-width:2px
+    style L5 fill:#00ff00,stroke:#333,stroke-width:4px
+```
+
 จากการวิจัยและแนวทางปฏิบัติระดับสากล เราแบ่งระดับการใช้งาน AI ออกเป็น 5 ขั้นดังนี้:
 
 ### 🛡️ LvL 1: The Junior (Foundation & Rules)
@@ -44,6 +55,29 @@
 
 ## 👥 Multi-agent Collaboration: การทำงานเป็นทีมของ AI
 
+```mermaid
+graph LR
+    subgraph "AI Game Studio (MAS)"
+    M[<b>Manager / Orchestrator</b><br/>วางแผน & มอบหมายงาน] --> A[<b>Architect</b><br/>วิเคราะห์โครงสร้างระบบ]
+    M --> D[<b>Developer</b><br/>เขียนโค้ด Phaser/React]
+    M --> QA[<b>QA / Reviewer</b><br/>ตรวจสอบความถูกต้อง]
+    
+    A -.-> D
+    D --> QA
+    QA -.->|แจ้ง Error| D
+    end
+
+    subgraph "Sources of Truth"
+    GDD[(GDD / Design docs)]
+    Backlog[(Agile Backlog)]
+    Memory[(Shared Memory)]
+    end
+
+    M <--> GDD
+    M <--> Backlog
+    M <--> Memory
+```
+
 ในระดับสูงสุด AI จะไม่ได้ทำงานแบบตัวเดียว (Monolithic) แต่จะทำงานเป็น **"สตูดิโอจำลอง"** ที่ประกอบด้วย:
 1.  **Manager (Orchestrator)**: ผู้วางกลยุทธ์และคุมลำดับงาน
 2.  **Architect**: ผู้พิจารณาโครงสร้างและผลกระทบข้าม Module
@@ -70,6 +104,26 @@
 ---
 
 ## ⚙️ Core Operational Workflow: The "Reasoning Loop"
+
+```mermaid
+stateDiagram-v2
+    [*] --> Ask: 🔍 Research & Inquiry
+    note right of Ask: ค้นหาข้อมูล สร้าง Mental Model
+    
+    Ask --> Plan: 🗺️ Strategy & Decomposition
+    note right of Plan: ใช้ Plan Mode แบ่งงานย่อย
+    
+    Plan --> Act: 🛠️ Execution (Surgical Edits)
+    note right of Act: ลงมือแก้โค้ดเฉพาะจุด
+    
+    Act --> Validate: 🧪 Verification Loop
+    note right of Validate: รัน Test / Lint / Type Check
+    
+    Validate --> Reflect: 🔄 Self-Correction
+    
+    Reflect --> Plan: หากพลาด (Re-planning)
+    Reflect --> [*]: หากสำเร็จ
+```
 
 เพื่อให้ AI ทำงานได้อย่างแม่นยำในทุกระดับ เราใช้กระบวนการ **ReAct (Reason + Act)** ซึ่งขยายความได้ดังนี้:
 
