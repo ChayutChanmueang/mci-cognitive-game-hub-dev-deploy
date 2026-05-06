@@ -926,7 +926,7 @@ export async function renderGameHubScreen(root, options = {}) {
             return;
         }
 
-        const dayFrom = Math.max(1, currentDay - 1);
+        const dayFrom = Math.max(1, currentDay - 2);
         const dayTo = Math.min(programDayCount, nextDay);
         const program = await loadProgramWindow({
             dayFrom,
