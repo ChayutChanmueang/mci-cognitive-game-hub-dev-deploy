@@ -9,8 +9,8 @@
 | [sprint-01](sprint-backlogs/sprint-01.md) | Mar 01-14     | Foundation & Zoo Games               | Completed |
 | [sprint-02](sprint-backlogs/sprint-02.md) | Mar 15-28     | UI & Data Setup                      | Completed |
 | [sprint-03](sprint-backlogs/sprint-03.md) | Mar 29-Apr 11 | Logic Games & Integration            | Completed |
-| [sprint-04](sprint-backlogs/sprint-04.md) | Apr 12-30     | **(Current)** Final Polish & Variety | Reviewing |
-| [sprint-05](sprint-backlogs/sprint-05.md) | May 01-14     | Future Enhancements & Stability      | Planned   |
+| [sprint-04](sprint-backlogs/sprint-04.md) | Apr 12-30     | Final Polish & Variety               | Completed |
+| [sprint-05](sprint-backlogs/sprint-05.md) | May 06-19     | **(Current)** User Management & Progression | In-Progress |
 |                                           |               |                                      |           |
 
 
@@ -27,7 +27,9 @@ gantt
     section Sprint 3
     Logic Games & Integration :done, s3, 2026-03-29, 14d
     section Sprint 4
-    Final Polish & Optimization :active, s4, 2026-04-12, 20d
+    Final Polish & Optimization :done, s4, 2026-04-12, 20d
+    section Sprint 5
+    User Management & Progression :active, s5, 2026-05-06, 14d
 ```
 
 ---
@@ -40,7 +42,7 @@ gantt
 - **[sprint-02](sprint-backlogs/sprint-02.md)**: UI Interactive & Data Foundation
 - **[sprint-03](sprint-backlogs/sprint-03.md)**: Logic Games & Data Integration
 - **[sprint-04](sprint-backlogs/sprint-04.md)**: Final Polish & Alternative Games
-- **[sprint-05](sprint-backlogs/sprint-05.md)**: Future Enhancements & Stability
+- **[sprint-05](sprint-backlogs/sprint-05.md)**: User Management & Progression Overhaul
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
