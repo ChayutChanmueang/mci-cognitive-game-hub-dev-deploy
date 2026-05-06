@@ -34,11 +34,28 @@
 *   **Tools**: `docs/gdd/`, `docs/software/`, `docs/agile/`
 *   **Game Dev Example**: "อ่าน GDD ด่าน 'Context Clues' และอัปเดต User Story ใน Backlog ให้เป็น Done หลังจาก Implement ฟีเจอร์เสร็จ"
 
-### 🤖 LvL 5: The Orchestrator (Autonomous Collaboration) - *New!*
-**ความสามารถ**: วางแผน ปฏิบัติ ตรวจสอบความผิดพลาด และสั่งงาน Sub-agents ตัวอื่นโดยอัตโนมัติ
-*   **Context**: การทำงานแบบ Multi-agent และการแก้ไขปัญหาเชิงสถาปัตยกรรมที่ซับซ้อนด้วยตนเอง
-*   **Tools**: `invoke_agent`, `MEMORY.md`, Recursive reasoning loops
-*   **Game Dev Example**: "ส่ง `codebase_investigator` ไปวิเคราะห์ Memory Leak ในระบบ Animation และสั่งให้แก้ไฟล์ทั้งหมดพร้อมรัน Test ยืนยันผลโดยไม่ต้องรอคำสั่งทีละขั้นตอน"
+### 🤖 LvL 5: The Orchestrator (Autonomous Collaboration)
+**ความสามารถ**: การทำงานแบบ **Multi-agent System (MAS)** โดย AI สามารถวางแผนและมอบหมายงานให้ Sub-agents เฉพาะทางทำงานร่วมกันเป็นทีม
+*   **Context**: เข้าใจการแบ่งแยกหน้าที่ (Separation of Concerns) และการประสานงานข้ามระบบ (Orchestration)
+*   **Tools**: `invoke_agent`, `codebase_investigator`, `generalist`, ระบบ Shared Memory
+*   **Game Dev Example**: "มอบหมายให้ `codebase_investigator` วิเคราะห์โครงสร้างมินิเกมเดิม และสั่งให้ `generalist` สร้าง Boilerplate สำหรับเกมใหม่พร้อมเชื่อมต่อระบบ UI และเสียงโดยอัตโนมัติ"
+
+---
+
+## 👥 Multi-agent Collaboration: การทำงานเป็นทีมของ AI
+
+ในระดับสูงสุด AI จะไม่ได้ทำงานแบบตัวเดียว (Monolithic) แต่จะทำงานเป็น **"สตูดิโอจำลอง"** ที่ประกอบด้วย:
+1.  **Manager (Orchestrator)**: ผู้วางกลยุทธ์และคุมลำดับงาน
+2.  **Architect**: ผู้พิจารณาโครงสร้างและผลกระทบข้าม Module
+3.  **Developer**: ผู้ลงมือเขียนโค้ดตาม Skill เฉพาะทาง (Phaser/React)
+4.  **QA / Reviewer**: ผู้ตรวจสอบความถูกต้องและรัน Validation Loop
+
+### 🛠️ การเตรียมตัวสำหรับ Multi-agent (Preparation Checklist)
+เพื่อให้ทีม AI ทำงานได้อย่างมีประสิทธิภาพ ผู้พัฒนาควรเตรียมความพร้อมดังนี้:
+*   **Shared Source of Truth**: มั่นใจว่า GDD, Software Design และ AGENTS.md อัปเดตล่าสุด AI ทุกตัวต้อง "เห็นภาพเดียวกัน"
+*   **Clear Boundaries**: แบ่ง Folder และ Module ให้ชัดเจน (เช่น `src/game/`, `src/ui/`) เพื่อลดการแก้ไขไฟล์ทับซ้อนกันระหว่าง Agent
+*   **Robust Tooling**: เตรียมคำสั่งตรวจสอบอัตโนมัติ (เช่น `npm test`, `npm run lint`) ให้พร้อมใช้งาน เพื่อให้ QA Agent ทำงานได้
+*   **Memory Hooks**: ใช้ `MEMORY.md` บันทึก "การตัดสินใจเชิงสถาปัตยกรรม" เพื่อให้ Agent ตัวใหม่ที่ถูกเรียกมา (Invoked) เข้าใจบริบทได้ทันทีโดยไม่ต้องอ่านโค้ดทั้งหมดใหม่
 
 ---
 
