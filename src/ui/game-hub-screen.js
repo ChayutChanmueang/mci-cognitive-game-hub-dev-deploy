@@ -283,6 +283,15 @@ function getSequentialCompletedCount(nodes, historyRecords) {
 
     for (const node of nodes || []) {
         let matchedIndex = -1;
+        if (node?.type === "checkin") {
+            const hasCheckIn = sortedHistory.some((record) => nodeMatchesHistory(node, record));
+            if (!hasCheckIn) {
+                break;
+            }
+            completedCount += 1;
+            continue;
+        }
+
         for (let index = cursor; index < sortedHistory.length; index += 1) {
             if (nodeMatchesHistory(node, sortedHistory[index])) {
                 matchedIndex = index;
@@ -337,6 +346,7 @@ function createGameHubInitialState() {
         dailyProgram: null,
         programDays: [],
         historyRecords: [],
+        checkInDateKeys: [],
         loading: false,
         historyLoading: false,
         autoCheckInLoading: false,
@@ -393,6 +403,30 @@ export async function renderGameHubScreen(root, options = {}) {
     const getCurrentProgramDay = () => Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
     const getProgramDayCount = () => Number(state.dailyProgram?.programDayCount || state.programDays[state.programDays.length - 1]?.day || 1);
     const getStartedProgram = () => state.dailyProgram?.startedProgram || options.programDate || new Date().toISOString();
+    const hasCheckInForProgramDay = (programDay) => {
+        const key = getDateKey(getProgramDayDate(getStartedProgram(), programDay));
+        return (state.checkInDateKeys || []).includes(key);
+    };
+    const getDisplayHistoryForProgramDay = (programDay) => {
+        const history = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), programDay);
+        if (!hasCheckInForProgramDay(programDay)) {
+            return history;
+        }
+
+        const hasLoadedCheckIn = history.some((record) => normalizeHistoryRecord(record).checkIn);
+        if (hasLoadedCheckIn) {
+            return history;
+        }
+
+        return [
+            ...history,
+            {
+                gid: "",
+                checkIn: true,
+                playedAt: getProgramDayDate(getStartedProgram(), programDay).toISOString(),
+            },
+        ];
+    };
     const getCurrentDaySection = (sections) => {
         const currentDay = getCurrentProgramDay();
         return sections.find((section) => Number(section.day) === currentDay) || sections[0] || { day: currentDay, nodes: [] };
@@ -404,7 +438,7 @@ export async function renderGameHubScreen(root, options = {}) {
         const sections = buildDaySections(state.programDays, state.restGame);
         const currentDay = getCurrentProgramDay();
         const currentSection = getCurrentDaySection(sections);
-        const currentHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), currentDay);
+        const currentHistory = getDisplayHistoryForProgramDay(currentDay);
         const currentCompletion = getDayCompletion(currentSection, currentHistory);
         const activeDay = getActiveDay();
         const progress = currentCompletion.gameTarget > 0
@@ -480,7 +514,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const renderDaySection = (section, activeDay) => {
         const day = Number(section.day);
-        const dayHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), day);
+        const dayHistory = getDisplayHistoryForProgramDay(day);
         const completion = getDayCompletion(section, dayHistory);
         const currentNodeIndex = day === Number(activeDay) && completion.completedCount < section.nodes.length
             ? completion.completedCount
@@ -735,6 +769,7 @@ export async function renderGameHubScreen(root, options = {}) {
     const loadHistory = async () => {
         if (!patientHn) {
             state.historyRecords = [];
+            state.checkInDateKeys = [];
             render();
             return;
         }
@@ -770,16 +805,27 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.historyRecords = [];
             }
 
+            await syncVisibleCheckIns();
+            await refreshCheckInDateKeys();
             state.historyLoading = false;
             render();
-            await syncVisibleCheckIns();
             await ensureNextDayVisible();
         } catch (error) {
             console.warn("Unable to load game hub history:", error);
             state.historyRecords = [];
+            state.checkInDateKeys = [];
             state.historyLoading = false;
             render();
         }
+    };
+
+    const refreshCheckInDateKeys = async () => {
+        if (!patientHn) {
+            state.checkInDateKeys = [];
+            return;
+        }
+
+        state.checkInDateKeys = await db.getUserCheckInDatesByHn({ hn: patientHn });
     };
 
     const syncCheckInForDaySection = async (section) => {
