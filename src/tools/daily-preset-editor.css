@@ -168,3 +168,8 @@
     display: grid;
     gap: 12px;
 }
+
+.daily-preset-editor__csv-tooltip {
+    transform-origin: right center;
+    white-space: nowrap;
+}

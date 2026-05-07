@@ -4,6 +4,8 @@ const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
 const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
 const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const GAME_LIST_TABLE = "game_list_data";
+const DAILY_RECORD_ID_FIELD = "__dailyPresetDataId";
+const LEVEL_RECORD_ID_FIELD = "__levelPresetDataId";
 
 function normalizePresetListRow(row) {
     return {
@@ -41,6 +43,11 @@ function normalizeDailyLoop(loop) {
     }
 
     return Math.max(1, Math.min(32767, Math.round(parsedLoop)));
+}
+
+function parseExistingId(id) {
+    const parsedId = Number(id);
+    return Number.isInteger(parsedId) && parsedId > 0 ? parsedId : null;
 }
 
 export async function getGameLevelPresetLists() {
@@ -145,7 +152,7 @@ export async function getGameLevelPresetEditorData(id) {
 
     const { data: levelRows, error: levelError } = await client
         .from(GAME_LEVEL_PRESET_DATA_TABLE)
-        .select("gdid, gid, stage, level, day")
+        .select("id, gdid, gid, stage, level, day")
         .eq("gpid", parsedPresetId)
         .order("day", { ascending: true })
         .order("stage", { ascending: true });
@@ -175,6 +182,7 @@ export async function getGameLevelPresetEditorData(id) {
         const dailyLevels = levelsByDailyId.get(Number(dailyRow.id)) || [];
         const storedDay = dailyLevels.find((levelRow) => Number.isFinite(Number(levelRow.day)))?.day;
         const row = {
+            [DAILY_RECORD_ID_FIELD]: dailyRow.id,
             day: Number.isFinite(Number(storedDay)) ? Number(storedDay) : index + 1,
         };
 
@@ -197,6 +205,7 @@ export async function getGameLevelPresetEditorData(id) {
             }
 
             row[`stage${stage}`] = {
+                [LEVEL_RECORD_ID_FIELD]: levelRow.id,
                 gid: levelRow.gid,
                 level: levelRow.level,
             };
@@ -329,80 +338,179 @@ export async function saveGameLevelPreset({
     await db.initAuth();
     const client = db.getClient();
 
-    const { error: deleteLevelError } = await client
-        .from(GAME_LEVEL_PRESET_DATA_TABLE)
-        .delete()
-        .eq("gpid", parsedPresetId);
-
-    if (deleteLevelError) {
-        throw deleteLevelError;
-    }
-
-    const { error: deleteDailyError } = await client
+    const { data: existingDailyRows, error: existingDailyError } = await client
         .from(GAME_DAILY_PRESET_DATA_TABLE)
-        .delete()
+        .select("id")
         .eq("gpid", parsedPresetId);
 
-    if (deleteDailyError) {
-        throw deleteDailyError;
+    if (existingDailyError) {
+        throw existingDailyError;
     }
 
-    const dailyPayloads = rows.map((row) => ({
+    const { data: existingLevelRows, error: existingLevelError } = await client
+        .from(GAME_LEVEL_PRESET_DATA_TABLE)
+        .select("id")
+        .eq("gpid", parsedPresetId);
+
+    if (existingLevelError) {
+        throw existingLevelError;
+    }
+
+    const existingDailyIds = new Set((existingDailyRows || []).map((row) => Number(row.id)));
+    const existingLevelIds = new Set((existingLevelRows || []).map((row) => Number(row.id)));
+    const keptDailyIds = new Set();
+    const keptLevelIds = new Set();
+    const rowDailyIds = new Map();
+    const newDailyPayloads = [];
+
+    const getDailyPayload = (row) => ({
         gpid: parsedPresetId,
         goal: hasDailyGoal ? String(row.dailyGoal || "").trim() || null : null,
         loop: hasDailyLoop ? normalizeDailyLoop(row.dailyLoop) : 1,
-    }));
+    });
 
-    if (!dailyPayloads.length) {
-        return preset;
-    }
+    for (const [rowIndex, row] of rows.entries()) {
+        const existingDailyId = parseExistingId(row[DAILY_RECORD_ID_FIELD]);
+        const dailyPayload = getDailyPayload(row);
 
-    const { data: dailyRows, error: dailyInsertError } = await client
-        .from(GAME_DAILY_PRESET_DATA_TABLE)
-        .insert(dailyPayloads)
-        .select("id");
+        if (existingDailyId && existingDailyIds.has(existingDailyId)) {
+            const { error: dailyUpdateError } = await client
+                .from(GAME_DAILY_PRESET_DATA_TABLE)
+                .update(dailyPayload)
+                .eq("id", existingDailyId)
+                .eq("gpid", parsedPresetId);
 
-    if (dailyInsertError) {
-        throw dailyInsertError;
-    }
+            if (dailyUpdateError) {
+                throw dailyUpdateError;
+            }
 
-    const levelPayloads = [];
-    rows.forEach((row, rowIndex) => {
-        const dailyRow = dailyRows?.[rowIndex];
-        if (!dailyRow?.id) {
-            return;
+            keptDailyIds.add(existingDailyId);
+            rowDailyIds.set(rowIndex, existingDailyId);
+            continue;
         }
 
-        stageFields.forEach((field, stageIndex) => {
+        newDailyPayloads.push({
+            rowIndex,
+            payload: dailyPayload,
+        });
+    }
+
+    if (newDailyPayloads.length) {
+        const { data: insertedDailyRows, error: dailyInsertError } = await client
+            .from(GAME_DAILY_PRESET_DATA_TABLE)
+            .insert(newDailyPayloads.map((entry) => entry.payload))
+            .select("id");
+
+        if (dailyInsertError) {
+            throw dailyInsertError;
+        }
+
+        (insertedDailyRows || []).forEach((dailyRow, index) => {
+            const rowIndex = newDailyPayloads[index]?.rowIndex;
+            const dailyId = parseExistingId(dailyRow?.id);
+            if (rowIndex == null || !dailyId) {
+                return;
+            }
+
+            rows[rowIndex][DAILY_RECORD_ID_FIELD] = dailyId;
+            keptDailyIds.add(dailyId);
+            rowDailyIds.set(rowIndex, dailyId);
+        });
+    }
+
+    const newLevelPayloads = [];
+    for (const [rowIndex, row] of rows.entries()) {
+        const dailyId = rowDailyIds.get(rowIndex);
+        if (!dailyId) {
+            continue;
+        }
+
+        for (const [stageIndex, field] of stageFields.entries()) {
             const value = row[field];
             const gid = String(value?.gid || "").trim();
             const level = Number(value?.level);
 
             if (!gid || !Number.isFinite(level)) {
-                return;
+                continue;
             }
 
-            levelPayloads.push({
+            const levelPayload = {
                 gpid: parsedPresetId,
-                gdid: dailyRow.id,
+                gdid: dailyId,
                 gid,
                 stage: stageIndex + 1,
                 level,
                 day: Number(row.day) || rowIndex + 1,
-            });
-        });
-    });
+            };
+            const existingLevelId = parseExistingId(value?.[LEVEL_RECORD_ID_FIELD]);
 
-    if (!levelPayloads.length) {
-        return preset;
+            if (existingLevelId && existingLevelIds.has(existingLevelId)) {
+                const { error: levelUpdateError } = await client
+                    .from(GAME_LEVEL_PRESET_DATA_TABLE)
+                    .update(levelPayload)
+                    .eq("id", existingLevelId)
+                    .eq("gpid", parsedPresetId);
+
+                if (levelUpdateError) {
+                    throw levelUpdateError;
+                }
+
+                keptLevelIds.add(existingLevelId);
+                continue;
+            }
+
+            newLevelPayloads.push({
+                rowIndex,
+                field,
+                payload: levelPayload,
+            });
+        }
     }
 
-    const { error: levelInsertError } = await client
-        .from(GAME_LEVEL_PRESET_DATA_TABLE)
-        .insert(levelPayloads);
+    if (newLevelPayloads.length) {
+        const { data: insertedLevelRows, error: levelInsertError } = await client
+            .from(GAME_LEVEL_PRESET_DATA_TABLE)
+            .insert(newLevelPayloads.map((entry) => entry.payload))
+            .select("id");
 
-    if (levelInsertError) {
-        throw levelInsertError;
+        if (levelInsertError) {
+            throw levelInsertError;
+        }
+
+        (insertedLevelRows || []).forEach((levelRow, index) => {
+            const rowIndex = newLevelPayloads[index]?.rowIndex;
+            const field = newLevelPayloads[index]?.field;
+            const levelId = parseExistingId(levelRow?.id);
+            if (rowIndex == null || !field || !levelId || !rows[rowIndex]?.[field]) {
+                return;
+            }
+
+            rows[rowIndex][field][LEVEL_RECORD_ID_FIELD] = levelId;
+        });
+    }
+
+    const levelIdsToDelete = [...existingLevelIds].filter((levelId) => !keptLevelIds.has(levelId));
+    if (levelIdsToDelete.length) {
+        const { error: staleLevelDeleteError } = await client
+            .from(GAME_LEVEL_PRESET_DATA_TABLE)
+            .delete()
+            .in("id", levelIdsToDelete);
+
+        if (staleLevelDeleteError) {
+            throw staleLevelDeleteError;
+        }
+    }
+
+    const dailyIdsToDelete = [...existingDailyIds].filter((dailyId) => !keptDailyIds.has(dailyId));
+    if (dailyIdsToDelete.length) {
+        const { error: staleDailyDeleteError } = await client
+            .from(GAME_DAILY_PRESET_DATA_TABLE)
+            .delete()
+            .in("id", dailyIdsToDelete);
+
+        if (staleDailyDeleteError) {
+            throw staleDailyDeleteError;
+        }
     }
 
     return preset;
