@@ -16,6 +16,8 @@ import {
 } from "./util/patient-session.js";
 import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
+import { MinigameHUD } from "./ui/minigame-hud.js";
+
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -60,6 +62,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const hubUiState = createGameHubState();
     let activeGameInstance = null;
     let routeRenderVersion = 0;
+
+    // Initialize global HUD attached to the main app container
+    // (We do not attach to uiRoot because uiRoot is wiped when games start)
+    if (app) {
+        const hud = new MinigameHUD(app);
+        hud.render();
+        hud.hide(); // Hidden by default
+    }
 
     const destroyActiveGame = () => {
         if (activeGameInstance && typeof activeGameInstance.destroy === "function") {
