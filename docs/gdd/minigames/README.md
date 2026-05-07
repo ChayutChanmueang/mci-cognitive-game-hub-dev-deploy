@@ -1,0 +1,48 @@
+# 🧠 LLM Wiki - คู่มือการพัฒนา Minigame (Mini-Game Development Guide)
+
+## 📂 ภาพรวมของวิกิ
+วิก่นี้มีวัตถุประสงค์เพื่อเป็นฐานข้อมูลความรู้เชิงลึกสำหรับทุกโมดูล, ระบบเกมย่อย (Minigame), และยูทิลิตี้หลักที่ใช้ในโปรเจกต์นี้ เนื้อหาถูกจัดเก็บในรูปแบบ Markdown (`.md`) เพื่อให้ AI/LLM สามารถอ่าน ทำความเข้าใจ และอ้างอิงโค้ดและตรรกะการทำงานได้อย่างแม่นยำ
+**คำแนะนำ:** ควรมีการบันทึกรายละเอียดของ "กลไกหลัก (Core Mechanism)", "Input/Output Data Structure", และ "Flowchart การเล่น" ในแต่ละไฟล์
+
+---
+
+## ⚙️ โครงสร้างโมดูลที่ควรศึกษา
+📂 **`src/core/`**: ส่วนจัดการข้อมูลระดับองค์กร (Enterprise Data Management)
+*   **Database Interaction**: วิธีการเข้าถึง, การตรวจสอบสิทธิ์, และโครงสร้างตารางข้อมูลผู้ใช้.
+*   **State Management**: ระบบจัดการสถานะเกมและเซสชั่นของผู้ใช้.
+
+📂 **`src/util/`**: ส่วนยูทิลิตี้ (Utility Functions) ที่เป็นรากฐานของทุกเกม
+*   **Layout Utilities**: หลักการจัดวางองค์ประกอบ UI ต่างๆ เช่น Grid, Progress Bar.
+*   **Object Pooling**: วิธีการจัดการทรัพยากรเพื่อประสิทธิภาพสูงสุด.
+
+## 🧩 Minigame Specific Modules
+แต่ละเกมควรมีไฟล์สรุปเฉพาะของตัวเอง โดยเน้นที่ **"กฎเกณฑ์ (Rules)"**, **"Input ที่ต้องการ (Required Input)"**, และ **"Output/คะแนนที่ได้รับ (Outcome/Score)"** ของการเล่นแต่ละครั้ง
+
+### **1. Zoo Detective 🦁**
+*   **Key Concept**: การจัดวางสัตว์ตามคำใบ้และการสืบสวนทางตรรกะ (Logical Deduction).
+*   **Design Document**: [Zoo Detective GDD](gdd_zoo_detective.md) - แนวคิดและกลไกหลักของเกม.
+*   **Detailed Design**: [Procedural Generation System](procedural_generation_zoo_detective.md) - รายละเอียดอัลกอริทึมการสร้างปริศนาแบบสุ่ม.
+*   **สิ่งที่ต้องบันทึก**: Flowchart การให้คำใบ้, ตรรกะการตรวจสอบความถูกต้องของตำแหน่งที่วาง.
+
+### **2. Context Clues 📝**
+*   **Key Concept**: การเรียนรู้และเดาคำศัพท์จากบริบทรอบข้าง (Contextual Learning).
+*   **Design Document**: [Context Clues GDD](gdd_context_clues.md) - รายละเอียดระบบการสุ่มโจทย์และการแสดงผลอิโมจิ.
+*   **สิ่งที่ต้องบันทึก**: โครงสร้างข้อมูลสำหรับ Question/Hint, วิธีการประเมินความสอดคล้องของคำตอบกับ Hint ที่กำหนด.
+
+### **3. Zoo Feeder 🍎**
+*   **Key Concept**: การจัดการทรัพยากรและการจำลองปฏิสัมพันธ์ (Resource & Simulation Management).
+*   **Design Document**: [Zoo Feeder GDD](gdd_zoo_feeder.md) - ระบบสายพานลำเลียงและการจัดการ Spawner.
+*   **สิ่งที่ต้องบันทึก**: ลำดับการเคลื่อนไหว, เงื่อนไขที่ทำให้เกิดเหตุการณ์ต่างๆ ในระบบนิเวศของเกม.
+
+### **4. Symmetry Decor 💎**
+*   **Key Concept**: การจัดองค์ประกอบตามหลักสมมาตร (Symmetry Principles).
+*   **Design Document**: [Symmetry Decor GDD](gdd_symmetry_decor.md) - กฎการสะท้อนภาพและระบบ Grid.
+*   **สิ่งที่ต้องบันทึก**: กฎเกณฑ์ในการสะท้อนภาพ, ขอบเขตของการตกแต่งที่อนุญาตให้ทำได้.
+
+### **5. Postcard Reader 📬**
+*   **Key Concept**: การจัดเรียงข้อมูลเชิงลำดับและการเปรียบเทียบ (Sequencing & Comparison).
+*   **Design Document**: [Postcard Reader GDD](gdd_postcard_reader.md) - ระบบการจดจำข้อมูลและการทดสอบความจำ.
+*   **สิ่งที่ต้องบันทึก**: โครงสร้างของชุดการ์ด, ขั้นตอนในการเปิดเผยข้อมูล และวิธีการจับคู่/เชื่อมโยง.
+
+---
+***(จบไฟล์ README.md)***

@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
+import VoiceService from "../../../core/voice-service.js";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -7,13 +8,6 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
-
     this.load.image('button-idle','assets/button_rectangle_depth_flat.png')
     this.load.image('button-press','assets/button_rectangle_flat.png')
   }
@@ -33,12 +27,14 @@ export default class MainMenuScene extends Phaser.Scene {
       this,
       this.scale.width / 2,
       this.scale.height / 2 - 250,
-      "Context Clues",
+      "คำใบ้บริบท",
       ThaiTextPresets.menuTitle,
       { origin: 0.5 }
     );
     this.titleText.setDepth(100);
-
+    
+    // Voice Over Instructions
+    VoiceService.speak("ยินดีต้อนรับสู่เกมคำใบ้บริบท เลือกคำตอบที่ถูกต้องที่สุดเพื่อเติมช่องว่างในประโยคครับ");
   }
   createButton(x,y,text,onClick){
         const bg = this.add.rectangle(x,y,200,60,0x00aa00,1).setInteractive({useHandCursor: true});

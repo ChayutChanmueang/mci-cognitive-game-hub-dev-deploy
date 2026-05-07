@@ -1,152 +1,182 @@
 import UIPanel from "../core/ui-panel";
 import { FoodSpriteLibrary, AnimalSetting, FoodTypes } from "../../constants";
+import Theme from "../../../../util/game-theme.js";
 
 export default class TutorialPanel extends UIPanel {
     constructor(scene) {
-        super(scene, scene.scale.width / 2, scene.scale.height / 2, 800, 1750);
+        super(scene, scene.scale.width / 2, scene.scale.height / 2, 850, 1600);
 
-        //Relative to the main container
+        const textStyle = {
+            fontFamily: Theme.fonts.main,
+            color: '#' + Theme.colors.onSurface.toString(16).padStart(6, '0'),
+            align: 'center'
+        };
 
-        this.titleText = scene.add.text(0, -750, "TUTORIAL", {
-            fontSize: '48px', color: '#ff4444', fontStyle: 'bold'
+        this.titleText = scene.add.text(0, -720, "วิธีเล่นเกม", {
+            ...textStyle,
+            fontSize: '64px',
+            fontStyle: 'bold',
+            color: '#' + Theme.colors.primary.toString(16).padStart(6, '0')
         }).setOrigin(0.5);
-        this.titleText.setScale(1.5);
 
-        this.homeBtn = this.createButton(0, 750, "START", () => {
-            //this.scene.spawnFruit();
+        // Section: Plant Eaters
+        this.subContainer1 = this.createSection(
+            0, -450, 
+            "สัตว์กินพืช", 
+            [AnimalSetting.COW.Icon, AnimalSetting.ELEPHANT.Icon, AnimalSetting.PANDA.Icon], 
+            FoodSpriteLibrary[FoodTypes.VEGETABLE],
+            0x4caf50 // Material Green
+        );
+
+        // Section: Meat Eaters
+        this.subContainer2 = this.createSection(
+            0, 50, 
+            "สัตว์กินเนื้อ", 
+            [AnimalSetting.LION.Icon, AnimalSetting.BEAR.Icon, AnimalSetting.FOX.Icon], 
+            FoodSpriteLibrary[FoodTypes.MEAT],
+            0xf44336 // Material Red
+        );
+
+        // Section: Do Not Eat
+        this.subContainer3 = this.createSection(
+            0, 500, 
+            "ห้ามกินเด็ดขาด!", 
+            [], 
+            FoodSpriteLibrary[FoodTypes.JUNK],
+            Theme.colors.onSurfaceVariant,
+            true
+        );
+
+        this.startBtn = this.createButton(0, 720, "เริ่มเกม", Theme.colors.primary, Theme.colors.onPrimary, () => {
             this.hide();
         });
 
-        // Initialize the container only once
-        this.subContainer1 = scene.add.container(0, -425);
-
-        // Create and add the background panel FIRST so it renders at the bottom
-        this.subContainer1Panel = scene.add.rectangle(0, 0, 600, 450, 0x222222, 1);
-        this.subContainer1Panel.setStrokeStyle(4, 0xffffff);
-        this.subContainer1.add(this.subContainer1Panel);
-
-        this.veggieTitleText = scene.add.text(0, -150, "PLANT EATER", {
-            fontSize: '48px', color: '#ff4444', fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        this.veggieEater1 = scene.add.sprite(-125, -50, AnimalSetting.COW.Icon);
-        this.veggieEater1.setScale(0.5);
-        this.veggieEater2 = scene.add.sprite(0, -50, AnimalSetting.ELEPHANT.Icon);
-        this.veggieEater2.setScale(0.5);
-        this.veggieEater3 = scene.add.sprite(125, -50, AnimalSetting.PANDA.Icon);
-        this.veggieEater3.setScale(0.5);
-
-        this.eat1Text = scene.add.text(0, 50, "EAT", {
-            fontSize: '48px', color: '#ffffff', fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        // Add the standard text and icon elements next
-        this.subContainer1.add([this.veggieTitleText, this.veggieEater1, this.veggieEater2, this.veggieEater3, this.eat1Text]);
-
-        const vegList = FoodSpriteLibrary[FoodTypes.VEGETABLE];
-        const spacing = 125; // Define pixels between sprites
-
-        vegList.forEach((texture, index) => {
-            // Calculate centered position for the group of food sprites
-            const totalWidth = (vegList.length - 1) * spacing;
-            const xPos = (index * spacing) - (totalWidth / 2);
-
-            const foodSprite = scene.add.sprite(xPos, 150, texture);
-            foodSprite.setScale(0.4);
-            // Food sprites are added LAST, ensuring they render on top of the panel
-            this.subContainer1.add(foodSprite);
-        });
-
-        // Initialize the container only once
-        this.subContainer2 = scene.add.container(0, 75);
-
-        // Create and add the background panel FIRST so it renders at the bottom
-        this.subContainer2Panel = scene.add.rectangle(0, 0, 600, 450, 0x222222, 1);
-        this.subContainer2Panel.setStrokeStyle(4, 0xffffff);
-        this.subContainer2.add(this.subContainer2Panel);
-
-        this.meatTitleText = scene.add.text(0, -150, "MEAT EATER", {
-            fontSize: '48px', color: '#ff4444', fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        // Instantiate carnivorous animal sprites
-        this.meatEater1 = scene.add.sprite(-125, -50, AnimalSetting.LION.Icon);
-        this.meatEater1.setScale(0.5);
-        this.meatEater2 = scene.add.sprite(0, -50, AnimalSetting.BEAR.Icon);
-        this.meatEater2.setScale(0.5);
-        this.meatEater3 = scene.add.sprite(125, -50, AnimalSetting.FOX.Icon);
-        this.meatEater3.setScale(0.5);
-
-        this.eat2Text = scene.add.text(0, 50, "EAT", {
-            fontSize: '48px', color: '#ffffff', fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        // Add the standard text and icon elements next
-        this.subContainer2.add([this.meatTitleText, this.meatEater1, this.meatEater2, this.meatEater3, this.eat2Text]);
-
-        const meatList = FoodSpriteLibrary[FoodTypes.MEAT];
-        //const spacing = 125; // Define pixels between sprites
-
-        meatList.forEach((texture, index) => {
-            // Calculate centered position for the group of food sprites
-            const totalWidth = (meatList.length - 1) * spacing;
-            const xPos = (index * spacing) - (totalWidth / 2);
-
-            const foodSprite = scene.add.sprite(xPos, 150, texture);
-            foodSprite.setScale(0.4);
-
-            // Food sprites are added LAST, ensuring they render on top of the panel
-            this.subContainer2.add(foodSprite);
-        });
-
-        // Initialize the container
-        this.subContainer3 = scene.add.container(0, 500);
-
-        // Create and add the background panel FIRST so it renders at the bottom
-        this.subContainer3Panel = scene.add.rectangle(0, 0, 600, 300, 0x222222, 1);
-        this.subContainer3Panel.setStrokeStyle(4, 0xffffff);
-        this.subContainer3.add(this.subContainer3Panel);
-
-        this.trashTitleText = scene.add.text(0, -75, "DO NOT EAT", {
-            fontSize: '48px', color: '#ff4444', fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        // Add the standard text element next
-        this.subContainer3.add(this.trashTitleText);
-
-        const junkList = FoodSpriteLibrary[FoodTypes.JUNK];
-
-        junkList.forEach((texture, index) => {
-            // Calculate centered position for the group of junk sprites
-            const totalWidth = (junkList.length - 1) * spacing;
-            const xPos = (index * spacing) - (totalWidth / 2);
-
-            const junkSprite = scene.add.sprite(xPos, 25, texture);
-            junkSprite.setScale(0.4);
-
-            // Junk sprites are added LAST, ensuring they render on top of the panel
-            this.subContainer3.add(junkSprite);
-        });
-
-        this.addElements([this.titleText, ...this.homeBtn, this.subContainer1, this.subContainer2, this.subContainer3]);
-    }
-    onHide() {
-        this.scene.spawnFruit();
+        this.addElements([
+            this.titleText, 
+            this.subContainer1, 
+            this.subContainer2, 
+            this.subContainer3,
+            ...this.startBtn
+        ]);
     }
 
-    createButton(x, y, text, onClick) {
-        const bg = this.scene.add.rectangle(x, y, 200, 60, 0x00aa00, 1).setInteractive({ useHandCursor: true });
-        bg.setScale(1.5);
+    createSection(x, y, title, icons, foodIcons, accentColor, isDanger = false) {
+        const container = this.scene.add.container(x, y);
+        const width = 750;
+        const height = isDanger ? 320 : 420;
+
+        const bg = this.scene.add.graphics();
+        bg.fillStyle(Theme.colors.surfaceContainer, 0.5);
+        bg.fillRoundedRect(-width / 2, -height / 2, width, height, Theme.borderRadius.medium);
+        bg.lineStyle(2, accentColor, 0.3);
+        bg.strokeRoundedRect(-width / 2, -height / 2, width, height, Theme.borderRadius.medium);
+        container.add(bg);
+
+        const titleText = this.scene.add.text(0, -height / 2 + 40, title, {
+            fontFamily: Theme.fonts.main,
+            fontSize: '36px',
+            fontStyle: 'bold',
+            color: '#' + accentColor.toString(16).padStart(6, '0')
+        }).setOrigin(0.5);
+        container.add(titleText);
+
+        if (icons.length > 0) {
+            icons.forEach((icon, index) => {
+                const spacing = 180;
+                const totalWidth = (icons.length - 1) * spacing;
+                const xPos = (index * spacing) - (totalWidth / 2);
+                const sprite = this.scene.add.sprite(xPos, -30, icon);
+                sprite.setScale(0.6);
+                container.add(sprite);
+            });
+
+            const actionLabel = this.scene.add.text(0, 60, "ต้องกิน", {
+                fontFamily: Theme.fonts.main,
+                fontSize: '28px',
+                color: '#' + Theme.colors.onSurfaceVariant.toString(16).padStart(6, '0')
+            }).setOrigin(0.5);
+            container.add(actionLabel);
+        }
+
+        const foodY = icons.length > 0 ? 130 : 50;
+        foodIcons.forEach((texture, index) => {
+            const spacing = 140;
+            const totalWidth = (foodIcons.length - 1) * spacing;
+            const xPos = (index * spacing) - (totalWidth / 2);
+            const foodSprite = this.scene.add.sprite(xPos, foodY, texture);
+            foodSprite.setScale(0.5);
+            container.add(foodSprite);
+        });
+
+        return container;
+    }
+
+    createButton(x, y, text, bgColor, textColor, onClick) {
+        const width = 320;
+        const height = 70;
+        
+        const bg = this.scene.add.graphics();
+        
+        const drawBtn = (color) => {
+            bg.clear();
+            bg.fillStyle(color, 1);
+            bg.fillRoundedRect(x - width / 2, y - height / 2, width, height, Theme.borderRadius.medium);
+            
+            if (color !== Theme.colors.primary) {
+                bg.lineStyle(2, Theme.colors.outline, 0.5);
+                bg.strokeRoundedRect(x - width / 2, y - height / 2, width, height, Theme.borderRadius.medium);
+            }
+        };
+
+        drawBtn(bgColor);
+        
+        const hitArea = new Phaser.Geom.Rectangle(x - width / 2, y - height / 2, width, height);
+        bg.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
+        bg.setCursorHandler ? bg.setCursorHandler('pointer') : null;
+
         const label = this.scene.add.text(x, y, text, {
-            fontSize: '28px', fontStyle: 'bold'
+            fontFamily: Theme.fonts.main,
+            fontSize: '32px',
+            fontStyle: 'bold',
+            color: '#' + textColor.toString(16).padStart(6, '0')
         }).setOrigin(0.5);
-        label.setScale(1.5);
 
-        bg.on('pointerdown', onClick);
+        bg.on('pointerdown', () => {
+            this.scene.tweens.add({
+                targets: [bg, label],
+                scaleX: 0.95,
+                scaleY: 0.95,
+                duration: 100,
+                yoyo: true
+            });
+            onClick();
+        });
 
-        bg.on('pointerover', () => bg.setFillStyle(0x00ff00));
-        bg.on('pointerout', () => bg.setFillStyle(0x00aa00));
+        bg.on('pointerover', () => {
+            this.scene.tweens.add({
+                targets: [bg, label],
+                scaleX: 1.02,
+                scaleY: 1.02,
+                duration: 200
+            });
+        });
+
+        bg.on('pointerout', () => {
+            this.scene.tweens.add({
+                targets: [bg, label],
+                scaleX: 1,
+                scaleY: 1,
+                duration: 200
+            });
+        });
 
         return [bg, label];
     }
-}
+
+    onHide() {
+        this.scene.spawnFruit();
+        if (this.scene.startTimer) {
+            this.scene.startTimer();
+        }
+    }
+}

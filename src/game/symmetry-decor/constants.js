@@ -17,6 +17,25 @@ export function getDifficultyLevelNumber(difficulty) {
     return DifficultyLevelNumber[difficulty] || Number(difficulty) || 1;
 }
 
+export const Config = Object.freeze({
+    MaxRound: {
+        [Difficulty.EASY]: 3,
+        [Difficulty.NORMAL]: 5,
+        [Difficulty.HARD]: 5
+    },
+    IncreaseScore: {
+        [Difficulty.EASY]: 100,
+        [Difficulty.NORMAL]: 200,
+        [Difficulty.HARD]: 300
+    },
+    DecreaseScore: {
+        [Difficulty.EASY]: 20,
+        [Difficulty.NORMAL]: 50,
+        [Difficulty.HARD]: 100
+    },
+    TimeLimitMs: 180000 // 3 Minutes
+});
+
 export const GameLevels = {
     [Difficulty.EASY]: [
         {

@@ -1,0 +1,29 @@
+# 🔄 บันทึกสรุปบทเรียนท้าย Sprint (Sprint Retrospectives)
+
+**สถานะโครงการ:** ✅ Completed
+**อัปเดตล่าสุด:** 2026-05-31 | **ผู้ดูแล:** Antigravity AI
+
+เอกสารชุดนี้รวบรวมการวิเคราะห์ผลการทำงาน (Post-mortem Analysis) และบทเรียนที่ได้รับจากการพัฒนาในแต่ละ Sprint เพื่อนำมาปรับปรุงกระบวนการทำงานให้มีประสิทธิภาพยิ่งขึ้น
+
+---
+
+## 📂 รายการสรุปบทเรียน (Retrospective Reports)
+
+| Sprint        | ช่วงเวลา              | หัวข้อหลัก                           | ลิงก์เอกสาร            |
+| :------------ | :-------------------- | :----------------------------------- | :--------------------- |
+| [ มีนาคม 2026           | การวางรากฐานและระบบ Logic เบื้องต้น  | [[sprint-01-retro.md](Sprint-01]] ) |
+| [ เมษายน - พฤษภาคม 2026 | **UI Interactive & Data Foundation** | [[sprint-02-retro.md](Sprint-02]] ) |
+| [ เมษายน 2026           | **Logic Games & Integration**        | [[sprint-03-retro.md](Sprint-03]] ) |
+| [ พฤษภาคม 2026          | **Final Polish & Alternative Games** | [[sprint-04-retro.md](Sprint-04]] ) |
+
+---
+
+## 📈 แผนการปรับปรุงกระบวนการ (Continuous Improvement)
+รายการสำคัญที่ดำเนินการสำเร็จแล้ว:
+- [x] **Data Sync Stability**: ปรับปรุง Retry Logic และ Schema Sync (สำเร็จใน Sprint 3)
+- [x] **UX Precision**: ปรับปรุงระบบพิกัดใน Phaser ให้รองรับ Scroll (สำเร็จใน Sprint 3)
+- [x] **Accessibility**: เพิ่มระบบ Voice Over ภาษาไทยทั่วทั้งโครงการ (สำเร็จใน Sprint 4)
+
+---
+
+Back to Index: [Index](../index.md)

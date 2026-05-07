@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { Difficulty } from "../constants";
+import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
+import VoiceService from "../../../core/voice-service.js";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -7,13 +9,6 @@ export default class MainMenuScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
-
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
   }
@@ -28,18 +23,24 @@ export default class MainMenuScene extends Phaser.Scene {
     this.lv3Btn = this.createButton(this.scale.width / 2, (this.scale.height / 2) + 100, "HARD", () => {
       this.scene.start('gameplay-scene', { level: Difficulty.HARD })
     });
-    this.titleText = this.add.text(this.scale.width / 2, this.scale.height / 2 - 250, "MAIN MENU", {
-      fontSize: '96px', fontStyle: 'bold'
-    }).setOrigin(0.5);
+    this.titleText = createThaiText(
+      this,
+      this.scale.width / 2,
+      this.scale.height / 2 - 250,
+      "ตกแต่งสมมาตร",
+      ThaiTextPresets.menuTitle,
+      { origin: 0.5 }
+    );
     this.titleText.setDepth(100);
 
+    // Voice Over Instructions
+    VoiceService.speak("ยินดีต้อนรับสู่เกมตกแต่งสมมาตร วางสิ่งของลงในตารางเพื่อให้เกิดภาพสะท้อนที่สมมาตรกันครับ");
   }
+
   createButton(x, y, text, onClick) {
     const bg = this.add.rectangle(x, y, 200, 60, 0x00aa00, 1).setInteractive({ useHandCursor: true });
     bg.setScale(1.5);
-    const label = this.add.text(x, y, text, {
-      fontSize: '28px', fontStyle: 'bold'
-    }).setOrigin(0.5);
+    const label = createThaiText(this, x, y, text, ThaiTextPresets.buttonLabel, { origin: 0.5 });
     label.setScale(1.5);
 
     bg.on('pointerdown', onClick);

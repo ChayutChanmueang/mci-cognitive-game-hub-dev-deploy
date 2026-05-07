@@ -3,6 +3,8 @@ import Conveyer from "../entity/script/conveyer";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import StorageManager from "../../../core/storage-manager";
 import db from "../../../core/database.js";
+import { EventBus } from "../../../core/EventBus.js";
+
 
 const GAME_ID = "ATTN001";
 
@@ -12,36 +14,29 @@ export default class UITestScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
+    // rexUI is loaded via main.js global config
 
-    //Load Images
-
-    this.load.image("button-idle", "assets/button_rectangle_depth_flat.png");
-    this.load.image("button-press", "assets/button_rectangle_flat.png");
+    this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
+    this.load.image('button-press', 'assets/button_rectangle_flat.png')
     //BG
-    this.load.image("background", "assets/zoo-feeder/etc/BG.png");
+    this.load.image('background', 'assets/zoo-feeder/etc/BG.svg')
     //Food Sprite
-    this.load.image("apple_sprite", "assets/zoo-feeder/food/Apple.png");
-    this.load.image("battery_sprite", "assets/zoo-feeder/food/Battery.png");
-    this.load.image("beef_sprite", "assets/zoo-feeder/food/Beef.png");
-    this.load.image("chicken_sprite", "assets/zoo-feeder/food/Chick.png");
-    this.load.image("corn_sprite", "assets/zoo-feeder/food/Corn.png");
-    this.load.image("fish_sprite", "assets/zoo-feeder/food/Fish.png");
-    this.load.image("garbage_sprite", "assets/zoo-feeder/food/Garbage.png");
-    this.load.image("plant_sprite", "assets/zoo-feeder/food/Plant.png");
-    this.load.image("soda_sprite", "assets/zoo-feeder/food/Soda.png");
+    this.load.image('apple_sprite', 'assets/zoo-feeder/food/Apple.png')
+    this.load.image('battery_sprite', 'assets/zoo-feeder/food/Battery.png')
+    this.load.image('beef_sprite', 'assets/zoo-feeder/food/Beef.png')
+    this.load.image('chicken_sprite', 'assets/zoo-feeder/food/Chick.png')
+    this.load.image('corn_sprite', 'assets/zoo-feeder/food/Corn.png')
+    this.load.image('fish_sprite', 'assets/zoo-feeder/food/Fish.png')
+    this.load.image('garbage_sprite', 'assets/zoo-feeder/food/Garbage.png')
+    this.load.image('plant_sprite', 'assets/zoo-feeder/food/Plant.png')
+    this.load.image('soda_sprite', 'assets/zoo-feeder/food/Soda.png')
     //Animal Sprite
-    this.load.image("bear_sprite", "assets/zoo-feeder/animal/B_Bear.png");
-    this.load.image("cow_sprite", "assets/zoo-feeder/animal/B_Cow.png");
-    this.load.image("elephant_sprite", "assets/zoo-feeder/animal/B_Ele.png");
-    this.load.image("fox_sprite", "assets/zoo-feeder/animal/B_Fox.png");
-    this.load.image("lion_sprite", "assets/zoo-feeder/animal/B_Li.png");
-    this.load.image("panda_sprite", "assets/zoo-feeder/animal/B_Pan.png");
+    this.load.image('bear_sprite', 'assets/zoo-feeder/animal/B_Bear.png')
+    this.load.image('cow_sprite', 'assets/zoo-feeder/animal/B_Cow.png')
+    this.load.image('elephant_sprite', 'assets/zoo-feeder/animal/B_Ele.png')
+    this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.png')
+    this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.png')
+    this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.png')
     //Animal Icon
     this.load.image("bear_icon", "assets/zoo-feeder/animal/icons/H_Bear.png");
     this.load.image("cow_icon", "assets/zoo-feeder/animal/icons/H_Cow.png");
@@ -57,13 +52,12 @@ export default class UITestScene extends Phaser.Scene {
 
   create(data) {
     console.log("UI test scene");
+    EventBus.emit('minigame:show-hud');
 
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
     //this.animal = new Animal(this,this.scale.width/2,1200);
-    this.updatable = [];
-
-    this.background = this.add.sprite(0, 0, "background");
+    this.background = this.add.sprite(0,0,'background');
     this.background.setScale(27);
     this.background.setDepth(-10);
     this.score = 0;
@@ -77,6 +71,16 @@ export default class UITestScene extends Phaser.Scene {
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();
+    
+    // Hide old Phaser UI elements if we're using the DOM HUD
+    this.gameplayUI.uiBackground.setVisible(false);
+    this.gameplayUI.currentScore.setVisible(false);
+    this.gameplayUI.currentLives.setVisible(false);
+
+    // Initial state to HUD
+    EventBus.emit('minigame:score', { score: this.score });
+    EventBus.emit('minigame:tick', { timeLeft: 180 }); // 3 minutes
+
     this.conveyerNums = data.conveyerNums || 3;
     this.conveyers = [];
 
@@ -85,19 +89,20 @@ export default class UITestScene extends Phaser.Scene {
 
     // 2. Calculate the starting X position so the group remains perfectly centered
     const _totalWidth = _conveyerSpacing * (this.conveyerNums - 1);
-    const _startX = this.scale.width / 2 - _totalWidth / 2;
+    const _startX = (this.scale.width / 2) - (_totalWidth / 2);
 
     // 3. Iterate and spawn using a cleaner 'for' loop
     for (let i = 0; i < this.conveyerNums; i++) {
+
       // Multiply the current index by the spacing to spread them out
-      const _xPos = _startX + i * _conveyerSpacing;
+      const _xPos = _startX + (i * _conveyerSpacing);
 
       const _newConveyer = new Conveyer(
         this,
         _xPos,
-        this.scale.height / 2 - 1050,
+        (this.scale.height / 2) - 1050,
         150,
-        2.15,
+        2.15
       );
 
       this.conveyers.push(_newConveyer);
@@ -109,20 +114,26 @@ export default class UITestScene extends Phaser.Scene {
 
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
 
+  }
+
+  startTimer() {
+    if (this.countdownTimer) return;
     this.countdownTimer = this.time.addEvent({
-      delay: 180000,
+      delay: 1000,
       callback: () => {
-        this.onGameOver();
+        const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
+        EventBus.emit('minigame:tick', { timeLeft: remaining });
+        if (remaining <= 0) {
+            this.onGameOver();
+        }
       },
-      loop: false,
+      repeat: 179,
     });
   }
+
   update(time, delta) {
     for (const _conveyer of this.conveyers) {
       _conveyer.update(time, delta);
-    }
-    for(const _updateObj of this.updatable){
-      _updateObj.update(time,delta);
     }
   }
   onGetEatableFood() {
@@ -139,14 +150,14 @@ export default class UITestScene extends Phaser.Scene {
   }
   addScore(addedScore) {
     this.score += addedScore;
-    if (this.score < 0) this.score = 0;
+    if(this.score < 0) this.score = 0;
     console.log("Current Score: " + this.score);
-    if (this.score / 100 > this.level) {
-      this.level = this.score / 100;
-      this.level = Math.floor(this.level);
-      console.log("level: " + this.level);
-    }
+    this.level = this.score / 100;
+    this.level = Math.floor(this.level);
+    console.log("level: " + this.level);
     this.gameplayUI.setScore(this.score);
+    EventBus.emit('minigame:score', { score: this.score });
+
 
     if (this.level % 10 == 0 && this.level != this.lastLevel) {
       for (const _conveyer of this.conveyers) {
@@ -155,7 +166,7 @@ export default class UITestScene extends Phaser.Scene {
       console.log("change animal");
       //this.lastLevel = this.level;
     }
-    if (this.level % 3 == 0 && this.level != this.lastLevel) {
+    if (this.level % 5 == 0 && this.level != this.lastLevel) {
       for (const _conveyer of this.conveyers) {
         _conveyer.addSpeed(50);
       }
@@ -163,7 +174,7 @@ export default class UITestScene extends Phaser.Scene {
     }
   }
   removeLives(removedLives) {
-    this.lives -= removedLives;
+    this.lives -= removedLives
     console.log("Current Lives: " + this.lives);
     if (this.lives >= 0) {
       this.gameplayUI.setLives(this.lives);
@@ -202,6 +213,11 @@ export default class UITestScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
 
     this.gameplayUI.showGameOverPanel(this.score);
+    EventBus.emit('minigame:game-over', { 
+        score: this.score,
+        level: this.level
+    });
+
     //console.log("Highscore: " + StorageManager.get('highscore'));
   }
   restartGame() {
@@ -230,14 +246,12 @@ export default class UITestScene extends Phaser.Scene {
         delay: this.randomChooseNum(9, 15) * 100, //ms
         callback: this.randomSpawnFruit,
         callbackScope: this,
-        loop: true,
+        loop: true
       });
     }
   }
   randomSpawnFruit() {
-    this.conveyers[
-      this.randomChooseNum(0, this.conveyers.length - 1)
-    ].spawnFoods();
+    this.conveyers[this.randomChooseNum(0, this.conveyers.length - 1)].spawnFoods();
     if (this.spawnFruitTimer) {
       this.spawnFruitTimer.delay = this.randomChooseNum(9, 15) * 100;
     }
@@ -247,4 +261,5 @@ export default class UITestScene extends Phaser.Scene {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+
 }

@@ -1,11 +1,12 @@
 import Phaser from "phaser";
-import GameplayUI from "../entity/script/ui/gameplay-ui";
+import GameplayUI from "../entity/script/ui/gameplay-ui.js";
 import RandomQuiz from "../components/scripts/random-quiz.js";
 import {LevelMap, Config, QuizUI_Setting} from "../constants.js";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import Quiz from "../entity/script/quiz.js";
 import ProgressBar from "../../../util/layout/progress-bar.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
+import { EventBus } from "../../../core/EventBus.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -18,13 +19,6 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
-
     this.load.image('button-idle','assets/button_rectangle_depth_flat.png')
     this.load.image('button-press','assets/button_rectangle_flat.png')
   }
@@ -41,6 +35,16 @@ export default class GameplayScene extends Phaser.Scene {
 
   create(data) {
     this.gameplayUI = new GameplayUI(this, 0, 0);
+    
+    // Hide old Phaser UI elements
+    this.gameplayUI.uiBackground.setVisible(false);
+    this.gameplayUI.currentScore.setVisible(false);
+
+    // Initial state to HUD
+    EventBus.emit('minigame:score', { score: this.allScore });
+    EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ 1/${Config.MaxRound[this.levelMap]}` });
+    EventBus.emit('minigame:tick', { timeLeft: 120 }); // Example 2 mins
+
     // Create First Quiz
     this.getNewQuiz();
     this.gameStartedAt = new Date();
@@ -96,10 +100,15 @@ export default class GameplayScene extends Phaser.Scene {
       this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting);
       this.quizGame.onAnswerCorrect = () => {
           this.round++;
+          const maxRound = Config.MaxRound[this.levelMap];
+          const nextRoundDisplay = Math.min(this.round + 1, maxRound);
 
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
+          
+          EventBus.emit('minigame:score', { score: this.allScore });
+          EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ ${nextRoundDisplay}/${maxRound}` });
 
-          if (this.round < Config.MaxRound[this.levelMap]) {
+          if (this.round < maxRound) {
               console.log(`All Score: (${this.allScore})`);
               this.progressBarRefs[this.round].animateTo(1, 500)
 
@@ -113,6 +122,10 @@ export default class GameplayScene extends Phaser.Scene {
               this.gameEndedAt = new Date();
               this.gameplayUI.setScore(this.allScore);
               this.gameplayUI.showGameOverPanel(this.allScore);
+              EventBus.emit('minigame:game-over', { 
+                  score: this.allScore,
+                  level: this.level
+              });
           }
       }
       this.quizGame.onAnswerIncorrect = () => {
