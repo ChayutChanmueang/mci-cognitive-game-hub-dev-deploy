@@ -13,7 +13,18 @@ import { EventBus } from "../../../core/EventBus";
 import LevelGenerator from "../components/scripts/level-generator";
 
 import EmojiRenderer from "../components/scripts/emoji-renderer";
+import SpriteRenderer from "../components/scripts/sprite-renderer";
 import DebugMenu from "./DebugMenu";
+
+// Pool of animal sprite keys (loaded in preload)
+const ANIMAL_SPRITES = [
+  'icon_bear',
+  'icon_cow',
+  'icon_elephant',
+  'icon_fox',
+  'icon_lion',
+  'icon_panda',
+];
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -27,6 +38,14 @@ export default class GameplayScene extends Phaser.Scene {
   preload() {
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
+
+    // Animal icons for draggable entities
+    this.load.image('icon_bear',     'assets/common/animal/icons/H_Bear.png')
+    this.load.image('icon_cow',      'assets/common/animal/icons/H_Cow.png')
+    this.load.image('icon_elephant', 'assets/common/animal/icons/H_ele.png')
+    this.load.image('icon_fox',      'assets/common/animal/icons/H_Fox.png')
+    this.load.image('icon_lion',     'assets/common/animal/icons/H_Li.png')
+    this.load.image('icon_panda',    'assets/common/animal/icons/H_Pan.png')
   }
 
   create(data) {
@@ -182,39 +201,38 @@ export default class GameplayScene extends Phaser.Scene {
           if (_level[currentEntity].POS.X === i && _level[currentEntity].POS.Y === j) {
             if (_level[currentEntity].DRAGGABLE) {
               const box = new Entity(this, 0, 0, '__WHITE');
-              box.setTint(_level[currentEntity].Color);
+              box.clearTint();
               box.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               box.setDepth(100);
               
               const drag = box.addComponent(DraggableComponent);
               const data = box.addComponent(DraggableDataComponent, _level[currentEntity]);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                box.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
+
+              // Use the animal type from level data — this matches the solution socket
+              const spriteKey = _level[currentEntity].Animal;
+              const spriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              box.addComponent(SpriteRenderer, {
+                textureKey: spriteKey,
+                sizeScale: spriteScale,
+              });
 
               socket.attach(box);
               drag.currentSocket = socket;
               data.socket = socket;
             } else {
               const blocker = new Entity(this, 0, 0, '__WHITE');
-              blocker.setTint(_level[currentEntity].Color);
-              blocker.alpha = 0.6;
+              blocker.clearTint();
               blocker.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               blocker.setDepth(100);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                blocker.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
-              
+
+              // Use the animal type from level data to match the draggable counterpart
+              const blockerSpriteKey = _level[currentEntity].Animal;
+              const blockerSpriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              blocker.addComponent(SpriteRenderer, {
+                textureKey: blockerSpriteKey,
+                sizeScale: blockerSpriteScale,
+              });
+
               blocker.addComponent(NonDraggableComponent, socket);
             }
             currentEntity++;
