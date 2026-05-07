@@ -1,5 +1,9 @@
 import { calculateAgeFromBirthDate } from "../util/patient-date-util.js";
 import { formatThaiPhoneNumber } from "../util/phone-number-util.js";
+import {
+    formatThaiProgramDate,
+    getProgramEndDate,
+} from "../util/program-date-util.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -15,19 +19,7 @@ function escapeHtml(value) {
 }
 
 function formatDisplayDate(value) {
-    if (!value) {
-        return "";
-    }
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
-    }
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = String(date.getFullYear() + 543).slice(-2);
-    return `${day}/${month}/${year}`;
+    return formatThaiProgramDate(value);
 }
 
 export function renderPlayerInfoScreen(root, options = {}) {
@@ -38,6 +30,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
     const {
         player = {},
         programEndedAt = "",
+        programDayCount = null,
         onEndProgram = () => {},
         onLogout = () => {},
         onExport = () => {},
@@ -49,7 +42,12 @@ export function renderPlayerInfoScreen(root, options = {}) {
     const age = calculateAgeFromBirthDate(birthDate);
     const ageDisplay = Number.isInteger(age) ? `${age} ปี` : "- ปี";
     const startedProgram = player.started_program || player.startedProgram || createDateValue();
-    const endedProgram = programEndedAt || createDateValue();
+    const resolvedProgramDayCount = programDayCount
+        ?? player.programDayCount
+        ?? player.program_day_count
+        ?? null;
+    const calculatedProgramEndDate = getProgramEndDate(startedProgram, resolvedProgramDayCount);
+    const endedProgram = programEndedAt || calculatedProgramEndDate || "";
 
     root.innerHTML = `
         <section class="player-info-screen" aria-labelledby="player-info-title">

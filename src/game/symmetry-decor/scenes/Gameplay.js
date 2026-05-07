@@ -13,6 +13,7 @@ import { EventBus } from "../../../core/EventBus";
 import LevelGenerator from "../components/scripts/level-generator";
 
 import EmojiRenderer from "../components/scripts/emoji-renderer";
+import DebugMenu from "./DebugMenu";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -29,10 +30,13 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   create(data) {
+    EventBus.emit('minigame:show-hud');
+
     this.sceneData = { ...data };
     this.level = data.level || Difficulty.EASY;
     this.stage = 1;
     this.allScore = 0;
+    this.completedStages = 0;
     this.isGameEnded = false;
 
     this.constructGrid(true);
@@ -48,11 +52,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameplayUI.currentLives.setVisible(false);
 
     // Initial HUD State
-    const maxRound = Config.MaxRound[this.level];
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:score', { score: this.allScore });
-    EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}/${maxRound}` });
+    EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
     EventBus.emit('minigame:tick', { timeLeft: maxTimeS, maxTime: maxTimeS });
+
+    // Flag: timer expired while puzzle was in progress — finish puzzle first
+    this.pendingGameOver = false;
 
     this.events.on('socketFilled', (socketComponent, entity) => {
       if (this.isGameEnded) return;
@@ -72,28 +78,34 @@ export default class GameplayScene extends Phaser.Scene {
 
     this.levelStartTime = this.time.now;
     this.levelIsActive = true;
+
+    // Debug menu (bottom-left toggle button)
+    this.debugMenu = new DebugMenu(this);
   }
 
   handleRoundComplete() {
     if (this.isGameEnded) return;
 
-    const maxRound = Config.MaxRound[this.level];
     const addScore = Config.IncreaseScore[this.level];
     this.allScore += addScore;
+    this.completedStages++;
 
     EventBus.emit('minigame:score', { score: this.allScore });
 
-    if (this.stage < maxRound) {
-        this.stage++;
-        EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}/${maxRound}` });
-        
-        // Show brief success feedback before next round
-        this.time.delayedCall(1000, () => {
-            this.constructGrid(true);
-        });
-    } else {
+    // If timer already expired, end the game now that the puzzle is done
+    if (this.pendingGameOver) {
         this.onGameOver("success");
+        return;
     }
+
+    // Otherwise, advance to the next round
+    this.stage++;
+    EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
+
+    // Short delay for success feedback before loading next puzzle
+    this.time.delayedCall(1000, () => {
+        this.constructGrid(true);
+    });
   }
 
   onGameOver(status = "success") {
@@ -103,8 +115,12 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
 
     const finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
+    // stages completed = current stage - 1 (since stage increments at round start)
+    // but if pendingGameOver triggered after finishing, stage is already incremented by handleRoundComplete
+    // so we track completedStages separately
+    const completedStages = this.completedStages || 0;
     
-    this.gameplayUI.showGameOverPanel(finalTime);
+    this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
     EventBus.emit('minigame:game-over', { 
       score: this.allScore, 
       level: getDifficultyLevelNumber(this.level) 
@@ -120,8 +136,9 @@ export default class GameplayScene extends Phaser.Scene {
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
 
-    if (elapsePlaytimeMS >= Config.TimeLimitMs) {
-      this.onGameOver("failure");
+    if (elapsePlaytimeMS >= Config.TimeLimitMs && !this.pendingGameOver) {
+      // Let the player finish the current puzzle before ending
+      this.pendingGameOver = true;
     }
   }
 

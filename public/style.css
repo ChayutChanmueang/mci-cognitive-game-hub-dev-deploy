@@ -792,13 +792,13 @@ body.hub-mode {
     gap: 18px;
     margin-bottom: 24px;
     color: var(--md-sys-color-on-surface);
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
 }
 
 .hub-clean-day-divider span {
-    height: 3px;
-    border-radius: 999px;
+    height: 2px;
+    border-radius: 25px;
     background: var(--md-sys-color-on-surface);
 }
 
@@ -813,7 +813,7 @@ body.hub-mode {
     content: "";
     position: absolute;
     top: 44px;
-    bottom: 0;
+    bottom: 28px;
     left: 68px;
     width: 4px;
     border-radius: 999px;
@@ -939,23 +939,32 @@ body.hub-mode {
     pointer-events: auto;
 }
 
-.hub-clean-logout {
+.hub-clean-test-menu {
     position: absolute;
     z-index: 30;
     left: 24px;
     bottom: 18px;
-    display: grid;
-    gap: 8px;
-}
-
-.hub-clean-quick-menu {
-    position: relative;
     display: inline-flex;
 }
 
-.hub-clean-quick-menu md-menu {
-    min-width: 320px;
-    max-height: 320px;
+.hub-clean-test-fab md-icon {
+    display: inline-flex;
+    font-size: 28px;
+}
+
+.hub-clean-test-menu md-menu[data-test-menu] {
+    min-width: 292px;
+    max-height: none;
+}
+
+.hub-clean-test-menu md-menu[data-test-quick-game-menu] {
+    min-width: 300px;
+    max-height: min(360px, calc(100dvh - 80px));
+}
+
+.hub-clean-test-menu md-menu-item [slot="headline"],
+.hub-clean-test-menu md-menu-item [slot="supporting-text"] {
+    white-space: nowrap;
 }
 
 .hub-clean-empty {
