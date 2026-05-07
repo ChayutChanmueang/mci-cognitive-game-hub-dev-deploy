@@ -28,3 +28,4 @@ public/js/material-web docs-components
 .env.example
 graphify-out/cache
 public/js/material-components material-web/*
+.obsidian
