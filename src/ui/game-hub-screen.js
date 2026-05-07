@@ -842,7 +842,13 @@ export async function renderGameHubScreen(root, options = {}) {
             return;
         }
 
-        state.checkInDateKeys = await db.getUserCheckInDatesByHn({ hn: patientHn });
+        const { playedFrom } = getProgramDateRange(getStartedProgram());
+        const { playedTo } = getProgramDateRange(new Date());
+        state.checkInDateKeys = await db.getUserCheckInDatesByHn({
+            hn: patientHn,
+            playedFrom,
+            playedTo,
+        });
     };
 
     const syncCheckInForDaySection = async (section) => {
@@ -938,9 +944,16 @@ export async function renderGameHubScreen(root, options = {}) {
             }
 
             if (currentDayCheckInCreated) {
-                const checkInDates = await db.getUserCheckInDatesByHn({ hn: patientHn });
+                const { playedFrom } = getProgramDateRange(getStartedProgram());
+                const { playedTo } = getProgramDateRange(new Date());
+                const checkInDates = await db.getUserCheckInDatesByHn({
+                    hn: patientHn,
+                    playedFrom,
+                    playedTo,
+                });
                 await showCheckInPopup({
                     checkInDates,
+                    programStartedAt: getStartedProgram(),
                     defaultDayCount: options.defaultDayCount || 14,
                 });
             }

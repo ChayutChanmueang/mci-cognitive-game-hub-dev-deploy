@@ -1417,7 +1417,11 @@ class Database {
         };
     }
 
-    async getUserCheckInDatesByHn({ hn }) {
+    async getUserCheckInDatesByHn({
+        hn,
+        playedFrom = null,
+        playedTo = null,
+    }) {
         const parsedHn = String(hn || "").trim();
 
         if (!parsedHn) {
@@ -1447,12 +1451,23 @@ class Database {
                 }
             });
         };
-        const queryByCheckInColumn = async (columnName) => client
-            .from(USER_GAME_HISTORY_TABLE)
-            .select("start_at")
-            .eq("hn", parsedHn)
-            .eq(columnName, true)
-            .order("start_at", { ascending: true });
+        const applyDateRange = (query) => {
+            let scopedQuery = query;
+            if (playedFrom) {
+                scopedQuery = scopedQuery.gte("start_at", new Date(playedFrom).toISOString());
+            }
+            if (playedTo) {
+                scopedQuery = scopedQuery.lt("start_at", new Date(playedTo).toISOString());
+            }
+            return scopedQuery;
+        };
+        const queryByCheckInColumn = async (columnName) => applyDateRange(
+            client
+                .from(USER_GAME_HISTORY_TABLE)
+                .select("start_at")
+                .eq("hn", parsedHn)
+                .eq(columnName, true),
+        ).order("start_at", { ascending: true });
 
         let result = await queryByCheckInColumn("check-in");
 
@@ -1462,12 +1477,13 @@ class Database {
 
         if (result.error) {
             // Compatibility fallback: old test data might only have gid = null for check-in rows.
-            const fallback = await client
-                .from(USER_GAME_HISTORY_TABLE)
-                .select("start_at")
-                .eq("hn", parsedHn)
-                .is("gid", null)
-                .order("start_at", { ascending: true });
+            const fallback = await applyDateRange(
+                client
+                    .from(USER_GAME_HISTORY_TABLE)
+                    .select("start_at")
+                    .eq("hn", parsedHn)
+                    .is("gid", null),
+            ).order("start_at", { ascending: true });
 
             if (fallback.error) {
                 throw fallback.error;

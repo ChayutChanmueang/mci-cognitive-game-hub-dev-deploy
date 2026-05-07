@@ -23,6 +23,7 @@ import {
     getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
+import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
 import { EventBus } from "./core/EventBus.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
@@ -962,14 +963,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         let checkInDates = [];
+        let programStartedAt = rememberedPatient?.startedProgram || rememberedPatient?.started_program || "";
         try {
-            checkInDates = await db.getUserCheckInDatesByHn({ hn: patientCode });
+            if (!programStartedAt) {
+                const patient = await db.getPatientByHn(patientCode);
+                programStartedAt = patient?.started_program || patient?.startedProgram || "";
+            }
+
+            const { playedFrom } = getProgramDateRange(programStartedAt || new Date());
+            const { playedTo } = getProgramDateRange(new Date());
+            checkInDates = await db.getUserCheckInDatesByHn({
+                hn: patientCode,
+                playedFrom,
+                playedTo,
+            });
         } catch (error) {
             console.warn("Unable to load check-in dates:", error);
         }
 
         renderCheckInSummaryScreen(uiRoot, {
             checkInDates,
+            programStartedAt: programStartedAt || new Date(),
             defaultDayCount: 14,
             onBackHome: () => {
                 navigateTo(ROUTES.hub);
