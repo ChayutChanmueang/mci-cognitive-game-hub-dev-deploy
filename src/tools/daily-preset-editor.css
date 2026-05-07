@@ -56,7 +56,7 @@
 .daily-preset-editor__surface {
     align-self: start;
     margin-top: clamp(70px, 11vh, 120px);
-    height: min(790px, calc(100dvh - 210px));
+    height: var(--daily-preset-editor-surface-height, min(790px, calc(100dvh - 210px)));
     width: 100%;
     overflow: auto;
 }

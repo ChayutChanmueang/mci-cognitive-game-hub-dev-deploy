@@ -376,6 +376,58 @@ function upgradeMdlTooltips(root) {
     });
 }
 
+function fitEditorSurfaceToViewport(root) {
+    root.__dailyPresetSurfaceHeightCleanup?.();
+
+    const surface = root.querySelector(".daily-preset-editor__surface");
+    if (!surface || typeof window === "undefined") {
+        root.__dailyPresetSurfaceHeightCleanup = null;
+        return;
+    }
+
+    const visualViewport = window.visualViewport;
+    let frameId = null;
+
+    const updateSurfaceHeight = () => {
+        frameId = null;
+        if (!surface.isConnected) {
+            root.__dailyPresetSurfaceHeightCleanup?.();
+            return;
+        }
+
+        const viewportHeight = visualViewport?.height || window.innerHeight;
+        const surfaceTop = surface.getBoundingClientRect().top;
+        const bottomGap = 24;
+        const minSurfaceHeight = 420;
+        const nextHeight = Math.max(minSurfaceHeight, Math.floor(viewportHeight - surfaceTop - bottomGap));
+
+        surface.style.setProperty("--daily-preset-editor-surface-height", `${nextHeight}px`);
+    };
+
+    const scheduleUpdate = () => {
+        if (frameId != null) {
+            return;
+        }
+
+        frameId = requestAnimationFrame(updateSurfaceHeight);
+    };
+
+    const cleanup = () => {
+        if (frameId != null) {
+            cancelAnimationFrame(frameId);
+            frameId = null;
+        }
+        window.removeEventListener("resize", scheduleUpdate);
+        visualViewport?.removeEventListener("resize", scheduleUpdate);
+        root.__dailyPresetSurfaceHeightCleanup = null;
+    };
+
+    root.__dailyPresetSurfaceHeightCleanup = cleanup;
+    window.addEventListener("resize", scheduleUpdate);
+    visualViewport?.addEventListener("resize", scheduleUpdate);
+    scheduleUpdate();
+}
+
 function escapeCsvCell(value) {
     if (value == null) {
         return "";
@@ -530,6 +582,7 @@ export function renderDailyPresetEditor(root, options = {}) {
     `;
 
     upgradeMdlTooltips(root);
+    fitEditorSurfaceToViewport(root);
 
     const gridEl = root.querySelector("[data-preset-grid]");
     const addStage = () => {
