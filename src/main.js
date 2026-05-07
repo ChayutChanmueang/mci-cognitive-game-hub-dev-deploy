@@ -448,6 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
+            loadProgramPresets: () => db.getGameLevelPresetList(),
             loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
             loadCompletedGameHistoryRecords: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getCompletedUserGameHistoryByHn({
@@ -681,6 +682,57 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             // Test-only placeholder: daily game data management tools will be wired here later.
             onTestDailyDataTools: async () => {},
+            onTestChangeProgram: async (selectedProgram) => {
+                if (!patientCode) {
+                    await showPopup({
+                        title: "ไม่พบผู้เล่น",
+                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถเปลี่ยนโปรแกรมได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                    });
+                    return false;
+                }
+
+                const programName = String(selectedProgram?.name || `Program ${selectedProgram?.id || ""}`).trim();
+                const hasConfirmed = await showPopup({
+                    title: "เปลี่ยนโปรแกรมทดสอบ",
+                    message: `ต้องการเปลี่ยนโปรแกรมของผู้เล่นเป็น ${programName} ใช่หรือไม่`,
+                    confirmText: "เปลี่ยนโปรแกรม",
+                    cancelText: "ยกเลิก",
+                    icon: "assignment",
+                });
+
+                if (!hasConfirmed) {
+                    return false;
+                }
+
+                try {
+                    await db.setUserGameProfileProgram({
+                        hn: patientCode,
+                        programId: selectedProgram?.id,
+                    });
+                } catch (error) {
+                    console.error("Unable to change user game program:", error);
+                    await showPopup({
+                        title: "เปลี่ยนโปรแกรมไม่สำเร็จ",
+                        message: error?.message || "ระบบยังไม่สามารถเขียนค่า program ลงฐานข้อมูลได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return false;
+                }
+
+                await showPopup({
+                    title: "เปลี่ยนโปรแกรมสำเร็จ",
+                    message: `ระบบตั้งค่าโปรแกรมเป็น ${programName} แล้ว`,
+                    confirmText: "รับทราบ",
+                    icon: "check_circle",
+                });
+
+                window.location.reload();
+                return true;
+            },
             onRestNode: async (selectedNode) => {
                 const nodeGame = selectedNode?.gameData || null;
                 const restGame = nodeGame?.gid ? nodeGame : await db.getGameByGid("REST001");
