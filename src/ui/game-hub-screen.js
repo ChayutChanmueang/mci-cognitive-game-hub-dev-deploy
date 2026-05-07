@@ -1,4 +1,10 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
+import {
+    getDateKey,
+    getLocalDayStart,
+    getProgramDateRange,
+    getProgramDayDate,
+} from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
 
@@ -64,37 +70,6 @@ function getCategoryLabel(categoryId) {
 
 function getCategoryDescription(categoryId) {
     return CATEGORY_META[categoryId]?.description || "เกมฝึกสมองประจำวัน";
-}
-
-function getLocalDayStart(value = new Date()) {
-    const date = new Date(value);
-    const safeDate = Number.isNaN(date.getTime()) ? new Date() : date;
-    safeDate.setHours(0, 0, 0, 0);
-    return safeDate;
-}
-
-function getProgramDateRange(value = new Date()) {
-    const start = getLocalDayStart(value);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
-    return {
-        playedFrom: start.toISOString(),
-        playedTo: end.toISOString(),
-    };
-}
-
-function getDateKey(value = new Date()) {
-    const date = getLocalDayStart(value);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-}
-
-function getProgramDayDate(startedProgram, programDay) {
-    const date = getLocalDayStart(startedProgram || new Date());
-    date.setDate(date.getDate() + Math.max(0, (Number(programDay) || 1) - 1));
-    return date;
 }
 
 function normalizeGame(item, index = 0, fallbackCategory = "Attention") {

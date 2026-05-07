@@ -1028,6 +1028,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rememberedPatient = getPatientSessionCookie();
         let player = rememberedPatient || {};
+        let playerProgram = null;
 
         if (rememberedPatient?.patientCode) {
             try {
@@ -1057,8 +1058,23 @@ document.addEventListener("DOMContentLoaded", () => {
             console.warn("Unable to load education levels for player info:", error);
         }
 
+        const playerHn = String(player?.hn || rememberedPatient?.patientCode || "").trim();
+        if (playerHn) {
+            try {
+                playerProgram = await db.getDailyGameProgramByHn({
+                    hn: playerHn,
+                    windowBefore: 0,
+                    windowAfter: 0,
+                });
+            } catch (error) {
+                console.warn("Unable to load player program date info:", error);
+            }
+        }
+
         renderPlayerInfoScreen(uiRoot, {
             player,
+            programDayCount: playerProgram?.programDayCount ?? null,
+            programEndedAt: playerProgram?.programEndDate || "",
             onEndProgram: async () => {
                 await showPopup({
                     title: "จบโปรแกรม",
