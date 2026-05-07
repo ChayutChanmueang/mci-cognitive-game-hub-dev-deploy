@@ -95,7 +95,7 @@ export default class GameplayScene extends Phaser.Scene {
       }
     });
 
-    this.levelStartTime = this.time.now;
+    this.levelStartTime = null;
     this.levelIsActive = true;
 
     // Debug menu (bottom-left toggle button)
@@ -140,14 +140,18 @@ export default class GameplayScene extends Phaser.Scene {
     const completedStages = this.completedStages || 0;
     
     this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
-    EventBus.emit('minigame:game-over', { 
-      score: this.allScore, 
-      level: getDifficultyLevelNumber(this.level) 
-    });
+    // EventBus.emit('minigame:game-over', { 
+    //   score: this.allScore, 
+    //   level: this.level
+    // });
   }
 
   update() {
     if (this.isGameEnded || !this.levelIsActive) return;
+
+    if (this.levelStartTime === null) {
+        this.levelStartTime = this.time.now;
+    }
 
     const elapsePlaytimeMS = this.time.now - this.levelStartTime;
     const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);

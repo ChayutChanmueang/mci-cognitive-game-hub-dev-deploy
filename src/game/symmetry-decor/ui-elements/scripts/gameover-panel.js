@@ -17,12 +17,12 @@ export default class GameOverPanel extends UIPage {
         this.titleText = createThaiText(
             scene,
             0,
-            -200,
+            -275,
             "เย่! ผ่านด่านแล้ว!",
             {
                 fontSize: "72px",
                 fontStyle: "bold",
-                color: Theme.colors.success,
+                color: "#000000",
             },
             { origin: 0.5 },
         );
