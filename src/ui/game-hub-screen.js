@@ -493,17 +493,39 @@ export async function renderGameHubScreen(root, options = {}) {
                             <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                         </md-fab>
                     </section>
-                    <div class="hub-clean-logout">
-                        <md-filled-button data-test-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
-                        <md-filled-button data-test-complete-all type="button">เล่นเกมครบทั้งหมด</md-filled-button>
-                        <span class="hub-clean-quick-menu">
-                            <md-filled-button data-test-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
-                            <md-menu data-test-quick-game-menu positioning="popover">
-                                ${menuItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการเกม</div></md-menu-item>`}
-                            </md-menu>
-                        </span>
-                        <md-filled-button data-test-daily-data-tools type="button">เครื่องมือจัดการข้อมูลรายวันเกม</md-filled-button>
-                        <md-filled-button data-test-logout type="button">ออกจากระบบ</md-filled-button>
+                    <div class="hub-clean-test-menu">
+                        <md-fab class="hub-clean-test-fab" data-test-menu-trigger variant="secondary" aria-label="เปิดเมนูทดสอบ">
+                            <md-icon class="material-symbols-rounded" slot="icon">settings</md-icon>
+                        </md-fab>
+                        <md-menu data-test-menu positioning="popover" has-overflow>
+                            <md-menu-item data-test-clear-history>
+                                <md-icon class="material-symbols-rounded" slot="start">delete</md-icon>
+                                <div slot="headline">ลบประวัติการเล่น</div>
+                            </md-menu-item>
+                            <md-menu-item data-test-complete-all>
+                                <md-icon class="material-symbols-rounded" slot="start">checklist</md-icon>
+                                <div slot="headline">เล่นเกมครบทั้งหมด</div>
+                            </md-menu-item>
+                            <md-sub-menu anchor-corner="start-end" menu-corner="start-start">
+                                <md-menu-item slot="item">
+                                    <md-icon class="material-symbols-rounded" slot="start">sports_esports</md-icon>
+                                    <div slot="headline">เลือกเกมทดสอบ</div>
+                                    <md-icon class="material-symbols-rounded" slot="end">arrow_right</md-icon>
+                                </md-menu-item>
+                                <md-menu slot="menu" data-test-quick-game-menu positioning="popover">
+                                    ${menuItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการเกม</div></md-menu-item>`}
+                                </md-menu>
+                            </md-sub-menu>
+                            <md-menu-item data-test-daily-data-tools>
+                                <md-icon class="material-symbols-rounded" slot="start">database</md-icon>
+                                <div slot="headline">เครื่องมือจัดการข้อมูลรายวันเกม</div>
+                            </md-menu-item>
+                            <md-divider role="separator" tabindex="-1"></md-divider>
+                            <md-menu-item data-test-logout>
+                                <md-icon class="material-symbols-rounded" slot="start">logout</md-icon>
+                                <div slot="headline">ออกจากระบบ</div>
+                            </md-menu-item>
+                        </md-menu>
                     </div>
                 </div>
             </section>
@@ -639,12 +661,30 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const bindTestControls = (sections, activeDay) => {
-        const quickTrigger = root.querySelector("[data-test-quick-game-trigger]");
+        const testTrigger = root.querySelector("[data-test-menu-trigger]");
+        const testMenu = root.querySelector("[data-test-menu]");
         const quickMenu = root.querySelector("[data-test-quick-game-menu]");
-        if (quickTrigger && quickMenu) {
-            quickMenu.anchorElement = quickTrigger;
-            on(quickTrigger, "click", () => {
-                quickMenu.open = !quickMenu.open;
+
+        const closeTestMenus = () => {
+            if (quickMenu) {
+                quickMenu.open = false;
+            }
+            if (testMenu) {
+                testMenu.open = false;
+            }
+            testTrigger?.setAttribute("aria-expanded", "false");
+        };
+
+        if (testTrigger && testMenu) {
+            testMenu.anchorElement = testTrigger;
+            testTrigger.setAttribute("aria-haspopup", "menu");
+            testTrigger.setAttribute("aria-expanded", "false");
+            on(testTrigger, "click", () => {
+                testMenu.open = !testMenu.open;
+                testTrigger.setAttribute("aria-expanded", testMenu.open ? "true" : "false");
+            });
+            on(testMenu, "closed", () => {
+                testTrigger.setAttribute("aria-expanded", "false");
             });
         }
 
@@ -655,15 +695,14 @@ export async function renderGameHubScreen(root, options = {}) {
                 if (selectedGame) {
                     await options.onTestQuickLaunchGame?.(selectedGame);
                 }
-                if (quickMenu) {
-                    quickMenu.open = false;
-                }
+                closeTestMenus();
             });
         });
 
         on(root.querySelector("[data-test-clear-history]"), "click", async () => {
             await options.onTestClearTodayHistory?.();
             await loadHistory(true);
+            closeTestMenus();
         });
 
         on(root.querySelector("[data-test-complete-all]"), "click", async () => {
@@ -677,14 +716,17 @@ export async function renderGameHubScreen(root, options = {}) {
                 playedTo,
             });
             await loadHistory(true);
+            closeTestMenus();
         });
 
         on(root.querySelector("[data-test-daily-data-tools]"), "click", async () => {
             await options.onTestDailyDataTools?.();
+            closeTestMenus();
         });
 
         on(root.querySelector("[data-test-logout]"), "click", () => {
             options.onTestLogout?.();
+            closeTestMenus();
         });
     };
 
