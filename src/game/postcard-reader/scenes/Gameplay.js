@@ -6,6 +6,7 @@ import Button from "../ui-elements/core/button";
 import StorageManager from "../../../core/storage-manager";
 import { createThaiText } from "../../../util/thai-text.js";
 import { EventBus } from "../../../core/EventBus.js";
+import DebugMenu from "./DebugMenu";
 
 const GAME_ID = "MEM001";
 
@@ -47,6 +48,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameplayUI = new GameplayUI(this, 0, 0);
 
     // Initial HUD State
+    EventBus.emit("minigame:show-hud");
     const maxPostcards = Config.MaxPostcards[this.level] || 3;
     EventBus.emit("minigame:score", { score: this.allScore });
     EventBus.emit("minigame:level", { 
@@ -59,6 +61,9 @@ export default class GameplayScene extends Phaser.Scene {
         this.onGameOver();
       },
     });
+
+    // Debug menu
+    this.debugMenu = new DebugMenu(this);
   }
 
   update(time, delta) {
@@ -271,10 +276,11 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
     this.gameplayUI.showGameOverPanel(this.allScore);
     
-    EventBus.emit('minigame:game-over', { 
-        score: this.allScore,
-        level: getDifficultyLevelNumber(this.level)
-    });
+    // Disable DOM-based gameover panel for now
+    // EventBus.emit('minigame:game-over', { 
+    //     score: this.allScore,
+    //     level: getDifficultyLevelNumber(this.level)
+    // });
   }
 
   shuffleArray(array) {
