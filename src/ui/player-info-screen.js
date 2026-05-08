@@ -1,3 +1,10 @@
+import { calculateAgeFromBirthDate } from "../util/patient-date-util.js";
+import { formatThaiPhoneNumber } from "../util/phone-number-util.js";
+import {
+    formatThaiProgramDate,
+    getProgramEndDate,
+} from "../util/program-date-util.js";
+
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
 }
@@ -12,19 +19,7 @@ function escapeHtml(value) {
 }
 
 function formatDisplayDate(value) {
-    if (!value) {
-        return "";
-    }
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-        return String(value);
-    }
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = String(date.getFullYear() + 543).slice(-2);
-    return `${day}/${month}/${year}`;
+    return formatThaiProgramDate(value);
 }
 
 export function renderPlayerInfoScreen(root, options = {}) {
@@ -35,15 +30,24 @@ export function renderPlayerInfoScreen(root, options = {}) {
     const {
         player = {},
         programEndedAt = "",
+        programDayCount = null,
         onEndProgram = () => {},
         onLogout = () => {},
         onExport = () => {},
     } = options;
 
     const hn = String(player.hn || player.patientCode || "").trim();
+    const phoneDisplay = formatThaiPhoneNumber(player.phone || "");
     const birthDate = player.date || player.birthDate || "";
+    const age = calculateAgeFromBirthDate(birthDate);
+    const ageDisplay = Number.isInteger(age) ? `${age} ปี` : "- ปี";
     const startedProgram = player.started_program || player.startedProgram || createDateValue();
-    const endedProgram = programEndedAt || createDateValue();
+    const resolvedProgramDayCount = programDayCount
+        ?? player.programDayCount
+        ?? player.program_day_count
+        ?? null;
+    const calculatedProgramEndDate = getProgramEndDate(startedProgram, resolvedProgramDayCount);
+    const endedProgram = programEndedAt || calculatedProgramEndDate || "";
 
     root.innerHTML = `
         <section class="player-info-screen" aria-labelledby="player-info-title">
@@ -67,13 +71,23 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     </label>
 
                     <label class="player-info-row">
-                        <span>วันเกิด :</span>
-                        <div id="player-info-birth-date" class="player-info-value">${escapeHtml(formatDisplayDate(birthDate))}</div>
+                        <span>เบอร์โทร :</span>
+                        <div id="player-info-phone" class="player-info-value">${escapeHtml(phoneDisplay)}</div>
                     </label>
 
                     <label class="player-info-row">
                         <span>เพศ :</span>
                         <div id="player-info-gender" class="player-info-value">${escapeHtml(player.gender || "")}</div>
+                    </label>
+
+                    <label class="player-info-row">
+                        <span>วันเกิด :</span>
+                        <div id="player-info-birth-date" class="player-info-value">${escapeHtml(formatDisplayDate(birthDate))}</div>
+                    </label>
+
+                    <label class="player-info-row">
+                        <span>อายุ :</span>
+                        <div id="player-info-age" class="player-info-value">${escapeHtml(ageDisplay)}</div>
                     </label>
 
                     <label class="player-info-row">

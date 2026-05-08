@@ -7,6 +7,27 @@ export const Difficulty = Object.freeze({
     HARD: 'Hard'
 });
 
+export const DifficultyLevelNumber = Object.freeze({
+    [Difficulty.EASY]: 1,
+    [Difficulty.NORMAL]: 2,
+    [Difficulty.HARD]: 3,
+});
+
+export function getDifficultyLevelNumber(difficulty) {
+    return DifficultyLevelNumber[difficulty] || Number(difficulty) || 1;
+}
+
+export const Config = Object.freeze({
+    MaxPostcards: {
+        [Difficulty.EASY]: 3,
+        [Difficulty.NORMAL]: 5,
+        [Difficulty.HARD]: 5
+    },
+    ScorePerCorrect: 20,
+    MemoryTimeS: 15, // 15 seconds to memorize
+    QuizTimeLimitMs: 120000 // 2 minutes for total quiz session
+});
+
 export const GameLevels = {
     [Difficulty.EASY]: [
         {

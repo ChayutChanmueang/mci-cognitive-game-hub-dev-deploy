@@ -80,7 +80,7 @@ export function showPopup(options = {}) {
             overlay.remove();
             document.body.style.overflow = previousOverflow;
             document.removeEventListener("keydown", onKeyDown);
-            resolve(result);
+resolve(result);
         };
 
         const onKeyDown = (event) => {

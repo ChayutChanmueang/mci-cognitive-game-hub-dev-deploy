@@ -55,8 +55,10 @@ export default class GameplayUI extends Entity{
     resetGameOverPanel(){
         this.gameoverPanel.reset();
     }
-    showGameOverPanel(finalTime){
+    showGameOverPanel(finalTime, score, levelsPassed){
         this.gameoverPanel.setFinalTime(finalTime);
+        this.gameoverPanel.setScore(score);
+        this.gameoverPanel.setLevelsPassed(levelsPassed);
         this.gameoverPanel.show();
     }
     showGameEndPanel(Stages){

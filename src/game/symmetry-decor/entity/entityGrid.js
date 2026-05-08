@@ -89,8 +89,8 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
 
     drawSymmetryLine(orientation) {
         const graphics = this.scene.add.graphics();
-        const lineColor = 0xe06666;
-        const lineThickness = 4;
+        const lineColor = 0xe06666; // Coral Red
+        const lineThickness = 8;
         const lineAlpha = 1.0;
 
         graphics.lineStyle(lineThickness, lineColor, lineAlpha);
@@ -98,29 +98,31 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
 
         const midX = this.gridWidth / 2;
         const midY = this.gridHeight / 2;
-        const dashLength = 10;
+        const dashLength = 15;
         const gapLength = 10;
 
-        // L-R or R-L (Vertical Line)
-        if (['L-R', 'R-L', 'FOUR_WAY', 'QUADRANT'].includes(orientation)) {
+        // Vertical Line types
+        if (['L-R', 'R-L', 'FOUR_WAY', 'QUADRANT', 'vertical'].includes(orientation)) {
             this._drawDashedLine(graphics, midX, -10, midX, this.gridHeight + 10, dashLength, gapLength);
         }
 
-        // T-B or B-T (Horizontal Line)
-        if (['T-B', 'B-T', 'FOUR_WAY', 'QUADRANT'].includes(orientation)) {
+        // Horizontal Line types
+        if (['T-B', 'B-T', 'FOUR_WAY', 'QUADRANT', 'horizontal'].includes(orientation)) {
             this._drawDashedLine(graphics, -10, midY, this.gridWidth + 10, midY, dashLength, gapLength);
         }
 
-        // DIAGONAL (Top-Left to Bottom-Right)
+        // Diagonal Line
         if (orientation === 'DIAGONAL') {
             this._drawDashedLine(graphics, -10, -10, this.gridWidth + 10, this.gridHeight + 10, dashLength, gapLength);
         }
 
         graphics.strokePath();
 
-        // Draw the solid intersection dot in the center for multi-quadrant modes
+        // Draw an intersection glow/dot for complex symmetries
         if (['FOUR_WAY', 'QUADRANT'].includes(orientation)) {
-            graphics.fillStyle(lineColor, lineAlpha);
+            graphics.fillStyle(0xffffff, 0.4);
+            graphics.fillCircle(midX, midY, 12);
+            graphics.fillStyle(lineColor, 1.0);
             graphics.fillCircle(midX, midY, 6);
         }
 

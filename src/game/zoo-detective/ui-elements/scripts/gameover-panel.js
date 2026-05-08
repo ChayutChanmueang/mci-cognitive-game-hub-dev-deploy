@@ -1,4 +1,5 @@
 import UIPanel from "../core/ui-panel.js";
+import game_db from "/src/util/minigame-db-util.js";
 
 export default class GameOverPanel extends UIPanel{
     constructor(scene){
@@ -6,7 +7,9 @@ export default class GameOverPanel extends UIPanel{
 
         this.panelBg.setScale(1.5);
 
-        this.titleText = scene.add.text(0,-200,"Complete!",{
+        this.finalScore = 0;
+
+        this.titleText = scene.add.text(0,-200,"ผ่าน",{
             fontSize: '48px', color:'#ff4444',fontStyle: 'bold'
         }).setOrigin(0.5);
         this.titleText.setScale(1.5);
@@ -23,18 +26,40 @@ export default class GameOverPanel extends UIPanel{
 
         this.homeBtn = this.createButton(0,225, "RETURN", () => {
             this.scene.scene.start('main-menu-scene')
+
+            //Save game data to database
+            game_db.pushGameData(this.finalScore, this.scene.level, this.scene.gameStartedAt, this.scene.gameEndedAt).then(() => {
+                console.log("Game data saved to database.");
+            }).catch((error) => {
+                console.error("Failed to save game data:", error);
+            });
         });
 
         this.addElements([this.titleText, this.scoreText, this.highscoreText,...this.homeBtn]);
     }
 
+    setResultStatus(status = "success"){
+        const normalizedStatus = String(status || "").toLowerCase();
+
+        if (normalizedStatus === "failure") {
+            this.titleText.setText("ล้มเหลว");
+            this.titleText.setColor("#ff4d4d");
+            return;
+        }
+
+        this.titleText.setText("ผ่าน");
+        this.titleText.setColor("#2bcf66");
+    }
+
     setFinalScore(score){
         this.scoreText.setText("Score: " + score);
+        this.finalScore = score;
     }
     setHighscore(score){
         this.highscoreText.setText("Highscore: " + score);
     }
     reset(){
+        this.setResultStatus("success");
         this.setFinalScore(0);
         this.setHighscore(0);
         this.forceHide();

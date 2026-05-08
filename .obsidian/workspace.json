@@ -1,0 +1,252 @@
+{
+  "main": {
+    "id": "0d09014b701ed7f3",
+    "type": "split",
+    "children": [
+      {
+        "id": "9e8011aaaff355ef",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3e42e5dc7d4ff18f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/Game Design Document V.1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Game Design Document V.1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f446025a5ba4a82b",
+    "type": "split",
+    "children": [
+      {
+        "id": "325a5901e53fb8ec",
+        "type": "tabs",
+        "dimension": 73.7583395107487,
+        "children": [
+          {
+            "id": "b80327e6fc02f4b7",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "2fbba67615d3f158",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "d8750cb85d197e40",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      },
+      {
+        "id": "32f3ad212bd9a38b",
+        "type": "tabs",
+        "dimension": 26.241660489251295,
+        "children": [
+          {
+            "id": "d38b6c8f78515a24",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 359.5
+  },
+  "right": {
+    "id": "3db80a83a00ec1c8",
+    "type": "split",
+    "children": [
+      {
+        "id": "e7efcf3bf5a9d6e3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a00f761850bea618",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Design Document/GDD-Project.md",
+                "collapseAll": true,
+                "extraContext": true,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": false
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for GDD-Project"
+            }
+          },
+          {
+            "id": "de6347755a190a37",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Untitled 1.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Untitled 1"
+            }
+          },
+          {
+            "id": "3217e0fbb8eda7d8",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "24e943ca881b0caf",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "cf309f7a1d1ca2f7",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/software/04-system-architecture.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 04-system-architecture"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 237.5,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "templates:Insert template": false,
+      "bases:Create new base": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "obsidian-kanban:Create new board": false,
+      "templater-obsidian:Templater": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "3e42e5dc7d4ff18f",
+  "lastOpenFiles": [
+    "docs/changelog.md",
+    "docs/wiki/wiki.md",
+    "docs/wiki/guidelines/ux-ui-modernization-guidelines.md",
+    "docs/wiki/guidelines/ux-ui-guidelines.md",
+    "docs/wiki/guidelines/system-test-guideline.md",
+    "docs/wiki/guidelines/system-test-gameloop-guideline.md",
+    "docs/wiki/development/SETUP.md",
+    "docs/wiki/development/Documentation_Overhaul_Report.md",
+    "docs/wiki/agentic-ai/AGENTIC_AI_PROCESS_LVL.md",
+    "docs/wiki/agentic-ai/PROJECT_AGENT_SKILL_USING.md",
+    "AGENTS.md",
+    "docs/Game Design Document V.1.md",
+    "docs/index.md",
+    "src/game/resting-point/entity/script/ui/gameplay-ui.js",
+    "src/game/resting-point/ui-elements/scripts/template-panel.js",
+    "src/game/resting-point/ui-elements/scripts/gameover-panel.js",
+    "src/game/resting-point/ui-elements/scripts/gameend-panel.js",
+    "src/game/resting-point/ui-elements/core/ui-panel.js",
+    "src/game/resting-point/ui-elements/core/ui-page.js",
+    "src/game/resting-point/entity/script/ui",
+    "src/game/resting-point/entity/script/circleButton.js",
+    "src/game/resting-point/components/scripts/trigger-listener.js",
+    "src/game/resting-point/components/scripts/sprite-renderer.js",
+    "public/assets/resting-point/stretch_right.png",
+    "public/assets/resting-point/stretch_left.png",
+    "docs/gamehub/gamehub-rebuild-spec.md",
+    "docs/agile/user-stories/US-E2-06.md",
+    "docs/agile/user-stories/US-E2-05.md",
+    "docs/agile/user-stories/US-E2-04.md",
+    "docs/agile/reports/260506_Test_Plan_Sprint05_Initial.md",
+    "docs/agile/meeting-backlogs/2026-05-06.md",
+    "docs/agile/meeting-backlogs/2026-04-14+template.md",
+    "docs/software/06-ui-design-wireframes.md",
+    "docs/gdd/00-concept.md",
+    "docs/software/02-class-diagram.md",
+    "docs/software/01-system-design.md",
+    "docs/gdd/01-mechanics.md",
+    "docs/gdd/02-narrative.md",
+    "screenshot.png",
+    "Idea.canvas",
+    "Untitled.canvas",
+    "Untitled 1.canvas"
+  ]
+}
