@@ -5,6 +5,8 @@ import { showDailyPresetAddFieldPopup } from "./daily-preset-add-field-popup.js"
 import { showDailyPresetImportPopup } from "./daily-preset-import-popup.js";
 import { parseDailyPresetCsv } from "./daily-preset-csv-import.js";
 import { showPopup } from "../ui/popup-dialog.js";
+import "material-design-lite";
+import "material-design-lite/dist/material.min.css";
 import "./daily-preset-editor.css";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -14,6 +16,7 @@ const DAILY_GOAL_FIELD = "dailyGoal";
 const DAILY_LOOP_FIELD = "dailyLoop";
 const DAY_FIELD = "day";
 const ROW_ID_FIELD = "__presetRowId";
+const LEVEL_RECORD_ID_FIELD = "__levelPresetDataId";
 
 // Future optional daily fields: add a field constant here, track a hasX flag in
 // renderDailyPresetEditor, add a locked column in buildColumnDefs, wire add/remove
@@ -285,6 +288,146 @@ function downloadCsv(filename, csvContent) {
     URL.revokeObjectURL(url);
 }
 
+function showSavingOverlay() {
+    if (typeof document === "undefined") {
+        return () => {};
+    }
+
+    const overlay = document.createElement("div");
+    const titleId = `daily-preset-saving-title-${Date.now()}`;
+    const messageId = `daily-preset-saving-message-${Date.now()}`;
+    const previousOverflow = document.body.style.overflow;
+
+    overlay.className = "app-popup daily-preset-editor__saving-popup";
+    overlay.innerHTML = `
+        <div class="app-popup__backdrop"></div>
+        <div
+            class="app-popup__dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="${titleId}"
+            aria-describedby="${messageId}"
+        >
+            <div class="app-popup__header">
+                <div class="app-popup__icon-wrap">
+                    <span class="material-symbols-rounded app-popup__icon">hourglass_top</span>
+                </div>
+                <div class="app-popup__copy">
+                    <h2 id="${titleId}">กำลังบันทึกข้อมูล</h2>
+                    <p id="${messageId}">กรุณารอสักครู่</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.style.overflow = "hidden";
+    document.body.appendChild(overlay);
+
+    return () => {
+        overlay.remove();
+        document.body.style.overflow = previousOverflow;
+    };
+}
+
+function upgradeMdlTooltips(root) {
+    const componentHandler = globalThis.componentHandler;
+    if (!componentHandler?.upgradeElements) {
+        return;
+    }
+
+    const tooltips = root.querySelectorAll(".mdl-tooltip");
+    componentHandler.upgradeElements(tooltips);
+
+    root.querySelectorAll(".daily-preset-editor__csv-tooltip").forEach((tooltip) => {
+        const target = root.querySelector(`#${CSS.escape(tooltip.getAttribute("for") || "")}`);
+        if (!target) {
+            return;
+        }
+
+        const placeTooltip = () => {
+            requestAnimationFrame(() => {
+                const targetRect = target.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+                const x = 72;
+                const y = -42;
+                const viewportPadding = 8;
+                const left = Math.max(viewportPadding, targetRect.left - tooltipRect.width - x);
+                const top = Math.min(
+                    Math.max(viewportPadding, targetRect.top + (targetRect.height - tooltipRect.height + y) / 2),
+                    window.innerHeight - tooltipRect.height - viewportPadding,
+                );
+
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${top}px`;
+            });
+        };
+
+        target.addEventListener("mouseenter", placeTooltip);
+        target.addEventListener("focus", placeTooltip);
+        const onResize = () => {
+            if (!target.isConnected || !tooltip.isConnected) {
+                window.removeEventListener("resize", onResize);
+                return;
+            }
+
+            placeTooltip();
+        };
+        window.addEventListener("resize", onResize);
+    });
+}
+
+function fitEditorSurfaceToViewport(root) {
+    root.__dailyPresetSurfaceHeightCleanup?.();
+
+    const surface = root.querySelector(".daily-preset-editor__surface");
+    if (!surface || typeof window === "undefined") {
+        root.__dailyPresetSurfaceHeightCleanup = null;
+        return;
+    }
+
+    const visualViewport = window.visualViewport;
+    let frameId = null;
+
+    const updateSurfaceHeight = () => {
+        frameId = null;
+        if (!surface.isConnected) {
+            root.__dailyPresetSurfaceHeightCleanup?.();
+            return;
+        }
+
+        const viewportHeight = visualViewport?.height || window.innerHeight;
+        const surfaceTop = surface.getBoundingClientRect().top;
+        const bottomGap = 24;
+        const minSurfaceHeight = 420;
+        const nextHeight = Math.max(minSurfaceHeight, Math.floor(viewportHeight - surfaceTop - bottomGap));
+
+        surface.style.setProperty("--daily-preset-editor-surface-height", `${nextHeight}px`);
+    };
+
+    const scheduleUpdate = () => {
+        if (frameId != null) {
+            return;
+        }
+
+        frameId = requestAnimationFrame(updateSurfaceHeight);
+    };
+
+    const cleanup = () => {
+        if (frameId != null) {
+            cancelAnimationFrame(frameId);
+            frameId = null;
+        }
+        window.removeEventListener("resize", scheduleUpdate);
+        visualViewport?.removeEventListener("resize", scheduleUpdate);
+        root.__dailyPresetSurfaceHeightCleanup = null;
+    };
+
+    root.__dailyPresetSurfaceHeightCleanup = cleanup;
+    window.addEventListener("resize", scheduleUpdate);
+    visualViewport?.addEventListener("resize", scheduleUpdate);
+    scheduleUpdate();
+}
+
 function escapeCsvCell(value) {
     if (value == null) {
         return "";
@@ -365,6 +508,8 @@ export function renderDailyPresetEditor(root, options = {}) {
         ...row,
     }));
     let gridApi = null;
+    let isSaving = false;
+    let hideSavingOverlay = null;
 
     root.innerHTML = `
         <section class="daily-preset-editor-screen">
@@ -419,16 +564,25 @@ export function renderDailyPresetEditor(root, options = {}) {
                 </main>
 
                 <div class="daily-preset-editor__file-actions" aria-label="เครื่องมือนำเข้าและส่งออก">
-                    <md-fab size="small" aria-label="ส่งออก CSV" title="ส่งออก CSV" data-export-csv>
+                    <md-fab id="daily-preset-export-csv" size="small" aria-label="ส่งออก CSV" data-export-csv>
                         <span class="material-symbols-rounded" slot="icon">file_download</span>
                     </md-fab>
-                    <md-fab size="small" aria-label="นำเข้า CSV" title="นำเข้า CSV" data-import-csv>
+                    <div class="mdl-tooltip mdl-tooltip--large daily-preset-editor__csv-tooltip" for="daily-preset-export-csv">
+                        ส่งออก CSV
+                    </div>
+                    <md-fab id="daily-preset-import-csv" size="small" aria-label="นำเข้า CSV" data-import-csv>
                         <span class="material-symbols-rounded" slot="icon">file_upload</span>
                     </md-fab>
+                    <div class="mdl-tooltip mdl-tooltip--large daily-preset-editor__csv-tooltip" for="daily-preset-import-csv">
+                        นำเข้า CSV
+                    </div>
                 </div>
             </div>
         </section>
     `;
+
+    upgradeMdlTooltips(root);
+    fitEditorSurfaceToViewport(root);
 
     const gridEl = root.querySelector("[data-preset-grid]");
     const addStage = () => {
@@ -614,10 +768,14 @@ export function renderDailyPresetEditor(root, options = {}) {
                 return row;
             }
 
+            const existingValue = row[field];
             return {
                 ...row,
                 [field]: value?.gid
                     ? {
+                        ...(existingValue?.[LEVEL_RECORD_ID_FIELD]
+                            ? { [LEVEL_RECORD_ID_FIELD]: existingValue[LEVEL_RECORD_ID_FIELD] }
+                            : {}),
                         gid: value.gid,
                         level: value.level,
                     }
@@ -715,16 +873,40 @@ export function renderDailyPresetEditor(root, options = {}) {
     root.querySelector("[data-preset-name]")?.addEventListener("input", (event) => {
         presetName = event.target.value || "";
     });
+    const saveButton = root.querySelector("[data-save-preset]");
+    const setSaving = (nextIsSaving) => {
+        isSaving = nextIsSaving;
+        if (saveButton) {
+            saveButton.disabled = nextIsSaving;
+        }
+
+        if (nextIsSaving) {
+            hideSavingOverlay = showSavingOverlay();
+            return;
+        }
+
+        hideSavingOverlay?.();
+        hideSavingOverlay = null;
+    };
     root.querySelector("[data-save-preset]")?.addEventListener("click", async () => {
-        await onSavePreset({
-            id: preset?.id || null,
-            isNew: Boolean(preset?.isNew),
-            name: presetName,
-            rowData,
-            stageFields,
-            hasDailyGoal,
-            hasDailyLoop,
-        });
+        if (isSaving) {
+            return;
+        }
+
+        setSaving(true);
+        try {
+            await onSavePreset({
+                id: preset?.id || null,
+                isNew: Boolean(preset?.isNew),
+                name: presetName,
+                rowData,
+                stageFields,
+                hasDailyGoal,
+                hasDailyLoop,
+            });
+        } finally {
+            setSaving(false);
+        }
     });
     root.querySelector("[data-delete-preset]")?.addEventListener("click", async () => {
         await onDeletePreset(preset);

@@ -1,3 +1,9 @@
+import {
+    getDateKey,
+    getLocalDayStart,
+    getProgramDayDate,
+} from "../util/program-date-util.js";
+
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -5,18 +11,6 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#39;");
-}
-
-function toDateKey(value) {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-        return "";
-    }
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
 }
 
 function clampDayCount(value, fallback = 14) {
@@ -28,19 +22,23 @@ function clampDayCount(value, fallback = 14) {
     return Math.max(1, Math.min(365, Math.floor(parsed)));
 }
 
-function buildDayItems(dayCount, checkInDates) {
+function buildDayItems(dayCount, checkInDates, programStartedAt = new Date()) {
     const safeDayCount = clampDayCount(dayCount);
-    const todayKey = toDateKey(new Date());
-    const hasTodayCheckIn = (checkInDates || [])
-        .map((date) => toDateKey(date))
-        .some((key) => key === todayKey);
-    const completedProgramDays = hasTodayCheckIn ? 1 : 0;
+    const completedProgramDays = new Set((checkInDates || [])
+        .map((date) => getDateKey(date))
+        .filter(Boolean));
+    const programStart = getLocalDayStart(programStartedAt || new Date());
+    const today = getLocalDayStart(new Date());
     const items = [];
 
     for (let index = 0; index < safeDayCount; index += 1) {
+        const programDay = index + 1;
+        const programDate = getProgramDayDate(programStart, programDay);
+        const programDateKey = getDateKey(programDate);
+
         items.push({
-            id: index + 1,
-            done: index < completedProgramDays,
+            id: programDay,
+            done: programDate <= today && completedProgramDays.has(programDateKey),
         });
     }
 
@@ -54,6 +52,7 @@ export function showCheckInPopup(options = {}) {
 
     const {
         checkInDates = [],
+        programStartedAt = new Date(),
         defaultDayCount = 14,
         dismissible = false,
     } = options;
@@ -120,7 +119,7 @@ export function showCheckInPopup(options = {}) {
                     render();
                 });
             } else {
-                const dayItems = buildDayItems(state.dayCount, checkInDates);
+                const dayItems = buildDayItems(state.dayCount, checkInDates, programStartedAt);
                 const dayCellsHtml = dayItems.map((item) => `
                     <div class="checkin-program-day">
                         <span class="checkin-program-day__number">${escapeHtml(String(item.id))}</span>
@@ -187,12 +186,14 @@ export function renderCheckInSummaryScreen(root, options = {}) {
 
     const {
         checkInDates = [],
+        programStartedAt = new Date(),
         defaultDayCount = 14,
         onBackHome = () => {},
     } = options;
 
     showCheckInPopup({
         checkInDates,
+        programStartedAt,
         defaultDayCount,
         dismissible: false
     }).then(() => {

@@ -461,6 +461,85 @@ class Database {
         return data || { hn: parsedHn };
     }
 
+    async getGameLevelPresetList() {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(GAME_LEVEL_PRESET_LIST_TABLE)
+            .select("id, name, description, created_at")
+            .order("id", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return data || [];
+    }
+
+    async setUserGameProfileProgram({ hn, programId }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedProgramId = Number(programId);
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (!Number.isInteger(parsedProgramId) || parsedProgramId <= 0) {
+            throw new Error("Invalid programId");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const { data: existingRows, error: findError } = await client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .select("id, hn, program, created_at")
+            .eq("hn", parsedHn)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+        if (findError) {
+            throw findError;
+        }
+
+        const existingProfile = Array.isArray(existingRows) ? existingRows[0] : null;
+        if (existingProfile?.id) {
+            const { data: updatedProfile, error: updateError } = await client
+                .from(USER_GAME_PROFILE_DATA_TABLE)
+                .update({ program: parsedProgramId })
+                .eq("id", existingProfile.id)
+                .select("id, hn, program, created_at")
+                .maybeSingle();
+
+            if (updateError) {
+                throw updateError;
+            }
+
+            if (!updatedProfile?.id) {
+                throw new Error("Unable to update user game profile program");
+            }
+
+            return updatedProfile;
+        }
+
+        const { data: insertedProfile, error: insertError } = await client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .insert([{ hn: parsedHn, program: parsedProgramId }])
+            .select("id, hn, program, created_at")
+            .maybeSingle();
+
+        if (insertError) {
+            throw insertError;
+        }
+
+        if (!insertedProfile?.id) {
+            throw new Error("Unable to create user game profile program");
+        }
+
+        return insertedProfile;
+    }
+
     async deletePatientProfileByHn({ hn }) {
         const parsedHn = String(hn || "").trim();
 
@@ -1412,7 +1491,11 @@ class Database {
         };
     }
 
-    async getUserCheckInDatesByHn({ hn }) {
+    async getUserCheckInDatesByHn({
+        hn,
+        playedFrom = null,
+        playedTo = null,
+    }) {
         const parsedHn = String(hn || "").trim();
 
         if (!parsedHn) {
@@ -1442,12 +1525,23 @@ class Database {
                 }
             });
         };
-        const queryByCheckInColumn = async (columnName) => client
-            .from(USER_GAME_HISTORY_TABLE)
-            .select("start_at")
-            .eq("hn", parsedHn)
-            .eq(columnName, true)
-            .order("start_at", { ascending: true });
+        const applyDateRange = (query) => {
+            let scopedQuery = query;
+            if (playedFrom) {
+                scopedQuery = scopedQuery.gte("start_at", new Date(playedFrom).toISOString());
+            }
+            if (playedTo) {
+                scopedQuery = scopedQuery.lt("start_at", new Date(playedTo).toISOString());
+            }
+            return scopedQuery;
+        };
+        const queryByCheckInColumn = async (columnName) => applyDateRange(
+            client
+                .from(USER_GAME_HISTORY_TABLE)
+                .select("start_at")
+                .eq("hn", parsedHn)
+                .eq(columnName, true),
+        ).order("start_at", { ascending: true });
 
         let result = await queryByCheckInColumn("check-in");
 
@@ -1457,12 +1551,13 @@ class Database {
 
         if (result.error) {
             // Compatibility fallback: old test data might only have gid = null for check-in rows.
-            const fallback = await client
-                .from(USER_GAME_HISTORY_TABLE)
-                .select("start_at")
-                .eq("hn", parsedHn)
-                .is("gid", null)
-                .order("start_at", { ascending: true });
+            const fallback = await applyDateRange(
+                client
+                    .from(USER_GAME_HISTORY_TABLE)
+                    .select("start_at")
+                    .eq("hn", parsedHn)
+                    .is("gid", null),
+            ).order("start_at", { ascending: true });
 
             if (fallback.error) {
                 throw fallback.error;
