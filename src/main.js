@@ -23,7 +23,15 @@ import {
     getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
+import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
+import { EventBus } from "./core/EventBus.js";
+import { MinigameHUD } from "./ui/minigame-hud.js";
+import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
+import StorageManager from "./core/storage-manager.js";
+import MiniGameDBUtil from "./util/minigame-db-util.js";
+
+
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -440,6 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
+            loadProgramPresets: () => db.getGameLevelPresetList(),
             loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
             loadCompletedGameHistoryRecords: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getCompletedUserGameHistoryByHn({
@@ -961,14 +970,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         let checkInDates = [];
+        let programStartedAt = rememberedPatient?.startedProgram || rememberedPatient?.started_program || "";
         try {
-            checkInDates = await db.getUserCheckInDatesByHn({ hn: patientCode });
+            if (!programStartedAt) {
+                const patient = await db.getPatientByHn(patientCode);
+                programStartedAt = patient?.started_program || patient?.startedProgram || "";
+            }
+
+            const { playedFrom } = getProgramDateRange(programStartedAt || new Date());
+            const { playedTo } = getProgramDateRange(new Date());
+            checkInDates = await db.getUserCheckInDatesByHn({
+                hn: patientCode,
+                playedFrom,
+                playedTo,
+            });
         } catch (error) {
             console.warn("Unable to load check-in dates:", error);
         }
 
         renderCheckInSummaryScreen(uiRoot, {
             checkInDates,
+            programStartedAt: programStartedAt || new Date(),
             defaultDayCount: 14,
             onBackHome: () => {
                 navigateTo(ROUTES.hub);
@@ -1044,6 +1066,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
+            
+            // Mount Minigame HUD
+            uiRoot.innerHTML = "";
+            uiRoot.hidden = false;
+            const hud = new MinigameHUD(uiRoot, {
+                gameTitle: selectedGame?.name,
+                timeLimit: selectedGame?.time_limit || 60 // Fallback
+            });
+            hud.render();
+
+
+            const handleExit = async () => {
+                const confirmed = await showPopup({
+                    title: "ออกจากเกม",
+                    message: "คุณต้องการออกจากเกมที่กำลังเล่นอยู่ใช่หรือไม่? ความก้าวหน้าในรอบนี้อาจจะไม่ถูกบันทึก",
+                    confirmText: "ออกจากการแข่งขัน",
+                    cancelText: "เล่นต่อ",
+                    icon: "logout",
+                    tone: "error"
+                });
+
+                if (confirmed) {
+                    cleanup();
+                    navigateTo(ROUTES.hub);
+                }
+            };
+
+            const handleGameOver = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
+                const resultPanel = new MinigameResultPanel(uiRoot, {
+                    score,
+                    highScore: StorageManager.get("highscore", 0),
+                    gameTitle: selectedGame?.name,
+                });
+                resultPanel.render();
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level}`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
+            };
+
+            const handleRetry = () => {
+                cleanup();
+                showGame(selectedGame);
+            };
+
+            const handleExitConfirmed = () => {
+                cleanup();
+                navigateTo(ROUTES.hub);
+            };
+
+            const cleanup = () => {
+                EventBus.off("minigame:exit-request", handleExit);
+                EventBus.off("minigame:game-over", handleGameOver);
+                EventBus.off("minigame:retry-request", handleRetry);
+                EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                hud.destroy();
+            };
+
+            EventBus.on("minigame:exit-request", handleExit);
+            EventBus.on("minigame:game-over", handleGameOver);
+            EventBus.on("minigame:retry-request", handleRetry);
+            EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+
             return true;
         } catch (error) {
             console.error(`Unable to start game ${parsedName}:`, error);
@@ -1239,6 +1339,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rememberedPatient = getPatientSessionCookie();
         let player = rememberedPatient || {};
+        let playerProgram = null;
 
         if (rememberedPatient?.patientCode) {
             try {
@@ -1268,8 +1369,23 @@ document.addEventListener("DOMContentLoaded", () => {
             console.warn("Unable to load education levels for player info:", error);
         }
 
+        const playerHn = String(player?.hn || rememberedPatient?.patientCode || "").trim();
+        if (playerHn) {
+            try {
+                playerProgram = await db.getDailyGameProgramByHn({
+                    hn: playerHn,
+                    windowBefore: 0,
+                    windowAfter: 0,
+                });
+            } catch (error) {
+                console.warn("Unable to load player program date info:", error);
+            }
+        }
+
         renderPlayerInfoScreen(uiRoot, {
             player,
+            programDayCount: playerProgram?.programDayCount ?? null,
+            programEndedAt: playerProgram?.programEndDate || "",
             onEndProgram: async () => {
                 await showPopup({
                     title: "จบโปรแกรม",

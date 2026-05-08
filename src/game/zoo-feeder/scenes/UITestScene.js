@@ -3,6 +3,8 @@ import Conveyer from "../entity/script/conveyer";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import StorageManager from "../../../core/storage-manager";
 import db from "../../../core/database.js";
+import { EventBus } from "../../../core/EventBus.js";
+
 
 const GAME_ID = "ATTN001";
 
@@ -12,12 +14,7 @@ export default class UITestScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.scenePlugin(
-      "rexuiplugin",
-      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
-      "rexUI",
-      "rexUI",
-    );
+    // rexUI is loaded via main.js global config
 
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
@@ -40,10 +37,22 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.png')
     this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.png')
     this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.png')
+    //Animal Icon
+    this.load.image("bear_icon", "assets/zoo-feeder/animal/icons/H_Bear.png");
+    this.load.image("cow_icon", "assets/zoo-feeder/animal/icons/H_Cow.png");
+    this.load.image("elephant_icon", "assets/zoo-feeder/animal/icons/H_ele.png");
+    this.load.image("fox_icon", "assets/zoo-feeder/animal/icons/H_Fox.png");
+    this.load.image("lion_icon", "assets/zoo-feeder/animal/icons/H_Li.png");
+    this.load.image("panda_icon", "assets/zoo-feeder/animal/icons/H_Pan.png");
+    //Emote
+    this.load.image("popup_emote", "assets/zoo-feeder/etc/Popup.png");
+    this.load.image("emote_sad", "assets/zoo-feeder/etc/Emoji_None.png");
+    this.load.image("emote_happy", "assets/zoo-feeder/etc/Emoji_Smile.png");
   }
 
   create(data) {
     console.log("UI test scene");
+    EventBus.emit('minigame:show-hud');
 
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
@@ -62,6 +71,16 @@ export default class UITestScene extends Phaser.Scene {
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();
+    
+    // Hide old Phaser UI elements if we're using the DOM HUD
+    this.gameplayUI.uiBackground.setVisible(false);
+    this.gameplayUI.currentScore.setVisible(false);
+    this.gameplayUI.currentLives.setVisible(false);
+
+    // Initial state to HUD
+    EventBus.emit('minigame:score', { score: this.score });
+    EventBus.emit('minigame:tick', { timeLeft: 180 }); // 3 minutes
+
     this.conveyerNums = data.conveyerNums || 3;
     this.conveyers = [];
 
@@ -95,14 +114,23 @@ export default class UITestScene extends Phaser.Scene {
 
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
 
-    this.countdownTimer = this.time.addEvent({
-      delay: 180000,
-      callback: () => {
-        this.onGameOver();
-      },
-      loop: false,
-    })
   }
+
+  startTimer() {
+    if (this.countdownTimer) return;
+    this.countdownTimer = this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
+        EventBus.emit('minigame:tick', { timeLeft: remaining });
+        if (remaining <= 0) {
+            this.onGameOver();
+        }
+      },
+      repeat: 179,
+    });
+  }
+
   update(time, delta) {
     for (const _conveyer of this.conveyers) {
       _conveyer.update(time, delta);
@@ -128,6 +156,8 @@ export default class UITestScene extends Phaser.Scene {
     this.level = Math.floor(this.level);
     console.log("level: " + this.level);
     this.gameplayUI.setScore(this.score);
+    EventBus.emit('minigame:score', { score: this.score });
+
 
     if (this.level % 10 == 0 && this.level != this.lastLevel) {
       for (const _conveyer of this.conveyers) {
@@ -183,6 +213,11 @@ export default class UITestScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
 
     this.gameplayUI.showGameOverPanel(this.score);
+    EventBus.emit('minigame:game-over', { 
+        score: this.score,
+        level: this.level
+    });
+
     //console.log("Highscore: " + StorageManager.get('highscore'));
   }
   restartGame() {

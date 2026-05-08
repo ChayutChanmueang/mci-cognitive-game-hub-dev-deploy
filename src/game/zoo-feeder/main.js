@@ -24,7 +24,7 @@ const config = {
         default: 'arcade', 
         arcade: {
             gravity: { y: 0 }, // 0 for top-down, 300 for platformers
-            debug: false       // Keep this true while debugging!
+            debug: true       // Keep this true while debugging!
         }
     },
     scene: [
@@ -36,7 +36,7 @@ const config = {
     plugins: {
         scene:[
             {
-                ket: 'rexUI',
+                key: 'rexUI',
                 plugin: UIPlugin,
                 mapping: 'rexUI'
             }

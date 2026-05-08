@@ -46,11 +46,13 @@ This project leverages cutting-edge AI orchestration for both development and do
 
 ```text
 ├── .agents/                # AI Agent skills and specialized instructions
-├── docs/                   # Documentation and Project Logs
-│   ├── Agentic AI/         # AI-assisted development docs
-│   ├── Design Document/    # GDD, Class Diagrams, Database Schema, Wiki
-│   ├── Meeting Logs/       # Development meeting notes
-│   └── Progress Logs/      # Sprint and Weekly backlogs
+├── docs/                   # Documentation and Knowledge Base
+│   ├── agile/              # Backlog, Sprint Plans, Reports
+│   ├── gdd/                # Game Design Documents (Concept, Mechanics)
+│   ├── software/           # Technical Design (Architecture, Schema)
+│   ├── wiki/               # Project Wiki and research logs
+│   ├── index.md            # Master Project Index
+│   └── changelog.md        # Documentation History
 ├── public/                 # Static assets (images, audio, CSS)
 ├── src/
 │   ├── core/               # Core systems (Database, Storage, Managers)
@@ -72,19 +74,38 @@ This project leverages cutting-edge AI orchestration for both development and do
 
 ## 📖 Documentation
 
-### Design & Architecture
-- [**Project Summary**](docs/Design%20Document/Summary-Project.md) - High-level project goals
-- [**Game Design Document (GDD)**](docs/Design%20Document/GDD-Project.md) - Full game mechanics specification
-- [**Wiki Overview**](docs/Design%20Document/wiki/README.md) - Technical knowledge base for developers
-- [**Database Schema**](docs/Design%20Document/DatabaseSchema-Project.md) - Supabase table structures
+### 🧭 Master Navigation
+- [**Project Index**](docs/index.md) - The central hub for all documentation
+- [**Knowledge Wiki**](docs/wiki/wiki.md) - Detailed technical guides and research
+### 📘 Game Design (GDD)
+- [**Game Concept & Architecture**](docs/gdd/00-concept.md) - Vision, USPs, and Technical Overview
+- [**Core Mechanics**](docs/gdd/01-mechanics.md) - Gameplay rules and loops
+- [**Minigame Detailed Designs**](docs/gdd/minigames/README.md) - In-depth mechanics for all 5 games
 
-### Project Management
-- [**Sprint Backlog**](docs/Progress%20Logs/SPRINT_BACKLOG-SB01.md) - Active tasks and milestones
-- [**Meeting Notes**](docs/Meeting%20Logs/MeetingNotes-260422.md) - Latest decision logs
+### 💻 Software Design
+- [**System Design**](docs/software/01-system-design.md) - ECS Lite, UIPanel, and utilities
+- [**Database Schema**](docs/software/03-data-schema.md) - Supabase data structures
 
-### AI & Agents
+### 🚀 Agile & Quality
+- [**System Test Reports**](05-report-backlog.md) - QA Dashboard and stable status
+- [**Sprint Retrospectives**](04-retrospectives-backlog.md) - Lessons learned and project closure
+
+---
+
+## 🛠 Features
+- **5 Cognitive Games:** Targeting Memory, Attention, Language, and Executive Function.
+- **Thai Voice Over:** Automatic instructions and text-to-speech for elderly accessibility.
+- **Cloud Backend:** Real-time synchronization and data logging with Supabase.
+- **Adaptive UI:** Responsive layout designed specifically for MCI patients and healthcare providers.
+
+## 🚀 Quick Start
+### 🚀 Project Management
+- [**Product Backlog**](01-product-backlog.md) - Feature list and status
+- [**Sprint Planning**](02-sprint-planning.md) - Project roadmap and timeline
+
+### 🤖 AI & Agents
 - [**Agent Guidelines**](AGENTS.md) - Essential commands and project rules for AI agents
-- [**AI Skill Usage**](docs/Agentic%20AI/PROJECT_AGENT_SKILL_USING.md) - How specialized AI skills are utilized
+- [**AI Skill Usage**](PROJECT_AGENT_SKILL_USING.md) - How specialized AI skills are utilized
 
 ## 🚀 Quick Start
 
