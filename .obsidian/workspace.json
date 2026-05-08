@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "9e8011aaaff355ef",
+        "id": "62f44a12199e6336",
         "type": "tabs",
         "children": [
           {
-            "id": "3e42e5dc7d4ff18f",
+            "id": "9d1b558753fd317c",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/Game Design Document V.1.md",
+                "file": "docs/agile/meeting-backlogs/2026-05-11.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Game Design Document V.1"
+              "title": "2026-05-11"
             }
           }
         ]
@@ -204,8 +204,15 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "3e42e5dc7d4ff18f",
+  "active": "9d1b558753fd317c",
   "lastOpenFiles": [
+    "docs/software/03-data-schema.md",
+    "docs/agile/meeting-backlogs/2026-05-11.md",
+    "docs/agile/meeting-backlogs/2026-05-11.md",
+    "docs/agile/meeting-backlogs/meeting-template.md",
+    "node_modules/minimist/CHANGELOG.md",
+    "node_modules/phaser/changelog/3.60/CHANGELOG-v3.60.md",
+    "docs/Game Design Document V.1.md",
     "docs/changelog.md",
     "docs/wiki/wiki.md",
     "docs/wiki/guidelines/ux-ui-modernization-guidelines.md",
@@ -217,7 +224,6 @@
     "docs/wiki/agentic-ai/AGENTIC_AI_PROCESS_LVL.md",
     "docs/wiki/agentic-ai/PROJECT_AGENT_SKILL_USING.md",
     "AGENTS.md",
-    "docs/Game Design Document V.1.md",
     "docs/index.md",
     "src/game/resting-point/entity/script/ui/gameplay-ui.js",
     "src/game/resting-point/ui-elements/scripts/template-panel.js",
@@ -238,12 +244,6 @@
     "docs/agile/reports/260506_Test_Plan_Sprint05_Initial.md",
     "docs/agile/meeting-backlogs/2026-05-06.md",
     "docs/agile/meeting-backlogs/2026-04-14+template.md",
-    "docs/software/06-ui-design-wireframes.md",
-    "docs/gdd/00-concept.md",
-    "docs/software/02-class-diagram.md",
-    "docs/software/01-system-design.md",
-    "docs/gdd/01-mechanics.md",
-    "docs/gdd/02-narrative.md",
     "screenshot.png",
     "Idea.canvas",
     "Untitled.canvas",
