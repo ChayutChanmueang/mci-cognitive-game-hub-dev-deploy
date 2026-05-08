@@ -23,6 +23,7 @@
 - [01. System Design](software/01-system-design.md) - รายละเอียด Subsystems และ Design Patterns
 - [02. Class Diagram](software/02-class-diagram.md) - แผนภาพความสัมพันธ์ของ Class หลัก
 - [03. Data Schema](software/03-data-schema.md) - โครงสร้างฐานข้อมูล Supabase
+- [04. Data Reference](software/03-data-reference.md) - ตัวอย่างข้อมูล (Payloads) และคู่มือสำหรับนักพัฒนา
 
 ---
 
