@@ -7,6 +7,15 @@ import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
+import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
+import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
+import {
+    deleteGameLevelPresetList,
+    getGameLevelPresetEditorData,
+    getGameLevelPresetLists,
+    getGameListOptions,
+    saveGameLevelPreset,
+} from "./tools/daily-preset-database.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
@@ -14,7 +23,15 @@ import {
     getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
+import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
+import { EventBus } from "./core/EventBus.js";
+import { MinigameHUD } from "./ui/minigame-hud.js";
+import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
+import StorageManager from "./core/storage-manager.js";
+import MiniGameDBUtil from "./util/minigame-db-util.js";
+
+
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -26,6 +43,7 @@ const ROUTES = Object.freeze({
     signup: "#/signup",
     hub: "#/hub",
     checkInSummary: "#/checkin-summary",
+    dailyPresetTool: "#/tools/daily-presets",
 });
 
 const GAME_ROUTE_PREFIX = "#/game/";
@@ -169,6 +187,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (normalizedPath === "/checkin-summary") {
             return { name: "checkin-summary" };
+        }
+
+        if (normalizedPath === "/tools/daily-presets") {
+            return { name: "daily-preset-tool" };
+        }
+
+        if (normalizedPath.startsWith("/tools/daily-presets/")) {
+            const presetId = normalizedPath
+                .slice("/tools/daily-presets/".length)
+                .split("/")
+                .map((segment) => String(segment || "").trim())
+                .filter(Boolean)[0] || "";
+            return { name: "daily-preset-editor", presetId };
         }
 
         if (normalizedPath === "/hub" || normalizedPath === "/hub/intro") {
@@ -417,6 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
+            loadProgramPresets: () => db.getGameLevelPresetList(),
             loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
             loadCompletedGameHistoryRecords: ({ hn, gids, playedFrom, playedTo }) =>
                 db.getCompletedUserGameHistoryByHn({
@@ -649,10 +681,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             },
             // Test-only placeholder: daily game data management tools will be wired here later.
-            onTestDailyDataTools: async () => {},
-            onRestNode: async (selectedNode) => {
-                const nodeGame = selectedNode?.gameData || null;
-                const restGame = nodeGame?.gid ? nodeGame : await db.getGameByGid("REST001");
+            onTestDailyDataTools: async () => {
+                navigateTo(ROUTES.dailyPresetTool);
+            },
+            onRestNode: async () => {
+                const restGame = await db.getGameByGid("REST001");
 
                 if (!restGame?.gid) {
                     throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
@@ -726,6 +759,193 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    const showDailyPresetTool = async () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const renderPresetToolView = (presetOptions = {}) => renderDailyPresetTool(uiRoot, {
+            ...presetOptions,
+            onBack: () => navigateTo(ROUTES.hub),
+            onOpenPreset: (preset) => {
+                const presetId = String(preset?.id || "preset-1").trim();
+                navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(presetId)}`);
+            },
+            onAddPreset: () => {
+                navigateTo(`${ROUTES.dailyPresetTool}/new`);
+            },
+        });
+
+        renderPresetToolView({ presets: [], isLoading: true });
+
+        try {
+            const presets = await getGameLevelPresetLists();
+            renderPresetToolView({ presets });
+        } catch (error) {
+            console.error("Failed to load daily preset list:", error);
+            renderPresetToolView({
+                presets: [],
+                errorMessage: "ไม่สามารถโหลด preset ได้",
+            });
+        }
+    };
+
+    const showDailyPresetEditor = async (presetId = "new") => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const isNewPreset = presetId === "new";
+        let preset = {
+            id: null,
+            name: "Preset",
+            isNew: true,
+        };
+        // Future editor metadata flags: default them here, pass them into
+        // renderDailyPresetEditor, and forward them to saveGameLevelPreset.
+        let presetEditorData = {
+            rows: null,
+            stageFields: null,
+            hasDailyGoal: false,
+            hasDailyLoop: false,
+        };
+
+        if (!isNewPreset) {
+            try {
+                presetEditorData = await getGameLevelPresetEditorData(presetId);
+                preset = presetEditorData.preset;
+            } catch (error) {
+                console.error("Failed to load daily preset:", error);
+                await showPopup({
+                    title: "โหลด Preset ไม่สำเร็จ",
+                    message: "ไม่สามารถโหลดข้อมูล preset นี้ได้",
+                    confirmText: "กลับ",
+                    icon: "error",
+                    tone: "error",
+                });
+                navigateTo(ROUTES.dailyPresetTool);
+                return;
+            }
+        }
+
+        let gameOptions = [];
+        try {
+            gameOptions = await getGameListOptions();
+        } catch (error) {
+            console.error("Failed to load game list options:", error);
+            await showPopup({
+                title: "โหลดรายชื่อเกมไม่สำเร็จ",
+                message: "ไม่สามารถโหลดรายชื่อเกมสำหรับ preset ได้",
+                confirmText: "รับทราบ",
+                icon: "error",
+                tone: "error",
+            });
+        }
+
+        renderDailyPresetEditor(uiRoot, {
+            preset,
+            gameOptions,
+            initialRows: presetEditorData.rows,
+            initialStageFields: presetEditorData.stageFields,
+            initialHasDailyGoal: presetEditorData.hasDailyGoal,
+            initialHasDailyLoop: presetEditorData.hasDailyLoop,
+            onBack: () => navigateTo(ROUTES.dailyPresetTool),
+            onSavePreset: async (presetData) => {
+                const name = String(presetData.name || "").trim();
+                if (!name) {
+                    await showPopup({
+                        title: "กรุณากรอกชื่อ preset",
+                        message: "ต้องมีชื่อ preset ก่อนบันทึก",
+                        confirmText: "รับทราบ",
+                        icon: "edit",
+                    });
+                    return;
+                }
+
+                try {
+                    const savedPreset = await saveGameLevelPreset({
+                        id: presetData.isNew ? null : presetData.id,
+                        name,
+                        rowData: presetData.rowData,
+                        rows: presetData.rowData,
+                        stageFields: presetData.stageFields,
+                        hasDailyGoal: presetData.hasDailyGoal,
+                        hasDailyLoop: presetData.hasDailyLoop,
+                    });
+
+                    await showPopup({
+                        title: "บันทึก Preset แล้ว",
+                        message: "บันทึก preset ลง database เรียบร้อยแล้ว",
+                        confirmText: "ตกลง",
+                        icon: "check_circle",
+                    });
+                    navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(savedPreset.id)}`);
+                } catch (error) {
+                    console.error("Failed to save daily preset:", error);
+                    await showPopup({
+                        title: "บันทึกไม่สำเร็จ",
+                        message: "ไม่สามารถบันทึก preset ได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                }
+            },
+            onDeletePreset: async (presetData) => {
+                if (!presetData?.id) {
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ลบ Preset",
+                    message: `ต้องการลบ preset "${presetData.name}" ใช่หรือไม่`,
+                    confirmText: "ลบ",
+                    cancelText: "ยกเลิก",
+                    icon: "delete",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                try {
+                    await deleteGameLevelPresetList(presetData.id);
+                    navigateTo(ROUTES.dailyPresetTool);
+                } catch (error) {
+                    console.error("Failed to delete daily preset:", error);
+                    await showPopup({
+                        title: "ลบไม่สำเร็จ",
+                        message: "ไม่สามารถลบ preset ได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                }
+            },
+        });
+    };
+
     const showCheckInSummary = async () => {
         if (!uiRoot || !gameContainer) {
             return;
@@ -750,14 +970,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         let checkInDates = [];
+        let programStartedAt = rememberedPatient?.startedProgram || rememberedPatient?.started_program || "";
         try {
-            checkInDates = await db.getUserCheckInDatesByHn({ hn: patientCode });
+            if (!programStartedAt) {
+                const patient = await db.getPatientByHn(patientCode);
+                programStartedAt = patient?.started_program || patient?.startedProgram || "";
+            }
+
+            const { playedFrom } = getProgramDateRange(programStartedAt || new Date());
+            const { playedTo } = getProgramDateRange(new Date());
+            checkInDates = await db.getUserCheckInDatesByHn({
+                hn: patientCode,
+                playedFrom,
+                playedTo,
+            });
         } catch (error) {
             console.warn("Unable to load check-in dates:", error);
         }
 
         renderCheckInSummaryScreen(uiRoot, {
             checkInDates,
+            programStartedAt: programStartedAt || new Date(),
             defaultDayCount: 14,
             onBackHome: () => {
                 navigateTo(ROUTES.hub);
@@ -833,6 +1066,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
+            
+            // Mount Minigame HUD
+            uiRoot.innerHTML = "";
+            uiRoot.hidden = false;
+            const hud = new MinigameHUD(uiRoot, {
+                gameTitle: selectedGame?.name,
+                timeLimit: selectedGame?.time_limit || 60 // Fallback
+            });
+            hud.render();
+
+
+            const handleExit = async () => {
+                const confirmed = await showPopup({
+                    title: "ออกจากเกม",
+                    message: "คุณต้องการออกจากเกมที่กำลังเล่นอยู่ใช่หรือไม่? ความก้าวหน้าในรอบนี้อาจจะไม่ถูกบันทึก",
+                    confirmText: "ออกจากการแข่งขัน",
+                    cancelText: "เล่นต่อ",
+                    icon: "logout",
+                    tone: "error"
+                });
+
+                if (confirmed) {
+                    cleanup();
+                    navigateTo(ROUTES.hub);
+                }
+            };
+
+            const handleGameOver = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
+                const resultPanel = new MinigameResultPanel(uiRoot, {
+                    score,
+                    highScore: StorageManager.get("highscore", 0),
+                    gameTitle: selectedGame?.name,
+                });
+                resultPanel.render();
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level}`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
+            };
+
+            const handleRetry = () => {
+                cleanup();
+                showGame(selectedGame);
+            };
+
+            const handleExitConfirmed = () => {
+                cleanup();
+                navigateTo(ROUTES.hub);
+            };
+
+            const cleanup = () => {
+                EventBus.off("minigame:exit-request", handleExit);
+                EventBus.off("minigame:game-over", handleGameOver);
+                EventBus.off("minigame:retry-request", handleRetry);
+                EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                hud.destroy();
+            };
+
+            EventBus.on("minigame:exit-request", handleExit);
+            EventBus.on("minigame:game-over", handleGameOver);
+            EventBus.on("minigame:retry-request", handleRetry);
+            EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+
             return true;
         } catch (error) {
             console.error(`Unable to start game ${parsedName}:`, error);
@@ -1200,6 +1511,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "checkin-summary") {
             await showCheckInSummary();
+            return;
+        }
+
+        if (route.name === "daily-preset-tool") {
+            showDailyPresetTool();
+            return;
+        }
+
+        if (route.name === "daily-preset-editor") {
+            showDailyPresetEditor(route.presetId);
             return;
         }
 

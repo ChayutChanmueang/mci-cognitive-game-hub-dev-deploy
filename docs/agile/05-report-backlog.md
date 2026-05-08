@@ -26,7 +26,8 @@
 
 | วันที่     | รหัสรายงาน   | หัวข้อการทดสอบ                | สรุปผลลัพธ์                                                  | เอกสาร                                        |
 | :--------- | :----------- | :---------------------------- | :----------------------------------------------------------- | :-------------------------------------------- |
-| 2026-05-31 | QA-FINAL     | **Final System Test Report**  | ระบบสมบูรณ์ 100% พร้อมใช้งาน; รวม Polish & Voice Over        | [260531_Final_System_Test_Report.md](260531_Final_System_Test_Report.md.md)        |
+| 2026-05-31 | QA-FINAL     | **Final System Test Report**  | ระบบสมบูรณ์ 100% พร้อมใช้งาน; รวม Polish & Voice Over        | [260531_Final_System_Test_Report.md](reports/260531_Final_System_Test_Report.md)        |
+| 2026-05-06 | TP-S5-01     | **Sprint 05 Initial Test Plan** | แผนการทดสอบสำหรับ User Registration และ Progression Map (May 05-06) | [260506_Test_Plan_Sprint05_Initial.md](reports/260506_Test_Plan_Sprint05_Initial.md) |
 | 2026-05-03 | ST-S3-01     | **Sprint 3 Integration Test** | ระบบ Auth และ Score API ทำงานถูกต้อง; แก้ไข Bug ทั้งหมดในแผน | [260503_Sprint3_Integration_Test_Report.md](260503_Sprint3_Integration_Test_Report.md.md) |
 | 2026-05-02 | HF-260502-01 | **Minigame Hotfix**           | แก้ไขปัญหา Console Error และ Plugin Loading                  | [260502_1640_Minigame_Hotfix_Report.md](260502_1640_Minigame_Hotfix_Report.md.md)     |
 | 2026-05-02 | S2-W04-01    | **Sprint 2 Final Test**       | ระบบหลักทำงานได้แบบ E2E; พบปัญหา Drag-and-Drop               | [260502_0722_Sprint2_Final_Test_Report.md](260502_0722_Sprint2_Final_Test_Report.md.md)  |

@@ -2,6 +2,20 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+## [2026-05-06] - Agentic AI Documentation
+### Added
+- Integrated Mermaid diagrams (5 Levels of Maturity, Multi-agent Collaboration, and Reasoning Loop) into `docs/wiki/Agentic-AI/AGENTIC_AI_PROCESS_LVL.md` to enhance visual understanding of the maturity model and workflows.
+- Created `docs/wiki/Agentic-AI/AGENTIC_AI_PROCESS_LVL.md` explaining the 4 levels of Agentic AI implementation (Foundation, Specialized Skills, Token Reduction, Integrated Documentation).
+- Updated `docs/wiki/wiki.md` with links to the new AI process document and improved existing links.
+
+## [2026-05-06] - Product Backlog & User Stories Update
+### Changed
+- Overhauled `docs/agile/01-product-backlog.md` based on "Game Design Document V.1.md".
+- Added new Epics and User Stories for Detailed Registration, 14-day Level Progression, Rest/Finish Levels, Animal Memory game, and Advanced Analytics (Deep Insights).
+- Created detailed User Story documents (`US-E1-01` to `US-E1-03` and `US-E2-01` to `US-E2-06`) in `docs/agile/user-stories/` for the core management and progression systems.
+- Synchronized feature status and linked all E1/E2 stories in the backlog for easier navigation.
+- Planned **Sprint 05** (May 06-19) focusing on User Management (E1) and Progression System (E2) overhaul.
+
 ## [2026-05-03] - Architecture & Project Alignment
 ### Added
 - Created `docs/agile/reports/index.md` as the master index and dashboard for all system test reports.

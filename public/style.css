@@ -66,9 +66,9 @@ body.hub-mode {
 #app.game-mode #game-container {
     position: absolute;
     inset: 0;
-    top: max(80px, calc(env(safe-area-inset-top) + 64px));
+    top: 0;
     width: 100%;
-    height: calc(100% - max(80px, calc(env(safe-area-inset-top) + 64px)));
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -792,13 +792,13 @@ body.hub-mode {
     gap: 18px;
     margin-bottom: 24px;
     color: var(--md-sys-color-on-surface);
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
 }
 
 .hub-clean-day-divider span {
-    height: 3px;
-    border-radius: 999px;
+    height: 2px;
+    border-radius: 25px;
     background: var(--md-sys-color-on-surface);
 }
 
@@ -958,6 +958,11 @@ body.hub-mode {
 }
 
 .hub-clean-test-menu md-menu[data-test-quick-game-menu] {
+    min-width: 300px;
+    max-height: min(360px, calc(100dvh - 80px));
+}
+
+.hub-clean-test-menu md-menu[data-test-program-menu] {
     min-width: 300px;
     max-height: min(360px, calc(100dvh - 80px));
 }

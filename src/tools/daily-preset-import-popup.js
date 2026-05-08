@@ -31,11 +31,13 @@ export function showDailyPresetImportPopup() {
                 </div>
 
                 <div class="daily-preset-import-popup__choices" role="radiogroup" aria-label="ประเภทข้อมูลนำเข้า">
+                    <!-- Future import formats: add a radio value here, then add
+                    the matching parser branch in daily-preset-csv-import.js. -->
                     <label class="daily-preset-import-popup__choice">
                         <input type="radio" name="daily-preset-import-type" value="normal">
                         <span>
                             <strong>ข้อมูลเกมปกติ</strong>
-                            <small>ไฟล์ CSV ที่ส่งออกจากระบบนี้ เช่น gid(level)</small>
+                            <small>ไฟล์ CSV ที่ส่งออกจากระบบนี้ เช่น gid(level) และจำนวนรอบการเล่น</small>
                         </span>
                     </label>
                     <label class="daily-preset-import-popup__choice">
