@@ -7,15 +7,6 @@ import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
-import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
-import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
-import {
-    deleteGameLevelPresetList,
-    getGameLevelPresetEditorData,
-    getGameLevelPresetLists,
-    getGameListOptions,
-    saveGameLevelPreset,
-} from "./tools/daily-preset-database.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
@@ -35,7 +26,6 @@ const ROUTES = Object.freeze({
     signup: "#/signup",
     hub: "#/hub",
     checkInSummary: "#/checkin-summary",
-    dailyPresetTool: "#/tools/daily-presets",
 });
 
 const GAME_ROUTE_PREFIX = "#/game/";
@@ -179,19 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (normalizedPath === "/checkin-summary") {
             return { name: "checkin-summary" };
-        }
-
-        if (normalizedPath === "/tools/daily-presets") {
-            return { name: "daily-preset-tool" };
-        }
-
-        if (normalizedPath.startsWith("/tools/daily-presets/")) {
-            const presetId = normalizedPath
-                .slice("/tools/daily-presets/".length)
-                .split("/")
-                .map((segment) => String(segment || "").trim())
-                .filter(Boolean)[0] || "";
-            return { name: "daily-preset-editor", presetId };
         }
 
         if (normalizedPath === "/hub" || normalizedPath === "/hub/intro") {
@@ -672,11 +649,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             },
             // Test-only placeholder: daily game data management tools will be wired here later.
-            onTestDailyDataTools: async () => {
-                navigateTo(ROUTES.dailyPresetTool);
-            },
-            onRestNode: async () => {
-                const restGame = await db.getGameByGid("REST001");
+            onTestDailyDataTools: async () => {},
+            onRestNode: async (selectedNode) => {
+                const nodeGame = selectedNode?.gameData || null;
+                const restGame = nodeGame?.gid ? nodeGame : await db.getGameByGid("REST001");
 
                 if (!restGame?.gid) {
                     throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
@@ -746,193 +722,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
-            },
-        });
-    };
-
-    const showDailyPresetTool = async () => {
-        if (!uiRoot || !gameContainer) {
-            return;
-        }
-
-        document.body.classList.remove("game-mode");
-        document.body.classList.remove("landing-mode");
-        document.body.classList.add("hub-mode");
-        app?.classList.remove("game-mode");
-        app?.classList.remove("landing-mode");
-        app?.classList.add("hub-mode");
-        destroyActiveGame();
-        gameContainer.classList.add("game-container--hidden");
-        showUiRoot();
-
-        const renderPresetToolView = (presetOptions = {}) => renderDailyPresetTool(uiRoot, {
-            ...presetOptions,
-            onBack: () => navigateTo(ROUTES.hub),
-            onOpenPreset: (preset) => {
-                const presetId = String(preset?.id || "preset-1").trim();
-                navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(presetId)}`);
-            },
-            onAddPreset: () => {
-                navigateTo(`${ROUTES.dailyPresetTool}/new`);
-            },
-        });
-
-        renderPresetToolView({ presets: [], isLoading: true });
-
-        try {
-            const presets = await getGameLevelPresetLists();
-            renderPresetToolView({ presets });
-        } catch (error) {
-            console.error("Failed to load daily preset list:", error);
-            renderPresetToolView({
-                presets: [],
-                errorMessage: "ไม่สามารถโหลด preset ได้",
-            });
-        }
-    };
-
-    const showDailyPresetEditor = async (presetId = "new") => {
-        if (!uiRoot || !gameContainer) {
-            return;
-        }
-
-        document.body.classList.remove("game-mode");
-        document.body.classList.remove("landing-mode");
-        document.body.classList.add("hub-mode");
-        app?.classList.remove("game-mode");
-        app?.classList.remove("landing-mode");
-        app?.classList.add("hub-mode");
-        destroyActiveGame();
-        gameContainer.classList.add("game-container--hidden");
-        showUiRoot();
-
-        const isNewPreset = presetId === "new";
-        let preset = {
-            id: null,
-            name: "Preset",
-            isNew: true,
-        };
-        // Future editor metadata flags: default them here, pass them into
-        // renderDailyPresetEditor, and forward them to saveGameLevelPreset.
-        let presetEditorData = {
-            rows: null,
-            stageFields: null,
-            hasDailyGoal: false,
-            hasDailyLoop: false,
-        };
-
-        if (!isNewPreset) {
-            try {
-                presetEditorData = await getGameLevelPresetEditorData(presetId);
-                preset = presetEditorData.preset;
-            } catch (error) {
-                console.error("Failed to load daily preset:", error);
-                await showPopup({
-                    title: "โหลด Preset ไม่สำเร็จ",
-                    message: "ไม่สามารถโหลดข้อมูล preset นี้ได้",
-                    confirmText: "กลับ",
-                    icon: "error",
-                    tone: "error",
-                });
-                navigateTo(ROUTES.dailyPresetTool);
-                return;
-            }
-        }
-
-        let gameOptions = [];
-        try {
-            gameOptions = await getGameListOptions();
-        } catch (error) {
-            console.error("Failed to load game list options:", error);
-            await showPopup({
-                title: "โหลดรายชื่อเกมไม่สำเร็จ",
-                message: "ไม่สามารถโหลดรายชื่อเกมสำหรับ preset ได้",
-                confirmText: "รับทราบ",
-                icon: "error",
-                tone: "error",
-            });
-        }
-
-        renderDailyPresetEditor(uiRoot, {
-            preset,
-            gameOptions,
-            initialRows: presetEditorData.rows,
-            initialStageFields: presetEditorData.stageFields,
-            initialHasDailyGoal: presetEditorData.hasDailyGoal,
-            initialHasDailyLoop: presetEditorData.hasDailyLoop,
-            onBack: () => navigateTo(ROUTES.dailyPresetTool),
-            onSavePreset: async (presetData) => {
-                const name = String(presetData.name || "").trim();
-                if (!name) {
-                    await showPopup({
-                        title: "กรุณากรอกชื่อ preset",
-                        message: "ต้องมีชื่อ preset ก่อนบันทึก",
-                        confirmText: "รับทราบ",
-                        icon: "edit",
-                    });
-                    return;
-                }
-
-                try {
-                    const savedPreset = await saveGameLevelPreset({
-                        id: presetData.isNew ? null : presetData.id,
-                        name,
-                        rowData: presetData.rowData,
-                        rows: presetData.rowData,
-                        stageFields: presetData.stageFields,
-                        hasDailyGoal: presetData.hasDailyGoal,
-                        hasDailyLoop: presetData.hasDailyLoop,
-                    });
-
-                    await showPopup({
-                        title: "บันทึก Preset แล้ว",
-                        message: "บันทึก preset ลง database เรียบร้อยแล้ว",
-                        confirmText: "ตกลง",
-                        icon: "check_circle",
-                    });
-                    navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(savedPreset.id)}`);
-                } catch (error) {
-                    console.error("Failed to save daily preset:", error);
-                    await showPopup({
-                        title: "บันทึกไม่สำเร็จ",
-                        message: "ไม่สามารถบันทึก preset ได้",
-                        confirmText: "รับทราบ",
-                        icon: "error",
-                        tone: "error",
-                    });
-                }
-            },
-            onDeletePreset: async (presetData) => {
-                if (!presetData?.id) {
-                    return;
-                }
-
-                const hasConfirmed = await showPopup({
-                    title: "ลบ Preset",
-                    message: `ต้องการลบ preset "${presetData.name}" ใช่หรือไม่`,
-                    confirmText: "ลบ",
-                    cancelText: "ยกเลิก",
-                    icon: "delete",
-                    tone: "error",
-                });
-
-                if (!hasConfirmed) {
-                    return;
-                }
-
-                try {
-                    await deleteGameLevelPresetList(presetData.id);
-                    navigateTo(ROUTES.dailyPresetTool);
-                } catch (error) {
-                    console.error("Failed to delete daily preset:", error);
-                    await showPopup({
-                        title: "ลบไม่สำเร็จ",
-                        message: "ไม่สามารถลบ preset ได้",
-                        confirmText: "รับทราบ",
-                        icon: "error",
-                        tone: "error",
-                    });
-                }
             },
         });
     };
@@ -1239,6 +1028,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rememberedPatient = getPatientSessionCookie();
         let player = rememberedPatient || {};
+        let playerProgram = null;
 
         if (rememberedPatient?.patientCode) {
             try {
@@ -1268,8 +1058,23 @@ document.addEventListener("DOMContentLoaded", () => {
             console.warn("Unable to load education levels for player info:", error);
         }
 
+        const playerHn = String(player?.hn || rememberedPatient?.patientCode || "").trim();
+        if (playerHn) {
+            try {
+                playerProgram = await db.getDailyGameProgramByHn({
+                    hn: playerHn,
+                    windowBefore: 0,
+                    windowAfter: 0,
+                });
+            } catch (error) {
+                console.warn("Unable to load player program date info:", error);
+            }
+        }
+
         renderPlayerInfoScreen(uiRoot, {
             player,
+            programDayCount: playerProgram?.programDayCount ?? null,
+            programEndedAt: playerProgram?.programEndDate || "",
             onEndProgram: async () => {
                 await showPopup({
                     title: "จบโปรแกรม",
@@ -1395,16 +1200,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "checkin-summary") {
             await showCheckInSummary();
-            return;
-        }
-
-        if (route.name === "daily-preset-tool") {
-            showDailyPresetTool();
-            return;
-        }
-
-        if (route.name === "daily-preset-editor") {
-            showDailyPresetEditor(route.presetId);
             return;
         }
 

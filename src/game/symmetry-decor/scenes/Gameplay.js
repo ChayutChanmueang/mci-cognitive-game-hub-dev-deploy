@@ -13,6 +13,18 @@ import { EventBus } from "../../../core/EventBus";
 import LevelGenerator from "../components/scripts/level-generator";
 
 import EmojiRenderer from "../components/scripts/emoji-renderer";
+import SpriteRenderer from "../components/scripts/sprite-renderer";
+import DebugMenu from "./DebugMenu";
+
+// Pool of animal sprite keys (loaded in preload)
+const ANIMAL_SPRITES = [
+  'icon_bear',
+  'icon_cow',
+  'icon_elephant',
+  'icon_fox',
+  'icon_lion',
+  'icon_panda',
+];
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -26,13 +38,24 @@ export default class GameplayScene extends Phaser.Scene {
   preload() {
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
+
+    // Animal icons for draggable entities
+    this.load.image('icon_bear',     'assets/common/animal/icons/H_Bear.png')
+    this.load.image('icon_cow',      'assets/common/animal/icons/H_Cow.png')
+    this.load.image('icon_elephant', 'assets/common/animal/icons/H_ele.png')
+    this.load.image('icon_fox',      'assets/common/animal/icons/H_Fox.png')
+    this.load.image('icon_lion',     'assets/common/animal/icons/H_Li.png')
+    this.load.image('icon_panda',    'assets/common/animal/icons/H_Pan.png')
   }
 
   create(data) {
+    EventBus.emit('minigame:show-hud');
+
     this.sceneData = { ...data };
     this.level = data.level || Difficulty.EASY;
     this.stage = 1;
     this.allScore = 0;
+    this.completedStages = 0;
     this.isGameEnded = false;
 
     this.constructGrid(true);
@@ -48,11 +71,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameplayUI.currentLives.setVisible(false);
 
     // Initial HUD State
-    const maxRound = Config.MaxRound[this.level];
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:score', { score: this.allScore });
-    EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}/${maxRound}` });
+    EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
     EventBus.emit('minigame:tick', { timeLeft: maxTimeS, maxTime: maxTimeS });
+
+    // Flag: timer expired while puzzle was in progress — finish puzzle first
+    this.pendingGameOver = false;
 
     this.events.on('socketFilled', (socketComponent, entity) => {
       if (this.isGameEnded) return;
@@ -70,30 +95,36 @@ export default class GameplayScene extends Phaser.Scene {
       }
     });
 
-    this.levelStartTime = this.time.now;
+    this.levelStartTime = null;
     this.levelIsActive = true;
+
+    // Debug menu (bottom-left toggle button)
+    this.debugMenu = new DebugMenu(this);
   }
 
   handleRoundComplete() {
     if (this.isGameEnded) return;
 
-    const maxRound = Config.MaxRound[this.level];
     const addScore = Config.IncreaseScore[this.level];
     this.allScore += addScore;
+    this.completedStages++;
 
     EventBus.emit('minigame:score', { score: this.allScore });
 
-    if (this.stage < maxRound) {
-        this.stage++;
-        EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}/${maxRound}` });
-        
-        // Show brief success feedback before next round
-        this.time.delayedCall(1000, () => {
-            this.constructGrid(true);
-        });
-    } else {
+    // If timer already expired, end the game now that the puzzle is done
+    if (this.pendingGameOver) {
         this.onGameOver("success");
+        return;
     }
+
+    // Otherwise, advance to the next round
+    this.stage++;
+    EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
+
+    // Short delay for success feedback before loading next puzzle
+    this.time.delayedCall(1000, () => {
+        this.constructGrid(true);
+    });
   }
 
   onGameOver(status = "success") {
@@ -103,16 +134,24 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
 
     const finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
+    // stages completed = current stage - 1 (since stage increments at round start)
+    // but if pendingGameOver triggered after finishing, stage is already incremented by handleRoundComplete
+    // so we track completedStages separately
+    const completedStages = this.completedStages || 0;
     
-    this.gameplayUI.showGameOverPanel(finalTime);
-    EventBus.emit('minigame:game-over', { 
-      score: this.allScore, 
-      level: getDifficultyLevelNumber(this.level) 
-    });
+    this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
+    // EventBus.emit('minigame:game-over', { 
+    //   score: this.allScore, 
+    //   level: this.level
+    // });
   }
 
   update() {
     if (this.isGameEnded || !this.levelIsActive) return;
+
+    if (this.levelStartTime === null) {
+        this.levelStartTime = this.time.now;
+    }
 
     const elapsePlaytimeMS = this.time.now - this.levelStartTime;
     const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);
@@ -120,8 +159,9 @@ export default class GameplayScene extends Phaser.Scene {
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
 
-    if (elapsePlaytimeMS >= Config.TimeLimitMs) {
-      this.onGameOver("failure");
+    if (elapsePlaytimeMS >= Config.TimeLimitMs && !this.pendingGameOver) {
+      // Let the player finish the current puzzle before ending
+      this.pendingGameOver = true;
     }
   }
 
@@ -165,39 +205,38 @@ export default class GameplayScene extends Phaser.Scene {
           if (_level[currentEntity].POS.X === i && _level[currentEntity].POS.Y === j) {
             if (_level[currentEntity].DRAGGABLE) {
               const box = new Entity(this, 0, 0, '__WHITE');
-              box.setTint(_level[currentEntity].Color);
+              box.clearTint();
               box.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               box.setDepth(100);
               
               const drag = box.addComponent(DraggableComponent);
               const data = box.addComponent(DraggableDataComponent, _level[currentEntity]);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                box.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
+
+              // Use the animal type from level data — this matches the solution socket
+              const spriteKey = _level[currentEntity].Animal;
+              const spriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              box.addComponent(SpriteRenderer, {
+                textureKey: spriteKey,
+                sizeScale: spriteScale,
+              });
 
               socket.attach(box);
               drag.currentSocket = socket;
               data.socket = socket;
             } else {
               const blocker = new Entity(this, 0, 0, '__WHITE');
-              blocker.setTint(_level[currentEntity].Color);
-              blocker.alpha = 0.6;
+              blocker.clearTint();
               blocker.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               blocker.setDepth(100);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                blocker.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
-              
+
+              // Use the animal type from level data to match the draggable counterpart
+              const blockerSpriteKey = _level[currentEntity].Animal;
+              const blockerSpriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              blocker.addComponent(SpriteRenderer, {
+                textureKey: blockerSpriteKey,
+                sizeScale: blockerSpriteScale,
+              });
+
               blocker.addComponent(NonDraggableComponent, socket);
             }
             currentEntity++;

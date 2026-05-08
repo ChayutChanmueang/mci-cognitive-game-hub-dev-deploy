@@ -27,36 +27,41 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   create(data) {
-    this.sprite = new Entity(this,this.scale.width/2,500,'stretch_left');
-    this.sprite.setDisplaySize(288,288);
+    const W = this.scale.width;
+    const H = this.scale.height;
+
+    this.sprite = new Entity(this, W / 2, H * 0.38, 'stretch_left');
+    this.sprite.setDisplaySize(380, 380);
     this.spriteRenderer = this.sprite.addComponent(SpriteRenderer, {
         textureKey: 'stretch_left',
         sizeScale: 2,
       });
     this.spriteRenderer.changeSprite('stretch_left');
 
-    this.topText = createThaiText(this,this.scale.width/2,250,"ยืดเส้นยืดสายกันหน่อย",
+    this.topText = createThaiText(this, W / 2, H * 0.17, "ยืดเส้น ยืดสายกันหน่อย",
       {
-        fontSize: "48px",
+        fontSize: "80px",
         fontStyle: "bold",
-        color: '#fff',
+        color: '#ffffff',
+        align: 'center',
         // stroke: '#fff',
         // strokeThickness: 10,
       },
       { origin: 0.5, wrapWidth: 750 },
     );
-    this.bottomText = createThaiText(this,this.scale.width/2,750,"กดที่ ปุ่ม เพื่อขยับร่างกาย",
+    this.bottomText = createThaiText(this, W / 2, H * 0.60, "กดที่ “ปุ่ม” เพื่อขยับร่างกาย",
       {
-        fontSize: "48px",
+        fontSize: "52px",
         fontStyle: "bold",
-        color: '#fff',
+        color: '#ffffff',
+        align: 'center',
         // stroke: '#fff',
         // strokeThickness: 10,
       },
       { origin: 0.5, wrapWidth: 750 },
     );
 
-    this.button = new CircleButton(this,this.scale.width/2,1000,100,() => {
+    this.button = new CircleButton(this, W / 2, H * 0.82, 120, () => {
       this.currentPush++;
       console.log("Current Push : " + this.currentPush + "/" + this.maxPush);
       if(this.currentPush%2 == 0){
@@ -65,7 +70,18 @@ export default class GameplayScene extends Phaser.Scene {
       else{
         this.spriteRenderer.changeSprite('stretch_right');
       }
-      this.bottomText.text = this.currentPush.toString() + "/" + this.maxPush.toString() + " ครั้ง";
+      
+      this.tweens.killTweensOf(this.sprite);
+      this.sprite.y = H * 0.38;
+      this.tweens.add({
+        targets: this.sprite,
+        y: (H * 0.38) - 30,
+        duration: 100,
+        yoyo: true,
+        ease: 'Quad.easeOut'
+      });
+
+      this.bottomText.text = this.currentPush.toString().padStart(2, '0') + "/" + this.maxPush.toString() + " ครั้ง";
       if(this.currentPush >= this.maxPush){
         this.onGameOver();
       }
@@ -96,6 +112,11 @@ export default class GameplayScene extends Phaser.Scene {
     this.spriteRenderer.changeSprite('stretch_left');
     this.sprite.setPosition(W / 2, H * 0.38);
     this.sprite.setDisplaySize(380, 380);
+    
+    // Capture the calculated scales after setDisplaySize to use in the tween
+    const targetScaleX = this.sprite.scaleX;
+    const targetScaleY = this.sprite.scaleY;
+    
     this.sprite.setAlpha(0);
     this.sprite.setDepth(10);
 
@@ -121,11 +142,12 @@ export default class GameplayScene extends Phaser.Scene {
     const btnY = H * 0.82;
 
     this.continueBtn = this.add.graphics();
+    this.continueBtn.setPosition(btnX, btnY);
     this.continueBtn.setDepth(10);
     this.continueBtn.setAlpha(0);
     this._drawContinueBtn(0x4caf50);
     this.continueBtn.setInteractive(
-      new Phaser.Geom.Rectangle(btnX - btnW / 2, btnY - btnH / 2, btnW, btnH),
+      new Phaser.Geom.Rectangle(-btnW / 2, -btnH / 2, btnW, btnH),
       Phaser.Geom.Rectangle.Contains
     );
 
@@ -143,13 +165,16 @@ export default class GameplayScene extends Phaser.Scene {
     this.continueBtn.on('pointerdown', () => {
       this._drawContinueBtn(0x388e3c);
       this.tweens.add({ targets: [this.continueBtn, this.continueBtnLabel], scaleX: 0.96, scaleY: 0.96, duration: 80, yoyo: true,
-        onComplete: () => EventBus.emit('game-complete'),
+        onComplete: () => {
+          EventBus.emit('game-complete');
+          window.location.hash = "#/hub";
+        },
       });
     });
 
     // ── 6. Staggered fade-in ─────────────────────────────────────────────────
     this.tweens.add({ targets: this.topText,    alpha: 1, y: H * 0.17, duration: 400, ease: 'Power2', delay: 0 });
-    this.tweens.add({ targets: this.sprite,     alpha: 1, scaleX: { from: 0.5, to: 1 }, scaleY: { from: 0.5, to: 1 }, duration: 450, ease: 'Back.out', delay: 100 });
+    this.tweens.add({ targets: this.sprite,     alpha: 1, scaleX: { from: targetScaleX * 0.5, to: targetScaleX }, scaleY: { from: targetScaleY * 0.5, to: targetScaleY }, duration: 450, ease: 'Back.out', delay: 100 });
     this.tweens.add({ targets: this.bottomText, alpha: 1, duration: 400, ease: 'Power2', delay: 250 });
     this.tweens.add({ targets: [this.continueBtn, this.continueBtnLabel], alpha: 1, duration: 400, ease: 'Power2', delay: 400 });
   }
@@ -158,11 +183,9 @@ export default class GameplayScene extends Phaser.Scene {
     const W = this.scale.width;
     const btnW = W * 0.65;
     const btnH = 110;
-    const btnX = W / 2;
-    const btnY = this.scale.height * 0.82;
     this.continueBtn.clear();
     this.continueBtn.fillStyle(color, 1);
-    this.continueBtn.fillRoundedRect(btnX - btnW / 2, btnY - btnH / 2, btnW, btnH, 55);
+    this.continueBtn.fillRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 55);
   }
 
   update() {

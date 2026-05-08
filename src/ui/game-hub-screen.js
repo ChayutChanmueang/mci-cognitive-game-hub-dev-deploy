@@ -1,4 +1,10 @@
 import { getPatientSessionCookie, getPatientSessionLabel } from "../util/patient-session.js";
+import {
+    getDateKey,
+    getLocalDayStart,
+    getProgramDateRange,
+    getProgramDayDate,
+} from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
 
@@ -64,37 +70,6 @@ function getCategoryLabel(categoryId) {
 
 function getCategoryDescription(categoryId) {
     return CATEGORY_META[categoryId]?.description || "เกมฝึกสมองประจำวัน";
-}
-
-function getLocalDayStart(value = new Date()) {
-    const date = new Date(value);
-    const safeDate = Number.isNaN(date.getTime()) ? new Date() : date;
-    safeDate.setHours(0, 0, 0, 0);
-    return safeDate;
-}
-
-function getProgramDateRange(value = new Date()) {
-    const start = getLocalDayStart(value);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
-    return {
-        playedFrom: start.toISOString(),
-        playedTo: end.toISOString(),
-    };
-}
-
-function getDateKey(value = new Date()) {
-    const date = getLocalDayStart(value);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-}
-
-function getProgramDayDate(startedProgram, programDay) {
-    const date = getLocalDayStart(startedProgram || new Date());
-    date.setDate(date.getDate() + Math.max(0, (Number(programDay) || 1) - 1));
-    return date;
 }
 
 function normalizeGame(item, index = 0, fallbackCategory = "Attention") {
@@ -283,6 +258,15 @@ function getSequentialCompletedCount(nodes, historyRecords) {
 
     for (const node of nodes || []) {
         let matchedIndex = -1;
+        if (node?.type === "checkin") {
+            const hasCheckIn = sortedHistory.some((record) => nodeMatchesHistory(node, record));
+            if (!hasCheckIn) {
+                break;
+            }
+            completedCount += 1;
+            continue;
+        }
+
         for (let index = cursor; index < sortedHistory.length; index += 1) {
             if (nodeMatchesHistory(node, sortedHistory[index])) {
                 matchedIndex = index;
@@ -337,6 +321,7 @@ function createGameHubInitialState() {
         dailyProgram: null,
         programDays: [],
         historyRecords: [],
+        checkInDateKeys: [],
         loading: false,
         historyLoading: false,
         autoCheckInLoading: false,
@@ -393,6 +378,30 @@ export async function renderGameHubScreen(root, options = {}) {
     const getCurrentProgramDay = () => Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
     const getProgramDayCount = () => Number(state.dailyProgram?.programDayCount || state.programDays[state.programDays.length - 1]?.day || 1);
     const getStartedProgram = () => state.dailyProgram?.startedProgram || options.programDate || new Date().toISOString();
+    const hasCheckInForProgramDay = (programDay) => {
+        const key = getDateKey(getProgramDayDate(getStartedProgram(), programDay));
+        return (state.checkInDateKeys || []).includes(key);
+    };
+    const getDisplayHistoryForProgramDay = (programDay) => {
+        const history = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), programDay);
+        if (!hasCheckInForProgramDay(programDay)) {
+            return history;
+        }
+
+        const hasLoadedCheckIn = history.some((record) => normalizeHistoryRecord(record).checkIn);
+        if (hasLoadedCheckIn) {
+            return history;
+        }
+
+        return [
+            ...history,
+            {
+                gid: "",
+                checkIn: true,
+                playedAt: getProgramDayDate(getStartedProgram(), programDay).toISOString(),
+            },
+        ];
+    };
     const getCurrentDaySection = (sections) => {
         const currentDay = getCurrentProgramDay();
         return sections.find((section) => Number(section.day) === currentDay) || sections[0] || { day: currentDay, nodes: [] };
@@ -404,7 +413,7 @@ export async function renderGameHubScreen(root, options = {}) {
         const sections = buildDaySections(state.programDays, state.restGame);
         const currentDay = getCurrentProgramDay();
         const currentSection = getCurrentDaySection(sections);
-        const currentHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), currentDay);
+        const currentHistory = getDisplayHistoryForProgramDay(currentDay);
         const currentCompletion = getDayCompletion(currentSection, currentHistory);
         const activeDay = getActiveDay();
         const progress = currentCompletion.gameTarget > 0
@@ -459,17 +468,39 @@ export async function renderGameHubScreen(root, options = {}) {
                             <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                         </md-fab>
                     </section>
-                    <div class="hub-clean-logout">
-                        <md-filled-button data-test-clear-history type="button">ลบประวัติการเล่น</md-filled-button>
-                        <md-filled-button data-test-complete-all type="button">เล่นเกมครบทั้งหมด</md-filled-button>
-                        <span class="hub-clean-quick-menu">
-                            <md-filled-button data-test-quick-game-trigger type="button">เลือกเกมทดสอบ</md-filled-button>
-                            <md-menu data-test-quick-game-menu positioning="popover">
-                                ${menuItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการเกม</div></md-menu-item>`}
-                            </md-menu>
-                        </span>
-                        <md-filled-button data-test-daily-data-tools type="button">เครื่องมือจัดการข้อมูลรายวันเกม</md-filled-button>
-                        <md-filled-button data-test-logout type="button">ออกจากระบบ</md-filled-button>
+                    <div class="hub-clean-test-menu">
+                        <md-fab class="hub-clean-test-fab" data-test-menu-trigger variant="secondary" aria-label="เปิดเมนูทดสอบ">
+                            <md-icon class="material-symbols-rounded" slot="icon">settings</md-icon>
+                        </md-fab>
+                        <md-menu data-test-menu positioning="popover" has-overflow>
+                            <md-menu-item data-test-clear-history>
+                                <md-icon class="material-symbols-rounded" slot="start">delete</md-icon>
+                                <div slot="headline">ลบประวัติการเล่น</div>
+                            </md-menu-item>
+                            <md-menu-item data-test-complete-all>
+                                <md-icon class="material-symbols-rounded" slot="start">checklist</md-icon>
+                                <div slot="headline">เล่นเกมครบทั้งหมด</div>
+                            </md-menu-item>
+                            <md-sub-menu anchor-corner="start-end" menu-corner="start-start">
+                                <md-menu-item slot="item">
+                                    <md-icon class="material-symbols-rounded" slot="start">sports_esports</md-icon>
+                                    <div slot="headline">เลือกเกมทดสอบ</div>
+                                    <md-icon class="material-symbols-rounded" slot="end">arrow_right</md-icon>
+                                </md-menu-item>
+                                <md-menu slot="menu" data-test-quick-game-menu positioning="popover">
+                                    ${menuItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการเกม</div></md-menu-item>`}
+                                </md-menu>
+                            </md-sub-menu>
+                            <md-menu-item data-test-daily-data-tools>
+                                <md-icon class="material-symbols-rounded" slot="start">database</md-icon>
+                                <div slot="headline">เครื่องมือจัดการข้อมูลรายวันเกม</div>
+                            </md-menu-item>
+                            <md-divider role="separator" tabindex="-1"></md-divider>
+                            <md-menu-item data-test-logout>
+                                <md-icon class="material-symbols-rounded" slot="start">logout</md-icon>
+                                <div slot="headline">ออกจากระบบ</div>
+                            </md-menu-item>
+                        </md-menu>
                     </div>
                 </div>
             </section>
@@ -480,7 +511,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const renderDaySection = (section, activeDay) => {
         const day = Number(section.day);
-        const dayHistory = getHistoryForProgramDay(state.historyRecords, getStartedProgram(), day);
+        const dayHistory = getDisplayHistoryForProgramDay(day);
         const completion = getDayCompletion(section, dayHistory);
         const currentNodeIndex = day === Number(activeDay) && completion.completedCount < section.nodes.length
             ? completion.completedCount
@@ -605,12 +636,30 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const bindTestControls = (sections, activeDay) => {
-        const quickTrigger = root.querySelector("[data-test-quick-game-trigger]");
+        const testTrigger = root.querySelector("[data-test-menu-trigger]");
+        const testMenu = root.querySelector("[data-test-menu]");
         const quickMenu = root.querySelector("[data-test-quick-game-menu]");
-        if (quickTrigger && quickMenu) {
-            quickMenu.anchorElement = quickTrigger;
-            on(quickTrigger, "click", () => {
-                quickMenu.open = !quickMenu.open;
+
+        const closeTestMenus = () => {
+            if (quickMenu) {
+                quickMenu.open = false;
+            }
+            if (testMenu) {
+                testMenu.open = false;
+            }
+            testTrigger?.setAttribute("aria-expanded", "false");
+        };
+
+        if (testTrigger && testMenu) {
+            testMenu.anchorElement = testTrigger;
+            testTrigger.setAttribute("aria-haspopup", "menu");
+            testTrigger.setAttribute("aria-expanded", "false");
+            on(testTrigger, "click", () => {
+                testMenu.open = !testMenu.open;
+                testTrigger.setAttribute("aria-expanded", testMenu.open ? "true" : "false");
+            });
+            on(testMenu, "closed", () => {
+                testTrigger.setAttribute("aria-expanded", "false");
             });
         }
 
@@ -621,15 +670,14 @@ export async function renderGameHubScreen(root, options = {}) {
                 if (selectedGame) {
                     await options.onTestQuickLaunchGame?.(selectedGame);
                 }
-                if (quickMenu) {
-                    quickMenu.open = false;
-                }
+                closeTestMenus();
             });
         });
 
         on(root.querySelector("[data-test-clear-history]"), "click", async () => {
             await options.onTestClearTodayHistory?.();
             await loadHistory(true);
+            closeTestMenus();
         });
 
         on(root.querySelector("[data-test-complete-all]"), "click", async () => {
@@ -643,14 +691,17 @@ export async function renderGameHubScreen(root, options = {}) {
                 playedTo,
             });
             await loadHistory(true);
+            closeTestMenus();
         });
 
         on(root.querySelector("[data-test-daily-data-tools]"), "click", async () => {
             await options.onTestDailyDataTools?.();
+            closeTestMenus();
         });
 
         on(root.querySelector("[data-test-logout]"), "click", () => {
             options.onTestLogout?.();
+            closeTestMenus();
         });
     };
 
@@ -735,6 +786,7 @@ export async function renderGameHubScreen(root, options = {}) {
     const loadHistory = async () => {
         if (!patientHn) {
             state.historyRecords = [];
+            state.checkInDateKeys = [];
             render();
             return;
         }
@@ -770,16 +822,27 @@ export async function renderGameHubScreen(root, options = {}) {
                 state.historyRecords = [];
             }
 
+            await syncVisibleCheckIns();
+            await refreshCheckInDateKeys();
             state.historyLoading = false;
             render();
-            await syncVisibleCheckIns();
             await ensureNextDayVisible();
         } catch (error) {
             console.warn("Unable to load game hub history:", error);
             state.historyRecords = [];
+            state.checkInDateKeys = [];
             state.historyLoading = false;
             render();
         }
+    };
+
+    const refreshCheckInDateKeys = async () => {
+        if (!patientHn) {
+            state.checkInDateKeys = [];
+            return;
+        }
+
+        state.checkInDateKeys = await db.getUserCheckInDatesByHn({ hn: patientHn });
     };
 
     const syncCheckInForDaySection = async (section) => {

@@ -3,6 +3,7 @@ import {
     isCompleteThaiPhoneNumber,
     normalizeThaiPhoneNumber,
 } from "../util/phone-number-util.js";
+import { getProgramDayStatus } from "../util/program-date-util.js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
@@ -16,7 +17,6 @@ const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
 const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
 const DEFAULT_GAME_PROFILE_PROGRAM_ID = 2;
-const DAY_MS = 24 * 60 * 60 * 1000;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
     START_PLAY_GAME: "SPG",
@@ -654,12 +654,12 @@ class Database {
             };
         }
 
-        const startDay = this.getLocalDayStart(startedProgram);
-        const todayDay = this.getLocalDayStart(parsedCurrentDate);
-        const rawProgramDay = Math.floor((todayDay.getTime() - startDay.getTime()) / DAY_MS) + 1;
-        const programDay = Math.min(Math.max(rawProgramDay, 1), programDayCount);
-        const programEndDay = new Date(startDay);
-        programEndDay.setDate(programEndDay.getDate() + programDayCount - 1);
+        const programDayStatus = getProgramDayStatus(startedProgram, programDayCount, parsedCurrentDate);
+        const {
+            programDay,
+            rawProgramDay,
+            programEndDate,
+        } = programDayStatus;
         const requestedDayFrom = dayFrom == null || dayFrom === "" ? NaN : Number(dayFrom);
         const requestedDayTo = dayTo == null || dayTo === "" ? NaN : Number(dayTo);
         const safeWindowBefore = Math.max(0, Number(windowBefore) || 0);
@@ -761,9 +761,9 @@ class Database {
             programDayCount,
             visibleDayFrom,
             visibleDayTo,
-            programStarted: rawProgramDay >= 1,
-            programEnded: rawProgramDay > programDayCount,
-            programEndDate: programEndDay.toISOString(),
+            programStarted: programDayStatus.programStarted,
+            programEnded: programDayStatus.programEnded,
+            programEndDate: programEndDate ? programEndDate.toISOString() : null,
             dailyPreset: fallbackDailyPreset,
             days,
             games,
