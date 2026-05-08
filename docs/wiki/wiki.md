@@ -42,6 +42,7 @@
 - [General UI Guidelines](guidelines/ux-ui-guidelines.md) - มาตรฐาน UI ทั่วไป
 - [Testing Guidelines](guidelines/system-test-guideline.md) - แนวทางการทดสอบระบบ
 - [Game Loop Testing](guidelines/system-test-gameloop-guideline.md) - แนวทางการทดสอบ Game Loop
+- [PWA Installability Guidelines](guidelines/pwa-installability-guidelines.md) - **แนวทางการทำให้เว็บไซต์ติดตั้งได้ (PWA)**
 - [Documentation Changelog](../changelog.md) - ประวัติการแก้ไขเอกสาร
 
 ---
