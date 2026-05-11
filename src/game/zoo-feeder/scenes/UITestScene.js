@@ -4,6 +4,7 @@ import GameplayUI from "../entity/script/ui/gameplay-ui";
 import StorageManager from "../../../core/storage-manager";
 import db from "../../../core/database.js";
 import { EventBus } from "../../../core/EventBus.js";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 
 
 const GAME_ID = "ATTN001";
@@ -192,7 +193,10 @@ export default class UITestScene extends Phaser.Scene {
     }
 
     this.isGameOver = true;
-    //this.scene.pause();
+    
+    // Trigger the premium DOM effect
+    showLevelCompleteEffect();
+
     this.physics.pause();
 
     for (const _conveyer of this.conveyers) {
@@ -205,22 +209,24 @@ export default class UITestScene extends Phaser.Scene {
       this.time.removeEvent(this.spawnFruitTimer);
       this.spawnFruitTimer = undefined;
     }
-    const storedHighScore = StorageManager.get('highscore', 0);
 
-    if (this.score > storedHighScore) {
-      StorageManager.save('highscore', this.score);
-      this.gameplayUI.setGameOverHighscore(this.score);
-    }
+    // Wait for the effect to finish before showing the game over panel
+    this.time.delayedCall(1500, () => {
+      const storedHighScore = StorageManager.get('highscore', 0);
 
-    this.gameEndedAt = new Date();
+      if (this.score > storedHighScore) {
+        StorageManager.save('highscore', this.score);
+        this.gameplayUI.setGameOverHighscore(this.score);
+      }
 
-    this.gameplayUI.showGameOverPanel(this.score);
-    EventBus.emit('minigame:game-over', { 
-        score: this.score,
-        level: this.level
+      this.gameEndedAt = new Date();
+
+      this.gameplayUI.showGameOverPanel(this.score);
+      // EventBus.emit('minigame:game-over', { 
+      //     score: this.score,
+      //     level: this.level
+      // });
     });
-
-    //console.log("Highscore: " + StorageManager.get('highscore'));
   }
   restartGame() {
     if (this.isRestarting) {

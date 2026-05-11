@@ -7,6 +7,7 @@ import StorageManager from "../../../core/storage-manager";
 import { createThaiText } from "../../../util/thai-text.js";
 import { EventBus } from "../../../core/EventBus.js";
 import DebugMenu from "./DebugMenu";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 
 const GAME_ID = "MEM001";
 
@@ -201,7 +202,18 @@ export default class GameplayScene extends Phaser.Scene {
   onCorrectAnswer() {
     this.allScore += Config.ScorePerCorrect;
     EventBus.emit("minigame:score", { score: this.allScore });
-    this.displayNextQuestion();
+    
+    // Trigger the premium DOM effect
+    showLevelCompleteEffect();
+
+    // Disable all buttons to prevent multiple clicks during transition
+    for (const button of this.buttonPool.Pool) {
+        if (button.container) button.container.disableInteractive();
+    }
+
+    this.time.delayedCall(1500, () => {
+        this.displayNextQuestion();
+    });
   }
 
   onWrongAnswer() {
