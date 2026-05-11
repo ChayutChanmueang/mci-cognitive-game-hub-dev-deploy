@@ -69,6 +69,7 @@ export default class UITestScene extends Phaser.Scene {
     this.isRestarting = false;
     this.gameStartedAt = new Date();
     this.gameEndedAt = new Date();
+    this.spawnFruitTimer = null;
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();

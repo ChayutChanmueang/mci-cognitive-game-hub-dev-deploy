@@ -32,6 +32,9 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = false;
     this.isPlaying = false;
     this.lastChosenIndex = -1;
+    this.isTimeUp = false;
+    this.questionPanel = null;
+    this.questionText = null;
 
     this.gameStartedAt = new Date();
     this.gameEndedAt = new Date();
@@ -50,16 +53,15 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Initial HUD State
     EventBus.emit("minigame:show-hud");
-    const maxPostcards = Config.MaxPostcards[this.level] || 3;
     EventBus.emit("minigame:score", { score: this.allScore });
     EventBus.emit("minigame:level", { 
-        level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}/${maxPostcards}` 
+        level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}` 
     });
 
     this.countdownTimer = this.time.addEvent({
       delay: Config.QuizTimeLimitMs,
       callback: () => {
-        this.onGameOver();
+        this.isTimeUp = true;
       },
     });
 
@@ -73,7 +75,8 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     if (this.isPlaying && !this.isGameEnded) {
-      const timeLeft = Math.trunc(this.countdownTimer.getRemainingSeconds() + 1);
+      let timeLeft = Math.trunc(this.countdownTimer.getRemainingSeconds() + 1);
+      if (this.isTimeUp) timeLeft = 0;
       EventBus.emit("minigame:tick", { timeLeft, maxTime: Config.QuizTimeLimitMs / 1000 });
     }
   }
@@ -164,9 +167,9 @@ export default class GameplayScene extends Phaser.Scene {
             labelOffset: { x: -180, y: -45 },
             onClick: () => {
               if (choice.isCorrect) {
-                  this.onCorrectAnswer();
+                  this.onCorrectAnswer(button);
               } else {
-                  this.onWrongAnswer();
+                  this.onWrongAnswer(button);
               }
             },
           }
@@ -199,7 +202,7 @@ export default class GameplayScene extends Phaser.Scene {
     }
   }
 
-  onCorrectAnswer() {
+  onCorrectAnswer(selectedButton) {
     this.allScore += Config.ScorePerCorrect;
     EventBus.emit("minigame:score", { score: this.allScore });
     
@@ -208,7 +211,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Disable all buttons to prevent multiple clicks during transition
     for (const button of this.buttonPool.Pool) {
-        if (button.container) button.container.disableInteractive();
+        if (button.uiBackground) button.uiBackground.disableInteractive();
     }
 
     this.time.delayedCall(1500, () => {
@@ -216,8 +219,28 @@ export default class GameplayScene extends Phaser.Scene {
     });
   }
 
-  onWrongAnswer() {
-    this.displayNextQuestion();
+  onWrongAnswer(selectedButton) {
+    if (selectedButton) {
+        // Change color to red and override default colors so pointer events don't revert it
+        selectedButton.defaultColor = 0xd32f2f;
+        selectedButton.hoverColor = 0xd32f2f;
+        selectedButton.clickColor = 0xd32f2f;
+        selectedButton.uiBackground.setFillStyle(0xd32f2f);
+    }
+
+    // Disable all buttons to prevent multiple clicks during transition
+    for (const button of this.buttonPool.Pool) {
+        if (button.uiBackground) button.uiBackground.disableInteractive();
+    }
+
+    const isLastQuestion = this.currentQuestionList.length <= 1;
+    if (this.isTimeUp && isLastQuestion) {
+        this.onGameOver();
+    } else {
+        this.time.delayedCall(1500, () => {
+            this.displayNextQuestion();
+        });
+    }
   }
 
   displayNextQuestion() {
@@ -228,12 +251,10 @@ export default class GameplayScene extends Phaser.Scene {
 
     if (this.currentQuestionList.length === 0) {
       this.postcardsPlayed++;
-      const maxPostcards = Config.MaxPostcards[this.level] || 3;
-      
-      if (this.postcardsPlayed < maxPostcards) {
-          this.reinitializeGame();
-      } else {
+      if (this.isTimeUp) {
           this.onGameOver();
+      } else {
+          this.reinitializeGame();
       }
       return;
     }
@@ -266,9 +287,8 @@ export default class GameplayScene extends Phaser.Scene {
     this.intializeGamePage();
     this.questionPanel.forceHide();
 
-    const maxPostcards = Config.MaxPostcards[this.level] || 3;
     EventBus.emit("minigame:level", { 
-        level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}/${maxPostcards}` 
+        level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}` 
     });
 
     this.gameplayUI.postcard.reinitializedPanel();
