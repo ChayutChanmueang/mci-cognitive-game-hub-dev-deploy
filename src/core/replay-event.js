@@ -5,6 +5,7 @@ export const GlobalReplayEvent = Object.freeze({
     GAME_ENDED: "global.game_ended",
     GAME_RETRIED: "global.game_retried",
     GAME_EXITED: "global.game_exited",
+    REPLAY_BATCH_PUSHED: "global.replay_batch_pushed",
     TUTORIAL_OPENED: "global.tutorial_opened",
     TUTORIAL_CLOSED: "global.tutorial_closed",
     SCORE_CHANGED: "global.score_changed",
