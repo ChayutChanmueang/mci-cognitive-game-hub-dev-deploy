@@ -96,7 +96,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 359.5
+    "width": 302.5
   },
   "right": {
     "id": "3db80a83a00ec1c8",
@@ -208,7 +208,8 @@
   "lastOpenFiles": [
     "docs/software/03-data-schema.md",
     "docs/agile/meeting-backlogs/2026-05-11.md",
-    "docs/agile/meeting-backlogs/2026-05-11.md",
+    "docs/index.md",
+    "docs/software/03-data-reference.md",
     "docs/agile/meeting-backlogs/meeting-template.md",
     "node_modules/minimist/CHANGELOG.md",
     "node_modules/phaser/changelog/3.60/CHANGELOG-v3.60.md",
@@ -224,7 +225,6 @@
     "docs/wiki/agentic-ai/AGENTIC_AI_PROCESS_LVL.md",
     "docs/wiki/agentic-ai/PROJECT_AGENT_SKILL_USING.md",
     "AGENTS.md",
-    "docs/index.md",
     "src/game/resting-point/entity/script/ui/gameplay-ui.js",
     "src/game/resting-point/ui-elements/scripts/template-panel.js",
     "src/game/resting-point/ui-elements/scripts/gameover-panel.js",
