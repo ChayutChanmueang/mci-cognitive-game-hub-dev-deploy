@@ -15,6 +15,7 @@ import LevelGenerator from "../components/scripts/level-generator";
 import EmojiRenderer from "../components/scripts/emoji-renderer";
 import SpriteRenderer from "../components/scripts/sprite-renderer";
 import DebugMenu from "./DebugMenu";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 
 // Pool of animal sprite keys (loaded in preload)
 const ANIMAL_SPRITES = [
@@ -111,9 +112,14 @@ export default class GameplayScene extends Phaser.Scene {
 
     EventBus.emit('minigame:score', { score: this.allScore });
 
-    // If timer already expired, end the game now that the puzzle is done
+    // Always trigger level complete effect for the final puzzle success
+    showLevelCompleteEffect();
+
+    // If timer already expired, end the game after the effect
     if (this.pendingGameOver) {
-        this.onGameOver("success");
+        this.time.delayedCall(1500, () => {
+            this.onGameOver("success");
+        });
         return;
     }
 
@@ -122,7 +128,7 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
 
     // Short delay for success feedback before loading next puzzle
-    this.time.delayedCall(1000, () => {
+    this.time.delayedCall(1500, () => {
         this.constructGrid(true);
     });
   }
