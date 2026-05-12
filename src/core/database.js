@@ -9,6 +9,7 @@ const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
 const USER_GAME_HISTORY_TABLE = "user_game_history";
 const USER_EVENT_LOG_TABLE = "user_event_log";
+const REPLAY_LOG_TABLE = "replay_log";
 const USER_PATIENT_DATA_TABLE = "user_patient_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
@@ -172,6 +173,42 @@ class Database {
     async getCurrentUser() {
         const session = await this.getCurrentSession();
         return session?.user || null;
+    }
+
+    async _withRetry(operation, { attempts = 3, delayMs = 500 } = {}) {
+        let lastError = null;
+
+        for (let attempt = 1; attempt <= attempts; attempt += 1) {
+            try {
+                return await operation();
+            } catch (error) {
+                lastError = error;
+                if (attempt >= attempts) {
+                    break;
+                }
+
+                await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+            }
+        }
+
+        throw lastError;
+    }
+
+    normalizeJsonValue(value) {
+        if (value == null) {
+            return null;
+        }
+
+        try {
+            const serializedValue = JSON.stringify(value);
+            if (serializedValue === undefined) {
+                throw new Error("Value is not JSON serializable");
+            }
+
+            return JSON.parse(serializedValue);
+        } catch (error) {
+            throw new Error(`Invalid replay value: ${error?.message || "not JSON serializable"}`);
+        }
     }
 
     async getPatientByHn(hn) {
@@ -1688,6 +1725,129 @@ class Database {
         }
 
         return payload;
+    }
+
+    async writeReplayLog({
+        hn,
+        replayId = null,
+        replayid = null,
+        gid = null,
+        value = null,
+        userGameDataId = null,
+        user_game_data_id = null,
+    }) {
+        const payload = this.buildReplayLogPayload({
+            hn,
+            replayId,
+            replayid,
+            gid,
+            value,
+            userGameDataId,
+            user_game_data_id,
+        });
+
+        await this.initAuth();
+
+        return this._withRetry(async () => {
+            const client = this.getClient();
+            const { data, error } = await client
+                .from(REPLAY_LOG_TABLE)
+                .insert([payload])
+                .select("id, created_at, hn, replayid, gid, value, user_game_data_id")
+                .maybeSingle();
+
+            if (error) {
+                throw error;
+            }
+
+            return data || payload;
+        });
+    }
+
+    buildReplayLogPayload({
+        hn,
+        replayId = null,
+        replayid = null,
+        gid = null,
+        value = null,
+        userGameDataId = null,
+        user_game_data_id = null,
+    }) {
+        const parsedHn = String(hn || "").trim();
+        const parsedReplayId = String(replayId || replayid || "").trim();
+        const parsedGid = gid == null ? null : String(gid).trim() || null;
+        const parsedUserGameDataIdValue = userGameDataId ?? user_game_data_id;
+        const parsedUserGameDataId = parsedUserGameDataIdValue == null || parsedUserGameDataIdValue === ""
+            ? null
+            : Number(parsedUserGameDataIdValue);
+        const parsedValue = this.normalizeJsonValue(value);
+
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        if (!parsedReplayId) {
+            throw new Error("Invalid replayId");
+        }
+
+        if (
+            parsedUserGameDataId != null
+            && (!Number.isInteger(parsedUserGameDataId) || parsedUserGameDataId <= 0)
+        ) {
+            throw new Error("Invalid userGameDataId");
+        }
+
+        return {
+            hn: parsedHn,
+            replayid: parsedReplayId,
+            gid: parsedGid,
+            value: parsedValue,
+            user_game_data_id: parsedUserGameDataId,
+        };
+    }
+
+    async writeReplayLogs(replayLogs, { batchSize = 100 } = {}) {
+        if (!Array.isArray(replayLogs)) {
+            throw new Error("Invalid replayLogs");
+        }
+
+        const parsedBatchSize = Number(batchSize);
+        if (!Number.isInteger(parsedBatchSize) || parsedBatchSize <= 0) {
+            throw new Error("Invalid batchSize");
+        }
+
+        const payloads = replayLogs.map((replayLog) => this.buildReplayLogPayload(replayLog));
+        if (!payloads.length) {
+            return [];
+        }
+
+        await this.initAuth();
+
+        const insertedRows = [];
+        for (let index = 0; index < payloads.length; index += parsedBatchSize) {
+            const batch = payloads.slice(index, index + parsedBatchSize);
+            const batchRows = await this._withRetry(async () => {
+                const client = this.getClient();
+                const { data, error } = await client
+                    .from(REPLAY_LOG_TABLE)
+                    .insert(batch)
+                    .select("id, created_at, hn, replayid, gid, value, user_game_data_id");
+
+                if (error) {
+                    throw error;
+                }
+
+                return data || [];
+            });
+
+            insertedRows.push(...batchRows);
+        }
+
+        return insertedRows;
+    }
+
+    async logReplayEvent(params) {
+        return this.writeReplayLog(params);
     }
 }
 

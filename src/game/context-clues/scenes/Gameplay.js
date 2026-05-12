@@ -7,6 +7,8 @@ import Quiz from "../entity/script/quiz.js";
 import ProgressBar from "../../../util/layout/progress-bar.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
 import { EventBus } from "../../../core/EventBus.js";
+import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
+import { ContextCluesReplayEvent } from "../../../core/replay-event.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -31,6 +33,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.round = 0;
     this.quizData = [];
     this.progressBarRefs = [];
+    this.replayLog = new ReplayLogBuffer({
+      gid: "context-clues",
+      metadata: {
+        level: this.level,
+        levelMap: this.levelMap,
+      },
+    });
   }
 
   create(data) {
@@ -104,6 +113,18 @@ export default class GameplayScene extends Phaser.Scene {
           const nextRoundDisplay = Math.min(this.round + 1, maxRound);
 
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
+          this.replayLog.addEvent(ContextCluesReplayEvent.ROUND_COMPLETED, {
+              quizId: id,
+              round: this.round,
+              maxRound,
+              level: this.level,
+              levelMap: this.levelMap,
+              score: this.allScore,
+              quizScore: qData.score,
+              answers: [...qData.answers],
+              answerLogs: [...qData.answerLogs],
+              correctAnswers: [...answers],
+          });
           
           EventBus.emit('minigame:score', { score: this.allScore });
           EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ ${nextRoundDisplay}/${maxRound}` });
@@ -126,6 +147,9 @@ export default class GameplayScene extends Phaser.Scene {
                   score: this.allScore,
                   level: this.level
               });
+
+              //Write debug here!
+              console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
           }
       }
       this.quizGame.onAnswerIncorrect = () => {
