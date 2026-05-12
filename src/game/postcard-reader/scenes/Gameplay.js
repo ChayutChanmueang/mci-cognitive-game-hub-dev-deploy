@@ -9,6 +9,7 @@ import { EventBus } from "../../../core/EventBus.js";
 import DebugMenu from "./DebugMenu";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 import { ReplayEvent } from "../../../core/replay-event.js";
+import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
 
 const GAME_ID = "MEM001";
 

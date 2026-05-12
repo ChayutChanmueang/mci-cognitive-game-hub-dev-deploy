@@ -144,7 +144,7 @@ export class ReplayLogBuffer {
         this.startedAt = new Date().toISOString();
         this.lastPushedRecord = null;
 
-        console.log(`history: ${storedHistory}`)
+        console.log(`history: ${JSON.stringify(storedHistory)}`)
     }
 
     get size() {

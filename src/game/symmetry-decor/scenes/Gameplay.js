@@ -16,6 +16,8 @@ import EmojiRenderer from "../components/scripts/emoji-renderer";
 import SpriteRenderer from "../components/scripts/sprite-renderer";
 import DebugMenu from "./DebugMenu";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
+import { ReplayEvent } from "../../../core/replay-event.js";
+import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
 
 // Pool of animal sprite keys (loaded in preload)
 const ANIMAL_SPRITES = [
