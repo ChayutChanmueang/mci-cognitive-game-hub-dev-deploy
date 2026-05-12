@@ -33,17 +33,11 @@ export default class GameplayScene extends Phaser.Scene {
     this.round = 0;
     this.quizData = [];
     this.progressBarRefs = [];
-    this.replayLog = new ReplayLogBuffer({
-      gid: "context-clues",
-      metadata: {
-        level: this.level,
-        levelMap: this.levelMap,
-      },
-    });
   }
 
   create(data) {
     this.gameplayUI = new GameplayUI(this, 0, 0);
+    this.replayLog = new ReplayLogBuffer();
     
     // Hide old Phaser UI elements
     this.gameplayUI.uiBackground.setVisible(false);
