@@ -20,7 +20,7 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
     //BG
-    this.load.image('background', 'assets/zoo-feeder/etc/BG.svg')
+    this.load.image('background', 'assets/zoo-feeder/etc/BG.png')
     //Food Sprite
     this.load.image('apple_sprite', 'assets/zoo-feeder/food/Apple.png')
     this.load.image('battery_sprite', 'assets/zoo-feeder/food/Battery.png')
@@ -82,7 +82,8 @@ export default class UITestScene extends Phaser.Scene {
     // Initial state to HUD
     EventBus.emit('minigame:score', { score: this.score });
     EventBus.emit('minigame:lives', { lives: this.lives });
-    EventBus.emit('minigame:tick', { timeLeft: 180 }); // 3 minutes
+    const gameTime = 180;
+    EventBus.emit('minigame:tick', { timeLeft: gameTime, maxTime: gameTime }); // 3 minutes
 
     this.conveyerNums = data.conveyerNums || 3;
     this.conveyers = [];
@@ -120,17 +121,18 @@ export default class UITestScene extends Phaser.Scene {
   }
 
   startTimer() {
+    const gameTime = 180;
     if (this.countdownTimer) return;
     this.countdownTimer = this.time.addEvent({
       delay: 1000,
       callback: () => {
         const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
-        EventBus.emit('minigame:tick', { timeLeft: remaining });
+        EventBus.emit('minigame:tick', { timeLeft: remaining, maxTime: gameTime });
         if (remaining <= 0) {
             this.onGameOver();
         }
       },
-      repeat: 179,
+      repeat: gameTime - 1,
     });
   }
 
