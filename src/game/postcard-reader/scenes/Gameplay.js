@@ -8,6 +8,7 @@ import { createThaiText } from "../../../util/thai-text.js";
 import { EventBus } from "../../../core/EventBus.js";
 import DebugMenu from "./DebugMenu";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
+import { ReplayEvent } from "../../../core/replay-event.js";
 
 const GAME_ID = "MEM001";
 
@@ -25,6 +26,17 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   create(data) {
+    //Initialize Logging
+    if (this.replayLogger == null) {
+      this.replayLogger = new ReplayLogBuffer();
+    }
+    else {
+      this.replayLogger.clearEvents();
+    }
+
+    this.correctAnswer = 0;
+    this.wrongAnswer = 0;
+
     this.sceneData = { ...data };
     this.level = data.level || 1;
     this.allScore = 0;
@@ -37,6 +49,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.questionText = null;
 
     this.gameStartedAt = new Date();
+    //this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_START,this.gameStartedAt);
     this.gameEndedAt = new Date();
 
     this.buttonPool = {
@@ -48,14 +61,15 @@ export default class GameplayScene extends Phaser.Scene {
     this.choosePostcard();
     this.chooseQuestion();
     this.intializeGamePage();
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
 
     // Initial HUD State
     EventBus.emit("minigame:show-hud");
     EventBus.emit("minigame:score", { score: this.allScore });
-    EventBus.emit("minigame:level", { 
-        level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}` 
+    EventBus.emit("minigame:level", {
+      level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}`
     });
 
     this.countdownTimer = this.time.addEvent({
@@ -71,7 +85,7 @@ export default class GameplayScene extends Phaser.Scene {
 
   update(time, delta) {
     if (this.gameplayUI) {
-        this.gameplayUI.update(time, delta);
+      this.gameplayUI.update(time, delta);
     }
 
     if (this.isPlaying && !this.isGameEnded) {
@@ -94,7 +108,7 @@ export default class GameplayScene extends Phaser.Scene {
     let newIndex;
 
     do {
-        newIndex = Math.trunc(Math.random() * totalOptions);
+      newIndex = Math.trunc(Math.random() * totalOptions);
     } while (newIndex === this.lastChosenIndex && totalOptions > 1);
 
     this.lastChosenIndex = newIndex;
@@ -127,16 +141,16 @@ export default class GameplayScene extends Phaser.Scene {
 
     if (this.questionText == null) {
       this.questionText = createThaiText(
-          this,
-          0,
-          0,
-          this.currentQuestionText,
-          {
-              fontSize: "52px",
-              fontStyle: "bold",
-              color: "#1e1b18"
-          },
-          { origin: 0.5, wrapWidth: 800 }
+        this,
+        0,
+        0,
+        this.currentQuestionText,
+        {
+          fontSize: "52px",
+          fontStyle: "bold",
+          color: "#1e1b18"
+        },
+        { origin: 0.5, wrapWidth: 800 }
       );
       this.questionPanel.addElements(this.questionText);
     } else {
@@ -154,43 +168,43 @@ export default class GameplayScene extends Phaser.Scene {
     const shuffledAnswers = this.shuffleArray([...this.currentQuestion.Choice]);
 
     for (let i = 0; i < shuffledAnswers.length; i++) {
-        const choice = shuffledAnswers[i];
-        const button = new Button(
-          this,
-          this.scale.width / 2,
-          this.scale.height / 3 + 200 + 250 * i,
-          {
-            width: 850,
-            height: 220,
-            labelText: choice.ChoiceText,
-            useThaiText: true,
-            labelOffset: { x: -180, y: -45 },
-            onClick: () => {
-              if (choice.isCorrect) {
-                  this.onCorrectAnswer(button);
-              } else {
-                  this.onWrongAnswer(button);
-              }
-            },
-          }
-        );
-
-        const iconContainer = this.add.container(-320, 0);
-        const iconBackdrop = this.add.rectangle(0, 0, 120, 120, 0xffffff, 0.1).setOrigin(0.5);
-        iconBackdrop.setStrokeStyle(4, 0x356859);
-        
-        const choiceIcon = this.add.text(0, 0, choice.Sprite, { fontSize: '84px' }).setOrigin(0.5);
-
-        iconContainer.add([iconBackdrop, choiceIcon]);
-        button.container.add([iconContainer]);
-
-        this.buttonPool.Pool.push(button);
-        if (choice.isCorrect) this.buttonPool.CorrectPool.push(button);
-        else this.buttonPool.WrongPool.push(button);
-
-        if (!this.isPlaying) {
-          button.forceHide();
+      const choice = shuffledAnswers[i];
+      const button = new Button(
+        this,
+        this.scale.width / 2,
+        this.scale.height / 3 + 200 + 250 * i,
+        {
+          width: 850,
+          height: 220,
+          labelText: choice.ChoiceText,
+          useThaiText: true,
+          labelOffset: { x: -180, y: -45 },
+          onClick: () => {
+            if (choice.isCorrect) {
+              this.onCorrectAnswer(button);
+            } else {
+              this.onWrongAnswer(button);
+            }
+          },
         }
+      );
+
+      const iconContainer = this.add.container(-320, 0);
+      const iconBackdrop = this.add.rectangle(0, 0, 120, 120, 0xffffff, 0.1).setOrigin(0.5);
+      iconBackdrop.setStrokeStyle(4, 0x356859);
+
+      const choiceIcon = this.add.text(0, 0, choice.Sprite, { fontSize: '84px' }).setOrigin(0.5);
+
+      iconContainer.add([iconBackdrop, choiceIcon]);
+      button.container.add([iconContainer]);
+
+      this.buttonPool.Pool.push(button);
+      if (choice.isCorrect) this.buttonPool.CorrectPool.push(button);
+      else this.buttonPool.WrongPool.push(button);
+
+      if (!this.isPlaying) {
+        button.forceHide();
+      }
     }
   }
 
@@ -200,46 +214,51 @@ export default class GameplayScene extends Phaser.Scene {
     for (const button of this.buttonPool.Pool) {
       button.forceShow();
     }
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.QUESTION_SHOWN, true);
   }
 
   onCorrectAnswer(selectedButton) {
     this.allScore += Config.ScorePerCorrect;
+    this.correctAnswer++;
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.CHOICE_SELECTED, "CORRECT");
     EventBus.emit("minigame:score", { score: this.allScore });
-    
+
     // Trigger the premium DOM effect
     showLevelCompleteEffect();
 
     // Disable all buttons to prevent multiple clicks during transition
     for (const button of this.buttonPool.Pool) {
-        if (button.uiBackground) button.uiBackground.disableInteractive();
+      if (button.uiBackground) button.uiBackground.disableInteractive();
     }
 
     this.time.delayedCall(1500, () => {
-        this.displayNextQuestion();
+      this.displayNextQuestion();
     });
   }
 
   onWrongAnswer(selectedButton) {
     if (selectedButton) {
-        // Change color to red and override default colors so pointer events don't revert it
-        selectedButton.defaultColor = 0xd32f2f;
-        selectedButton.hoverColor = 0xd32f2f;
-        selectedButton.clickColor = 0xd32f2f;
-        selectedButton.uiBackground.setFillStyle(0xd32f2f);
+      // Change color to red and override default colors so pointer events don't revert it
+      selectedButton.defaultColor = 0xd32f2f;
+      selectedButton.hoverColor = 0xd32f2f;
+      selectedButton.clickColor = 0xd32f2f;
+      selectedButton.uiBackground.setFillStyle(0xd32f2f);
     }
+    this.wrongAnswer++;
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.CHOICE_SELECTED, "WRONG");
 
     // Disable all buttons to prevent multiple clicks during transition
     for (const button of this.buttonPool.Pool) {
-        if (button.uiBackground) button.uiBackground.disableInteractive();
+      if (button.uiBackground) button.uiBackground.disableInteractive();
     }
 
     const isLastQuestion = this.currentQuestionList.length <= 1;
     if (this.isTimeUp && isLastQuestion) {
-        this.onGameOver();
+      this.onGameOver();
     } else {
-        this.time.delayedCall(1500, () => {
-            this.displayNextQuestion();
-        });
+      this.time.delayedCall(1500, () => {
+        this.displayNextQuestion();
+      });
     }
   }
 
@@ -252,9 +271,9 @@ export default class GameplayScene extends Phaser.Scene {
     if (this.currentQuestionList.length === 0) {
       this.postcardsPlayed++;
       if (this.isTimeUp) {
-          this.onGameOver();
+        this.onGameOver();
       } else {
-          this.reinitializeGame();
+        this.reinitializeGame();
       }
       return;
     }
@@ -287,11 +306,12 @@ export default class GameplayScene extends Phaser.Scene {
     this.intializeGamePage();
     this.questionPanel.forceHide();
 
-    EventBus.emit("minigame:level", { 
-        level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}` 
+    EventBus.emit("minigame:level", {
+      level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}`
     });
 
     this.gameplayUI.postcard.reinitializedPanel();
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
   }
 
   onGameOver() {
@@ -306,8 +326,10 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     this.gameEndedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.pushToDatabase();
     this.gameplayUI.showGameOverPanel(this.allScore);
-    
+
     // Disable DOM-based gameover panel for now
     // EventBus.emit('minigame:game-over', { 
     //     score: this.allScore,

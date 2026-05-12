@@ -41,15 +41,27 @@ export default class GameplayScene extends Phaser.Scene {
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
 
     // Animal icons for draggable entities
-    this.load.image('icon_bear',     'assets/common/animal/icons/H_Bear.png')
-    this.load.image('icon_cow',      'assets/common/animal/icons/H_Cow.png')
+    this.load.image('icon_bear', 'assets/common/animal/icons/H_Bear.png')
+    this.load.image('icon_cow', 'assets/common/animal/icons/H_Cow.png')
     this.load.image('icon_elephant', 'assets/common/animal/icons/H_ele.png')
-    this.load.image('icon_fox',      'assets/common/animal/icons/H_Fox.png')
-    this.load.image('icon_lion',     'assets/common/animal/icons/H_Li.png')
-    this.load.image('icon_panda',    'assets/common/animal/icons/H_Pan.png')
+    this.load.image('icon_fox', 'assets/common/animal/icons/H_Fox.png')
+    this.load.image('icon_lion', 'assets/common/animal/icons/H_Li.png')
+    this.load.image('icon_panda', 'assets/common/animal/icons/H_Pan.png')
   }
 
   create(data) {
+    //Initialize Logging
+    if (this.replayLogger == null) {
+      this.replayLogger = new ReplayLogBuffer();
+    }
+    else {
+      this.replayLogger.clearEvents();
+    }
+
+    this.correctSlotMove = 0;
+    this.wrongSlotMove = 0;
+    this.totalMove = 0;
+
     EventBus.emit('minigame:show-hud');
 
     this.sceneData = { ...data };
@@ -62,10 +74,11 @@ export default class GameplayScene extends Phaser.Scene {
     this.constructGrid(true);
 
     this.gameStartedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.ROUND_START, this.gameStartedAt);
     this.gameEndedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
-    
+
     // Hide old internal Phaser UI
     this.gameplayUI.uiBackground.setVisible(false);
     this.gameplayUI.currentScore.setVisible(false);
@@ -86,12 +99,19 @@ export default class GameplayScene extends Phaser.Scene {
       console.log(`Locked into ${socketComponent.name}`);
       if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
         var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
+        this.totalMove++;
         if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
           console.log("Correct Socket");
+          this.correctSlotMove++;
+          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "CORRECT");
           if (this.checkIfAllSocketIsFilledCorrectly()) {
             console.log("Game Complete");
             this.handleRoundComplete();
           }
+        }
+        else {
+          this.wrongSlotMove++;
+          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "WRONG");
         }
       }
     });
@@ -117,10 +137,10 @@ export default class GameplayScene extends Phaser.Scene {
 
     // If timer already expired, end the game after the effect
     if (this.pendingGameOver) {
-        this.time.delayedCall(1500, () => {
-            this.onGameOver("success");
-        });
-        return;
+      this.time.delayedCall(1500, () => {
+        this.onGameOver("success");
+      });
+      return;
     }
 
     // Otherwise, advance to the next round
@@ -129,7 +149,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Short delay for success feedback before loading next puzzle
     this.time.delayedCall(1500, () => {
-        this.constructGrid(true);
+      this.constructGrid(true);
     });
   }
 
@@ -138,13 +158,15 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.pushToDatabase();
 
     const finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
     // stages completed = current stage - 1 (since stage increments at round start)
     // but if pendingGameOver triggered after finishing, stage is already incremented by handleRoundComplete
     // so we track completedStages separately
     const completedStages = this.completedStages || 0;
-    
+
     this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
     // EventBus.emit('minigame:game-over', { 
     //   score: this.allScore, 
@@ -156,12 +178,12 @@ export default class GameplayScene extends Phaser.Scene {
     if (this.isGameEnded || !this.levelIsActive) return;
 
     if (this.levelStartTime === null) {
-        this.levelStartTime = this.time.now;
+      this.levelStartTime = this.time.now;
     }
 
     const elapsePlaytimeMS = this.time.now - this.levelStartTime;
     const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);
-    
+
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
 
@@ -173,7 +195,7 @@ export default class GameplayScene extends Phaser.Scene {
 
   constructGrid(isProcedural = false) {
     if (this.grid) {
-        this.grid.destroy();
+      this.grid.destroy();
     }
 
     var _gridConfig, _level, _solution;
@@ -214,7 +236,7 @@ export default class GameplayScene extends Phaser.Scene {
               box.clearTint();
               box.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               box.setDepth(100);
-              
+
               const drag = box.addComponent(DraggableComponent);
               const data = box.addComponent(DraggableDataComponent, _level[currentEntity]);
 
@@ -248,7 +270,7 @@ export default class GameplayScene extends Phaser.Scene {
             currentEntity++;
           }
         }
-        
+
         if (currentCorrectSocket < _solution.length) {
           if (_solution[currentCorrectSocket].POS.X === i && _solution[currentCorrectSocket].POS.Y === j) {
             cell.addComponent(SolutionSocketComponent, _solution[currentCorrectSocket]);
@@ -308,7 +330,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Ensure cells are square by adjusting height based on the column/row ratio
     if (config.columns > 0 && config.rows > 0) {
-        config.height = config.width * (config.rows / config.columns);
+      config.height = config.width * (config.rows / config.columns);
     }
 
     return config;
@@ -320,7 +342,7 @@ export default class GameplayScene extends Phaser.Scene {
       const cell = this.grid.getEntityAt(_solution[i].POS.X, _solution[i].POS.Y);
       const socket = cell.getComponent(SocketComponent);
       const solution = cell.getComponent(SolutionSocketComponent);
-      
+
       if (!socket.occupant) return false;
       if (!solution.checkEntity(socket.occupant.getComponent(DraggableDataComponent))) return false;
     }

@@ -5,6 +5,8 @@ import StorageManager from "../../../core/storage-manager";
 import db from "../../../core/database.js";
 import { EventBus } from "../../../core/EventBus.js";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
+import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
+import { ReplayEvent } from "../../../core/replay-event.js";
 
 
 const GAME_ID = "ATTN001";
@@ -53,6 +55,19 @@ export default class UITestScene extends Phaser.Scene {
 
   create(data) {
     console.log("UI test scene");
+
+    //Initialize Logging
+    if(this.replayLogger == null){
+      this.replayLogger = new ReplayLogBuffer();
+    }
+    else{
+      this.replayLogger.clearEvents();
+    }
+
+    this.correctDeliver = 0;
+    this.wrongDeliver = 0;
+    this.correctDrop = 0;
+    this.wrongDrop = 0;
     EventBus.emit('minigame:show-hud');
 
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
@@ -68,6 +83,7 @@ export default class UITestScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isRestarting = false;
     this.gameStartedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_START,this.gameStartedAt);
     this.gameEndedAt = new Date();
     this.spawnFruitTimer = null;
 
@@ -143,15 +159,24 @@ export default class UITestScene extends Phaser.Scene {
   }
   onGetEatableFood() {
     this.addScore(20);
+    this.correctDeliver++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED,"CORRECT");
   }
   onGetUneatableFood() {
     this.addScore(-50);
+    this.wrongDeliver++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED,"WRONG");
+    
   }
   onRemoveEatableFood() {
     this.addScore(-25);
+    this.wrongDrop++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED,"WRONG");
   }
   onRemoveUneatableFood() {
     this.addScore(10);
+    this.correctDrop++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED,"CORRECT");
   }
   addScore(addedScore) {
     this.score += addedScore;
@@ -223,6 +248,9 @@ export default class UITestScene extends Phaser.Scene {
       }
 
       this.gameEndedAt = new Date();
+      this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED,this.gameEndedAt);
+
+      this.replayLogger.pushToDatabase();
 
       this.gameplayUI.showGameOverPanel(this.score);
       // EventBus.emit('minigame:game-over', { 
