@@ -1157,6 +1157,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 timeLimit: selectedGame?.time_limit || 60 // Fallback
             });
             hud.render();
+            let activeResultPanel = null;
 
 
             const handleExit = async () => {
@@ -1180,12 +1181,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const historyMap = readPendingGameHistoryMap();
                 const pendingHistory = historyMap[gid];
 
-                const resultPanel = new MinigameResultPanel(uiRoot, {
+                activeResultPanel?.destroy();
+                activeResultPanel = new MinigameResultPanel(uiRoot, {
                     score,
                     highScore: StorageManager.get("highscore", 0),
                     gameTitle: selectedGame?.name,
                 });
-                resultPanel.render();
+                activeResultPanel.render();
 
                 if (pendingHistory) {
                     try {
@@ -1203,9 +1205,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             };
 
-            const handleRetry = () => {
+            const handleLevelSelect = () => {
                 cleanup();
                 showGame(selectedGame);
+            };
+
+            const handleRetry = () => {
+                handleLevelSelect();
             };
 
             const handleExitConfirmed = () => {
@@ -1217,13 +1223,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 EventBus.off("minigame:exit-request", handleExit);
                 EventBus.off("minigame:game-over", handleGameOver);
                 EventBus.off("minigame:retry-request", handleRetry);
+                EventBus.off("minigame:level-select-request", handleLevelSelect);
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                activeResultPanel?.destroy();
+                activeResultPanel = null;
                 hud.destroy();
             };
 
             EventBus.on("minigame:exit-request", handleExit);
             EventBus.on("minigame:game-over", handleGameOver);
             EventBus.on("minigame:retry-request", handleRetry);
+            EventBus.on("minigame:level-select-request", handleLevelSelect);
             EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
 
             return true;

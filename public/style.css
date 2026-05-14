@@ -1465,6 +1465,7 @@ body.hub-mode {
     display: grid;
     place-items: center;
     padding: 24px;
+    pointer-events: auto;
 }
 
 .result-backdrop {

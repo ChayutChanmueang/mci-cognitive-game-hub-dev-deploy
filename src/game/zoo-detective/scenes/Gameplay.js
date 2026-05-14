@@ -10,8 +10,8 @@ import ProgressBar from "../../../util/layout/progress-bar.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
-import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
-
+import {ZooDetectiveReplayEvent} from "../../../core/replay-event.js";
+import game_db from "/src/util/minigame-db-util.js";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -64,6 +64,8 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     create(data) {
+        EventBus.emit('minigame:show-hud');
+
         this.gameplayUI = new GameplayUI(this, 0, 0);
         this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
         this.gameplayUI.setScore(this.allScore);
@@ -129,30 +131,18 @@ export default class GameplayScene extends Phaser.Scene {
             }
         };
 
-        this.onPlacementEvaluated = (callback = {isCorrect: isCorrectForCurrentHint,
-                 cellIndex,
-                 animal,
-                 previousCellIndex,
-                 currentHintIndex: this.currentHintIndex,
-                 currentHint,
-                 placements: [...this.currentPlacements],
-                 lockedCellIndexes: [...this.lockedCellIndexes],
-                 lockedAnimalIds: [...this.lockedAnimalIds],
-                 puzzleData: this.puzzleData,
-                 level: this.level,
-                 scene: this
-             })=>{
+        this.onPlacementEvaluated = (callback = {})=>{
 
             if (!callback.isCorrect) {
                 this.roundScore -= Config.DecreaseScore[this.levelMap];
             }
 
-            this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
-                cellIndex: cellIndex,
-                animal: animal,
-                previousCellIndex: previousCellIndex,
-                currentHintIndex: this.currentHintIndex,
-                currentHint: currentHint,
+            this.replayLog.addEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
+                cellIndex: callback.cellIndex,
+                animal: callback.animal,
+                previousCellIndex: callback.previousCellIndex,
+                currentHintIndex: callback.currentHintIndex,
+                currentHint: callback.currentHint,
                 value: callback.isCorrect
             });
         };
@@ -260,6 +250,14 @@ export default class GameplayScene extends Phaser.Scene {
             level: this.level
         });
 
+        //Save game data to database
+        game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+            console.log("Game data saved to database.");
+        }).catch((error) => {
+            console.error("Failed to save game data:", error);
+        });
+
+        this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");});
     }
 
     renderPuzzle() {
@@ -342,7 +340,7 @@ export default class GameplayScene extends Phaser.Scene {
         for (const cell of this.gridBoard.getCells()) {
             cell.container.setSize(cell.size, cell.size);
             cell.container.setInteractive(
-                new Phaser.Geom.Rectangle(0, 0, cell.size, cell.size),
+                new Phaser.Geom.Rectangle(cell.size / 2, cell.size / 2, cell.size, cell.size),
                 Phaser.Geom.Rectangle.Contains
             );
             cell.container.on("pointerdown", () => {

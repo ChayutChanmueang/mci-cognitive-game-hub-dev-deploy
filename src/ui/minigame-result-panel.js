@@ -57,7 +57,7 @@ export class MinigameResultPanel {
 
         overlay.querySelector("#result-retry-button")?.addEventListener("click", () => {
             this.destroy();
-            EventBus.emit("minigame:retry-request");
+            EventBus.emit("minigame:level-select-request", { source: "result-panel" });
         });
     }
 
