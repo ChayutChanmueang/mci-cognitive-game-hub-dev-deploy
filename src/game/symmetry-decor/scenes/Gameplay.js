@@ -13,7 +13,21 @@ import { EventBus } from "../../../core/EventBus";
 import LevelGenerator from "../components/scripts/level-generator";
 
 import EmojiRenderer from "../components/scripts/emoji-renderer";
+import SpriteRenderer from "../components/scripts/sprite-renderer";
 import DebugMenu from "./DebugMenu";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
+import { ReplayEvent } from "../../../core/replay-event.js";
+import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
+
+// Pool of animal sprite keys (loaded in preload)
+const ANIMAL_SPRITES = [
+  'icon_bear',
+  'icon_cow',
+  'icon_elephant',
+  'icon_fox',
+  'icon_lion',
+  'icon_panda',
+];
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -27,9 +41,29 @@ export default class GameplayScene extends Phaser.Scene {
   preload() {
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
+
+    // Animal icons for draggable entities
+    this.load.image('icon_bear', 'assets/common/animal/icons/H_Bear.png')
+    this.load.image('icon_cow', 'assets/common/animal/icons/H_Cow.png')
+    this.load.image('icon_elephant', 'assets/common/animal/icons/H_ele.png')
+    this.load.image('icon_fox', 'assets/common/animal/icons/H_Fox.png')
+    this.load.image('icon_lion', 'assets/common/animal/icons/H_Li.png')
+    this.load.image('icon_panda', 'assets/common/animal/icons/H_Pan.png')
   }
 
   create(data) {
+    //Initialize Logging
+    if (this.replayLogger == null) {
+      this.replayLogger = new ReplayLogBuffer();
+    }
+    else {
+      this.replayLogger.clearEvents();
+    }
+
+    this.correctSlotMove = 0;
+    this.wrongSlotMove = 0;
+    this.totalMove = 0;
+
     EventBus.emit('minigame:show-hud');
 
     this.sceneData = { ...data };
@@ -42,10 +76,11 @@ export default class GameplayScene extends Phaser.Scene {
     this.constructGrid(true);
 
     this.gameStartedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.ROUND_START, this.gameStartedAt);
     this.gameEndedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
-    
+
     // Hide old internal Phaser UI
     this.gameplayUI.uiBackground.setVisible(false);
     this.gameplayUI.currentScore.setVisible(false);
@@ -66,17 +101,24 @@ export default class GameplayScene extends Phaser.Scene {
       console.log(`Locked into ${socketComponent.name}`);
       if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
         var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
+        this.totalMove++;
         if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
           console.log("Correct Socket");
+          this.correctSlotMove++;
+          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "CORRECT");
           if (this.checkIfAllSocketIsFilledCorrectly()) {
             console.log("Game Complete");
             this.handleRoundComplete();
           }
         }
+        else {
+          this.wrongSlotMove++;
+          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "WRONG");
+        }
       }
     });
 
-    this.levelStartTime = this.time.now;
+    this.levelStartTime = null;
     this.levelIsActive = true;
 
     // Debug menu (bottom-left toggle button)
@@ -92,10 +134,15 @@ export default class GameplayScene extends Phaser.Scene {
 
     EventBus.emit('minigame:score', { score: this.allScore });
 
-    // If timer already expired, end the game now that the puzzle is done
+    // Always trigger level complete effect for the final puzzle success
+    showLevelCompleteEffect();
+
+    // If timer already expired, end the game after the effect
     if (this.pendingGameOver) {
+      this.time.delayedCall(1500, () => {
         this.onGameOver("success");
-        return;
+      });
+      return;
     }
 
     // Otherwise, advance to the next round
@@ -103,8 +150,8 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
 
     // Short delay for success feedback before loading next puzzle
-    this.time.delayedCall(1000, () => {
-        this.constructGrid(true);
+    this.time.delayedCall(1500, () => {
+      this.constructGrid(true);
     });
   }
 
@@ -113,26 +160,32 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.pushToDatabase();
 
     const finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
     // stages completed = current stage - 1 (since stage increments at round start)
     // but if pendingGameOver triggered after finishing, stage is already incremented by handleRoundComplete
     // so we track completedStages separately
     const completedStages = this.completedStages || 0;
-    
-    this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
+
+    // this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
     EventBus.emit('minigame:game-over', { 
       score: this.allScore, 
-      level: getDifficultyLevelNumber(this.level) 
+      level: this.level
     });
   }
 
   update() {
     if (this.isGameEnded || !this.levelIsActive) return;
 
+    if (this.levelStartTime === null) {
+      this.levelStartTime = this.time.now;
+    }
+
     const elapsePlaytimeMS = this.time.now - this.levelStartTime;
     const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);
-    
+
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
 
@@ -144,7 +197,7 @@ export default class GameplayScene extends Phaser.Scene {
 
   constructGrid(isProcedural = false) {
     if (this.grid) {
-        this.grid.destroy();
+      this.grid.destroy();
     }
 
     var _gridConfig, _level, _solution;
@@ -182,45 +235,44 @@ export default class GameplayScene extends Phaser.Scene {
           if (_level[currentEntity].POS.X === i && _level[currentEntity].POS.Y === j) {
             if (_level[currentEntity].DRAGGABLE) {
               const box = new Entity(this, 0, 0, '__WHITE');
-              box.setTint(_level[currentEntity].Color);
+              box.clearTint();
               box.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               box.setDepth(100);
-              
+
               const drag = box.addComponent(DraggableComponent);
               const data = box.addComponent(DraggableDataComponent, _level[currentEntity]);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                box.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
+
+              // Use the animal type from level data — this matches the solution socket
+              const spriteKey = _level[currentEntity].Animal;
+              const spriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              box.addComponent(SpriteRenderer, {
+                textureKey: spriteKey,
+                sizeScale: spriteScale,
+              });
 
               socket.attach(box);
               drag.currentSocket = socket;
               data.socket = socket;
             } else {
               const blocker = new Entity(this, 0, 0, '__WHITE');
-              blocker.setTint(_level[currentEntity].Color);
-              blocker.alpha = 0.6;
+              blocker.clearTint();
               blocker.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               blocker.setDepth(100);
-              
-              // Use Emoji if available
-              if (_level[currentEntity].Emoji) {
-                blocker.addComponent(EmojiRenderer, { 
-                  emojiSprite: _level[currentEntity].Emoji,
-                  size: Math.floor(this.grid.cellWidth * 0.7)
-                });
-              }
-              
+
+              // Use the animal type from level data to match the draggable counterpart
+              const blockerSpriteKey = _level[currentEntity].Animal;
+              const blockerSpriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              blocker.addComponent(SpriteRenderer, {
+                textureKey: blockerSpriteKey,
+                sizeScale: blockerSpriteScale,
+              });
+
               blocker.addComponent(NonDraggableComponent, socket);
             }
             currentEntity++;
           }
         }
-        
+
         if (currentCorrectSocket < _solution.length) {
           if (_solution[currentCorrectSocket].POS.X === i && _solution[currentCorrectSocket].POS.Y === j) {
             cell.addComponent(SolutionSocketComponent, _solution[currentCorrectSocket]);
@@ -280,7 +332,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Ensure cells are square by adjusting height based on the column/row ratio
     if (config.columns > 0 && config.rows > 0) {
-        config.height = config.width * (config.rows / config.columns);
+      config.height = config.width * (config.rows / config.columns);
     }
 
     return config;
@@ -292,7 +344,7 @@ export default class GameplayScene extends Phaser.Scene {
       const cell = this.grid.getEntityAt(_solution[i].POS.X, _solution[i].POS.Y);
       const socket = cell.getComponent(SocketComponent);
       const solution = cell.getComponent(SolutionSocketComponent);
-      
+
       if (!socket.occupant) return false;
       if (!solution.checkEntity(socket.occupant.getComponent(DraggableDataComponent))) return false;
     }

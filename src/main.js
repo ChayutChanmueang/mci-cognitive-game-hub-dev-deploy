@@ -23,6 +23,21 @@ import {
     getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
+import {
+    buildGameCsv,
+    buildGameHistoryCsv,
+    buildPlayerCsv,
+    buildPlayersCsv,
+    CsvExportScope,
+    CsvExportType,
+    downloadCsv,
+    getGameHistoriesCsvFilename,
+    getGameHistoryCsvFilename,
+    getGameCsvFilename,
+    getGamesCsvFilename,
+    getPlayerCsvFilename,
+    getPlayersCsvFilename,
+} from "./util/player-csv-export.js";
 import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
 import { EventBus } from "./core/EventBus.js";
@@ -718,61 +733,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             },
             // Test-only placeholder: daily game data management tools will be wired here later.
-            onTestDailyDataTools: async () => {},
-            onTestChangeProgram: async (selectedProgram) => {
-                if (!patientCode) {
-                    await showPopup({
-                        title: "ไม่พบผู้เล่น",
-                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถเปลี่ยนโปรแกรมได้",
-                        confirmText: "รับทราบ",
-                        icon: "warning",
-                    });
-                    return false;
-                }
-
-                const programName = String(selectedProgram?.name || `Program ${selectedProgram?.id || ""}`).trim();
-                const hasConfirmed = await showPopup({
-                    title: "เปลี่ยนโปรแกรมทดสอบ",
-                    message: `ต้องการเปลี่ยนโปรแกรมของผู้เล่นเป็น ${programName} ใช่หรือไม่`,
-                    confirmText: "เปลี่ยนโปรแกรม",
-                    cancelText: "ยกเลิก",
-                    icon: "assignment",
-                });
-
-                if (!hasConfirmed) {
-                    return false;
-                }
-
-                try {
-                    await db.setUserGameProfileProgram({
-                        hn: patientCode,
-                        programId: selectedProgram?.id,
-                    });
-                } catch (error) {
-                    console.error("Unable to change user game program:", error);
-                    await showPopup({
-                        title: "เปลี่ยนโปรแกรมไม่สำเร็จ",
-                        message: error?.message || "ระบบยังไม่สามารถเขียนค่า program ลงฐานข้อมูลได้",
-                        confirmText: "รับทราบ",
-                        icon: "error",
-                        tone: "error",
-                    });
-                    return false;
-                }
-
-                await showPopup({
-                    title: "เปลี่ยนโปรแกรมสำเร็จ",
-                    message: `ระบบตั้งค่าโปรแกรมเป็น ${programName} แล้ว`,
-                    confirmText: "รับทราบ",
-                    icon: "check_circle",
-                });
-
-                window.location.reload();
-                return true;
+            onTestDailyDataTools: async () => {
+                navigateTo(ROUTES.dailyPresetTool);
             },
-            onRestNode: async (selectedNode) => {
-                const nodeGame = selectedNode?.gameData || null;
-                const restGame = nodeGame?.gid ? nodeGame : await db.getGameByGid("REST001");
+            onRestNode: async () => {
+                const restGame = await db.getGameByGid("REST001");
 
                 if (!restGame?.gid) {
                     throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
@@ -908,10 +873,13 @@ document.addEventListener("DOMContentLoaded", () => {
             name: "Preset",
             isNew: true,
         };
+        // Future editor metadata flags: default them here, pass them into
+        // renderDailyPresetEditor, and forward them to saveGameLevelPreset.
         let presetEditorData = {
             rows: null,
             stageFields: null,
             hasDailyGoal: false,
+            hasDailyLoop: false,
         };
 
         if (!isNewPreset) {
@@ -952,6 +920,7 @@ document.addEventListener("DOMContentLoaded", () => {
             initialRows: presetEditorData.rows,
             initialStageFields: presetEditorData.stageFields,
             initialHasDailyGoal: presetEditorData.hasDailyGoal,
+            initialHasDailyLoop: presetEditorData.hasDailyLoop,
             onBack: () => navigateTo(ROUTES.dailyPresetTool),
             onSavePreset: async (presetData) => {
                 const name = String(presetData.name || "").trim();
@@ -973,6 +942,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         rows: presetData.rowData,
                         stageFields: presetData.stageFields,
                         hasDailyGoal: presetData.hasDailyGoal,
+                        hasDailyLoop: presetData.hasDailyLoop,
                     });
 
                     await showPopup({
@@ -1518,15 +1488,132 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 navigateTo(ROUTES.hub);
             },
-            onExport: async () => {
+            onExport: async (exportPlayer, { exportTypes, exportScope } = {}) => {
+                const wantsPlayerExport = exportTypes?.includes(CsvExportType.Player);
+                const wantsGameExport = exportTypes?.includes(CsvExportType.Game);
+                const wantsHistoryExport = exportTypes?.includes(CsvExportType.History);
+
+                if (!wantsPlayerExport && !wantsGameExport && !wantsHistoryExport) {
+                    return false;
+                }
+
+                const exportedItems = [];
+
+                if (exportScope === CsvExportScope.All) {
+                    if (wantsPlayerExport) {
+                        const players = await db.getAllPatientCsvExportRows();
+
+                        if (players.length) {
+                            downloadCsv(getPlayersCsvFilename(), buildPlayersCsv(players));
+                            exportedItems.push(`ข้อมูลผู้เล่น ${players.length} คน`);
+                        }
+                    }
+
+                    if (wantsGameExport) {
+                        const gameRecords = await db.getGameCsvExportRows();
+
+                        if (gameRecords.length) {
+                            downloadCsv(getGamesCsvFilename(), buildGameCsv(gameRecords));
+                            exportedItems.push(`ข้อมูลเกม ${gameRecords.length} record`);
+                        }
+                    }
+
+                    if (wantsHistoryExport) {
+                        const historyRecords = await db.getGameHistoryCsvExportRows();
+
+                        if (historyRecords.length) {
+                            downloadCsv(getGameHistoriesCsvFilename(), buildGameHistoryCsv(historyRecords));
+                            exportedItems.push(`ประวัติการเล่นรายวัน ${historyRecords.length} record`);
+                        }
+                    }
+
+                    if (!exportedItems.length) {
+                        await showPopup({
+                            title: "ส่งออกข้อมูล",
+                            message: "ยังไม่มีข้อมูลสำหรับส่งออก",
+                            confirmText: "รับทราบ",
+                            icon: "download",
+                        });
+                        return false;
+                    }
+
+                    await showPopup({
+                        title: "ส่งออกข้อมูล",
+                        message: `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว`,
+                        confirmText: "รับทราบ",
+                        icon: "download",
+                    });
+                    return true;
+                }
+
+                const missingItems = [];
+
+                if (wantsPlayerExport) {
+                    let programName = "";
+
+                    try {
+                        const programPresets = await db.getGameLevelPresetList();
+                        const programId = Number(playerProgram?.programId);
+                        programName = programPresets.find((preset) => Number(preset.id) === programId)?.name || "";
+                    } catch (error) {
+                        console.warn("Unable to load program preset name for CSV export:", error);
+                    }
+
+                    const csvContent = buildPlayerCsv(exportPlayer, {
+                        educationName: exportPlayer.educationName,
+                        programDayCount: playerProgram?.programDayCount ?? null,
+                        programName,
+                    });
+
+                    downloadCsv(getPlayerCsvFilename(exportPlayer), csvContent);
+                    exportedItems.push("ข้อมูลผู้เล่น");
+                }
+
+                if (wantsGameExport) {
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    const gameRecords = await db.getGameCsvExportRows({ hn });
+
+                    if (!gameRecords.length) {
+                        missingItems.push("ข้อมูลเกม");
+                    } else {
+                        downloadCsv(getGameCsvFilename(exportPlayer), buildGameCsv(gameRecords));
+                        exportedItems.push(`ข้อมูลเกม ${gameRecords.length} record`);
+                    }
+                }
+
+                if (wantsHistoryExport) {
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    const historyRecords = await db.getGameHistoryCsvExportRows({ hn });
+
+                    if (!historyRecords.length) {
+                        missingItems.push("ประวัติการเล่นรายวัน");
+                    } else {
+                        downloadCsv(getGameHistoryCsvFilename(exportPlayer), buildGameHistoryCsv(historyRecords));
+                        exportedItems.push(`ประวัติการเล่นรายวัน ${historyRecords.length} record`);
+                    }
+                }
+
+                if (!exportedItems.length) {
+                    await showPopup({
+                        title: "ส่งออกข้อมูล",
+                        message: missingItems.length
+                            ? `ยังไม่มี${missingItems.join(" และ ")}ของผู้เล่นคนนี้สำหรับส่งออก`
+                            : "ยังไม่มีข้อมูลสำหรับส่งออก",
+                        confirmText: "รับทราบ",
+                        icon: "download",
+                    });
+                    return false;
+                }
+
                 await showPopup({
                     title: "ส่งออกข้อมูล",
-                    message: "ฟังก์ชันส่งออกข้อมูลจะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    message: missingItems.length
+                        ? `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว แต่ยังไม่มี${missingItems.join(" และ ")}ของผู้เล่นคนนี้`
+                        : `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว`,
                     confirmText: "รับทราบ",
                     icon: "download",
                 });
-
-                return false;
+                return true;
             },
         });
     };

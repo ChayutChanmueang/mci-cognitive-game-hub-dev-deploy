@@ -6,17 +6,15 @@ export default class SolutionSocketComponent extends Component{
         if(settings.Type != null){
             this.type = settings.Type;
         }
-        if(settings.Color != null){
-            this.color = settings.Color;
+        if(settings.Animal != null){
+            this.animal = settings.Animal;
         }
     }
     checkEntity(entity){
         if(entity == null) return;
-        console.log("Socket Color : " + this.color);
-        console.log("Entity Color : " + entity.color);
-        console.log("Socket Type : " + this.type);
-        console.log("Entity Type : " + entity.type);
-        if(entity.type == this.type && entity.color == this.color){
+        console.log("Socket Animal : " + this.animal);
+        console.log("Entity Animal : " + entity.animal);
+        if(entity.type == this.type && entity.animal == this.animal){
             return true;
         }
         return false;

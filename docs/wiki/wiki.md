@@ -24,9 +24,11 @@
 
 ### 🛠 Development & Setup
 - [Development Setup Guide](development/SETUP.md) - ขั้นตอนการติดตั้งและเตรียมสภาพแวดล้อม
+- [Level Complete Effect Guide](development/level-complete-effect-guide.md) - คู่มือการใช้งานเอฟเฟกต์ "เก่งมาก" และ Confetti แบบแชร์กันใช้
 
 ### 🤖 Agentic AI & Tools
-- [Agentic AI Skill Usage](PROJECT_AGENT_SKILL_USING) - คู่มือการใช้ Skill และ Agent ในโครงการ
+- [Agentic AI Implementation Process (LvL)](Agentic-AI/AGENTIC_AI_PROCESS_LVL.md) - **กระบวนการและระดับการใช้งาน AI ในโครงการ**
+- [Specialized Skills Usage](Agentic-AI/PROJECT_AGENT_SKILL_USING.md) - รายละเอียด Skill และ Agent ต่างๆ ที่ติดตั้งไว้
 
 ### 📊 Reports & Research
 - [System Test Reports](05-report-backlog) - **สรุปผลการทดสอบระบบและแดชบอร์ดคุณภาพ**

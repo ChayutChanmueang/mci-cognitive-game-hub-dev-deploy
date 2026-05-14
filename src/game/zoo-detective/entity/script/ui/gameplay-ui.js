@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import StorageManager from "../../../../../core/storage-manager.js";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
-import { createThaiText, getThaiFontFamily } from "../../../../../util/thai-text.js";
+import {createThaiText, getThaiFontFamily, ThaiTextPresets} from "../../../../../util/thai-text.js";
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 import { EventBus } from "../../../../../core/EventBus.js";
@@ -34,22 +34,8 @@ export default class GameplayUI extends Entity{
             .strokeRoundedRect(barX, barY, barWidth, barHeight, 38)
             .setDepth(this.uiDepth - 1);
 
-        this.levelText = this.createTextBox(50, 50, "ด่าน 1/10", hudFontFamily);
-
-        this.timerText = this.createTextBox(scene.scale.width - 50, 50, "00 : 00", hudFontFamily);
-            createThaiText(
-            scene,
-            scene.scale.width / 2,
-            infoStartY,
-            "",
-            {
-                fontFamily: hudFontFamily,
-                fontSize: "34px",
-                fontStyle: "bold",
-                color: "#1f3a53"
-            },
-            { origin: 0.5 }
-        ).setDepth(this.uiDepth);
+        this.levelText = this.createTextBox(50, 165, 300, 75, "ด่าน 1/10", ThaiTextPresets.hud);
+        this.timerText = this.createTextBox(scene.scale.width - 50, 165, 300, 75, this.formatSeconds(0), ThaiTextPresets.hud);
 
         this.currentScore = createThaiText(
             scene,
@@ -106,14 +92,18 @@ export default class GameplayUI extends Entity{
 
     setElapsedTime(elapsedMs = 0) {
         const totalSeconds = Math.max(0, Math.floor((Number(elapsedMs) || 0) / 1000));
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        this.timerText.setText(`⏱ ${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
+        this.timerText[2].setText(this.formatSeconds(totalSeconds));
     }
 
     setTimeLeft(timeLeftS = 0) {
-        const seconds = Math.max(0, Math.ceil(Number(timeLeftS) || 0));
-        this.timerText.setText(`${seconds}s`);
+        this.timerText[2].setText(this.formatSeconds(timeLeftS));
+    }
+
+    formatSeconds(value = 0) {
+        const totalSeconds = Math.max(0, Math.ceil(Number(value) || 0));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     }
 
     setGameOverHighscore(score){
@@ -146,24 +136,24 @@ export default class GameplayUI extends Entity{
         this.gameoverPanel.show();
     }
 
-    createTextBox(x, y, label, hudFontFamily, scale = 1.5){
+    createTextBox(x, y, width, height, label, hudFontFamily, scale = 1.5){
         const container = this.scene.add.container(x, y);
-        const bg = this.scene.add.rectangle(0, 0, 200, 60, 0x00aa00, 1);
-        bg.setScale(scale);
+        const bg = this.scene.add.rectangle(0, 0, width, height, 0x00aa00, 1);
 
         const labelText = createThaiText(
             this.scene,
             0,
             0,
-            "",
+            label,
             {
                 fontFamily: hudFontFamily,
                 fontSize: "28px",
                 fontStyle: "bold",
                 color: "#2e4962"
             },
-            { origin: [1, 0.5] }
+            { origin: [0.4, 0.5] }
         );
+        labelText.setText(label);
         labelText.setDepth(this.uiDepth);
 
         container.add(bg);

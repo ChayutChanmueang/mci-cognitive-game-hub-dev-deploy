@@ -57,17 +57,13 @@ class Database {
             return this.client;
         }
 
-        // Re-read from env to handle cases where they might be populated late or constructor missed them
-        const url = import.meta.env.VITE_SUPABASE_URL || this.supabaseUrl;
-        const key = import.meta.env.VITE_SUPABASE_ANON_KEY || this.supabaseAnonKey;
-
-        if (!url || !key) {
+        if (!this.supabaseUrl || !this.supabaseAnonKey) {
             throw new Error(
-                "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Please check your environment variables.",
+                "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in the frontend environment.",
             );
         }
 
-        this.client = createClient(url, key, {
+        this.client = createClient(this.supabaseUrl, this.supabaseAnonKey, {
             auth: {
                 autoRefreshToken: true,
                 persistSession: true,
@@ -82,7 +78,6 @@ class Database {
         if (!this.authReadyPromise) {
             this.authReadyPromise = this.ensureSignedIn().catch((error) => {
                 this.authReadyPromise = null;
-                console.error("Auth initialization failed:", error);
                 throw error;
             });
         }
@@ -91,24 +86,23 @@ class Database {
     }
 
     async ensureSignedIn() {
-        let lastError = null;
-        for (let i = 0; i < 3; i++) {
-            try {
-                const client = this.getClient();
-                const { data, error } = await client.auth.getSession();
+        const client = this.getClient();
+        const { data, error } = await client.auth.getSession();
 
-                if (error) throw error;
-                if (data.session) return data.session;
-
-                const anonymousResult = await this.signInAnonymously();
-                if (anonymousResult.session) return anonymousResult.session;
-            } catch (err) {
-                lastError = err;
-                console.warn(`Auth attempt ${i + 1} failed, retrying...`, err);
-                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
-            }
+        if (error) {
+            throw error;
         }
-        throw lastError || new Error("Failed to ensure sign-in after multiple attempts");
+
+        if (data.session) {
+            return data.session;
+        }
+
+        const anonymousResult = await this.signInAnonymously();
+        if (!anonymousResult.session) {
+            throw new Error("Anonymous sign-in did not return a session");
+        }
+
+        return anonymousResult.session;
     }
 
     async signInAnonymously() {
@@ -281,6 +275,401 @@ class Database {
         }
 
         return data || [];
+    }
+
+    async getAllPatientCsvExportRows() {
+        await this.initAuth();
+
+        const [
+            patients,
+            educationLevels,
+            profiles,
+            programPresets,
+            programRows,
+        ] = await Promise.all([
+            this.getAllTableRows(
+                USER_PATIENT_DATA_TABLE,
+                "id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date",
+                [{ column: "hn", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_EDUCATION_LEVEL_TABLE,
+                "id, eduid, name, dropdown_index",
+                [
+                    { column: "dropdown_index", ascending: true, nullsFirst: false },
+                    { column: "id", ascending: true },
+                ],
+            ),
+            this.getAllTableRows(
+                USER_GAME_PROFILE_DATA_TABLE,
+                "id, hn, program, created_at",
+                [{ column: "created_at", ascending: false }],
+            ),
+            this.getAllTableRows(
+                GAME_LEVEL_PRESET_LIST_TABLE,
+                "id, name, description, created_at",
+                [{ column: "id", ascending: true }],
+            ),
+            this.getAllTableRows(
+                GAME_LEVEL_PRESET_DATA_TABLE,
+                "id, gpid, day",
+                [{ column: "gpid", ascending: true }],
+            ),
+        ]);
+
+        const educationNameByKey = new Map();
+        for (const level of educationLevels) {
+            const name = String(level?.name || "").trim();
+            const eduid = String(level?.eduid || "").trim();
+            const id = String(level?.id || "").trim();
+
+            if (eduid) {
+                educationNameByKey.set(eduid, name);
+            }
+            if (id) {
+                educationNameByKey.set(id, name);
+            }
+        }
+
+        const latestProfileByHn = new Map();
+        for (const profile of profiles) {
+            const hn = String(profile?.hn || "").trim();
+            if (hn && !latestProfileByHn.has(hn)) {
+                latestProfileByHn.set(hn, profile);
+            }
+        }
+
+        const programNameById = new Map(
+            programPresets.map((preset) => [Number(preset?.id), String(preset?.name || "").trim()]),
+        );
+        const programDayCountById = new Map();
+        for (const row of programRows) {
+            const programId = Number(row?.gpid);
+            const day = Number(row?.day);
+
+            if (!Number.isFinite(programId) || !Number.isFinite(day)) {
+                continue;
+            }
+
+            programDayCountById.set(
+                programId,
+                Math.max(programDayCountById.get(programId) || 0, Math.floor(day)),
+            );
+        }
+
+        return patients.map((patient) => {
+            const hn = String(patient?.hn || "").trim();
+            const educationKey = String(patient?.education_level || "").trim();
+            const profile = latestProfileByHn.get(hn) || null;
+            const programId = Number(profile?.program);
+
+            return {
+                ...patient,
+                educationName: educationNameByKey.get(educationKey) || educationKey,
+                programId: Number.isFinite(programId) ? programId : null,
+                programName: programNameById.get(programId) || "",
+                programDayCount: programDayCountById.get(programId) || 0,
+            };
+        });
+    }
+
+    async getGameCsvExportRows({ hn = null } = {}) {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const parsedHn = String(hn || "").trim();
+        const { data: rpcRows, error: rpcError } = await client.rpc("get_game_csv_export_rows", {
+            p_hn: parsedHn || null,
+        });
+
+        if (!rpcError) {
+            return rpcRows || [];
+        }
+
+        console.warn("Unable to load game CSV export rows from RPC, falling back to client query:", rpcError);
+
+        const [
+            patients,
+            gameDataRows,
+            games,
+        ] = await Promise.all([
+            this.getAllTableRows(
+                USER_PATIENT_DATA_TABLE,
+                "id, hn, uid",
+                [{ column: "id", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_GAME_DATA_TABLE,
+                "id, gid, started_at, ended_at, score, level",
+                [{ column: "started_at", ascending: true }],
+            ),
+            this.getAllTableRows(
+                GAME_LIST_TABLE,
+                "id, gid, name, th_name, mci_group, max_score, created_at",
+                [{ column: "gid", ascending: true }],
+            ),
+        ]);
+        const histories = await this.getAllTableRows(
+            USER_GAME_HISTORY_TABLE,
+            "id, hn, gid, stage, start_at, end_at, user_game_data_id, \"check-in\"",
+            [{ column: "start_at", ascending: true }],
+        );
+
+        const gameDataById = new Map(
+            gameDataRows.map((row) => [Number(row?.id), row]),
+        );
+        const gameByGid = new Map(
+            games.map((game) => [String(game?.gid || "").trim(), game]),
+        );
+        const patientOrderByHn = new Map(
+            patients.map((patient, index) => [String(patient?.hn || "").trim(), index]),
+        );
+        const matchedRows = histories
+            .filter((history) => {
+                const gid = String(history?.gid || "").trim();
+                const hn = String(history?.hn || "").trim();
+
+                return gid
+                    && history?.["check-in"] !== true
+                    && (!parsedHn || hn === parsedHn);
+            })
+            .map((history) => {
+                const hn = String(history?.hn || "").trim();
+                const gid = String(history?.gid || "").trim();
+                const gameData = gameDataById.get(Number(history?.user_game_data_id)) || null;
+                const game = gameByGid.get(gid) || null;
+
+                return {
+                    hn,
+                    gid,
+                    minigame_name: game?.name || game?.th_name || gid,
+                    mci_group: game?.mci_group || "",
+                    ingame_started_at: gameData?.started_at || "",
+                    ingame_ended_at: gameData?.ended_at || "",
+                    gamehub_start_at: history?.start_at || "",
+                    gamehub_end_at: history?.end_at || "",
+                    score: gameData?.score ?? "",
+                    level: gameData?.level ?? "",
+                    _patientOrder: patientOrderByHn.has(hn) ? patientOrderByHn.get(hn) : Number.POSITIVE_INFINITY,
+                    _historyId: Number(history?.id) || 0,
+                };
+            });
+
+        matchedRows.sort((a, b) => (
+            this.compareCsvSortValue(a._patientOrder, b._patientOrder)
+            || new Date(a.gamehub_start_at || 0) - new Date(b.gamehub_start_at || 0)
+            || a._historyId - b._historyId
+        ));
+
+        return matchedRows.map((row) => {
+            const {
+                _patientOrder,
+                _historyId,
+                ...exportRow
+            } = row;
+
+            return exportRow;
+        });
+    }
+
+    compareCsvSortValue(a, b) {
+        const aValue = Number.isFinite(a) ? a : Number.MAX_SAFE_INTEGER;
+        const bValue = Number.isFinite(b) ? b : Number.MAX_SAFE_INTEGER;
+
+        return aValue - bValue;
+    }
+
+    async getGameHistoryCsvExportRows({ hn = null } = {}) {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const parsedHn = String(hn || "").trim();
+        const { data: rpcRows, error: rpcError } = await client.rpc("get_game_history_csv_export_rows", {
+            p_hn: parsedHn || null,
+        });
+
+        if (!rpcError) {
+            return rpcRows || [];
+        }
+
+        console.warn("Unable to load game history CSV export rows from RPC, falling back to client query:", rpcError);
+
+        const [patients, histories] = await Promise.all([
+            this.getAllTableRows(
+                USER_PATIENT_DATA_TABLE,
+                "id, hn",
+                [{ column: "id", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_GAME_HISTORY_TABLE,
+                "id, hn, gid, start_at, end_at, \"check-in\"",
+                [{ column: "start_at", ascending: true }],
+            ),
+        ]);
+        const patientOrderByHn = new Map(
+            patients.map((patient, index) => [String(patient?.hn || "").trim(), index]),
+        );
+        const dailyMap = new Map();
+
+        for (const history of histories) {
+            const historyHn = String(history?.hn || "").trim();
+            const gid = String(history?.gid || "").trim();
+            const isCheckIn = history?.["check-in"] === true;
+
+            if ((!gid && !isCheckIn) || (parsedHn && historyHn !== parsedHn)) {
+                continue;
+            }
+
+            const localDay = this.getBangkokDateKey(history?.start_at);
+            if (!historyHn || !localDay) {
+                continue;
+            }
+
+            const key = `${historyHn}\u0000${localDay}`;
+            if (!dailyMap.has(key)) {
+                dailyMap.set(key, {
+                    user_hn: historyHn,
+                    firstgame_at: "",
+                    lastgame_at: "",
+                    total_time: "",
+                    "check-in": false,
+                    last_stage: 0,
+                    _day: localDay,
+                    _patientOrder: patientOrderByHn.has(historyHn)
+                        ? patientOrderByHn.get(historyHn)
+                        : Number.POSITIVE_INFINITY,
+                });
+            }
+
+            const row = dailyMap.get(key);
+            const startAt = this.parseDateMs(history?.start_at);
+            const endAt = this.parseDateMs(history?.end_at || history?.start_at);
+
+            if (isCheckIn) {
+                row["check-in"] = true;
+            }
+
+            if (gid && !isCheckIn) {
+                row.firstgame_at = this.minDateValue(row.firstgame_at, history?.start_at);
+                row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
+
+                if (gid !== "REST001") {
+                    row.last_stage += 1;
+                }
+            } else if (isCheckIn) {
+                row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
+            }
+
+            if (Number.isFinite(startAt) && Number.isFinite(endAt)) {
+                row.lastgame_at = this.maxDateValue(row.lastgame_at, new Date(Math.max(startAt, endAt)).toISOString());
+            }
+        }
+
+        return [...dailyMap.values()]
+            .filter((row) => row.firstgame_at || row["check-in"])
+            .map((row) => {
+                const firstMs = this.parseDateMs(row.firstgame_at);
+                const lastMs = this.parseDateMs(row.lastgame_at);
+                const totalTime = Number.isFinite(firstMs) && Number.isFinite(lastMs) && lastMs >= firstMs
+                    ? ((lastMs - firstMs) / 60000).toFixed(1)
+                    : "";
+
+                return {
+                    ...row,
+                    total_time: totalTime,
+                };
+            })
+            .sort((a, b) => (
+                this.compareCsvSortValue(a._patientOrder, b._patientOrder)
+                || String(a._day).localeCompare(String(b._day))
+            ))
+            .map((row) => {
+                const {
+                    _day,
+                    _patientOrder,
+                    ...exportRow
+                } = row;
+
+                return exportRow;
+            });
+    }
+
+    getBangkokDateKey(value) {
+        const date = new Date(value || "");
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+
+        return new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Asia/Bangkok",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).format(date);
+    }
+
+    parseDateMs(value) {
+        const date = new Date(value || "");
+        return Number.isNaN(date.getTime()) ? NaN : date.getTime();
+    }
+
+    minDateValue(currentValue, nextValue) {
+        const currentMs = this.parseDateMs(currentValue);
+        const nextMs = this.parseDateMs(nextValue);
+
+        if (!Number.isFinite(nextMs)) {
+            return currentValue || "";
+        }
+
+        return !Number.isFinite(currentMs) || nextMs < currentMs ? nextValue : currentValue;
+    }
+
+    maxDateValue(currentValue, nextValue) {
+        const currentMs = this.parseDateMs(currentValue);
+        const nextMs = this.parseDateMs(nextValue);
+
+        if (!Number.isFinite(nextMs)) {
+            return currentValue || "";
+        }
+
+        return !Number.isFinite(currentMs) || nextMs > currentMs ? nextValue : currentValue;
+    }
+
+    async getAllTableRows(tableName, selectColumns, orders = []) {
+        const client = this.getClient();
+        const pageSize = 1000;
+        const rows = [];
+
+        for (let from = 0; ; from += pageSize) {
+            let query = client
+                .from(tableName)
+                .select(selectColumns)
+                .range(from, from + pageSize - 1);
+
+            for (const order of orders) {
+                const orderOptions = {
+                    ascending: order.ascending !== false,
+                };
+
+                if (Object.prototype.hasOwnProperty.call(order, "nullsFirst")) {
+                    orderOptions.nullsFirst = order.nullsFirst;
+                }
+
+                query = query.order(order.column, orderOptions);
+            }
+
+            const { data, error } = await query;
+            if (error) {
+                throw error;
+            }
+
+            rows.push(...(data || []));
+            if (!data || data.length < pageSize) {
+                break;
+            }
+        }
+
+        return rows;
     }
 
     async createPatientProfile({
@@ -937,17 +1326,18 @@ class Database {
             ended_at: normalizedEndedAt.toISOString(),
         };
 
-        return this._withRetry(async () => {
-            const client = this.getClient();
-            const { data, error } = await client
-                .from(USER_GAME_DATA_TABLE)
-                .insert([payload])
-                .select("id, gid, started_at, ended_at")
-                .maybeSingle();
+        const client = this.getClient();
+        const { data, error } = await client
+            .from(USER_GAME_DATA_TABLE)
+            .insert([payload])
+            .select("id, gid, started_at, ended_at")
+            .maybeSingle();
 
-            if (error) throw error;
-            return data || payload;
-        });
+        if (error) {
+            throw error;
+        }
+
+        return data || payload;
     }
 
     async addUserGameHistory({
@@ -1720,22 +2110,16 @@ class Database {
             gid: parsedGid,
         };
 
-        return this._withRetry(async () => {
-            const client = this.getClient();
-            const { error } = await client
-                .from(USER_EVENT_LOG_TABLE)
-                .insert([payload]);
+        const client = this.getClient();
+        const { error } = await client
+            .from(USER_EVENT_LOG_TABLE)
+            .insert([payload]);
 
-            if (error) {
-                // If it's a foreign key error, retrying won't help, but we log it specifically
-                if (error.code === "23503") {
-                    console.error(`Logging failed: Event ID "${parsedEventId}" not found in database lookup table.`, error);
-                    return payload; // Return payload to indicate "processed" even if failed to save
-                }
-                throw error;
-            }
-            return payload;
-        });
+        if (error) {
+            throw error;
+        }
+
+        return payload;
     }
 
     async writeReplayLog({

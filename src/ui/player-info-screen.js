@@ -4,6 +4,10 @@ import {
     formatThaiProgramDate,
     getProgramEndDate,
 } from "../util/program-date-util.js";
+import {
+    CsvExportScope,
+    CsvExportType,
+} from "../util/player-csv-export.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -20,6 +24,114 @@ function escapeHtml(value) {
 
 function formatDisplayDate(value) {
     return formatThaiProgramDate(value);
+}
+
+function showExportOptionsPopup() {
+    return new Promise((resolve) => {
+        const overlay = document.createElement("div");
+        const titleId = `player-export-title-${Date.now()}`;
+        const messageId = `player-export-message-${Date.now()}`;
+        const previousOverflow = document.body.style.overflow;
+
+        overlay.className = "app-popup player-info-export-popup";
+        overlay.innerHTML = `
+            <div class="app-popup__backdrop"></div>
+            <div
+                class="app-popup__dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="${titleId}"
+                aria-describedby="${messageId}"
+            >
+                <div class="app-popup__header">
+                    <div class="app-popup__icon-wrap">
+                        <span class="material-symbols-rounded app-popup__icon">download</span>
+                    </div>
+                    <div class="app-popup__copy">
+                        <h2 id="${titleId}">ส่งออกข้อมูล</h2>
+                        <p id="${messageId}">เลือกข้อมูลที่ต้องการส่งออกเป็น CSV</p>
+                        <div class="player-info-export-popup__group" role="radiogroup" aria-label="ขอบเขตข้อมูล">
+                            <label class="player-info-export-popup__option">
+                                <input
+                                    type="radio"
+                                    name="player-export-scope"
+                                    data-export-scope="${CsvExportScope.Current}"
+                                    checked
+                                >
+                                <span>ข้อมูลของผู้เล่นคนนี้</span>
+                            </label>
+                            <label class="player-info-export-popup__option">
+                                <input
+                                    type="radio"
+                                    name="player-export-scope"
+                                    data-export-scope="${CsvExportScope.All}"
+                                >
+                                <span>ข้อมูลทั้งหมด</span>
+                            </label>
+                        </div>
+                        <label class="player-info-export-popup__option">
+                            <input
+                                type="checkbox"
+                                data-export-option="${CsvExportType.Player}"
+                                checked
+                            >
+                            <span>ส่งออกข้อมูลผู้เล่น</span>
+                        </label>
+                        <label class="player-info-export-popup__option">
+                            <input
+                                type="checkbox"
+                                data-export-option="${CsvExportType.Game}"
+                            >
+                            <span>ส่งออกข้อมูลการเล่นเกม</span>
+                        </label>
+                        <label class="player-info-export-popup__option">
+                            <input
+                                type="checkbox"
+                                data-export-option="${CsvExportType.History}"
+                            >
+                            <span>ส่งออกประวัติการเล่นรายวัน</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="app-popup__actions">
+                    <md-outlined-button type="button" data-popup-cancel>ยกเลิก</md-outlined-button>
+                    <md-filled-button type="button" data-popup-confirm>ส่งออก</md-filled-button>
+                </div>
+            </div>
+        `;
+
+        const cleanup = (result) => {
+            document.removeEventListener("keydown", onKeyDown);
+            overlay.remove();
+            document.body.style.overflow = previousOverflow;
+            resolve(result);
+        };
+        const getSelection = () => ({
+            exportScope: String(
+                overlay.querySelector("[data-export-scope]:checked")?.getAttribute("data-export-scope")
+                    || CsvExportScope.Current,
+            ),
+            exportTypes: [...overlay.querySelectorAll("[data-export-option]:checked")]
+                .map((input) => String(input.getAttribute("data-export-option") || "").trim())
+                .filter(Boolean),
+        });
+        const onKeyDown = (event) => {
+            if (event.key === "Escape") {
+                cleanup(null);
+            }
+        };
+
+        overlay.querySelector("[data-popup-cancel]")?.addEventListener("click", () => cleanup(null));
+        overlay.querySelector("[data-popup-confirm]")?.addEventListener("click", () => cleanup(getSelection()));
+        overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(null));
+
+        document.body.style.overflow = "hidden";
+        document.body.appendChild(overlay);
+        document.addEventListener("keydown", onKeyDown);
+        requestAnimationFrame(() => {
+            overlay.querySelector("[data-popup-confirm]")?.focus();
+        });
+    });
 }
 
 export function renderPlayerInfoScreen(root, options = {}) {
@@ -143,10 +255,17 @@ export function renderPlayerInfoScreen(root, options = {}) {
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
+        const exportSelection = await showExportOptionsPopup();
+
+        if (!exportSelection?.exportTypes?.length) {
+            feedback.textContent = "";
+            return;
+        }
+
         feedback.textContent = "กำลังเตรียมข้อมูลสำหรับส่งออก...";
 
         try {
-            const exported = await onExport(player);
+            const exported = await onExport(player, exportSelection);
             if (exported === false) {
                 feedback.textContent = "";
                 return;

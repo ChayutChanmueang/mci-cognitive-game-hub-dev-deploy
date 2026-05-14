@@ -24,16 +24,14 @@ export const PostcardReaderReplayEvent = Object.freeze({
     MEMORY_TIMER_STARTED: "postcard_reader.memory_timer_started",
     QUESTION_SHOWN: "postcard_reader.question_shown",
     CHOICE_SELECTED: "postcard_reader.choice_selected",
-    ANSWER_SUBMITTED: "postcard_reader.answer_submitted",
     ROUND_COMPLETED: "postcard_reader.round_completed",
 });
 
 export const SymmetryDecorReplayEvent = Object.freeze({
-    LEVEL_SHOWN: "symmetry_decor.level_shown",
+    ROUND_START: "symmetry_decor.round_start",
     PIECE_PICKED_UP: "symmetry_decor.piece_picked_up",
     PIECE_DROPPED: "symmetry_decor.piece_dropped",
     PIECE_PLACED: "symmetry_decor.piece_placed",
-    ANSWER_SUBMITTED: "symmetry_decor.answer_submitted",
     ROUND_COMPLETED: "symmetry_decor.round_completed",
 });
 
@@ -48,11 +46,9 @@ export const ZooDetectiveReplayEvent = Object.freeze({
 });
 
 export const ZooFeederReplayEvent = Object.freeze({
-    FOOD_SPAWNED: "zoo_feeder.food_spawned",
-    FOOD_PICKED_UP: "zoo_feeder.food_picked_up",
     FOOD_DROPPED: "zoo_feeder.food_dropped",
     FOOD_DELIVERED: "zoo_feeder.food_delivered",
-    ANIMAL_REACTED: "zoo_feeder.animal_reacted",
+    ROUND_START: "zoo_feeder.round_start",
     ROUND_COMPLETED: "zoo_feeder.round_completed",
 });
 

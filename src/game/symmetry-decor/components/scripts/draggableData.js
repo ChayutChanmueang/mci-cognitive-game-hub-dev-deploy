@@ -6,8 +6,8 @@ export default class DraggableDataComponent extends Component{
         if(settings.Type != null){
             this.type = settings.Type;
         }
-        if(settings.Color != null){
-            this.color = settings.Color;
+        if(settings.Animal != null){
+            this.animal = settings.Animal;
         }
     }
 }

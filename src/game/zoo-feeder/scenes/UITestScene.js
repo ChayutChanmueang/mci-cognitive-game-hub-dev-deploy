@@ -4,6 +4,9 @@ import GameplayUI from "../entity/script/ui/gameplay-ui";
 import StorageManager from "../../../core/storage-manager";
 import db from "../../../core/database.js";
 import { EventBus } from "../../../core/EventBus.js";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
+import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
+import { ReplayEvent } from "../../../core/replay-event.js";
 
 
 const GAME_ID = "ATTN001";
@@ -19,7 +22,7 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
     //BG
-    this.load.image('background', 'assets/zoo-feeder/etc/BG.svg')
+    this.load.image('background', 'assets/zoo-feeder/etc/BG.png')
     //Food Sprite
     this.load.image('apple_sprite', 'assets/zoo-feeder/food/Apple.png')
     this.load.image('battery_sprite', 'assets/zoo-feeder/food/Battery.png')
@@ -52,6 +55,19 @@ export default class UITestScene extends Phaser.Scene {
 
   create(data) {
     console.log("UI test scene");
+
+    //Initialize Logging
+    if(this.replayLogger == null){
+      this.replayLogger = new ReplayLogBuffer();
+    }
+    else{
+      this.replayLogger.clearEvents();
+    }
+
+    this.correctDeliver = 0;
+    this.wrongDeliver = 0;
+    this.correctDrop = 0;
+    this.wrongDrop = 0;
     EventBus.emit('minigame:show-hud');
 
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
@@ -67,7 +83,9 @@ export default class UITestScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isRestarting = false;
     this.gameStartedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_START,this.gameStartedAt);
     this.gameEndedAt = new Date();
+    this.spawnFruitTimer = null;
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();
@@ -79,7 +97,9 @@ export default class UITestScene extends Phaser.Scene {
 
     // Initial state to HUD
     EventBus.emit('minigame:score', { score: this.score });
-    EventBus.emit('minigame:tick', { timeLeft: 180 }); // 3 minutes
+    EventBus.emit('minigame:lives', { lives: this.lives });
+    const gameTime = 180;
+    EventBus.emit('minigame:tick', { timeLeft: gameTime, maxTime: gameTime }); // 3 minutes
 
     this.conveyerNums = data.conveyerNums || 3;
     this.conveyers = [];
@@ -117,17 +137,18 @@ export default class UITestScene extends Phaser.Scene {
   }
 
   startTimer() {
+    const gameTime = 180;
     if (this.countdownTimer) return;
     this.countdownTimer = this.time.addEvent({
       delay: 1000,
       callback: () => {
         const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
-        EventBus.emit('minigame:tick', { timeLeft: remaining });
+        EventBus.emit('minigame:tick', { timeLeft: remaining, maxTime: gameTime });
         if (remaining <= 0) {
             this.onGameOver();
         }
       },
-      repeat: 179,
+      repeat: gameTime - 1,
     });
   }
 
@@ -138,15 +159,24 @@ export default class UITestScene extends Phaser.Scene {
   }
   onGetEatableFood() {
     this.addScore(20);
+    this.correctDeliver++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED,"CORRECT");
   }
   onGetUneatableFood() {
     this.addScore(-50);
+    this.wrongDeliver++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED,"WRONG");
+    
   }
   onRemoveEatableFood() {
     this.addScore(-25);
+    this.wrongDrop++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED,"WRONG");
   }
   onRemoveUneatableFood() {
     this.addScore(10);
+    this.correctDrop++;
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED,"CORRECT");
   }
   addScore(addedScore) {
     this.score += addedScore;
@@ -176,6 +206,7 @@ export default class UITestScene extends Phaser.Scene {
   removeLives(removedLives) {
     this.lives -= removedLives
     console.log("Current Lives: " + this.lives);
+    EventBus.emit('minigame:lives', { lives: Math.max(0, this.lives) });
     if (this.lives >= 0) {
       this.gameplayUI.setLives(this.lives);
     }
@@ -190,7 +221,10 @@ export default class UITestScene extends Phaser.Scene {
     }
 
     this.isGameOver = true;
-    //this.scene.pause();
+    
+    // Trigger the premium DOM effect
+    showLevelCompleteEffect();
+
     this.physics.pause();
 
     for (const _conveyer of this.conveyers) {
@@ -203,22 +237,27 @@ export default class UITestScene extends Phaser.Scene {
       this.time.removeEvent(this.spawnFruitTimer);
       this.spawnFruitTimer = undefined;
     }
-    const storedHighScore = StorageManager.get('highscore', 0);
 
-    if (this.score > storedHighScore) {
-      StorageManager.save('highscore', this.score);
-      this.gameplayUI.setGameOverHighscore(this.score);
-    }
+    // Wait for the effect to finish before showing the game over panel
+    this.time.delayedCall(1500, () => {
+      const storedHighScore = StorageManager.get('highscore', 0);
 
-    this.gameEndedAt = new Date();
+      if (this.score > storedHighScore) {
+        StorageManager.save('highscore', this.score);
+        this.gameplayUI.setGameOverHighscore(this.score);
+      }
 
-    this.gameplayUI.showGameOverPanel(this.score);
-    EventBus.emit('minigame:game-over', { 
-        score: this.score,
-        level: this.level
+      this.gameEndedAt = new Date();
+      this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED,this.gameEndedAt);
+
+      this.replayLogger.pushToDatabase();
+
+      // this.gameplayUI.showGameOverPanel(this.score);
+      EventBus.emit('minigame:game-over', { 
+          score: this.score,
+          level: this.level
+      });
     });
-
-    //console.log("Highscore: " + StorageManager.get('highscore'));
   }
   restartGame() {
     if (this.isRestarting) {

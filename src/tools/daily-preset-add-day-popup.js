@@ -73,9 +73,13 @@ export function showDailyPresetAddDayPopup(options = {}) {
                             `;
                         }
 
+                        // Future non-stage fields can reuse this renderer. Pass
+                        // inputType from daily-preset-editor.js for number/text fields.
                         return `
                             <md-filled-text-field
                                 label="${escapeHtml(field.label)}"
+                                ${field.inputType ? `type="${escapeHtml(field.inputType)}"` : ""}
+                                ${field.inputType === "number" ? "inputmode=\"numeric\"" : ""}
                                 value="${escapeHtml(field.value)}"
                                 data-day-field="${escapeHtml(field.field)}"
                             ></md-filled-text-field>

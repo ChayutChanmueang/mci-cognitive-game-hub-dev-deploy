@@ -4,14 +4,12 @@ export default class LevelGenerator {
     constructor(difficulty = Difficulty.EASY) {
         this.difficulty = difficulty;
         this.availableAssets = [
-            { color: 0xff0000, emoji: '🍎' },
-            { color: 0x00ff00, emoji: '🍏' },
-            { color: 0x0000ff, emoji: '💎' },
-            { color: 0xffff00, emoji: '⭐' },
-            { color: 0xff00ff, emoji: '🌸' },
-            { color: 0x00ffff, emoji: '❄️' },
-            { color: 0xff9900, emoji: '🎃' },
-            { color: 0x9900ff, emoji: '🍇' }
+            'icon_bear',
+            'icon_cow',
+            'icon_elephant',
+            'icon_fox',
+            'icon_lion',
+            'icon_panda',
         ];
     }
 
@@ -58,12 +56,11 @@ export default class LevelGenerator {
             
             usedPositions.add(`${fixedX},${fixedY}`);
 
-            const asset = this.availableAssets[Math.floor(Math.random() * this.availableAssets.length)];
+            const animal = this.availableAssets[Math.floor(Math.random() * this.availableAssets.length)];
             levelData.push({ 
                 POS: { X: fixedX, Y: fixedY }, 
                 Type: "Rectangle", 
-                Color: asset.color, 
-                Emoji: asset.emoji,
+                Animal: animal,
                 DRAGGABLE: false 
             });
 
@@ -88,8 +85,7 @@ export default class LevelGenerator {
                 solutionData.push({ 
                     POS: { X: target.X, Y: target.Y }, 
                     Type: "Rectangle", 
-                    Color: asset.color,
-                    Emoji: asset.emoji
+                    Animal: animal
                 });
             }
 
@@ -129,8 +125,7 @@ export default class LevelGenerator {
                 levelData.push({ 
                     POS: { X: dragX, Y: dragY }, 
                     Type: "Rectangle", 
-                    Color: asset.color, 
-                    Emoji: asset.emoji,
+                    Animal: animal,
                     DRAGGABLE: true 
                 });
             }
