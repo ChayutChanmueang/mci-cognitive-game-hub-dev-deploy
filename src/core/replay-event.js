@@ -9,14 +9,14 @@ export const GlobalReplayEvent = Object.freeze({
     TUTORIAL_OPENED: "global.tutorial_opened",
     TUTORIAL_CLOSED: "global.tutorial_closed",
     SCORE_CHANGED: "global.score_changed",
+    ROUND_COMPLETED: "round_completed"
 });
 
 export const ContextCluesReplayEvent = Object.freeze({
     QUESTION_SHOWN: "context_clues.question_shown",
     BLANK_SELECTED: "context_clues.blank_selected",
     OPTION_SELECTED: "context_clues.option_selected",
-    ANSWER_SUBMITTED: "context_clues.answer_submitted",
-    ROUND_COMPLETED: "context_clues.round_completed",
+    ANSWER_SUBMITTED: "context_clues.answer_submitted"
 });
 
 export const PostcardReaderReplayEvent = Object.freeze({

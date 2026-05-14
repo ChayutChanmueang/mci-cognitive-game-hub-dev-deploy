@@ -30,8 +30,8 @@ export default class Quiz extends Entity{
         this.boxHeight = setting.quizBoxSize.height;
         this.ownedContainer = scene.add.container(x, y);
         this.dragDrop = new DragDropManager(scene);
-        this.onAnswerCorrect = () => {};
-        this.onAnswerIncorrect = () => {};
+        this.onAnswerCorrect = (answer) => {};
+        this.onAnswerIncorrect = (answer) => {};
 
         this.setScale(1.5);
         //this.refreshBody();
@@ -155,12 +155,12 @@ export default class Quiz extends Entity{
                         if (this.gameData.answers.length >= this.answers.length) {
                             this.gameData.id = this.id;
                             console.log(`Score: (${this.gameData.score})`);
-                            this.onAnswerCorrect();
+                            this.onAnswerCorrect(data.word);
                         }
                     }else {
                         this.gameData.decreaseScore(Config.DecreaseScore[this.scene.levelMap])
                         this.dragDrop.moveHome(data.handle);
-                        this.onAnswerIncorrect();
+                        this.onAnswerIncorrect(data.word);
                         slot[i].setStrokeStyle(3, 0xfe0000);
                     }
                 },

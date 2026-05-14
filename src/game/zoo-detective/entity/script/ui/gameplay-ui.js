@@ -5,6 +5,7 @@ import Entity from "../../entity";
 import { createThaiText, getThaiFontFamily } from "../../../../../util/thai-text.js";
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
+import { EventBus } from "../../../../../core/EventBus.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -83,7 +84,7 @@ export default class GameplayUI extends Entity{
         this.NextQuizPanel = new NextQuizPanel(scene);
 
         this.returnBtn = scene.createButton(scene.scale.width / 2 - 325, 105, "◀️ RETURN", () => {
-            scene.scene.start("main-menu-scene");
+            EventBus.emit("minigame:level-select-request", { source: "zoo-detective-gameplay" });
         });
 
         this.returnBtn[0].setDepth(this.uiDepth);

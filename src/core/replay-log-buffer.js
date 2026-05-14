@@ -240,29 +240,12 @@ export class ReplayLogBuffer {
         this.events = [];
     }
 
-    toReplayValue(extraValue = null) {
-        return {
-            replaySessionId: this.replaySessionId,
-            startedAt: this.startedAt,
-            endedAt: new Date().toISOString(),
-            userGameHistory: this.getUserGameHistory(),
-            metadata: this.metadata,
-            eventCount: this.events.length,
-            events: this.getEvents(),
-            extra: normalizeJsonValue(extraValue),
-        };
-    }
-
     toReplayLogRows({
         hn = this.hn,
         gid = this.gid,
         historyId = this.historyId,
-        value = null,
     } = {}) {
         const parsedHistoryId = normalizeNullableInteger(historyId);
-        const endedAt = new Date().toISOString();
-        const extra = normalizeJsonValue(value);
-        const userGameHistory = this.getUserGameHistory();
 
         return this.events.map((event) => ({
             hn,
@@ -270,32 +253,20 @@ export class ReplayLogBuffer {
             gid,
             historyid: parsedHistoryId,
             value: {
-                replaySessionId: this.replaySessionId,
-                startedAt: this.startedAt,
-                endedAt,
-                userGameHistory,
-                metadata: this.metadata,
-                eventCount: this.events.length,
-                eventId: event.id,
-                sequence: event.sequence,
-                createdAt: event.createdAt,
-                elapsedMs: event.elapsedMs,
-                data: event.value,
-                extra,
+                data: event.value
             },
         }));
     }
 
     async pushToDatabase({
-        hn = this.hn,
-        gid = this.gid,
-        replayId = this.replayId,
-        historyId = this.historyId,
-        value = null,
         batchSize = 100,
         clearAfterPush = this.clearAfterPush,
         allowEmpty = false,
     } = {}) {
+        const hn = this.hn;
+        const gid = this.gid;
+        const replayId = this.replayId;
+        const historyId = this.historyId;
         this.refreshUserGameHistoryFromStorage();
 
         const parsedHn = String(this.userGameHistory?.hn || hn || "").trim();
@@ -332,15 +303,12 @@ export class ReplayLogBuffer {
             ? this.toReplayLogRows({
                 hn: parsedHn,
                 gid: parsedGid,
-                historyId: parsedHistoryId,
-                value,
+                historyId: parsedHistoryId
             })
             : [{
                 hn: parsedHn,
-                replayid: parsedReplayId,
                 gid: parsedGid,
-                historyid: parsedHistoryId,
-                value: this.toReplayValue(value),
+                replayid: parsedReplayId
             }];
         const records = await this.pushRowsToDatabase(rows, parsedBatchSize);
 

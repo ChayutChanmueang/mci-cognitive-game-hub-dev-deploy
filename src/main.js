@@ -534,16 +534,53 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                const hasConfirmed = await showPopup({
+                const launchMode = await showPopup({
                     title: "เปิดเกมทดสอบ",
-                    message: `ต้องการเปิดเกม ${getGameDisplayName(selectedGame)} โดยไม่บันทึกประวัติใช่หรือไม่`,
-                    confirmText: "เปิดเกม",
-                    cancelText: "ยกเลิก",
+                    message: `เลือกวิธีเปิดเกม ${getGameDisplayName(selectedGame)}`,
                     icon: "sports_esports",
+                    actions: [
+                        { value: "cancel", label: "ยกเลิก", variant: "outlined" },
+                        { value: "no-history", label: "เปิดเกมไม่เก็บประวัติ", variant: "outlined" },
+                        { value: "with-history", label: "เปิดเกมเก็บประวัติ", variant: "filled" },
+                    ],
                 });
 
-                if (!hasConfirmed) {
+                if (launchMode === "cancel" || !launchMode) {
                     return;
+                }
+
+                if (launchMode === "with-history") {
+                    const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+                    try {
+                        const startedAt = new Date().toISOString();
+                        const historyRecord = await db.addUserGameHistory({
+                            hn: patientCode,
+                            gid: selectedGid,
+                            stage: selectedGame?.stage ?? null,
+                            startAt: startedAt,
+                            userGameDataId: null,
+                        });
+
+                        if (!historyRecord?.id) {
+                            throw new Error("Missing user_game_history id");
+                        }
+
+                        setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
+                        persistSelectedGame(selectedGame);
+                        sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                        navigateTo(getGameRouteHash(selectedGame));
+                        return;
+                    } catch (error) {
+                        console.warn("Unable to write test launch history:", error);
+                        await showPopup({
+                            title: "บันทึกประวัติไม่สำเร็จ",
+                            message: "ระบบยังไม่สามารถบันทึกประวัติการเล่นเกมทดสอบลงฐานข้อมูลได้",
+                            confirmText: "รับทราบ",
+                            icon: "error",
+                            tone: "error",
+                        });
+                        return;
+                    }
                 }
 
                 persistSelectedGame(selectedGame);
@@ -1075,6 +1112,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 timeLimit: selectedGame?.time_limit || 60 // Fallback
             });
             hud.render();
+            let activeResultPanel = null;
 
 
             const handleExit = async () => {
@@ -1098,12 +1136,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const historyMap = readPendingGameHistoryMap();
                 const pendingHistory = historyMap[gid];
 
-                const resultPanel = new MinigameResultPanel(uiRoot, {
+                activeResultPanel?.destroy();
+                activeResultPanel = new MinigameResultPanel(uiRoot, {
                     score,
                     highScore: StorageManager.get("highscore", 0),
                     gameTitle: selectedGame?.name,
                 });
-                resultPanel.render();
+                activeResultPanel.render();
 
                 if (pendingHistory) {
                     try {
@@ -1121,9 +1160,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             };
 
-            const handleRetry = () => {
+            const handleLevelSelect = () => {
                 cleanup();
                 showGame(selectedGame);
+            };
+
+            const handleRetry = () => {
+                handleLevelSelect();
             };
 
             const handleExitConfirmed = () => {
@@ -1135,13 +1178,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 EventBus.off("minigame:exit-request", handleExit);
                 EventBus.off("minigame:game-over", handleGameOver);
                 EventBus.off("minigame:retry-request", handleRetry);
+                EventBus.off("minigame:level-select-request", handleLevelSelect);
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                activeResultPanel?.destroy();
+                activeResultPanel = null;
                 hud.destroy();
             };
 
             EventBus.on("minigame:exit-request", handleExit);
             EventBus.on("minigame:game-over", handleGameOver);
             EventBus.on("minigame:retry-request", handleRetry);
+            EventBus.on("minigame:level-select-request", handleLevelSelect);
             EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
 
             return true;
