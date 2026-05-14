@@ -534,16 +534,53 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                const hasConfirmed = await showPopup({
+                const launchMode = await showPopup({
                     title: "เปิดเกมทดสอบ",
-                    message: `ต้องการเปิดเกม ${getGameDisplayName(selectedGame)} โดยไม่บันทึกประวัติใช่หรือไม่`,
-                    confirmText: "เปิดเกม",
-                    cancelText: "ยกเลิก",
+                    message: `เลือกวิธีเปิดเกม ${getGameDisplayName(selectedGame)}`,
                     icon: "sports_esports",
+                    actions: [
+                        { value: "cancel", label: "ยกเลิก", variant: "outlined" },
+                        { value: "no-history", label: "เปิดเกมไม่เก็บประวัติ", variant: "outlined" },
+                        { value: "with-history", label: "เปิดเกมเก็บประวัติ", variant: "filled" },
+                    ],
                 });
 
-                if (!hasConfirmed) {
+                if (launchMode === "cancel" || !launchMode) {
                     return;
+                }
+
+                if (launchMode === "with-history") {
+                    const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+                    try {
+                        const startedAt = new Date().toISOString();
+                        const historyRecord = await db.addUserGameHistory({
+                            hn: patientCode,
+                            gid: selectedGid,
+                            stage: selectedGame?.stage ?? null,
+                            startAt: startedAt,
+                            userGameDataId: null,
+                        });
+
+                        if (!historyRecord?.id) {
+                            throw new Error("Missing user_game_history id");
+                        }
+
+                        setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
+                        persistSelectedGame(selectedGame);
+                        sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                        navigateTo(getGameRouteHash(selectedGame));
+                        return;
+                    } catch (error) {
+                        console.warn("Unable to write test launch history:", error);
+                        await showPopup({
+                            title: "บันทึกประวัติไม่สำเร็จ",
+                            message: "ระบบยังไม่สามารถบันทึกประวัติการเล่นเกมทดสอบลงฐานข้อมูลได้",
+                            confirmText: "รับทราบ",
+                            icon: "error",
+                            tone: "error",
+                        });
+                        return;
+                    }
                 }
 
                 persistSelectedGame(selectedGame);

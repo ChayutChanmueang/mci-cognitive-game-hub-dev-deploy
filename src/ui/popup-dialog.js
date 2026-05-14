@@ -20,6 +20,7 @@ export function showPopup(options = {}) {
         icon = "info",
         tone = "default",
         dismissible = true,
+        actions = null,
     } = options;
 
     return new Promise((resolve) => {
@@ -27,6 +28,38 @@ export function showPopup(options = {}) {
         const titleId = `popup-title-${Date.now()}`;
         const messageId = `popup-message-${Date.now()}`;
         const hasCancel = Boolean(String(cancelText || "").trim());
+        const customActions = Array.isArray(actions)
+            ? actions
+                .map((action) => ({
+                    value: action?.value,
+                    label: String(action?.label || "").trim(),
+                    variant: action?.variant === "filled" ? "filled" : "outlined",
+                }))
+                .filter((action) => action.label)
+            : [];
+        const actionMarkup = customActions.length
+            ? customActions.map((action, index) => {
+                const tagName = action.variant === "filled" ? "md-filled-button" : "md-outlined-button";
+                return `
+                    <${tagName} type="button" data-popup-action="custom" data-popup-action-index="${index}">
+                        ${escapeHtml(action.label)}
+                    </${tagName}>
+                `;
+            }).join("")
+            : `
+                ${
+                    hasCancel
+                        ? `
+                            <md-outlined-button type="button" data-popup-action="cancel">
+                                ${escapeHtml(cancelText)}
+                            </md-outlined-button>
+                        `
+                        : ""
+                }
+                <md-filled-button type="button" data-popup-action="confirm">
+                    ${escapeHtml(confirmText)}
+                </md-filled-button>
+            `;
 
         overlay.className = "app-popup";
         overlay.innerHTML = `
@@ -48,24 +81,14 @@ export function showPopup(options = {}) {
                     </div>
                 </div>
                 <div class="app-popup__actions">
-                    ${
-                        hasCancel
-                            ? `
-                                <md-outlined-button type="button" data-popup-action="cancel">
-                                    ${escapeHtml(cancelText)}
-                                </md-outlined-button>
-                            `
-                            : ""
-                    }
-                    <md-filled-button type="button" data-popup-action="confirm">
-                        ${escapeHtml(confirmText)}
-                    </md-filled-button>
+                    ${actionMarkup}
                 </div>
             </div>
         `;
 
         const confirmButton = overlay.querySelector('[data-popup-action="confirm"]');
         const cancelButton = overlay.querySelector('[data-popup-action="cancel"]');
+        const customActionButtons = overlay.querySelectorAll('[data-popup-action="custom"]');
         const backdrop = overlay.querySelector(".app-popup__backdrop");
         const previousOverflow = document.body.style.overflow;
 
@@ -97,6 +120,13 @@ resolve(result);
             cleanup(false);
         });
 
+        customActionButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const actionIndex = Number(button.getAttribute("data-popup-action-index"));
+                cleanup(customActions[actionIndex]?.value ?? null);
+            });
+        });
+
         backdrop?.addEventListener("click", () => {
             if (dismissible) {
                 cleanup(false);
@@ -107,7 +137,7 @@ resolve(result);
         document.body.appendChild(overlay);
         document.addEventListener("keydown", onKeyDown);
         requestAnimationFrame(() => {
-            confirmButton?.focus();
+            (customActionButtons[customActionButtons.length - 1] || confirmButton)?.focus();
         });
     });
 }
