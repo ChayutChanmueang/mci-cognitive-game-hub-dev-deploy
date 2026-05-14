@@ -962,6 +962,11 @@ body.hub-mode {
     max-height: min(360px, calc(100dvh - 80px));
 }
 
+.hub-clean-test-menu md-menu[data-test-program-menu] {
+    min-width: 300px;
+    max-height: min(360px, calc(100dvh - 80px));
+}
+
 .hub-clean-test-menu md-menu-item [slot="headline"],
 .hub-clean-test-menu md-menu-item [slot="supporting-text"] {
     white-space: nowrap;

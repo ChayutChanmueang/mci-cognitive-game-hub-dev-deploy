@@ -318,6 +318,7 @@ function createGameHubInitialState() {
     return {
         allGames: [],
         restGame: null,
+        programPresets: [],
         dailyProgram: null,
         programDays: [],
         historyRecords: [],
@@ -430,6 +431,22 @@ export async function renderGameHubScreen(root, options = {}) {
                 <div slot="supporting-text">${escapeHtml(game.gid || "")}</div>
             </md-menu-item>
         `).join("");
+        const activeProgramId = Number(state.dailyProgram?.programId || 0);
+        const programItems = state.programPresets.map((program) => {
+            const programId = Number(program?.id);
+            const isCurrent = activeProgramId > 0 && programId === activeProgramId;
+            const description = String(program?.description || "").trim();
+            const supportingText = isCurrent
+                ? "ใช้อยู่ตอนนี้"
+                : description || `Program ID ${programId}`;
+
+            return `
+                <md-menu-item data-program-preset-item data-program-id="${escapeHtml(programId)}" ${isCurrent ? "selected" : ""}>
+                    <div slot="headline">${escapeHtml(program?.name || `Program ${programId}`)}</div>
+                    <div slot="supporting-text">${escapeHtml(supportingText)}</div>
+                </md-menu-item>
+            `;
+        }).join("");
 
         root.innerHTML = `
             <section class="hub-clean-screen">
@@ -489,6 +506,16 @@ export async function renderGameHubScreen(root, options = {}) {
                                 </md-menu-item>
                                 <md-menu slot="menu" data-test-quick-game-menu positioning="popover">
                                     ${menuItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการเกม</div></md-menu-item>`}
+                                </md-menu>
+                            </md-sub-menu>
+                            <md-sub-menu anchor-corner="start-end" menu-corner="start-start">
+                                <md-menu-item slot="item">
+                                    <md-icon class="material-symbols-rounded" slot="start">assignment</md-icon>
+                                    <div slot="headline">เปลี่ยนโปรแกรมผู้ใช้</div>
+                                    <md-icon class="material-symbols-rounded" slot="end">arrow_right</md-icon>
+                                </md-menu-item>
+                                <md-menu slot="menu" data-test-program-menu positioning="popover">
+                                    ${programItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการโปรแกรม</div></md-menu-item>`}
                                 </md-menu>
                             </md-sub-menu>
                             <md-menu-item data-test-daily-data-tools>
@@ -639,10 +666,14 @@ export async function renderGameHubScreen(root, options = {}) {
         const testTrigger = root.querySelector("[data-test-menu-trigger]");
         const testMenu = root.querySelector("[data-test-menu]");
         const quickMenu = root.querySelector("[data-test-quick-game-menu]");
+        const programMenu = root.querySelector("[data-test-program-menu]");
 
         const closeTestMenus = () => {
             if (quickMenu) {
                 quickMenu.open = false;
+            }
+            if (programMenu) {
+                programMenu.open = false;
             }
             if (testMenu) {
                 testMenu.open = false;
@@ -670,6 +701,21 @@ export async function renderGameHubScreen(root, options = {}) {
                 if (selectedGame) {
                     await options.onTestQuickLaunchGame?.(selectedGame);
                 }
+                closeTestMenus();
+            });
+        });
+
+        const selectableProgramMap = new Map(state.programPresets.map((program) => [String(program?.id || "").trim(), program]));
+        root.querySelectorAll("[data-program-preset-item]").forEach((item) => {
+            on(item, "click", async () => {
+                const selectedProgramId = String(item.getAttribute("data-program-id") || "").trim();
+                const selectedProgram = selectableProgramMap.get(selectedProgramId);
+                if (!selectedProgram) {
+                    closeTestMenus();
+                    return;
+                }
+
+                await options.onTestChangeProgram?.(selectedProgram);
                 closeTestMenus();
             });
         });
@@ -758,9 +804,16 @@ export async function renderGameHubScreen(root, options = {}) {
         render();
 
         try {
-            const gameListItems = typeof options.loadGameList === "function" ? await options.loadGameList() : [];
+            const [
+                gameListItems,
+                programPresets,
+            ] = await Promise.all([
+                typeof options.loadGameList === "function" ? options.loadGameList() : [],
+                typeof options.loadProgramPresets === "function" ? options.loadProgramPresets() : [],
+            ]);
             state.allGames = buildAllGames(gameListItems);
             state.restGame = state.allGames.find((game) => game.gid === REST_GAME_GID) || null;
+            state.programPresets = Array.isArray(programPresets) ? programPresets : [];
 
             const dailyProgram = await loadProgramWindow({
                 windowBefore: 2,
