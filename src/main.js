@@ -1085,7 +1085,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        const { parsedName, loader } = resolveGameModuleLoader(selectedGame?.name);
+        const { parsedName, slug, loader } = resolveGameModuleLoader(selectedGame?.name);
 
         if (!parsedName) {
             await showPopup({
@@ -1154,7 +1154,8 @@ document.addEventListener("DOMContentLoaded", () => {
             uiRoot.hidden = false;
             const hud = new MinigameHUD(uiRoot, {
                 gameTitle: selectedGame?.name,
-                timeLimit: selectedGame?.time_limit || 60 // Fallback
+                timeLimit: selectedGame?.time_limit || 60, // Fallback
+                showTimer: slug !== "zoo-detective",
             });
             hud.render();
             let activeResultPanel = null;

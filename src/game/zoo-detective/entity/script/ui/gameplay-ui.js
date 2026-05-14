@@ -23,8 +23,7 @@ export default class GameplayUI extends Entity{
         const barWidth = scene.scale.width - (barX * 2);
         const barHeight = 188;
         const infoRight = barX + barWidth - 22;
-        const infoStartY = barY + 5;
-        const rowGap = 54;
+        const infoStartY = barY + 34;
         const hudFontFamily = `"Noto Color Emoji", ${getThaiFontFamily()}`;
 
         this.uiBackground = scene.add.graphics();
@@ -35,38 +34,27 @@ export default class GameplayUI extends Entity{
             .strokeRoundedRect(barX, barY, barWidth, barHeight, 38)
             .setDepth(this.uiDepth - 1);
 
-        this.levelText = createThaiText(
+        this.levelText = this.createTextBox(50, 50, "ด่าน 1/10", hudFontFamily);
+
+        this.timerText = this.createTextBox(scene.scale.width - 50, 50, "00 : 00", hudFontFamily);
+            createThaiText(
             scene,
-            infoRight,
+            scene.scale.width / 2,
             infoStartY,
             "",
             {
                 fontFamily: hudFontFamily,
-                fontSize: "28px",
-                fontStyle: "bold",
-                color: "#2e4962"
-            },
-            { origin: [1, 0] }
-        ).setDepth(this.uiDepth);
-
-        this.timerText = createThaiText(
-            scene,
-            infoRight,
-            infoStartY + rowGap,
-            "",
-            {
-                fontFamily: hudFontFamily,
-                fontSize: "40px",
+                fontSize: "34px",
                 fontStyle: "bold",
                 color: "#1f3a53"
             },
-            { origin: [1, 0] }
+            { origin: 0.5 }
         ).setDepth(this.uiDepth);
 
         this.currentScore = createThaiText(
             scene,
             infoRight,
-            infoStartY + (rowGap * 2),
+            infoStartY + 108,
             "",
             {
                 fontFamily: hudFontFamily,
@@ -83,18 +71,18 @@ export default class GameplayUI extends Entity{
         this.gameoverPanel = new GameOverPanel(scene);
         this.NextQuizPanel = new NextQuizPanel(scene);
 
-        this.returnBtn = scene.createButton(scene.scale.width / 2 - 325, 105, "◀️ RETURN", () => {
+        /*this.returnBtn = scene.createButton(scene.scale.width / 2 - 325, 105, "◀️ RETURN", () => {
             EventBus.emit("minigame:level-select-request", { source: "zoo-detective-gameplay" });
         });
 
-        this.returnBtn[0].setDepth(this.uiDepth);
+        this.returnBtn[0].setDepth(this.uiDepth);*/
 
         this.refreshLevelText();
-        this.setElapsedTime(0);
+        this.setTimeLeft(0);
         this.setScore(0);
     }
     refreshLevelText() {
-        this.levelText.setText(`${this.levelName} - ด่าน ${this.currentRound}/${this.maxRound}`);
+        this.levelText[2].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
     }
 
     setLevel(levelMap = "easy", levelNumber = 1, currentRound = 1, maxRound = 10) {
@@ -121,6 +109,11 @@ export default class GameplayUI extends Entity{
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
         this.timerText.setText(`⏱ ${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
+    }
+
+    setTimeLeft(timeLeftS = 0) {
+        const seconds = Math.max(0, Math.ceil(Number(timeLeftS) || 0));
+        this.timerText.setText(`${seconds}s`);
     }
 
     setGameOverHighscore(score){
@@ -151,5 +144,31 @@ export default class GameplayUI extends Entity{
         this.setScore(finalScore);
         this.gameoverPanel.setHighscore(StorageManager.get('EXEC001-highscore'));
         this.gameoverPanel.show();
+    }
+
+    createTextBox(x, y, label, hudFontFamily, scale = 1.5){
+        const container = this.scene.add.container(x, y);
+        const bg = this.scene.add.rectangle(0, 0, 200, 60, 0x00aa00, 1);
+        bg.setScale(scale);
+
+        const labelText = createThaiText(
+            this.scene,
+            0,
+            0,
+            "",
+            {
+                fontFamily: hudFontFamily,
+                fontSize: "28px",
+                fontStyle: "bold",
+                color: "#2e4962"
+            },
+            { origin: [1, 0.5] }
+        );
+        labelText.setDepth(this.uiDepth);
+
+        container.add(bg);
+        container.add(labelText);
+
+        return [container, bg, labelText];
     }
 }

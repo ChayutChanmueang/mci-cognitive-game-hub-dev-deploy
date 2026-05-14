@@ -24,6 +24,7 @@ export class MinigameHUD {
             timeLeft: options.timeLimit || 0,
             maxTime: options.timeLimit || 0,
             gameTitle: options.gameTitle || "เกมฝึกสมอง",
+            showTimer: options.showTimer !== false,
         };
 
         this.boundOnScore = this.onScoreUpdate.bind(this);
@@ -37,7 +38,7 @@ export class MinigameHUD {
     }
 
     render() {
-        const { gameTitle, score, level, timeLeft, maxTime } = this.state;
+        const { gameTitle, score, level, timeLeft, maxTime, showTimer } = this.state;
         const timePct = maxTime > 0 ? timeLeft / maxTime : 0;
 
         const container = document.createElement("div");
@@ -62,14 +63,16 @@ export class MinigameHUD {
                 </div>
             </div>
             
-            <div class="minigame-hud__timer-wrap">
-                <div class="minigame-hud__timer-label" id="hud-timer-text">${timeLeft}s</div>
-                <md-linear-progress 
-                    id="hud-timer-progress"
-                    class="minigame-hud__timer-bar" 
-                    value="${timePct}"
-                ></md-linear-progress>
-            </div>
+            ${showTimer ? `
+                <div class="minigame-hud__timer-wrap">
+                    <div class="minigame-hud__timer-label" id="hud-timer-text">${timeLeft}s</div>
+                    <md-linear-progress
+                        id="hud-timer-progress"
+                        class="minigame-hud__timer-bar"
+                        value="${timePct}"
+                    ></md-linear-progress>
+                </div>
+            ` : ""}
         `;
 
         this.element = container;

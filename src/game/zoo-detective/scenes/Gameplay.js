@@ -6,7 +6,6 @@ import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
 import { DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
 import {Config} from "../../zoo-detective/constants.js";
-import ProgressBar from "../../../util/layout/progress-bar.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
@@ -36,7 +35,6 @@ export default class GameplayScene extends Phaser.Scene {
         this.lockedAnimalIds = new Set();
         this.onPuzzleCompleted = null;
         this.onPlacementEvaluated = null;
-        this.progressBarRefs = [];
         this.puzzleTimer = new DateTimeTimer();
         this.timeLimitMs = Config.TimeLimitMs;
         this.isGameEnded = false;
@@ -56,7 +54,6 @@ export default class GameplayScene extends Phaser.Scene {
         this.puzzleData = null;
         this.round = 0;
         this.allScore = 0;
-        this.progressBarRefs = [];
         this.timeLimitMs = data.timeLimitMs ?? Config.TimeLimitMs;
         this.isGameEnded = false;
         this.onPlacementEvaluated = data.onPlacementEvaluated ?? null;
@@ -69,16 +66,15 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI = new GameplayUI(this, 0, 0);
         this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
         this.gameplayUI.setScore(this.allScore);
-        this.gameplayUI.setElapsedTime(0);
+        this.gameplayUI.setTimeLeft(Math.ceil(this.timeLimitMs / 1000));
 
         // Hide old Phaser UI elements
         this.gameplayUI.uiBackground.setVisible(false);
         this.gameplayUI.currentScore.setVisible(false);
-        this.gameplayUI.timerText.setVisible(false);
 
         // Initial state to HUD
         EventBus.emit('minigame:score', { score: this.allScore });
-        EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ 1/${Config.MaxRound[this.levelMap]}` });
+        EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
 
 
@@ -106,7 +102,7 @@ export default class GameplayScene extends Phaser.Scene {
             this.gameplayUI.setScore(this.allScore);
             EventBus.emit('minigame:score', { score: this.allScore });
             this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
-            EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ ${nextRoundDisplay}/${maxRound}` });
+            EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
 
 
 
@@ -114,8 +110,6 @@ export default class GameplayScene extends Phaser.Scene {
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
 
             if (this.round < maxRound) {
-                this.progressBarRefs[this.round].animateTo(1, 500)
-
                 this.time.delayedCall(500, () => {
                     if (this.isGameEnded) {
                         return;
@@ -146,30 +140,6 @@ export default class GameplayScene extends Phaser.Scene {
                 value: callback.isCorrect
             });
         };
-
-        let dotProgressBars = [];
-        for (let i = 0; i < Config.MaxRound[this.levelMap]; i++) {
-            const bar = new ProgressBar(this, 0, 0, {
-                width: 50,
-                height: 50
-            });
-
-            bar.setValue(0);
-
-            this.progressBarRefs.push(bar);
-            dotProgressBars.push(bar.getContainer());
-        }
-
-        Phaser.Actions.GridAlign(dotProgressBars, {
-            width: 10,
-            cellWidth: 60,
-            cellHeight: 5,
-            x: this.scale.width / 2 - 275,
-            y: 140,
-            position: Phaser.Display.Align.TOP_LEFT
-        });
-
-        this.progressBarRefs[this.round]?.animateTo(1, 500);
 
         this.loadNextPuzzle();
     }
@@ -207,9 +177,8 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
-        this.gameplayUI.setElapsedTime(elapsedMs);
-
         const timeLeftS = Math.ceil((this.timeLimitMs - elapsedMs) / 1000);
+        this.gameplayUI.setTimeLeft(Math.max(0, timeLeftS));
         EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS) });
 
         if (!this.isGameEnded && elapsedMs >= this.timeLimitMs) {
@@ -242,7 +211,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameEndedAt = new Date();
 
         const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
-        this.gameplayUI?.setElapsedTime(elapsedMs);
+        const timeLeftS = Math.ceil((this.timeLimitMs - elapsedMs) / 1000);
+        this.gameplayUI?.setTimeLeft(Math.max(0, timeLeftS));
         this.gameplayUI?.setScore(this.allScore);
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
         EventBus.emit('minigame:game-over', { 
