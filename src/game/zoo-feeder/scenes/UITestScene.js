@@ -252,11 +252,11 @@ export default class UITestScene extends Phaser.Scene {
 
       this.replayLogger.pushToDatabase();
 
-      this.gameplayUI.showGameOverPanel(this.score);
-      // EventBus.emit('minigame:game-over', { 
-      //     score: this.score,
-      //     level: this.level
-      // });
+      // this.gameplayUI.showGameOverPanel(this.score);
+      EventBus.emit('minigame:game-over', { 
+          score: this.score,
+          level: this.level
+      });
     });
   }
   restartGame() {

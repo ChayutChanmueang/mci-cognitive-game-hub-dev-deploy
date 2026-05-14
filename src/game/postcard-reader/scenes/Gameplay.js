@@ -329,13 +329,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
     this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
     this.replayLogger.pushToDatabase();
-    this.gameplayUI.showGameOverPanel(this.allScore);
+    // this.gameplayUI.showGameOverPanel(this.allScore);
 
     // Disable DOM-based gameover panel for now
-    // EventBus.emit('minigame:game-over', { 
-    //     score: this.allScore,
-    //     level: getDifficultyLevelNumber(this.level)
-    // });
+    EventBus.emit('minigame:game-over', { 
+        score: this.allScore,
+        level: getDifficultyLevelNumber(this.level)
+    });
   }
 
   shuffleArray(array) {

@@ -169,11 +169,11 @@ export default class GameplayScene extends Phaser.Scene {
     // so we track completedStages separately
     const completedStages = this.completedStages || 0;
 
-    this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
-    // EventBus.emit('minigame:game-over', { 
-    //   score: this.allScore, 
-    //   level: this.level
-    // });
+    // this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
+    EventBus.emit('minigame:game-over', { 
+      score: this.allScore, 
+      level: this.level
+    });
   }
 
   update() {
