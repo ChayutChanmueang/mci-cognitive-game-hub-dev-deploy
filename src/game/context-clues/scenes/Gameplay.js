@@ -8,7 +8,7 @@ import ProgressBar from "../../../util/layout/progress-bar.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
-import { ContextCluesReplayEvent } from "../../../core/replay-event.js";
+import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -101,23 +101,15 @@ export default class GameplayScene extends Phaser.Scene {
       }
 
       this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting);
-      this.quizGame.onAnswerCorrect = () => {
+      this.quizGame.onAnswerCorrect = (answer) => {
           this.round++;
           const maxRound = Config.MaxRound[this.levelMap];
           const nextRoundDisplay = Math.min(this.round + 1, maxRound);
 
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
-          this.replayLog.addEvent(ContextCluesReplayEvent.ROUND_COMPLETED, {
-              quizId: id,
-              round: this.round,
-              maxRound,
-              level: this.level,
-              levelMap: this.levelMap,
-              score: this.allScore,
-              quizScore: qData.score,
-              answers: [...qData.answers],
-              answerLogs: [...qData.answerLogs],
-              correctAnswers: [...answers],
+          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
+              answer: answer,
+              value: true
           });
           
           EventBus.emit('minigame:score', { score: this.allScore });
@@ -146,8 +138,13 @@ export default class GameplayScene extends Phaser.Scene {
               console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
           }
       }
-      this.quizGame.onAnswerIncorrect = () => {
+      this.quizGame.onAnswerIncorrect = (answer) => {
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
+
+          this.replayLog.addEvent(ContextCluesReplayEvent.ROUND_COMPLETED, {
+              answer: answer,
+              value: false
+          });
       }
       this.gameplayUI.setScore(this.allScore);
       this.quizGame.onCreateQuiz();

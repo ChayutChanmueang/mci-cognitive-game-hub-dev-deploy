@@ -9,6 +9,8 @@ import {Config} from "../../zoo-detective/constants.js";
 import ProgressBar from "../../../util/layout/progress-bar.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
+import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
+import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
 
 
 export default class GameplayScene extends Phaser.Scene {
@@ -58,6 +60,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.timeLimitMs = data.timeLimitMs ?? Config.TimeLimitMs;
         this.isGameEnded = false;
         this.onPlacementEvaluated = data.onPlacementEvaluated ?? null;
+        this.replayLog = new ReplayLogBuffer();
     }
 
     create(data) {
@@ -143,6 +146,15 @@ export default class GameplayScene extends Phaser.Scene {
             if (!callback.isCorrect) {
                 this.roundScore -= Config.DecreaseScore[this.levelMap];
             }
+
+            this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
+                cellIndex: cellIndex,
+                animal: animal,
+                previousCellIndex: previousCellIndex,
+                currentHintIndex: this.currentHintIndex,
+                currentHint: currentHint,
+                value: callback.isCorrect
+            });
         };
 
         let dotProgressBars = [];

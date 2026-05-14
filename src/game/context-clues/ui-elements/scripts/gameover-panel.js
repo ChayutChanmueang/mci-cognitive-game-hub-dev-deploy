@@ -33,6 +33,8 @@ export default class GameOverPanel extends UIPanel{
             }).catch((error) => {
                 console.error("Failed to save game data:", error);
             });
+
+            this.scene.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");});
         });
 
         this.addElements([this.titleText, this.scoreText, this.highscoreText,...this.homeBtn]);
