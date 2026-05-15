@@ -17,7 +17,7 @@ const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
 const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
 const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
-const DEFAULT_GAME_PROFILE_PROGRAM_ID = 2;
+const DEFAULT_GAME_PROFILE_PROGRAM_ID = 5;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
     START_PLAY_GAME: "SPG",
@@ -963,11 +963,19 @@ class Database {
         return true;
     }
 
-    async createUserGameProfile({ hn }) {
+    async createUserGameProfile({
+        hn,
+        defaultProgramId = DEFAULT_GAME_PROFILE_PROGRAM_ID,
+    }) {
         const parsedHn = String(hn || "").trim();
+        const parsedProgramId = Number(defaultProgramId);
 
         if (!parsedHn) {
             throw new Error("Invalid hn");
+        }
+
+        if (!Number.isInteger(parsedProgramId) || parsedProgramId <= 0) {
+            throw new Error("Invalid default game profile program");
         }
 
         await this.initAuth();
@@ -975,7 +983,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .insert([{ hn: parsedHn }])
+            .insert([{ hn: parsedHn, program: parsedProgramId }])
             .select("id, hn, program, created_at")
             .maybeSingle();
 
