@@ -50,45 +50,44 @@ function showExportOptionsPopup() {
                     <div class="app-popup__copy">
                         <h2 id="${titleId}">ส่งออกข้อมูล</h2>
                         <p id="${messageId}">เลือกข้อมูลที่ต้องการส่งออกเป็น CSV</p>
-                        <div class="player-info-export-popup__group" role="radiogroup" aria-label="ขอบเขตข้อมูล">
-                            <label class="player-info-export-popup__option">
-                                <input
-                                    type="radio"
-                                    name="player-export-scope"
-                                    data-export-scope="${CsvExportScope.Current}"
-                                    checked
-                                >
-                                <span>ข้อมูลของผู้เล่นคนนี้</span>
-                            </label>
-                            <label class="player-info-export-popup__option">
-                                <input
-                                    type="radio"
-                                    name="player-export-scope"
-                                    data-export-scope="${CsvExportScope.All}"
-                                >
-                                <span>ข้อมูลทั้งหมด</span>
+                        <div class="player-info-export-popup__group" aria-label="ขอบเขตข้อมูล">
+                            <label class="player-info-export-popup__option player-info-export-popup__scope">
+                                <span class="player-info-export-popup__scope-copy">
+                                    <span class="player-info-export-popup__scope-title">ส่งออกข้อมูล ผู้เล่นคนนี้/ทุกคน</span>
+                                    <span class="player-info-export-popup__scope-value" data-export-scope-value>
+                                        ข้อมูลของผู้เล่นคนนี้
+                                    </span>
+                                </span>
+                                <md-switch
+                                    aria-label="ส่งออกข้อมูลทั้งหมด"
+                                    data-export-scope-switch
+                                    icons
+                                ></md-switch>
                             </label>
                         </div>
                         <label class="player-info-export-popup__option">
-                            <input
-                                type="checkbox"
+                            <md-checkbox
+                                aria-label="ส่งออกข้อมูลผู้เล่น"
+                                touch-target="wrapper"
                                 data-export-option="${CsvExportType.Player}"
                                 checked
-                            >
+                            ></md-checkbox>
                             <span>ส่งออกข้อมูลผู้เล่น</span>
                         </label>
                         <label class="player-info-export-popup__option">
-                            <input
-                                type="checkbox"
+                            <md-checkbox
+                                aria-label="ส่งออกข้อมูลการเล่นเกม"
+                                touch-target="wrapper"
                                 data-export-option="${CsvExportType.Game}"
-                            >
+                            ></md-checkbox>
                             <span>ส่งออกข้อมูลการเล่นเกม</span>
                         </label>
                         <label class="player-info-export-popup__option">
-                            <input
-                                type="checkbox"
+                            <md-checkbox
+                                aria-label="ส่งออกประวัติการเล่นรายวัน"
+                                touch-target="wrapper"
                                 data-export-option="${CsvExportType.History}"
-                            >
+                            ></md-checkbox>
                             <span>ส่งออกประวัติการเล่นรายวัน</span>
                         </label>
                     </div>
@@ -106,13 +105,22 @@ function showExportOptionsPopup() {
             document.body.style.overflow = previousOverflow;
             resolve(result);
         };
+        const scopeSwitch = overlay.querySelector("[data-export-scope-switch]");
+        const scopeValue = overlay.querySelector("[data-export-scope-value]");
+        const updateScopeValue = () => {
+            if (!scopeValue) {
+                return;
+            }
+
+            scopeValue.textContent = scopeSwitch?.selected
+                ? "ข้อมูลของผู้เล่นทุกคน"
+                : "ข้อมูลของผู้เล่นคนนี้";
+        };
         const getSelection = () => ({
-            exportScope: String(
-                overlay.querySelector("[data-export-scope]:checked")?.getAttribute("data-export-scope")
-                    || CsvExportScope.Current,
-            ),
-            exportTypes: [...overlay.querySelectorAll("[data-export-option]:checked")]
-                .map((input) => String(input.getAttribute("data-export-option") || "").trim())
+            exportScope: scopeSwitch?.selected ? CsvExportScope.All : CsvExportScope.Current,
+            exportTypes: [...overlay.querySelectorAll("[data-export-option]")]
+                .filter((checkbox) => checkbox.checked)
+                .map((checkbox) => String(checkbox.getAttribute("data-export-option") || "").trim())
                 .filter(Boolean),
         });
         const onKeyDown = (event) => {
@@ -124,6 +132,8 @@ function showExportOptionsPopup() {
         overlay.querySelector("[data-popup-cancel]")?.addEventListener("click", () => cleanup(null));
         overlay.querySelector("[data-popup-confirm]")?.addEventListener("click", () => cleanup(getSelection()));
         overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(null));
+        scopeSwitch?.addEventListener("change", updateScopeValue);
+        updateScopeValue();
 
         document.body.style.overflow = "hidden";
         document.body.appendChild(overlay);
