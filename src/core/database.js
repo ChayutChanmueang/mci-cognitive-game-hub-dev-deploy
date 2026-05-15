@@ -494,11 +494,28 @@ class Database {
 
         console.warn("Unable to load game history CSV export rows from RPC, falling back to client query:", rpcError);
 
-        const [patients, histories] = await Promise.all([
+        const [patients, profiles, programRows, histories] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, hn",
+                "id, hn, started_program",
                 [{ column: "id", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_GAME_PROFILE_DATA_TABLE,
+                "id, hn, program, created_at",
+                [
+                    { column: "created_at", ascending: false },
+                    { column: "id", ascending: false },
+                ],
+            ),
+            this.getAllTableRows(
+                GAME_LEVEL_PRESET_DATA_TABLE,
+                "id, gpid, day",
+                [
+                    { column: "gpid", ascending: true },
+                    { column: "day", ascending: true },
+                    { column: "id", ascending: true },
+                ],
             ),
             this.getAllTableRows(
                 USER_GAME_HISTORY_TABLE,
@@ -509,7 +526,31 @@ class Database {
         const patientOrderByHn = new Map(
             patients.map((patient, index) => [String(patient?.hn || "").trim(), index]),
         );
-        const dailyMap = new Map();
+        const latestProfileByHn = new Map();
+        for (const profile of profiles) {
+            const profileHn = String(profile?.hn || "").trim();
+            if (profileHn && !latestProfileByHn.has(profileHn)) {
+                latestProfileByHn.set(profileHn, profile);
+            }
+        }
+
+        const programDaysById = new Map();
+        for (const programRow of programRows) {
+            const programId = Number(programRow?.gpid);
+            const programDay = Math.floor(Number(programRow?.day));
+
+            if (!Number.isFinite(programId) || !Number.isFinite(programDay) || programDay < 1) {
+                continue;
+            }
+
+            if (!programDaysById.has(programId)) {
+                programDaysById.set(programId, new Set());
+            }
+            programDaysById.get(programId).add(programDay);
+        }
+
+        const historyByHnDay = new Map();
+        const getHistoryKey = (historyHn, localDay) => `${historyHn}\u0000${localDay}`;
 
         for (const history of histories) {
             const historyHn = String(history?.hn || "").trim();
@@ -525,25 +566,24 @@ class Database {
                 continue;
             }
 
-            const key = `${historyHn}\u0000${localDay}`;
-            if (!dailyMap.has(key)) {
-                dailyMap.set(key, {
+            const key = getHistoryKey(historyHn, localDay);
+            if (!historyByHnDay.has(key)) {
+                historyByHnDay.set(key, {
                     user_hn: historyHn,
                     firstgame_at: "",
                     lastgame_at: "",
                     total_time: "",
                     "check-in": false,
                     last_stage: 0,
-                    _day: localDay,
-                    _patientOrder: patientOrderByHn.has(historyHn)
-                        ? patientOrderByHn.get(historyHn)
-                        : Number.POSITIVE_INFINITY,
+                    _historyCount: 0,
                 });
             }
 
-            const row = dailyMap.get(key);
+            const row = historyByHnDay.get(key);
             const startAt = this.parseDateMs(history?.start_at);
             const endAt = this.parseDateMs(history?.end_at || history?.start_at);
+
+            row._historyCount += 1;
 
             if (isCheckIn) {
                 row["check-in"] = true;
@@ -565,20 +605,53 @@ class Database {
             }
         }
 
-        return [...dailyMap.values()]
-            .filter((row) => row.firstgame_at || row["check-in"])
-            .map((row) => {
-                const firstMs = this.parseDateMs(row.firstgame_at);
-                const lastMs = this.parseDateMs(row.lastgame_at);
-                const totalTime = Number.isFinite(firstMs) && Number.isFinite(lastMs) && lastMs >= firstMs
-                    ? ((lastMs - firstMs) / 60000).toFixed(1)
-                    : "";
+        const rows = [];
+        for (const patient of patients) {
+            const patientHn = String(patient?.hn || "").trim();
+            if (!patientHn || (parsedHn && patientHn !== parsedHn)) {
+                continue;
+            }
 
-                return {
-                    ...row,
-                    total_time: totalTime,
-                };
-            })
+            const profile = latestProfileByHn.get(patientHn) || null;
+            const programId = Number(profile?.program);
+            const programDays = Number.isFinite(programId)
+                ? [...(programDaysById.get(programId) || [])].sort((a, b) => a - b)
+                : [];
+
+            if (!programDays.length) {
+                continue;
+            }
+
+            for (const programDay of programDays) {
+                const localDay = this.getBangkokProgramDateKey(patient?.started_program, programDay);
+                if (!localDay) {
+                    continue;
+                }
+
+                const historyRow = historyByHnDay.get(getHistoryKey(patientHn, localDay)) || null;
+                const firstgameAt = historyRow?.firstgame_at || "";
+                const lastgameAt = historyRow?.lastgame_at || "";
+                const firstMs = this.parseDateMs(firstgameAt);
+                const lastMs = this.parseDateMs(lastgameAt);
+
+                rows.push({
+                    user_hn: patientHn,
+                    firstgame_at: firstgameAt,
+                    lastgame_at: lastgameAt,
+                    total_time: Number.isFinite(firstMs) && Number.isFinite(lastMs) && lastMs >= firstMs
+                        ? ((lastMs - firstMs) / 60000).toFixed(1)
+                        : "",
+                    "check-in": historyRow?.["check-in"] === true,
+                    last_stage: historyRow?._historyCount > 0 ? historyRow.last_stage : null,
+                    _day: localDay,
+                    _patientOrder: patientOrderByHn.has(patientHn)
+                        ? patientOrderByHn.get(patientHn)
+                        : Number.POSITIVE_INFINITY,
+                });
+            }
+        }
+
+        return rows
             .sort((a, b) => (
                 this.compareCsvSortValue(a._patientOrder, b._patientOrder)
                 || String(a._day).localeCompare(String(b._day))
@@ -606,6 +679,26 @@ class Database {
             month: "2-digit",
             day: "2-digit",
         }).format(date);
+    }
+
+    getBangkokProgramDateKey(startedProgram, programDay) {
+        const startKey = this.getBangkokDateKey(startedProgram);
+        const [year, month, day] = startKey.split("-").map(Number);
+        const parsedProgramDay = Math.floor(Number(programDay));
+
+        if (
+            !Number.isFinite(year)
+            || !Number.isFinite(month)
+            || !Number.isFinite(day)
+            || !Number.isFinite(parsedProgramDay)
+            || parsedProgramDay < 1
+        ) {
+            return "";
+        }
+
+        const date = new Date(Date.UTC(year, month - 1, day));
+        date.setUTCDate(date.getUTCDate() + parsedProgramDay - 1);
+        return date.toISOString().slice(0, 10);
     }
 
     parseDateMs(value) {

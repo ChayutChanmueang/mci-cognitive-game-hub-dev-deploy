@@ -34,8 +34,8 @@ export default class GameplayUI extends Entity{
             .strokeRoundedRect(barX, barY, barWidth, barHeight, 38)
             .setDepth(this.uiDepth - 1);
 
-        this.levelText = this.createTextBox(50, 165, 300, 75, "ด่าน 1/10", ThaiTextPresets.hud);
-        this.timerText = this.createTextBox(scene.scale.width - 50, 165, 300, 75, this.formatSeconds(0), ThaiTextPresets.hud);
+        this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1/10", ThaiTextPresets.hud, this.uiDepth);
+        this.timerText = this.createTextBox(scene.scale.width - 230, 130, 250, 75, this.formatSeconds(0), ThaiTextPresets.hud, this.uiDepth);
 
         this.currentScore = createThaiText(
             scene,
@@ -68,7 +68,7 @@ export default class GameplayUI extends Entity{
         this.setScore(0);
     }
     refreshLevelText() {
-        this.levelText[2].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
+        this.levelText[0].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
     }
 
     setLevel(levelMap = "easy", levelNumber = 1, currentRound = 1, maxRound = 10) {
@@ -92,11 +92,11 @@ export default class GameplayUI extends Entity{
 
     setElapsedTime(elapsedMs = 0) {
         const totalSeconds = Math.max(0, Math.floor((Number(elapsedMs) || 0) / 1000));
-        this.timerText[2].setText(this.formatSeconds(totalSeconds));
+        this.timerText[0].setText(this.formatSeconds(totalSeconds));
     }
 
     setTimeLeft(timeLeftS = 0) {
-        this.timerText[2].setText(this.formatSeconds(timeLeftS));
+        this.timerText[0].setText(this.formatSeconds(timeLeftS));
     }
 
     formatSeconds(value = 0) {
@@ -136,29 +136,33 @@ export default class GameplayUI extends Entity{
         this.gameoverPanel.show();
     }
 
-    createTextBox(x, y, width, height, label, hudFontFamily, scale = 1.5){
-        const container = this.scene.add.container(x, y);
-        const bg = this.scene.add.rectangle(0, 0, width, height, 0x00aa00, 1);
+    createTextBox(x, y, width, height, label, hudFontFamily, depth = 0, scale = 1.5){
+        const stagePanel = this.scene.drawRoundedPanel(x, y, width, height, {
+            fillColor: 0x56AC2E,
+            strokeColor: 0xffffff,
+            strokeWidth: 4,
+            radius: 24,
+            origin: [0.5, 0.5],
+            depth: depth
+        });
+        stagePanel.setScale(scale);
 
         const labelText = createThaiText(
             this.scene,
-            0,
-            0,
+            x - (width / 2),
+            y,
             label,
             {
                 fontFamily: hudFontFamily,
-                fontSize: "28px",
+                fontSize: "48px",
                 fontStyle: "bold",
-                color: "#2e4962"
+                color: "#ffffff"
             },
-            { origin: [0.4, 0.5] }
+            { origin: [0, 0.5] }
         );
         labelText.setText(label);
-        labelText.setDepth(this.uiDepth);
+        labelText.setDepth(depth + 1);
 
-        container.add(bg);
-        container.add(labelText);
-
-        return [container, bg, labelText];
+        return [labelText, stagePanel];
     }
 }

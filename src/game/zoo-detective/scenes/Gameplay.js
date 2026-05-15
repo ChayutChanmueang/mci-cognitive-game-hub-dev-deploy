@@ -554,11 +554,10 @@ export default class GameplayScene extends Phaser.Scene {
     createHeader(layoutConfig, data) {
         const left = 52;
         const top = 255;
-        const chipWidth = 240;
         const chipHeight = 112;
-        const gap = 22;
-        const cardWidth = this.scale.width - left - 52 - chipWidth - gap;
-        const promptX = left + chipWidth + gap;
+        const right = 52;
+        const cardWidth = this.scale.width - left - right;
+        const promptX = left;
         const promptHints = this.getPromptHints(data);
         const promptStyle = {
             fontSize: "40px",
@@ -568,13 +567,6 @@ export default class GameplayScene extends Phaser.Scene {
         };
         const promptWrapWidth = cardWidth - 60;
         const hintViewerMinHeight = this.measureHintViewerHeight(promptHints, promptStyle, promptWrapWidth);
-
-        const stagePanel = this.drawRoundedPanel(left, top, chipWidth, chipHeight, {
-            fillColor: 0xffffff,
-            strokeColor: 0x1fd11a,
-            strokeWidth: 8,
-            radius: 24
-        });
 
         const hintViewerOptions = {
             width: cardWidth,
@@ -595,24 +587,6 @@ export default class GameplayScene extends Phaser.Scene {
         this.hintViewer = new HintLineViewer(this, promptX, top, promptHints, hintViewerOptions);
         this.hintViewer.setDepth(2);
 
-        const headerIcon = this.add.text(left + 26, top + (chipHeight / 2), "📝", {
-            fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
-            fontSize: "52px"
-        }).setOrigin(0, 0.5);
-
-        const stageText = createThaiText(
-            this,
-            left + 82,
-            top + (chipHeight / 2),
-            `${layoutConfig.stageLabel} ${layoutConfig.stageValue}`,
-            {
-                fontSize: "42px",
-                fontStyle: "bold",
-                color: "#3f5165"
-            },
-            { origin: [0, 0.5] }
-        );
-
         const promptText = createThaiText(
             this,
             this.scale.width / 2,
@@ -626,7 +600,7 @@ export default class GameplayScene extends Phaser.Scene {
             { origin: [0.5, 0.5] }
         );
 
-        this.headerElements = [stagePanel, headerIcon, stageText, promptText];
+        this.headerElements = [promptText];
 
         return {
             bottom: top + Math.max(chipHeight, this.hintViewer.height)
@@ -669,14 +643,23 @@ export default class GameplayScene extends Phaser.Scene {
         strokeColor,
         strokeAlpha = 1,
         strokeWidth = 4,
-        radius = 18
+        radius = 18,
+        origin = [0, 0],
+        depth = 0
     }) {
+        const [originX = 0, originY = 0] = origin;
         const panel = this.add.graphics();
+
+        panel.setPosition(x, y);
+        panel.setDepth(depth);
+
+        const drawX = -width * originX;
+        const drawY = -height * originY;
 
         panel.fillStyle(fillColor, fillAlpha);
         panel.lineStyle(strokeWidth, strokeColor, strokeAlpha);
-        panel.fillRoundedRect(x, y, width, height, radius);
-        panel.strokeRoundedRect(x, y, width, height, radius);
+        panel.fillRoundedRect(drawX, drawY, width, height, radius);
+        panel.strokeRoundedRect(drawX, drawY, width, height, radius);
 
         return panel;
     }
