@@ -252,6 +252,24 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.frameGraphics = this.createFrame(sceneWidth, sceneHeight);
         const headerMetrics = this.createHeader(layoutConfig, this.sceneData);
+        const answerItemsPerRow = this.sceneData.maxAnimalsPerRow ?? 5;
+        const answerItemGap = 22;
+        const answerTrayPadding = { top: 40, right: 36, bottom: 32, left: 36 };
+        const answerTrayWidth = sceneWidth - 96;
+        const answerItemSize = Math.max(
+            156,
+            Math.min(
+                196,
+                Math.floor(
+                    (
+                        answerTrayWidth
+                        - answerTrayPadding.left
+                        - answerTrayPadding.right
+                        - ((answerItemsPerRow - 1) * answerItemGap)
+                    ) / answerItemsPerRow
+                )
+            )
+        );
 
         this.animalTray = new AnimalIconTray(this, 48, 0,
             (data) => {
@@ -269,13 +287,17 @@ export default class GameplayScene extends Phaser.Scene {
                 }
             },
             {
-                width: sceneWidth - 96,
-                maxItemsPerRow: this.sceneData.maxAnimalsPerRow ?? 6,
-                itemWidth: 132,
-                itemHeight: 132,
-                itemGap: 18,
-                rowGap: 20,
-                padding: { top: 40, right: 36, bottom: 32, left: 36 },
+                width: answerTrayWidth,
+                maxItemsPerRow: answerItemsPerRow,
+                itemWidth: answerItemSize,
+                itemHeight: answerItemSize,
+                itemGap: answerItemGap,
+                rowGap: 24,
+                padding: answerTrayPadding,
+                itemTextStyle: {
+                    fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
+                    fontSize: `${Math.floor(answerItemSize * 0.72)}px`
+                },
                 trayRadius: 42,
                 footerReservedHeight: this.sceneData.answerButtonHeight ?? 0,
                 footerOffset: this.sceneData.answerButtonOffset ?? 12,
@@ -382,7 +404,7 @@ export default class GameplayScene extends Phaser.Scene {
     renderAnimalInCell(cell, animal) {
         const emojiText = this.add.text(0, 0, animal.icon ?? animal.label ?? "?", {
             fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
-            fontSize: `${Math.floor(cell.size * 0.45)}px`
+            fontSize: `${Math.floor(cell.size * 0.58)}px`
         }).setOrigin(0.5);
 
         this.gridBoard.clearCell(cell.index, true);
@@ -560,7 +582,7 @@ export default class GameplayScene extends Phaser.Scene {
         const promptX = left;
         const promptHints = this.getPromptHints(data);
         const promptStyle = {
-            fontSize: "40px",
+            fontSize: "52px",
             fontStyle: "bold",
             color: "#7d7790",
             align: "left"
@@ -593,7 +615,7 @@ export default class GameplayScene extends Phaser.Scene {
             top + chipHeight + 80,
             `${GameplayConfig.defaultPromptFallback}`,
             {
-                fontSize: "42px",
+                fontSize: "55px",
                 fontStyle: "bold",
                 color: "#3f5165"
             },

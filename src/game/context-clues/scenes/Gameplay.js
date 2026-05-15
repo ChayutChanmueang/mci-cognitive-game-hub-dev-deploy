@@ -9,6 +9,7 @@ import QuizGameData from "../data/scripts/quiz-game-data.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
+import game_db from "/src/util/minigame-db-util.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -134,6 +135,15 @@ export default class GameplayScene extends Phaser.Scene {
                   level: this.level
               });
 
+              //Save game data to database
+              game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+                  console.log("Game data saved to database.");
+              }).catch((error) => {
+                  console.error("Failed to save game data:", error);
+              });
+
+              this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");});
+
               //Write debug here!
               console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
           }
@@ -141,7 +151,7 @@ export default class GameplayScene extends Phaser.Scene {
       this.quizGame.onAnswerIncorrect = (answer) => {
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
 
-          this.replayLog.addEvent(ContextCluesReplayEvent.ROUND_COMPLETED, {
+          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
               answer: answer,
               value: false
           });
