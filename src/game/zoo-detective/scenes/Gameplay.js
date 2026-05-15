@@ -77,8 +77,6 @@ export default class GameplayScene extends Phaser.Scene {
         EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
 
-
-
         this.gameStartedAt = new Date();
         this.gameEndedAt = new Date();
 
@@ -103,8 +101,6 @@ export default class GameplayScene extends Phaser.Scene {
             EventBus.emit('minigame:score', { score: this.allScore });
             this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
             EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
-
-
 
             console.log(`allScore : ${this.allScore}`);
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);

@@ -5,13 +5,13 @@ import DraggableComponent from "../components/scripts/draggable";
 import SocketComponent from "../components/scripts/socket";
 import EntityGrid from "../entity/entityGrid";
 import NonDraggableComponent from "../components/scripts/non-draggable";
-import { Difficulty, GameLevels, Config } from "../constants";
+import {Difficulty, GameLevels, Config, DifficultyLevelNumber} from "../constants";
 import SolutionSocketComponent from "../components/scripts/solutionSocket";
 import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
 
 import LevelGenerator from "../components/scripts/level-generator";
-
+import game_db from "/src/util/minigame-db-util.js";
 import EmojiRenderer from "../components/scripts/emoji-renderer";
 import SpriteRenderer from "../components/scripts/sprite-renderer";
 import DebugMenu from "./DebugMenu";
@@ -162,6 +162,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
     this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
     this.replayLogger.pushToDatabase();
+
+    //Save game data to database
+    game_db.pushGameData(this.allScore, DifficultyLevelNumber[this.level], this.gameStartedAt, this.gameEndedAt).then(() => {
+      console.log("Game data saved to database.");
+    }).catch((error) => {
+      console.error("Failed to save game data:", error);
+    });
 
     const finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
     // stages completed = current stage - 1 (since stage increments at round start)

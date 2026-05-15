@@ -10,6 +10,7 @@ import DebugMenu from "./DebugMenu";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 import { ReplayEvent } from "../../../core/replay-event.js";
 import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
+import game_db from "/src/util/minigame-db-util.js";
 
 const GAME_ID = "MEM001";
 
@@ -327,6 +328,14 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     this.gameEndedAt = new Date();
+
+    //Save game data to database
+    game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+      console.log("Game data saved to database.");
+    }).catch((error) => {
+      console.error("Failed to save game data:", error);
+    });
+
     this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
     this.replayLogger.pushToDatabase();
     // this.gameplayUI.showGameOverPanel(this.allScore);

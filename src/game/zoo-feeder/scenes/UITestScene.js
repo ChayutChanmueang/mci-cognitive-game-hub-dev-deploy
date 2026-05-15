@@ -7,7 +7,7 @@ import { EventBus } from "../../../core/EventBus.js";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import { ReplayEvent } from "../../../core/replay-event.js";
-
+import game_db from "/src/util/minigame-db-util.js";
 
 const GAME_ID = "ATTN001";
 
@@ -248,6 +248,14 @@ export default class UITestScene extends Phaser.Scene {
       }
 
       this.gameEndedAt = new Date();
+
+      //Save game data to database
+      game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+        console.log("Game data saved to database.");
+      }).catch((error) => {
+        console.error("Failed to save game data:", error);
+      });
+
       this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED,this.gameEndedAt);
 
       this.replayLogger.pushToDatabase();
