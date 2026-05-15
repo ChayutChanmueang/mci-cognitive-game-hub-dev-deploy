@@ -21,11 +21,12 @@ export const Config = Object.freeze({
 })
 
 export const QuizUI_Setting = Object.freeze({
-    scaleSlot: {x:150, y:75},
-    quizTextSize: 48.0,
-    labelFontSize: 48.0,
-    slotFontSize: 48.0,
-    quizBoxSize: {width: 800, height:450},
+    scaleSlot: {x:300, y:120},
+    quizTextSize: 76.0,
+    labelFontSize: 72.0,
+    slotFontSize: 76.0,
+    slotWidth: 300,
+    quizBoxSize: {width: 930, height:360},
 });
 
 export const LevelMap = Object.freeze({
