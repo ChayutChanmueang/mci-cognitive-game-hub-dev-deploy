@@ -484,7 +484,7 @@ export async function renderGameHubScreen(root, options = {}) {
                                 ` : ""}
                             </div>
                         </div>
-                        <md-fab class="hub-clean-fab" aria-label="เลื่อนกลับวันที่ปัจจุบัน" data-scroll-top>
+                        <md-fab class="hub-clean-fab" aria-label="เลื่อนไปยังจุดปัจจุบัน" data-scroll-top>
                             <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                         </md-fab>
                     </section>
@@ -646,19 +646,43 @@ export async function renderGameHubScreen(root, options = {}) {
 
             return Math.max(96, Math.round(scrollArea.clientHeight * 0.3));
         };
-        const getCurrentDayScrollTop = () => {
+        const getCurrentNodeScrollTarget = () => {
+            const activeSection = root.querySelector(`[data-program-day="${activeDay}"]`);
+
+            if (!activeSection) {
+                return null;
+            }
+
+            const currentNode = activeSection.querySelector(".hub-clean-level.is-current");
+            if (currentNode) {
+                return currentNode;
+            }
+
+            const completedNodes = Array.from(activeSection.querySelectorAll(".hub-clean-level.is-done"));
+            return completedNodes.at(-1)
+                || activeSection.querySelector(".hub-clean-level")
+                || activeSection;
+        };
+        const getCurrentNodeScrollTop = () => {
             if (!scrollArea) {
                 return 0;
             }
 
-            const activeSection = root.querySelector(`[data-program-day="${activeDay}"]`);
-            return activeSection
-                ? Math.max(0, activeSection.offsetTop - scrollArea.offsetTop - getCurrentDayScrollOffset())
+            const targetNode = getCurrentNodeScrollTarget();
+            if (!targetNode) {
+                return 0;
+            }
+
+            const scrollAreaRect = scrollArea.getBoundingClientRect();
+            const targetRect = targetNode.getBoundingClientRect();
+
+            return targetRect
+                ? Math.max(0, scrollArea.scrollTop + targetRect.top - scrollAreaRect.top - getCurrentDayScrollOffset())
                 : 0;
         };
         const updateFab = () => {
             const value = scrollArea?.scrollTop || 0;
-            const targetTop = getCurrentDayScrollTop();
+            const targetTop = getCurrentNodeScrollTop();
             const deltaFromCurrentDay = value - targetTop;
             const scrollTolerance = getCurrentDayScrollTolerance();
             const isAwayFromCurrentDay = Math.abs(deltaFromCurrentDay) > scrollTolerance;
@@ -668,7 +692,7 @@ export async function renderGameHubScreen(root, options = {}) {
             scrollTop?.classList.toggle("is-visible", isAwayFromCurrentDay);
             scrollTop?.setAttribute(
                 "aria-label",
-                shouldScrollDown ? "เลื่อนลงไปวันที่ปัจจุบัน" : "เลื่อนขึ้นไปวันที่ปัจจุบัน",
+                shouldScrollDown ? "เลื่อนลงไปยังจุดปัจจุบัน" : "เลื่อนขึ้นไปยังจุดปัจจุบัน",
             );
             scrollTop?.setAttribute("data-scroll-direction", shouldScrollDown ? "down" : "up");
 
@@ -678,14 +702,14 @@ export async function renderGameHubScreen(root, options = {}) {
         };
 
         on(scrollArea, "scroll", updateFab, { passive: true });
-        on(scrollTop, "click", () => scrollArea?.scrollTo({ top: getCurrentDayScrollTop(), behavior: "smooth" }));
+        on(scrollTop, "click", () => scrollArea?.scrollTo({ top: getCurrentNodeScrollTop(), behavior: "smooth" }));
         requestAnimationFrame(() => {
             if (!scrollArea) {
                 return;
             }
-            const activeSection = root.querySelector(`[data-program-day="${activeDay}"]`);
-            scrollArea.scrollTop = activeSection
-                ? getCurrentDayScrollTop()
+            const currentNodeTarget = getCurrentNodeScrollTarget();
+            scrollArea.scrollTop = currentNodeTarget
+                ? getCurrentNodeScrollTop()
                 : Math.max(0, Number(state.scrollTop) || 0);
             updateFab();
         });
