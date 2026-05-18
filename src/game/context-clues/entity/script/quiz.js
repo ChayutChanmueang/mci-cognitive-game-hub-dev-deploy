@@ -12,7 +12,9 @@ export default class Quiz extends Entity{
         labelFontSize: 36.0,
         slotFontSize: 36.0,
         slotWidth: 240,
-        quizBoxSize: {width: 700, height:450},
+    }, quizBoxSize = {
+        width: 700,
+        height:650
     }){
         super(scene,x,y,null);
 
@@ -28,8 +30,8 @@ export default class Quiz extends Entity{
         this.labelFontSize = setting.labelFontSize;
         this.quizTextSize = setting.quizTextSize;
         this.slotWidth = setting.slotWidth ?? setting.scaleSlot.x;
-        this.boxWidth = setting.quizBoxSize.width;
-        this.boxHeight = setting.quizBoxSize.height;
+        this.boxWidth = quizBoxSize.width;
+        this.boxHeight = quizBoxSize.height;
         this.ownedContainer = scene.add.container(x, y);
         this.ownedContainer.setDepth(20);
         this.dragDrop = new DragDropManager(scene);

@@ -45,6 +45,7 @@ export default class GameplayScene extends Phaser.Scene {
 
   create(data = {}) {
     this.createSceneBackdrop();
+    this.quizBoxSize = this.resolveQuizBoxSize();
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.replayLog = new ReplayLogBuffer();
     this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
@@ -93,6 +94,16 @@ export default class GameplayScene extends Phaser.Scene {
       });
   }
 
+  resolveQuizBoxSize() {
+      const levelBoxSize = QuizUI_Setting.quizBoxSize?.[this.levelMap];
+      const boxSize = Array.isArray(levelBoxSize) ? levelBoxSize[0] : levelBoxSize;
+
+      return {
+          width: boxSize?.width ?? 700,
+          height: boxSize?.height ?? 650,
+      };
+  }
+
   getNewQuiz(){
       const quizData = this.randomQuiz.getQuiz();
 
@@ -111,7 +122,7 @@ export default class GameplayScene extends Phaser.Scene {
           this.quizGame.destroy();
       }
 
-      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting[this.levelMap]);
+      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting.setting, this.quizBoxSize);
       this.quizGame.onAnswerCorrect = (answer) => {
           if (this.isGameEnded) {
               return;
