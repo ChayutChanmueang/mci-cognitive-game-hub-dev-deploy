@@ -3,6 +3,7 @@ export const TutorialText = Object.freeze({
 })
 
 export const Config = Object.freeze({
+    TimeLimitSeconds: 180,
     IncreaseScore: {
         easy: 20,
         medium: 20,
@@ -26,7 +27,18 @@ export const QuizUI_Setting = Object.freeze({
     labelFontSize: 72.0,
     slotFontSize: 76.0,
     slotWidth: 300,
-    quizBoxSize: {width: 930, height:360},
+    // White question panel size. Increase height here if the text area should be taller.
+    quizBoxSize: {
+        easy: [
+            {width: 1280, height:800}
+        ],
+        medium: [
+            {width: 1280, height:800}
+        ],
+        hard: [
+            {width: 1280, height:800}
+        ]
+    }
 });
 
 export const LevelMap = Object.freeze({

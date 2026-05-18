@@ -7,6 +7,7 @@ import {
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
+import SessionStorageManager from "../core/session-storage-manager.js";
 
 const REST_GAME_GID = "REST001";
 
@@ -48,10 +49,10 @@ function getPatientLabel(fallback = "") {
         return getPatientSessionLabel(rememberedSession);
     }
 
-    const draft = sessionStorage.getItem("patient_signup_draft");
+    const draft = SessionStorageManager.get("patient_signup_draft");
     if (draft) {
         try {
-            const parsed = JSON.parse(draft);
+            const parsed = typeof draft === "string" ? JSON.parse(draft) : draft;
             const name = `${parsed?.firstname || ""} ${parsed?.lastname || ""}`.trim();
             if (name) {
                 return name;
@@ -61,7 +62,7 @@ function getPatientLabel(fallback = "") {
         }
     }
 
-    return fallback || sessionStorage.getItem("patient_login_id") || "ผู้เล่น";
+    return fallback || SessionStorageManager.get("patient_login_id", "") || "ผู้เล่น";
 }
 
 function getCategoryLabel(categoryId) {

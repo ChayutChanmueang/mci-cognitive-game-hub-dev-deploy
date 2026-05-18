@@ -11,6 +11,7 @@ import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import {ZooDetectiveReplayEvent} from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -49,7 +50,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     init(data) {
         this.sceneData = { ...data };
-        this.level = data.level ?? 1;
+        this.level = data.level ?? Number(SessionStorageManager.get("selected_game_level"));
         this.levelMap = LevelMap[this.level] ?? "easy";
         this.puzzleData = null;
         this.round = 0;

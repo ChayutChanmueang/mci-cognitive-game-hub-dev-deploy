@@ -119,6 +119,12 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
 
     container.add(objects);
     applyContainerOrigin(container, objects, origin);
+    fitContainerToLayoutBounds(container, {
+        maxWidth,
+        maxHeight: options.maxLayoutHeight,
+        minScale: options.minScale,
+        enabled: options.fitToBounds,
+    });
 
     return {container, slot, slotLabel};
 }
@@ -280,4 +286,31 @@ function applyContainerOrigin(container, objects, origin) {
         object.x += offsetX;
         object.y += offsetY;
     }
+}
+
+function fitContainerToLayoutBounds(container, {
+    maxWidth,
+    maxHeight,
+    minScale = 0.1,
+    enabled = false,
+} = {}) {
+    if (!enabled) {
+        return;
+    }
+
+    const parsedMaxWidth = Number(maxWidth);
+    const parsedMaxHeight = Number(maxHeight);
+    const bounds = container.getBounds();
+    const widthScale = Number.isFinite(parsedMaxWidth) && parsedMaxWidth > 0 && bounds.width > 0
+        ? parsedMaxWidth / bounds.width
+        : 1;
+    const heightScale = Number.isFinite(parsedMaxHeight) && parsedMaxHeight > 0 && bounds.height > 0
+        ? parsedMaxHeight / bounds.height
+        : 1;
+    const parsedMinScale = Number.isFinite(Number(minScale))
+        ? Math.min(1, Math.max(0.1, Number(minScale)))
+        : 0.1;
+    const nextScale = Math.max(parsedMinScale, Math.min(1, widthScale, heightScale));
+
+    container.setScale(nextScale);
 }

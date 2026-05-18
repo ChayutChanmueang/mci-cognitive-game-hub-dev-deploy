@@ -9,6 +9,7 @@ import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -18,6 +19,9 @@ export default class GameplayScene extends Phaser.Scene {
     this.round = 0;
     this.allScore = 0;
     this.timeLeftSeconds = 180;
+    this.timeLimitSeconds = 180;
+    this.countdownTimer = null;
+    this.isGameEnded = false;
   }
 
   preload() {
@@ -26,34 +30,67 @@ export default class GameplayScene extends Phaser.Scene {
     this.load.image('context-clues-bg','assets/bg.png')
   }
 
-  init(data) {
-    this.level = data.level;
+  init(data = {}) {
+    this.level = data.level ?? Number(SessionStorageManager.get("selected_game_level"));
     this.levelMap = LevelMap[this.level];
     this.randomQuiz = new RandomQuiz(this.levelMap);
     this.allScore = 0;
     this.round = 0;
     this.quizData = [];
-    this.timeLeftSeconds = 180;
+    this.timeLimitSeconds = data.timeLimitSeconds ?? Config.TimeLimitSeconds;
+    this.timeLeftSeconds = this.timeLimitSeconds;
+    this.countdownTimer = null;
+    this.isGameEnded = false;
   }
 
-  create(data) {
+  create(data = {}) {
     this.createSceneBackdrop();
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.replayLog = new ReplayLogBuffer();
     this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
-    this.gameplayUI.setTimeLeft(this.timeLeftSeconds);
+    this.syncTimerUI();
 
     // Initial state to HUD
     EventBus.emit('minigame:score', { score: this.allScore });
     EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
-    EventBus.emit('minigame:tick', { timeLeft: this.timeLeftSeconds });
 
     // Create First Quiz
     this.getNewQuiz();
     this.gameStartedAt = new Date();
     this.gameEndedAt = new Date();
+    this.startCountdownTimer();
 
     this.gameplayUI.setDepth(100);
+  }
+
+  startCountdownTimer() {
+      this.countdownTimer?.remove(false);
+      this.countdownTimer = this.time.addEvent({
+          delay: 1000,
+          loop: true,
+          callback: () => {
+              if (this.isGameEnded) {
+                  return;
+              }
+
+              this.timeLeftSeconds = Math.max(0, this.timeLeftSeconds - 1);
+              this.syncTimerUI();
+
+              if (this.timeLeftSeconds <= 0) {
+                  this.endGame("failure");
+              }
+          }
+      });
+  }
+
+  syncTimerUI() {
+      const timeLeft = Math.max(0, Math.ceil(this.timeLeftSeconds));
+
+      this.gameplayUI?.setTimeLeft(timeLeft);
+      EventBus.emit('minigame:tick', {
+          timeLeft,
+          maxTime: this.timeLimitSeconds,
+      });
   }
 
   getNewQuiz(){
@@ -74,8 +111,12 @@ export default class GameplayScene extends Phaser.Scene {
           this.quizGame.destroy();
       }
 
-      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting);
+      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting[this.levelMap]);
       this.quizGame.onAnswerCorrect = (answer) => {
+          if (this.isGameEnded) {
+              return;
+          }
+
           this.round++;
           const maxRound = Config.MaxRound[this.levelMap];
           const nextRoundDisplay = Math.min(this.round + 1, maxRound);
@@ -94,34 +135,28 @@ export default class GameplayScene extends Phaser.Scene {
               console.log(`All Score: (${this.allScore})`);
 
               this.time.delayedCall(500, () => {
+                  if (this.isGameEnded) {
+                      return;
+                  }
+
                   this.gameplayUI.showNextQuizPanel(() => {
+                      if (this.isGameEnded) {
+                          return;
+                      }
+
                       // Create New Quiz
                       this.getNewQuiz();
                   })
               });
           }else{
-              this.gameEndedAt = new Date();
-              this.gameplayUI.setScore(this.allScore);
-              this.gameplayUI.showGameOverPanel(this.allScore);
-              EventBus.emit('minigame:game-over', { 
-                  score: this.allScore,
-                  level: this.level
-              });
-
-              //Save game data to database
-              game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
-                  console.log("Game data saved to database.");
-              }).catch((error) => {
-                  console.error("Failed to save game data:", error);
-              });
-
-              this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");});
-
-              //Write debug here!
-              console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
+              this.endGame("success");
           }
       }
       this.quizGame.onAnswerIncorrect = (answer) => {
+          if (this.isGameEnded) {
+              return;
+          }
+
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
 
           this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
@@ -134,6 +169,41 @@ export default class GameplayScene extends Phaser.Scene {
 
       return this.quizGame;
   }
+
+    endGame(resultStatus = "success") {
+        if (this.isGameEnded) {
+            return;
+        }
+
+        this.isGameEnded = true;
+        this.countdownTimer?.remove(false);
+        this.countdownTimer = null;
+        this.gameEndedAt = new Date();
+        this.syncTimerUI();
+        this.gameplayUI.setScore(this.allScore);
+        this.gameplayUI.showGameOverPanel(this.allScore, resultStatus);
+        EventBus.emit('minigame:game-over', {
+            score: this.allScore,
+            level: this.level,
+            resultStatus
+        });
+
+        //Save game data to database
+        game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+            console.log("Game data saved to database.");
+        }).catch((error) => {
+            console.error("Failed to save game data:", error);
+        });
+
+        this.replayLog.pushToDatabase().then(r => {
+            console.log("Push data to database.");
+        }).catch((error) => {
+            console.error("Failed to push replay data:", error);
+        });
+
+        //Write debug here!
+        console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
+    }
 
     createSceneBackdrop() {
         const { width, height } = this.scale;

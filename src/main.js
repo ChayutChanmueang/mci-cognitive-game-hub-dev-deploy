@@ -44,6 +44,7 @@ import { EventBus } from "./core/EventBus.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
 import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
+import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
 
 
@@ -282,28 +283,28 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const persistSelectedGame = (selectedGame) => {
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
-        sessionStorage.setItem(
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
+        SessionStorageManager.save(
             SELECTED_GAME_STORAGE.thName,
             String(selectedGame?.th_name || selectedGame?.thName || selectedGame?.displayName || "").trim(),
         );
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
     };
 
     const getPersistedSelectedGame = () => {
-        const gid = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.gid) || "").trim();
-        const name = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.name) || "").trim();
-        const thName = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.thName) || "").trim();
-        const mciGroup = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.group) || "").trim();
-        const stage = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.stage) || "").trim();
-        const level = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.level) || "").trim();
-        const day = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.day) || "").trim();
-        const presetDataId = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.presetDataId) || "").trim();
+        const gid = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.gid, "") || "").trim();
+        const name = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.name, "") || "").trim();
+        const thName = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.thName, "") || "").trim();
+        const mciGroup = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.group, "") || "").trim();
+        const stage = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.stage, "") || "").trim();
+        const level = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.level, "") || "").trim();
+        const day = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.day, "") || "").trim();
+        const presetDataId = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.presetDataId, "") || "").trim();
 
         if (!gid || !name) {
             return null;
@@ -335,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const readPendingGameHistoryMap = () => {
         try {
-            const parsed = JSON.parse(sessionStorage.getItem(PENDING_GAME_HISTORY_STORAGE.map) || "{}");
+            const parsed = SessionStorageManager.get(PENDING_GAME_HISTORY_STORAGE.map, {});
             return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
         } catch (error) {
             console.warn("Unable to parse pending game history map:", error);
@@ -349,11 +350,11 @@ document.addEventListener("DOMContentLoaded", () => {
             : {};
 
         if (Object.keys(normalizedMap).length === 0) {
-            sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.map);
+            SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.map);
             return;
         }
 
-        sessionStorage.setItem(PENDING_GAME_HISTORY_STORAGE.map, JSON.stringify(normalizedMap));
+        SessionStorageManager.save(PENDING_GAME_HISTORY_STORAGE.map, normalizedMap);
     };
 
     const setPendingGameHistoryByKey = (nodeKey, selectedGame, historyRecord, fallbackStartAt = "") => {
@@ -389,24 +390,24 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const clearSelectedGameState = () => {
-        sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.map);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyId);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.gid);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.name);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.thName);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.group);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.stage);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.level);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.day);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.presetDataId);
+        SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.map);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyId);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.gid);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.name);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.thName);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.group);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.stage);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.level);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.day);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.presetDataId);
     };
 
     const clearPatientClientState = () => {
         clearPatientSessionCookie();
-        sessionStorage.removeItem(PATIENT_LOGIN_ID_KEY);
-        sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+        SessionStorageManager.delete(PATIENT_LOGIN_ID_KEY);
+        SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
         clearSelectedGameState();
         Object.assign(hubUiState, createGameHubState());
     };
@@ -458,7 +459,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showUiRoot();
 
         const rememberedPatient = getPatientSessionCookie();
-        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         await renderGameHubScreen(uiRoot, {
@@ -539,7 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
-                sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                 navigateTo(getGameRouteHash(selectedGame));
             },
             // Test-only shortcut: opens a selected game without creating normal history.
@@ -582,7 +583,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
                         persistSelectedGame(selectedGame);
-                        sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                        SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                         navigateTo(getGameRouteHash(selectedGame));
                         return;
                     } catch (error) {
@@ -599,7 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
                 navigateTo(getGameRouteHash(selectedGame));
             },
@@ -722,7 +723,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
 
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 writePendingGameHistoryMap({});
 
                 await showPopup({
@@ -765,7 +766,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 persistSelectedGame(restGame);
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
                 navigateTo(getGameRouteHash(restGame));
                 return { redirected: true };
@@ -1014,7 +1015,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showUiRoot();
 
         const rememberedPatient = getPatientSessionCookie();
-        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
 
         if (!patientCode) {
             navigateTo(ROUTES.login, { replace: true });
@@ -1287,8 +1288,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 await rememberPatientSession(createdPatient);
-                sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
-                sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+                SessionStorageManager.save(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
+                SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
                 navigateTo(ROUTES.hub);
             },
         });
@@ -1304,11 +1305,11 @@ document.addEventListener("DOMContentLoaded", () => {
             initialPatientCode: patientCode,
             onAccept: async ({ patientId: acceptedId }) => {
                 const patient = await db.getPatientByHn(acceptedId);
-                sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, acceptedId);
+                SessionStorageManager.save(PATIENT_LOGIN_ID_KEY, acceptedId);
 
                 if (patient) {
                     await rememberPatientSession(patient);
-                    sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+                    SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
                     navigateTo(ROUTES.hub);
                     return;
                 }
@@ -1661,7 +1662,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "login") {
             showLogin({
-                patientCode: sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "",
+                patientCode: SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "",
             });
             return;
         }
@@ -1677,7 +1678,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "signup") {
-            const pendingPatientCode = sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "";
+            const pendingPatientCode = SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "";
             if (!pendingPatientCode) {
                 navigateTo(ROUTES.login, { replace: true });
                 return;
@@ -1775,10 +1776,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const pendingLaunchKey = sessionStorage.getItem(PENDING_GAME_LAUNCH_KEY) || "";
+            const pendingLaunchKey = SessionStorageManager.get(PENDING_GAME_LAUNCH_KEY, "") || "";
             const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
             if (hasStarted && pendingLaunchKey === selectedNodeKey) {
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 try {
                     await db.logUserEvent("SPG", selectedGame.gid);
                 } catch (error) {
@@ -1787,7 +1788,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+            SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
             if (!hasStarted) {
                 removePendingGameHistoryByKey(selectedNodeKey);
                 navigateTo(ROUTES.hub, { replace: true });

@@ -28,7 +28,7 @@ const config = {
         }
     },
     scene: [
-        MainMenuScene,
+        //MainMenuScene,
         GameplayScene,
         Boot,
         Preloader,

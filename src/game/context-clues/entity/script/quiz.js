@@ -43,14 +43,14 @@ export default class Quiz extends Entity{
     onCreateQuiz(){
         const sceneWidth = this.scene.scale.width;
         const sceneHeight = this.scene.scale.height;
-        const questionPanelY = 845;
         const bottomPanelHeight = 520;
+        const questionPanel = this.getQuestionPanelLayout(sceneWidth);
 
         const quizBG = this.scene.drawRoundedPanel(
-            sceneWidth / 2,
-            questionPanelY,
-            this.boxWidth,
-            this.boxHeight,
+            questionPanel.x,
+            questionPanel.y,
+            questionPanel.width,
+            questionPanel.height,
             {
                 fillColor: 0xffffff,
                 fillAlpha: 0.98,
@@ -87,15 +87,19 @@ export default class Quiz extends Entity{
 
         const { container: quizText, slot: slot, slotLabel: slotLabel } = createInlineSentence(
             this.scene,
-            sceneWidth / 2,
-            questionPanelY,
-            this.boxWidth - 100,
+            questionPanel.x,
+            questionPanel.y,
+            questionPanel.contentWidth,
             this.scaleSlotY,
             this.textParts,
             { ...BlankWord, text: "", isRender: false },
             textStyle,
             {
-                origin: { x: 0.5, y: 0.5 }
+                origin: { x: 0.5, y: 0.5 },
+                // Keeps long wrapped sentences inside the white question panel.
+                fitToBounds: true,
+                maxLayoutHeight: questionPanel.contentHeight,
+                minScale: 0.1,
             });
         this.scene.quizText = quizText;
         this.ownedContainer.add(quizText);
@@ -106,7 +110,7 @@ export default class Quiz extends Entity{
         const choiceHeight = 145;
         const choiceGapX = 42;
         const choiceGapY = 62;
-        const choiceTopY = sceneHeight - bottomPanelHeight + 160;
+        const choiceTopY = sceneHeight - bottomPanelHeight + 150;
         const choiceColor = 0xffffff;
         const choiceTextColor = "#b967df";
 
@@ -210,6 +214,27 @@ export default class Quiz extends Entity{
         }
     }
 
+    getQuestionPanelLayout(sceneWidth) {
+        // The white question panel is controlled by QuizUI_Setting.quizBoxSize.
+        // width/height: visible panel size.
+        // y: vertical center of the panel on the Phaser canvas.
+        // paddingX/paddingY: inner safe area for sentence text and blank slots.
+        // contentWidth/contentHeight: available area before text auto-scales down.
+        const width = this.boxWidth;
+        const height = this.boxHeight;
+        const paddingX = 86;
+        const paddingY = 36;
+
+        return {
+            x: sceneWidth / 2,
+            y: 845,
+            width,
+            height,
+            contentWidth: Math.max(1, width - (paddingX * 2)),
+            contentHeight: Math.max(1, height - (paddingY * 2)),
+        };
+    }
+
     drawChoiceCard(graphics, width, height, strokeColor = 0xffffff) {
         graphics.clear();
         graphics.fillStyle(0xffffff, 1);
@@ -248,7 +273,7 @@ export default class Quiz extends Entity{
                 : columnCount;
             const rowWidth = (itemsInRow * choiceWidth) + ((itemsInRow - 1) * choiceGapX);
             const x = centerX - (rowWidth / 2) + (choiceWidth / 2) + (column * (choiceWidth + choiceGapX));
-            const y = startY - (totalHeight / 2) + (choiceHeight / 2) + (row * (choiceHeight + choiceGapY));
+            const y = startY + (row * (choiceHeight + choiceGapY));
 
             item.setPosition(x, y);
         });
