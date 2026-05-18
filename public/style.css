@@ -1566,6 +1566,7 @@ body.hub-mode {
     border-radius: 104px;
     box-sizing: border-box;
     transform-origin: top center;
+    flex-shrink: 0;
 }
 
 .result-header {
