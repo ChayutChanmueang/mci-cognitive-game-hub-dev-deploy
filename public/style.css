@@ -1679,10 +1679,148 @@ body.hub-mode {
     font-weight: 700;
     color: #FFFFFF;
     /* Inset shadow creates the 10px gap perfectly following the corner curves, outer shadow is for depth */
-    box-shadow: inset 0 -10px 0 0 #5572E9, 0 10px 20px rgba(0,0,0,0.15);
+    box-shadow: inset 0 -10px 0 0 #5572E9, 0 10px 20px rgba(0, 0, 0, 0.15);
     transition: transform 0.1s ease;
 }
 
 .result-btn-home:active {
     transform: translateX(-50%) scale(0.95);
+}
+
+/* Zoo Feeder Custom DOM Top UI */
+.minigame-hud--zoo-feeder {
+    padding: 0 !important;
+    padding-top: 0 !important;
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: 99px;
+    background: rgba(128, 128, 128, 0.5) !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 40px !important;
+}
+
+/* Remove the green progress bar and second indicator for Zoo Feeder */
+.minigame-hud--zoo-feeder .minigame-hud__timer-wrap {
+    display: none !important;
+}
+
+/* Custom Green Score Box for Zoo Feeder */
+.minigame-hud--zoo-feeder .minigame-hud__score-box {
+    position: absolute;
+    left: 60px;
+    top: 28.5px;
+    width: 150px;
+    height: 42.5px;
+    background: #56AC2E !important;
+    border: 3.5px solid #ffffff !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 0 8px !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
+    overflow: visible !important;
+    /* Prevent star from being clipped */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__score-star {
+    width: 65px !important;
+    height: 65px !important;
+    object-fit: contain !important;
+    margin-left: -30px !important;
+    /* Overlap left edge */
+    z-index: 2 !important;
+    /* Keep star on top of border */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__score-text {
+    flex-grow: 1;
+    text-align: center;
+    color: #ffffff !important;
+    font-family: 'Noto Sans Thai', sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-right: 12px;
+    /* Visual offset to center the number relative to the box */
+}
+
+/* Score Change Pop-Up Animation */
+.minigame-hud--zoo-feeder #hud-score {
+    display: inline-block !important;
+    transform-origin: center !important;
+}
+
+@keyframes score-pop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.45);
+        color: #FFEB3B !important;
+        /* Premium golden glow mid-pop */
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pop-animation {
+    animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    /* Elastic bounce pop */
+}
+
+/* Custom Orange Time Box for Zoo Feeder */
+.minigame-hud--zoo-feeder .minigame-hud__time-box {
+    position: absolute;
+    right: 35px;
+    top: 28.5px;
+    width: 150px;
+    height: 42.5px;
+    background: #FFEDDF !important;
+    border: 3.5px solid #ffffff !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 0 8px !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
+    overflow: visible !important;
+    /* Prevent icon from being clipped */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__time-icon {
+    width: 65px !important;
+    height: 65px !important;
+    object-fit: contain !important;
+    margin-left: -30px !important;
+    /* Overlap left edge */
+    z-index: 2 !important;
+    /* Keep icon on top of border */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__time-text {
+    flex-grow: 1;
+    text-align: center;
+    color: #743D14 !important;
+    font-family: 'Noto Sans Thai', sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-right: 12px;
+    /* Visual offset to center the text relative to the box */
 }
