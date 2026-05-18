@@ -5,7 +5,7 @@ import DraggableComponent from "../components/scripts/draggable";
 import SocketComponent from "../components/scripts/socket";
 import EntityGrid from "../entity/entityGrid";
 import NonDraggableComponent from "../components/scripts/non-draggable";
-import {Difficulty, GameLevels, Config, DifficultyLevelNumber} from "../constants";
+import { Difficulty, GameLevels, Config, DifficultyLevelNumber } from "../constants";
 import SolutionSocketComponent from "../components/scripts/solutionSocket";
 import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
@@ -18,6 +18,7 @@ import DebugMenu from "./DebugMenu";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 import { ReplayEvent } from "../../../core/replay-event.js";
 import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 // Pool of animal sprite keys (loaded in preload)
 const ANIMAL_SPRITES = [
@@ -67,7 +68,13 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit('minigame:show-hud');
 
     this.sceneData = { ...data };
-    this.level = data.level || Difficulty.EASY;
+    var _tempLevel = Difficulty.EASY;
+    switch (Number(SessionStorageManager.get("selected_game_level"))) {
+      case 1: _tempLevel = Difficulty.EASY; break;
+      case 2: _tempLevel = Difficulty.NORMAL; break;
+      case 3: _tempLevel = Difficulty.HARD; break;
+    }
+    this.level = _tempLevel || data.level || Difficulty.EASY;
     this.stage = 1;
     this.allScore = 0;
     this.completedStages = 0;
@@ -176,8 +183,8 @@ export default class GameplayScene extends Phaser.Scene {
     const completedStages = this.completedStages || 0;
 
     // this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
-    EventBus.emit('minigame:game-over', { 
-      score: this.allScore, 
+    EventBus.emit('minigame:game-over', {
+      score: this.allScore,
       level: this.level
     });
   }

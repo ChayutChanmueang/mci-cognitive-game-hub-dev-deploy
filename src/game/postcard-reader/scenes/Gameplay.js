@@ -11,6 +11,7 @@ import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-
 import { ReplayEvent } from "../../../core/replay-event.js";
 import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
 import game_db from "/src/util/minigame-db-util.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 const GAME_ID = "MEM001";
 
@@ -40,7 +41,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.wrongAnswer = 0;
 
     this.sceneData = { ...data };
-    this.level = data.level || 1;
+    this.level = Number(SessionStorageManager.get("selected_game_level")) || data.level || 1;
     this.allScore = 0;
     this.postcardsPlayed = 0;
     this.isGameEnded = false;
@@ -218,7 +219,7 @@ export default class GameplayScene extends Phaser.Scene {
       button.forceShow();
     }
     this.replayLogger.addEvent(ReplayEvent.PostcardReader.QUESTION_SHOWN, true);
-    
+
     // Hide timer during quiz
     EventBus.emit("minigame:hide-timer");
   }
@@ -315,7 +316,7 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit("minigame:level", {
       level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}`
     });
-    
+
     EventBus.emit("minigame:show-timer");
 
     this.gameplayUI.postcard.reinitializedPanel();
@@ -347,9 +348,9 @@ export default class GameplayScene extends Phaser.Scene {
     // this.gameplayUI.showGameOverPanel(this.allScore);
 
     // Disable DOM-based gameover panel for now
-    EventBus.emit('minigame:game-over', { 
-        score: this.allScore,
-        level: getDifficultyLevelNumber(this.level)
+    EventBus.emit('minigame:game-over', {
+      score: this.allScore,
+      level: getDifficultyLevelNumber(this.level)
     });
   }
 
