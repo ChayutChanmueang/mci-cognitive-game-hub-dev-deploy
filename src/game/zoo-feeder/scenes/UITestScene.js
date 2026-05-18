@@ -57,10 +57,10 @@ export default class UITestScene extends Phaser.Scene {
     console.log("UI test scene");
 
     //Initialize Logging
-    if(this.replayLogger == null){
+    if (this.replayLogger == null) {
       this.replayLogger = new ReplayLogBuffer();
     }
-    else{
+    else {
       this.replayLogger.clearEvents();
     }
 
@@ -73,7 +73,7 @@ export default class UITestScene extends Phaser.Scene {
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
     //this.animal = new Animal(this,this.scale.width/2,1200);
-    this.background = this.add.sprite(0,0,'background');
+    this.background = this.add.sprite(0, 0, 'background');
     this.background.setScale(27);
     this.background.setDepth(-10);
     this.score = 0;
@@ -83,13 +83,13 @@ export default class UITestScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isRestarting = false;
     this.gameStartedAt = new Date();
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_START,this.gameStartedAt);
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_START, this.gameStartedAt);
     this.gameEndedAt = new Date();
     this.spawnFruitTimer = null;
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();
-    
+
     // Hide old Phaser UI elements if we're using the DOM HUD
     this.gameplayUI.uiBackground.setVisible(false);
     this.gameplayUI.currentScore.setVisible(false);
@@ -144,7 +144,7 @@ export default class UITestScene extends Phaser.Scene {
         const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
         EventBus.emit('minigame:tick', { timeLeft: remaining, maxTime: gameTime });
         if (remaining <= 0) {
-            this.onGameOver();
+          this.onGameOver();
         }
       },
       repeat: gameTime - 1,
@@ -159,27 +159,27 @@ export default class UITestScene extends Phaser.Scene {
   onGetEatableFood() {
     this.addScore(20);
     this.correctDeliver++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED,"CORRECT");
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, "CORRECT");
   }
   onGetUneatableFood() {
     this.addScore(-50);
     this.wrongDeliver++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED,"WRONG");
-    
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, "WRONG");
+
   }
   onRemoveEatableFood() {
     this.addScore(-25);
     this.wrongDrop++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED,"WRONG");
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, "WRONG");
   }
   onRemoveUneatableFood() {
     this.addScore(10);
     this.correctDrop++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED,"CORRECT");
+    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, "CORRECT");
   }
   addScore(addedScore) {
     this.score += addedScore;
-    if(this.score < 0) this.score = 0;
+    if (this.score < 0) this.score = 0;
     console.log("Current Score: " + this.score);
     this.level = this.score / 100;
     this.level = Math.floor(this.level);
@@ -219,7 +219,7 @@ export default class UITestScene extends Phaser.Scene {
     }
 
     this.isGameOver = true;
-    
+
     // Trigger the premium DOM effect
     showLevelCompleteEffect();
 
@@ -248,20 +248,20 @@ export default class UITestScene extends Phaser.Scene {
       this.gameEndedAt = new Date();
 
       //Save game data to database
-      game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+      game_db.pushGameData(this.allScore, this.conveyerNums, this.gameStartedAt, this.gameEndedAt).then(() => {
         console.log("Game data saved to database.");
       }).catch((error) => {
         console.error("Failed to save game data:", error);
       });
 
-      this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED,this.gameEndedAt);
+      this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED, this.gameEndedAt);
 
       this.replayLogger.pushToDatabase();
 
       // this.gameplayUI.showGameOverPanel(this.score);
-      EventBus.emit('minigame:game-over', { 
-          score: this.score,
-          level: this.level
+      EventBus.emit('minigame:game-over', {
+        score: this.score,
+        level: this.level
       });
     });
   }
