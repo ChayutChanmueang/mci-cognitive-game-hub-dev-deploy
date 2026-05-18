@@ -45,7 +45,7 @@ export default class Quiz extends Entity{
     onCreateQuiz(){
         const sceneWidth = this.scene.scale.width;
         const sceneHeight = this.scene.scale.height;
-        const bottomPanelHeight = 520;
+        const bottomPanelHeight = 590;
         const questionPanel = this.getQuestionPanelLayout(sceneWidth);
 
         const quizBG = this.scene.drawRoundedPanel(
@@ -229,7 +229,7 @@ export default class Quiz extends Entity{
 
         return {
             x: sceneWidth / 2,
-            y: 845,
+            y: 815,
             width,
             height,
             contentWidth: Math.max(1, width - (paddingX * 2)),
