@@ -2,9 +2,9 @@
 
 ---
 
-## *Document Version: 1.1*  
+## *Document Version: 1.2*  
 *Project: MCI Cognitive Games*  
-*Last Updated: 2026-05-03*
+*Last Updated: 2026-05-08*
 
 ## 1. Game Architecture & ECS Lite
 
@@ -501,11 +501,31 @@ classDiagram
         +getCurrentSession()
         +getCurrentUser()
         +getPatientByHn(hn)
+        +getPatientByUid(uid)
+        +patientExists(hn)
+        +getEducationLevels()
         +createPatientProfile(data)
+        +validatePatientSignupDependencies(params)
+        +createUserGameProfile(params)
+        +getGameLevelPresetList()
+        +setUserGameProfileProgram(params)
+        +deletePatientProfileByHn(params)
         +getGameList()
-        +getGamesByMciGroup(mciGroup)
+        +getGamesByMciGroup(mciGroup, options)
         +getGameByGid(gid)
+        +getDailyGameProgramByHn(params)
         +submitGameData(data)
+        +addUserGameHistory(params)
+        +refreshUserGameHistoryStartAt(params)
+        +completeUserGameHistory(params)
+        +getCompletedUserGameHistoryByHn(params)
+        +getInstantUserNodeHistoryByHn(params)
+        +getUserCheckInHistoryForDate(params)
+        +addUserCheckInHistoryIfMissing(params)
+        +hasCompletedGameHubNodesForDate(params)
+        +getUserCheckInDatesByHn(params)
+        +getUserGameHistoryByHn(params)
+        +deleteUserGameHistoryByHn(params)
         +logUserEvent(eventId, gid)
     }
 

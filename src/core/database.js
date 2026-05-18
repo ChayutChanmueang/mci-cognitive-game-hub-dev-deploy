@@ -17,7 +17,7 @@ const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
 const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
 const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
-const DEFAULT_GAME_PROFILE_PROGRAM_ID = 2;
+const DEFAULT_GAME_PROFILE_PROGRAM_ID = 5;
 const EVENT_IDS = Object.freeze({
     OPEN_APP: "OPAPP",
     START_PLAY_GAME: "SPG",
@@ -277,6 +277,494 @@ class Database {
         return data || [];
     }
 
+    async getAllPatientCsvExportRows() {
+        await this.initAuth();
+
+        const [
+            patients,
+            educationLevels,
+            profiles,
+            programPresets,
+            programRows,
+        ] = await Promise.all([
+            this.getAllTableRows(
+                USER_PATIENT_DATA_TABLE,
+                "id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date",
+                [{ column: "hn", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_EDUCATION_LEVEL_TABLE,
+                "id, eduid, name, dropdown_index",
+                [
+                    { column: "dropdown_index", ascending: true, nullsFirst: false },
+                    { column: "id", ascending: true },
+                ],
+            ),
+            this.getAllTableRows(
+                USER_GAME_PROFILE_DATA_TABLE,
+                "id, hn, program, created_at",
+                [{ column: "created_at", ascending: false }],
+            ),
+            this.getAllTableRows(
+                GAME_LEVEL_PRESET_LIST_TABLE,
+                "id, name, description, created_at",
+                [{ column: "id", ascending: true }],
+            ),
+            this.getAllTableRows(
+                GAME_LEVEL_PRESET_DATA_TABLE,
+                "id, gpid, day",
+                [{ column: "gpid", ascending: true }],
+            ),
+        ]);
+
+        const educationNameByKey = new Map();
+        for (const level of educationLevels) {
+            const name = String(level?.name || "").trim();
+            const eduid = String(level?.eduid || "").trim();
+            const id = String(level?.id || "").trim();
+
+            if (eduid) {
+                educationNameByKey.set(eduid, name);
+            }
+            if (id) {
+                educationNameByKey.set(id, name);
+            }
+        }
+
+        const latestProfileByHn = new Map();
+        for (const profile of profiles) {
+            const hn = String(profile?.hn || "").trim();
+            if (hn && !latestProfileByHn.has(hn)) {
+                latestProfileByHn.set(hn, profile);
+            }
+        }
+
+        const programNameById = new Map(
+            programPresets.map((preset) => [Number(preset?.id), String(preset?.name || "").trim()]),
+        );
+        const programDayCountById = new Map();
+        for (const row of programRows) {
+            const programId = Number(row?.gpid);
+            const day = Number(row?.day);
+
+            if (!Number.isFinite(programId) || !Number.isFinite(day)) {
+                continue;
+            }
+
+            programDayCountById.set(
+                programId,
+                Math.max(programDayCountById.get(programId) || 0, Math.floor(day)),
+            );
+        }
+
+        return patients.map((patient) => {
+            const hn = String(patient?.hn || "").trim();
+            const educationKey = String(patient?.education_level || "").trim();
+            const profile = latestProfileByHn.get(hn) || null;
+            const programId = Number(profile?.program);
+
+            return {
+                ...patient,
+                educationName: educationNameByKey.get(educationKey) || educationKey,
+                programId: Number.isFinite(programId) ? programId : null,
+                programName: programNameById.get(programId) || "",
+                programDayCount: programDayCountById.get(programId) || 0,
+            };
+        });
+    }
+
+    async getGameCsvExportRows({ hn = null } = {}) {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const parsedHn = String(hn || "").trim();
+        const { data: rpcRows, error: rpcError } = await client.rpc("get_game_csv_export_rows", {
+            p_hn: parsedHn || null,
+        });
+
+        if (!rpcError) {
+            return rpcRows || [];
+        }
+
+        console.warn("Unable to load game CSV export rows from RPC, falling back to client query:", rpcError);
+
+        const [
+            patients,
+            gameDataRows,
+            games,
+        ] = await Promise.all([
+            this.getAllTableRows(
+                USER_PATIENT_DATA_TABLE,
+                "id, hn, uid",
+                [{ column: "id", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_GAME_DATA_TABLE,
+                "id, gid, started_at, ended_at, score, level",
+                [{ column: "started_at", ascending: true }],
+            ),
+            this.getAllTableRows(
+                GAME_LIST_TABLE,
+                "id, gid, name, th_name, mci_group, max_score, created_at",
+                [{ column: "gid", ascending: true }],
+            ),
+        ]);
+        const histories = await this.getAllTableRows(
+            USER_GAME_HISTORY_TABLE,
+            "id, hn, gid, stage, start_at, end_at, user_game_data_id, \"check-in\"",
+            [{ column: "start_at", ascending: true }],
+        );
+
+        const gameDataById = new Map(
+            gameDataRows.map((row) => [Number(row?.id), row]),
+        );
+        const gameByGid = new Map(
+            games.map((game) => [String(game?.gid || "").trim(), game]),
+        );
+        const patientOrderByHn = new Map(
+            patients.map((patient, index) => [String(patient?.hn || "").trim(), index]),
+        );
+        const matchedRows = histories
+            .filter((history) => {
+                const gid = String(history?.gid || "").trim();
+                const hn = String(history?.hn || "").trim();
+
+                return gid
+                    && history?.["check-in"] !== true
+                    && (!parsedHn || hn === parsedHn);
+            })
+            .map((history) => {
+                const hn = String(history?.hn || "").trim();
+                const gid = String(history?.gid || "").trim();
+                const gameData = gameDataById.get(Number(history?.user_game_data_id)) || null;
+                const game = gameByGid.get(gid) || null;
+
+                return {
+                    hn,
+                    gid,
+                    minigame_name: game?.name || game?.th_name || gid,
+                    mci_group: game?.mci_group || "",
+                    ingame_started_at: gameData?.started_at || "",
+                    ingame_ended_at: gameData?.ended_at || "",
+                    gamehub_start_at: history?.start_at || "",
+                    gamehub_end_at: history?.end_at || "",
+                    score: gameData?.score ?? "",
+                    level: gameData?.level ?? "",
+                    _patientOrder: patientOrderByHn.has(hn) ? patientOrderByHn.get(hn) : Number.POSITIVE_INFINITY,
+                    _historyId: Number(history?.id) || 0,
+                };
+            });
+
+        matchedRows.sort((a, b) => (
+            this.compareCsvSortValue(a._patientOrder, b._patientOrder)
+            || new Date(a.gamehub_start_at || 0) - new Date(b.gamehub_start_at || 0)
+            || a._historyId - b._historyId
+        ));
+
+        return matchedRows.map((row) => {
+            const {
+                _patientOrder,
+                _historyId,
+                ...exportRow
+            } = row;
+
+            return exportRow;
+        });
+    }
+
+    compareCsvSortValue(a, b) {
+        const aValue = Number.isFinite(a) ? a : Number.MAX_SAFE_INTEGER;
+        const bValue = Number.isFinite(b) ? b : Number.MAX_SAFE_INTEGER;
+
+        return aValue - bValue;
+    }
+
+    async getGameHistoryCsvExportRows({ hn = null } = {}) {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const parsedHn = String(hn || "").trim();
+        const { data: rpcRows, error: rpcError } = await client.rpc("get_game_history_csv_export_rows", {
+            p_hn: parsedHn || null,
+        });
+
+        if (!rpcError) {
+            return rpcRows || [];
+        }
+
+        console.warn("Unable to load game history CSV export rows from RPC, falling back to client query:", rpcError);
+
+        const [patients, profiles, programRows, histories] = await Promise.all([
+            this.getAllTableRows(
+                USER_PATIENT_DATA_TABLE,
+                "id, hn, started_program",
+                [{ column: "id", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_GAME_PROFILE_DATA_TABLE,
+                "id, hn, program, created_at",
+                [
+                    { column: "created_at", ascending: false },
+                    { column: "id", ascending: false },
+                ],
+            ),
+            this.getAllTableRows(
+                GAME_LEVEL_PRESET_DATA_TABLE,
+                "id, gpid, day",
+                [
+                    { column: "gpid", ascending: true },
+                    { column: "day", ascending: true },
+                    { column: "id", ascending: true },
+                ],
+            ),
+            this.getAllTableRows(
+                USER_GAME_HISTORY_TABLE,
+                "id, hn, gid, start_at, end_at, \"check-in\"",
+                [{ column: "start_at", ascending: true }],
+            ),
+        ]);
+        const patientOrderByHn = new Map(
+            patients.map((patient, index) => [String(patient?.hn || "").trim(), index]),
+        );
+        const latestProfileByHn = new Map();
+        for (const profile of profiles) {
+            const profileHn = String(profile?.hn || "").trim();
+            if (profileHn && !latestProfileByHn.has(profileHn)) {
+                latestProfileByHn.set(profileHn, profile);
+            }
+        }
+
+        const programDaysById = new Map();
+        for (const programRow of programRows) {
+            const programId = Number(programRow?.gpid);
+            const programDay = Math.floor(Number(programRow?.day));
+
+            if (!Number.isFinite(programId) || !Number.isFinite(programDay) || programDay < 1) {
+                continue;
+            }
+
+            if (!programDaysById.has(programId)) {
+                programDaysById.set(programId, new Set());
+            }
+            programDaysById.get(programId).add(programDay);
+        }
+
+        const historyByHnDay = new Map();
+        const getHistoryKey = (historyHn, localDay) => `${historyHn}\u0000${localDay}`;
+
+        for (const history of histories) {
+            const historyHn = String(history?.hn || "").trim();
+            const gid = String(history?.gid || "").trim();
+            const isCheckIn = history?.["check-in"] === true;
+
+            if ((!gid && !isCheckIn) || (parsedHn && historyHn !== parsedHn)) {
+                continue;
+            }
+
+            const localDay = this.getBangkokDateKey(history?.start_at);
+            if (!historyHn || !localDay) {
+                continue;
+            }
+
+            const key = getHistoryKey(historyHn, localDay);
+            if (!historyByHnDay.has(key)) {
+                historyByHnDay.set(key, {
+                    user_hn: historyHn,
+                    firstgame_at: "",
+                    lastgame_at: "",
+                    total_time: "",
+                    "check-in": false,
+                    last_stage: 0,
+                    _historyCount: 0,
+                });
+            }
+
+            const row = historyByHnDay.get(key);
+            const startAt = this.parseDateMs(history?.start_at);
+            const endAt = this.parseDateMs(history?.end_at || history?.start_at);
+
+            row._historyCount += 1;
+
+            if (isCheckIn) {
+                row["check-in"] = true;
+            }
+
+            if (gid && !isCheckIn) {
+                row.firstgame_at = this.minDateValue(row.firstgame_at, history?.start_at);
+                row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
+
+                if (gid !== "REST001") {
+                    row.last_stage += 1;
+                }
+            } else if (isCheckIn) {
+                row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
+            }
+
+            if (Number.isFinite(startAt) && Number.isFinite(endAt)) {
+                row.lastgame_at = this.maxDateValue(row.lastgame_at, new Date(Math.max(startAt, endAt)).toISOString());
+            }
+        }
+
+        const rows = [];
+        for (const patient of patients) {
+            const patientHn = String(patient?.hn || "").trim();
+            if (!patientHn || (parsedHn && patientHn !== parsedHn)) {
+                continue;
+            }
+
+            const profile = latestProfileByHn.get(patientHn) || null;
+            const programId = Number(profile?.program);
+            const programDays = Number.isFinite(programId)
+                ? [...(programDaysById.get(programId) || [])].sort((a, b) => a - b)
+                : [];
+
+            if (!programDays.length) {
+                continue;
+            }
+
+            for (const programDay of programDays) {
+                const localDay = this.getBangkokProgramDateKey(patient?.started_program, programDay);
+                if (!localDay) {
+                    continue;
+                }
+
+                const historyRow = historyByHnDay.get(getHistoryKey(patientHn, localDay)) || null;
+                const firstgameAt = historyRow?.firstgame_at || "";
+                const lastgameAt = historyRow?.lastgame_at || "";
+                const firstMs = this.parseDateMs(firstgameAt);
+                const lastMs = this.parseDateMs(lastgameAt);
+
+                rows.push({
+                    user_hn: patientHn,
+                    firstgame_at: firstgameAt,
+                    lastgame_at: lastgameAt,
+                    total_time: Number.isFinite(firstMs) && Number.isFinite(lastMs) && lastMs >= firstMs
+                        ? ((lastMs - firstMs) / 60000).toFixed(1)
+                        : "",
+                    "check-in": historyRow?.["check-in"] === true,
+                    last_stage: historyRow?._historyCount > 0 ? historyRow.last_stage : null,
+                    _day: localDay,
+                    _patientOrder: patientOrderByHn.has(patientHn)
+                        ? patientOrderByHn.get(patientHn)
+                        : Number.POSITIVE_INFINITY,
+                });
+            }
+        }
+
+        return rows
+            .sort((a, b) => (
+                this.compareCsvSortValue(a._patientOrder, b._patientOrder)
+                || String(a._day).localeCompare(String(b._day))
+            ))
+            .map((row) => {
+                const {
+                    _day,
+                    _patientOrder,
+                    ...exportRow
+                } = row;
+
+                return exportRow;
+            });
+    }
+
+    getBangkokDateKey(value) {
+        const date = new Date(value || "");
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+
+        return new Intl.DateTimeFormat("en-CA", {
+            timeZone: "Asia/Bangkok",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).format(date);
+    }
+
+    getBangkokProgramDateKey(startedProgram, programDay) {
+        const startKey = this.getBangkokDateKey(startedProgram);
+        const [year, month, day] = startKey.split("-").map(Number);
+        const parsedProgramDay = Math.floor(Number(programDay));
+
+        if (
+            !Number.isFinite(year)
+            || !Number.isFinite(month)
+            || !Number.isFinite(day)
+            || !Number.isFinite(parsedProgramDay)
+            || parsedProgramDay < 1
+        ) {
+            return "";
+        }
+
+        const date = new Date(Date.UTC(year, month - 1, day));
+        date.setUTCDate(date.getUTCDate() + parsedProgramDay - 1);
+        return date.toISOString().slice(0, 10);
+    }
+
+    parseDateMs(value) {
+        const date = new Date(value || "");
+        return Number.isNaN(date.getTime()) ? NaN : date.getTime();
+    }
+
+    minDateValue(currentValue, nextValue) {
+        const currentMs = this.parseDateMs(currentValue);
+        const nextMs = this.parseDateMs(nextValue);
+
+        if (!Number.isFinite(nextMs)) {
+            return currentValue || "";
+        }
+
+        return !Number.isFinite(currentMs) || nextMs < currentMs ? nextValue : currentValue;
+    }
+
+    maxDateValue(currentValue, nextValue) {
+        const currentMs = this.parseDateMs(currentValue);
+        const nextMs = this.parseDateMs(nextValue);
+
+        if (!Number.isFinite(nextMs)) {
+            return currentValue || "";
+        }
+
+        return !Number.isFinite(currentMs) || nextMs > currentMs ? nextValue : currentValue;
+    }
+
+    async getAllTableRows(tableName, selectColumns, orders = []) {
+        const client = this.getClient();
+        const pageSize = 1000;
+        const rows = [];
+
+        for (let from = 0; ; from += pageSize) {
+            let query = client
+                .from(tableName)
+                .select(selectColumns)
+                .range(from, from + pageSize - 1);
+
+            for (const order of orders) {
+                const orderOptions = {
+                    ascending: order.ascending !== false,
+                };
+
+                if (Object.prototype.hasOwnProperty.call(order, "nullsFirst")) {
+                    orderOptions.nullsFirst = order.nullsFirst;
+                }
+
+                query = query.order(order.column, orderOptions);
+            }
+
+            const { data, error } = await query;
+            if (error) {
+                throw error;
+            }
+
+            rows.push(...(data || []));
+            if (!data || data.length < pageSize) {
+                break;
+            }
+        }
+
+        return rows;
+    }
+
     async createPatientProfile({
         hn,
         firstname,
@@ -475,11 +963,19 @@ class Database {
         return true;
     }
 
-    async createUserGameProfile({ hn }) {
+    async createUserGameProfile({
+        hn,
+        defaultProgramId = DEFAULT_GAME_PROFILE_PROGRAM_ID,
+    }) {
         const parsedHn = String(hn || "").trim();
+        const parsedProgramId = Number(defaultProgramId);
 
         if (!parsedHn) {
             throw new Error("Invalid hn");
+        }
+
+        if (!Number.isInteger(parsedProgramId) || parsedProgramId <= 0) {
+            throw new Error("Invalid default game profile program");
         }
 
         await this.initAuth();
@@ -487,7 +983,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .insert([{ hn: parsedHn }])
+            .insert([{ hn: parsedHn, program: parsedProgramId }])
             .select("id, hn, program, created_at")
             .maybeSingle();
 

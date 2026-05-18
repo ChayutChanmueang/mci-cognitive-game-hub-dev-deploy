@@ -4,82 +4,104 @@ import RandomQuiz from "../components/scripts/random-quiz.js";
 import {LevelMap, Config, QuizUI_Setting} from "../constants.js";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
 import Quiz from "../entity/script/quiz.js";
-import ProgressBar from "../../../util/layout/progress-bar.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
-import { ContextCluesReplayEvent } from "../../../core/replay-event.js";
+import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
+import game_db from "/src/util/minigame-db-util.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
     super("gameplay-scene");
     this.levelMap = "";
     this.quizData = [];
-    this.progressBarRefs = [];
     this.round = 0;
     this.allScore = 0;
+    this.timeLeftSeconds = 180;
+    this.timeLimitSeconds = 180;
+    this.countdownTimer = null;
+    this.isGameEnded = false;
   }
 
   preload() {
     this.load.image('button-idle','assets/button_rectangle_depth_flat.png')
     this.load.image('button-press','assets/button_rectangle_flat.png')
+    this.load.image('context-clues-bg','assets/bg.png')
   }
 
-  init(data) {
-    this.level = data.level;
+  init(data = {}) {
+    this.level = data.level ?? Number(SessionStorageManager.get("selected_game_level"));
     this.levelMap = LevelMap[this.level];
     this.randomQuiz = new RandomQuiz(this.levelMap);
     this.allScore = 0;
     this.round = 0;
     this.quizData = [];
-    this.progressBarRefs = [];
+    this.timeLimitSeconds = data.timeLimitSeconds ?? Config.TimeLimitSeconds;
+    this.timeLeftSeconds = this.timeLimitSeconds;
+    this.countdownTimer = null;
+    this.isGameEnded = false;
   }
 
-  create(data) {
+  create(data = {}) {
+    this.createSceneBackdrop();
+    this.quizBoxSize = this.resolveQuizBoxSize();
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.replayLog = new ReplayLogBuffer();
-    
-    // Hide old Phaser UI elements
-    this.gameplayUI.uiBackground.setVisible(false);
-    this.gameplayUI.currentScore.setVisible(false);
+    this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
+    this.syncTimerUI();
 
     // Initial state to HUD
     EventBus.emit('minigame:score', { score: this.allScore });
-    EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ 1/${Config.MaxRound[this.levelMap]}` });
-    EventBus.emit('minigame:tick', { timeLeft: 120 }); // Example 2 mins
+    EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
 
     // Create First Quiz
     this.getNewQuiz();
     this.gameStartedAt = new Date();
     this.gameEndedAt = new Date();
+    this.startCountdownTimer();
 
-    this.easyBtn = this.createButton(this.scale.width / 2 - 175, (this.scale.height) - 350, "Return", () => {
-      this.scene.start('main-menu-scene',{ conveyerNums: 1 })
-    });
-      let dotProgressBars = [];
-      for (let i = 0; i < Config.MaxRound[this.levelMap]; i++) {
-          const bar = new ProgressBar(this, 0, 0, {
-              width: 50,
-              height: 10
-          });
-
-          bar.setValue(0);
-
-          this.progressBarRefs.push(bar);
-          dotProgressBars.push(bar.getContainer());
-      }
-
-      Phaser.Actions.GridAlign(dotProgressBars, {
-          width: 10,
-          cellWidth: 60,
-          cellHeight: 5,
-          x: this.scale.width / 2 - 275,
-          y: 200,
-          position: Phaser.Display.Align.TOP_LEFT
-      });
-
-    this.progressBarRefs[this.round].animateTo(1, 500)
     this.gameplayUI.setDepth(100);
+  }
+
+  startCountdownTimer() {
+      this.countdownTimer?.remove(false);
+      this.countdownTimer = this.time.addEvent({
+          delay: 1000,
+          loop: true,
+          callback: () => {
+              if (this.isGameEnded) {
+                  return;
+              }
+
+              this.timeLeftSeconds = Math.max(0, this.timeLeftSeconds - 1);
+              this.syncTimerUI();
+
+              if (this.timeLeftSeconds <= 0) {
+                  this.endGame("failure");
+              }
+          }
+      });
+  }
+
+  syncTimerUI() {
+      const timeLeft = Math.max(0, Math.ceil(this.timeLeftSeconds));
+
+      this.gameplayUI?.setTimeLeft(timeLeft);
+      EventBus.emit('minigame:tick', {
+          timeLeft,
+          maxTime: this.timeLimitSeconds,
+      });
+  }
+
+  resolveQuizBoxSize() {
+      const levelBoxSize = QuizUI_Setting.quizBoxSize?.[this.levelMap];
+      const boxSize = Array.isArray(levelBoxSize) ? levelBoxSize[0] : levelBoxSize;
+
+      return {
+          width: boxSize?.width ?? 700,
+          height: boxSize?.height ?? 650,
+      };
   }
 
   getNewQuiz(){
@@ -100,60 +122,139 @@ export default class GameplayScene extends Phaser.Scene {
           this.quizGame.destroy();
       }
 
-      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting);
-      this.quizGame.onAnswerCorrect = () => {
+      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting.setting, this.quizBoxSize);
+      this.quizGame.onAnswerCorrect = (answer) => {
+          if (this.isGameEnded) {
+              return;
+          }
+
           this.round++;
           const maxRound = Config.MaxRound[this.levelMap];
           const nextRoundDisplay = Math.min(this.round + 1, maxRound);
 
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
-          this.replayLog.addEvent(ContextCluesReplayEvent.ROUND_COMPLETED, {
-              quizId: id,
-              round: this.round,
-              maxRound,
-              level: this.level,
-              levelMap: this.levelMap,
-              score: this.allScore,
-              quizScore: qData.score,
-              answers: [...qData.answers],
-              answerLogs: [...qData.answerLogs],
-              correctAnswers: [...answers],
+          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
+              answer: answer,
+              value: true
           });
+          this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
           
           EventBus.emit('minigame:score', { score: this.allScore });
-          EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ ${nextRoundDisplay}/${maxRound}` });
+          EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
 
           if (this.round < maxRound) {
               console.log(`All Score: (${this.allScore})`);
-              this.progressBarRefs[this.round].animateTo(1, 500)
 
               this.time.delayedCall(500, () => {
+                  if (this.isGameEnded) {
+                      return;
+                  }
+
                   this.gameplayUI.showNextQuizPanel(() => {
+                      if (this.isGameEnded) {
+                          return;
+                      }
+
                       // Create New Quiz
                       this.getNewQuiz();
                   })
               });
           }else{
-              this.gameEndedAt = new Date();
-              this.gameplayUI.setScore(this.allScore);
-              this.gameplayUI.showGameOverPanel(this.allScore);
-              EventBus.emit('minigame:game-over', { 
-                  score: this.allScore,
-                  level: this.level
-              });
-
-              //Write debug here!
-              console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
+              this.endGame("success");
           }
       }
-      this.quizGame.onAnswerIncorrect = () => {
+      this.quizGame.onAnswerIncorrect = (answer) => {
+          if (this.isGameEnded) {
+              return;
+          }
+
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
+
+          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
+              answer: answer,
+              value: false
+          });
       }
       this.gameplayUI.setScore(this.allScore);
       this.quizGame.onCreateQuiz();
 
       return this.quizGame;
   }
+
+    endGame(resultStatus = "success") {
+        if (this.isGameEnded) {
+            return;
+        }
+
+        this.isGameEnded = true;
+        this.countdownTimer?.remove(false);
+        this.countdownTimer = null;
+        this.gameEndedAt = new Date();
+        this.syncTimerUI();
+        this.gameplayUI.setScore(this.allScore);
+        this.gameplayUI.showGameOverPanel(this.allScore, resultStatus);
+        EventBus.emit('minigame:game-over', {
+            score: this.allScore,
+            level: this.level,
+            resultStatus
+        });
+
+        //Save game data to database
+        game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+            console.log("Game data saved to database.");
+        }).catch((error) => {
+            console.error("Failed to save game data:", error);
+        });
+
+        this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");})
+
+        //Write debug here!
+        console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
+    }
+
+    createSceneBackdrop() {
+        const { width, height } = this.scale;
+
+        const background = this.add.image(width / 2, height / 2, 'context-clues-bg');
+        background.setDisplaySize(width, height);
+        background.setTint(0xf36baa);
+        background.setAlpha(0.26);
+        background.setDepth(-20);
+
+        const overlay = this.add.graphics();
+        overlay.fillStyle(0xf45ca1, 0.86);
+        overlay.fillRect(0, 0, width, height);
+        overlay.fillStyle(0xff9ccc, 0.26);
+        overlay.fillRect(0, 0, width, 240);
+        overlay.fillStyle(0xd83d73, 0.36);
+        overlay.fillRect(0, height - 520, width, 520);
+        overlay.lineStyle(4, 0x9d375c, 0.3);
+        overlay.lineBetween(0, height - 520, width, height - 520);
+        overlay.setDepth(-19);
+    }
+
+    drawRoundedPanel(x, y, width, height, {
+        fillColor,
+        fillAlpha = 1,
+        strokeColor = 0xffffff,
+        strokeAlpha = 1,
+        strokeWidth = 4,
+        radius = 18,
+        origin = [0.5, 0.5],
+        depth = 0,
+    }) {
+        const panel = this.add.graphics({ x, y });
+        const drawX = -width * (origin[0] ?? 0.5);
+        const drawY = -height * (origin[1] ?? 0.5);
+
+        panel.fillStyle(fillColor, fillAlpha);
+        panel.lineStyle(strokeWidth, strokeColor, strokeAlpha);
+        panel.fillRoundedRect(drawX, drawY, width, height, radius);
+        panel.strokeRoundedRect(drawX, drawY, width, height, radius);
+        panel.setDepth(depth);
+
+        return panel;
+    }
 
     increaseScore(score){
         this.allScore += score;

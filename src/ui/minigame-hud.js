@@ -24,11 +24,14 @@ export class MinigameHUD {
             timeLeft: options.timeLimit || 0,
             maxTime: options.timeLimit || 0,
             gameTitle: options.gameTitle || "เกมฝึกสมอง",
+            showTimer: options.showTimer !== false,
+            lives: options.lives !== undefined ? options.lives : null,
         };
 
         this.boundOnScore = this.onScoreUpdate.bind(this);
         this.boundOnLevel = this.onLevelUpdate.bind(this);
         this.boundOnTick = this.onTick.bind(this);
+        this.boundOnLives = this.onLivesUpdate.bind(this);
 
         this.boundOnGameOver = this.onGameOver.bind(this);
         this.boundOnShow = this.show.bind(this);
@@ -37,7 +40,7 @@ export class MinigameHUD {
     }
 
     render() {
-        const { gameTitle, score, level, timeLeft, maxTime } = this.state;
+        const { gameTitle, score, level, timeLeft, maxTime, showTimer, lives } = this.state;
         const timePct = maxTime > 0 ? timeLeft / maxTime : 0;
 
         const container = document.createElement("div");
@@ -54,7 +57,10 @@ export class MinigameHUD {
                     </div>
                 </div>
                 <div class="minigame-hud__right">
-
+                    <div class="minigame-hud__stat" id="hud-lives-container" style="display: ${lives !== null ? 'flex' : 'none'}; align-items: center; gap: 4px; margin-right: 16px; color: #d32f2f;">
+                        <md-icon class="material-symbols-rounded">favorite</md-icon>
+                        <span class="minigame-hud__stat-value" id="hud-lives">${lives}</span>
+                    </div>
                     <div class="minigame-hud__stat">
                         <span class="minigame-hud__stat-label">คะแนน</span>
                         <span class="minigame-hud__stat-value" id="hud-score">${score}</span>
@@ -62,14 +68,16 @@ export class MinigameHUD {
                 </div>
             </div>
             
-            <div class="minigame-hud__timer-wrap">
-                <div class="minigame-hud__timer-label" id="hud-timer-text">${timeLeft}s</div>
-                <md-linear-progress 
-                    id="hud-timer-progress"
-                    class="minigame-hud__timer-bar" 
-                    value="${timePct}"
-                ></md-linear-progress>
-            </div>
+            ${showTimer ? `
+                <div class="minigame-hud__timer-wrap">
+                    <div class="minigame-hud__timer-label" id="hud-timer-text">${timeLeft}s</div>
+                    <md-linear-progress
+                        id="hud-timer-progress"
+                        class="minigame-hud__timer-bar"
+                        value="${timePct}"
+                    ></md-linear-progress>
+                </div>
+            ` : ""}
         `;
 
         this.element = container;
@@ -89,6 +97,7 @@ export class MinigameHUD {
         EventBus.on("minigame:score", this.boundOnScore);
         EventBus.on("minigame:level", this.boundOnLevel);
         EventBus.on("minigame:tick", this.boundOnTick);
+        EventBus.on("minigame:lives", this.boundOnLives);
         EventBus.on("minigame:game-over", this.boundOnGameOver);
         EventBus.on("minigame:show-hud", this.boundOnShow);
         EventBus.on("minigame:hide-hud", this.boundOnHide);
@@ -109,6 +118,20 @@ export class MinigameHUD {
         const levelEl = this.element.querySelector("#hud-level");
         if (levelEl) {
             levelEl.textContent = level;
+        }
+    }
+
+    onLivesUpdate({ lives }) {
+        this.state.lives = lives;
+        if (!this.livesContainer) {
+            this.livesContainer = this.element?.querySelector("#hud-lives-container");
+            this.livesElement = this.element?.querySelector("#hud-lives");
+        }
+        if (this.livesContainer && this.livesElement) {
+            this.livesContainer.style.display = 'flex';
+            this.livesElement.textContent = lives;
+            this.livesElement.classList.add("pulse");
+            setTimeout(() => this.livesElement.classList.remove("pulse"), 300);
         }
     }
 
@@ -190,6 +213,7 @@ export class MinigameHUD {
         EventBus.off("minigame:score", this.boundOnScore);
         EventBus.off("minigame:level", this.boundOnLevel);
         EventBus.off("minigame:tick", this.boundOnTick);
+        EventBus.off("minigame:lives", this.boundOnLives);
         EventBus.off("minigame:game-over", this.boundOnGameOver);
         EventBus.off("minigame:show-hud", this.boundOnShow);
         EventBus.off("minigame:hide-hud", this.boundOnHide);

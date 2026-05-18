@@ -1,6 +1,6 @@
 # MCI Cognitive Games — System Design
 
-**Version:** 1.1 | **Last Updated:** 2026-05-03
+**Version:** 1.2 | **Last Updated:** 2026-05-08
 
 ```mermaid
 graph TD
@@ -8,6 +8,7 @@ graph TD
         EventBus
         DB[Database & Storage]
         Voice[VoiceService]
+        DDM[DragDropManager]
     end
 
     subgraph Games
@@ -18,18 +19,20 @@ graph TD
     end
 
     subgraph UI
-        ReactHUD
+        WebHUD[Web Components HUD]
         PhaserUI[Phaser UIPanel]
     end
 
     subgraph Utils
         ObjectPool
         Layout
+        DBUtil[MiniGameDBUtil]
     end
 
     Core <--> Games
     Core <--> UI
     Games <--> Utils
+    UI <--> Utils
 ```
 
 เอกสารนี้อธิบายรายละเอียดการออกแบบระบบเชิงโครงสร้าง (Subsystems) และรูปแบบการเขียนโปรแกรม (Design Patterns) ที่ใช้ในโครงการ
@@ -37,12 +40,12 @@ graph TD
 ## 1. โครงสร้างมินิเกมมาตรฐาน (Standardized Minigame Structure)
 ทุกมินิเกมจะถูกจัดเก็บภายใต้ `src/game/[game-name]/` โดยมีโครงสร้างโฟลเดอร์ที่เหมือนกันเพื่อความง่ายในการบำรุงรักษา:
 
-- `components/`: สคริปต์ตรรกะย่อยที่นำไปประกอบร่างเป็น Entity
-- `entity/`: วัตถุหลักในเกม (เช่น ผู้เล่น, สัตว์, ตาราง)
+- `main.js`: จุดเริ่มต้นของมินิเกม (Entry Point) ทำหน้าที่ตั้งค่า Phaser Game Config และโหลด Scenes
+- `components/`: สคริปต์ตรรกะย่อยที่นำไปประกอบร่างเป็น Entity (เช่น `Clickable.js`, `Draggable.js`)
+- `entity/`: วัตถุหลักในเกม (เช่น ผู้เล่น, สัตว์, ตาราง) ที่ขยายจาก Phaser Sprite และรองรับระบบ Component
 - `scenes/`: ฉากต่างๆ ของ Phaser (Boot, Preloader, MainMenu, Gameplay)
-- `ui-elements/`: หน้าจอ Overlay และ UI Panels ภายใน Phaser
-- `data/`: (ถ้ามี) โครงสร้างข้อมูลเฉพาะของเกมนั้นๆ
-- `constants.js`: ค่าคงที่, การตั้งค่าความยาก, และ Asset Keys
+- `ui-elements/`: หน้าจอ Overlay และ UI Panels ภายใน Phaser (เช่น `ResultPanel.js`)
+- `constants.js`: ค่าคงที่, การตั้งค่าความยาก, และ Asset Keys (รวมถึงข้อมูลด่านในบางเกม)
 
 ---
 
@@ -54,15 +57,18 @@ graph TD
 - **Component**: คลาสฐานสำหรับสร้าง Logic ย่อย (เช่น `Clickable`, `EmojiRenderer`, `Draggable`)
 - **การใช้งาน**: `entity.addComponent(ComponentClass)`
 
-### 2.2 UI System (UIPanel Architecture)
-ระบบ UI ถูกแบ่งออกเป็น 2 ชั้น:
-1. **React HUD**: ใช้สำหรับ UI ที่ซับซ้อน เช่น แถบคะแนนด้านบน หรือปุ่มเมนูหลัก (จัดการผ่าน `src/ui/`)
-2. **Phaser UIPanel**: ใช้สำหรับ UI ภายในเกม เช่น หน้าต่างสรุปผล (GameOver) หรือ Tutorial (จัดการผ่าน `UIPanel.js`) โดยใช้ระบบ Tween เพื่อความลื่นไหล
+### 2.2 UI System (Dual-Layer Architecture)
+ระบบ UI ถูกแบ่งออกเป็น 2 ชั้นเพื่อให้เหมาะสมกับหน้าที่:
+1. **Web Components HUD**: ใช้ Vanilla JS ร่วมกับ Material Web Components (`@material/web`) สำหรับ UI หลักภายนอกเกม เช่น หน้า Hub, Login, และหน้าสรุปผลรวม (จัดการผ่าน `src/ui/`)
+2. **Phaser UIPanel**: ใช้สำหรับ UI ภายใน Canvas ของเกม เช่น หน้าต่าง Pause หรือ Tutorial (จัดการผ่าน `src/game/common/ui/core/ui-panel-base.js`) โดยใช้ระบบ Tween และ Phaser Graphics
 
 ### 2.3 EventBus (The Bridge)
-ใช้ `src/core/EventBus.js` เป็นตัวกลางในการสื่อสารระหว่าง React และ Phaser:
-- **Phaser -> React**: ส่งเหตุการณ์ `game-over`, `score-update`, `timer-tick`
-- **React -> Phaser**: ส่งเหตุการณ์ `start-game`, `pause-game`, `change-level`
+ใช้ `src/core/EventBus.js` เป็นตัวกลางในการสื่อสารระหว่างส่วนที่เป็น Web UI และ Phaser:
+- **Phaser -> Web UI**: ส่งเหตุการณ์ `game-over`, `score-update`, `timer-tick`
+- **Web UI -> Phaser**: ส่งเหตุการณ์ `start-game`, `pause-game`, `change-level`
+
+### 2.4 Drag-Drop Manager
+ระบบจัดการการลากวางส่วนกลาง (`src/core/drag-drop-manager.js`) ที่ช่วยให้การตรวจจับการลากวัตถุและการตรวจสอบจุดวาง (Drop Zone) เป็นไปอย่างเป็นระบบ
 
 ---
 
@@ -77,7 +83,9 @@ graph TD
 จัดการการจัดวางตำแหน่งที่รองรับความละเอียดหน้าจอที่หลากหลาย:
 - **SquareGridLayout**: จัดวางวัตถุในรูปแบบตาราง (ใช้ใน Zoo Detective)
 - **AnimalIconTray**: จัดวางไอคอนสัตว์แบบ Grid ที่ปรับขนาดอัตโนมัติ
-- **ProgressBar**: แถบแสดงความก้าวหน้า (Linear หรือ Circular)
+
+### 3.3 MiniGameDBUtil
+ตัวช่วยในการเชื่อมต่อข้อมูลเกมจาก Phaser กลับไปยัง Database ผ่าน `sessionStorage` และ `src/core/database.js` เพื่อบันทึกคะแนนและสถานะการเล่น
 
 ---
 

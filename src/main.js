@@ -7,6 +7,15 @@ import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
+import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
+import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
+import {
+    deleteGameLevelPresetList,
+    getGameLevelPresetEditorData,
+    getGameLevelPresetLists,
+    getGameListOptions,
+    saveGameLevelPreset,
+} from "./tools/daily-preset-database.js";
 import {
     buildPatientSession,
     clearPatientSessionCookie,
@@ -14,9 +23,30 @@ import {
     getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
+import {
+    buildGameCsv,
+    buildGameHistoryCsv,
+    buildPlayerCsv,
+    buildPlayersCsv,
+    CsvExportScope,
+    CsvExportType,
+    downloadCsv,
+    getGameHistoriesCsvFilename,
+    getGameHistoryCsvFilename,
+    getGameCsvFilename,
+    getGamesCsvFilename,
+    getPlayerCsvFilename,
+    getPlayersCsvFilename,
+} from "./util/player-csv-export.js";
 import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
+import { EventBus } from "./core/EventBus.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
+import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
+import StorageManager from "./core/storage-manager.js";
+import SessionStorageManager from "./core/session-storage-manager.js";
+import MiniGameDBUtil from "./util/minigame-db-util.js";
+
 
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
@@ -29,6 +59,7 @@ const ROUTES = Object.freeze({
     signup: "#/signup",
     hub: "#/hub",
     checkInSummary: "#/checkin-summary",
+    dailyPresetTool: "#/tools/daily-presets",
 });
 
 const GAME_ROUTE_PREFIX = "#/game/";
@@ -182,6 +213,19 @@ document.addEventListener("DOMContentLoaded", () => {
             return { name: "checkin-summary" };
         }
 
+        if (normalizedPath === "/tools/daily-presets") {
+            return { name: "daily-preset-tool" };
+        }
+
+        if (normalizedPath.startsWith("/tools/daily-presets/")) {
+            const presetId = normalizedPath
+                .slice("/tools/daily-presets/".length)
+                .split("/")
+                .map((segment) => String(segment || "").trim())
+                .filter(Boolean)[0] || "";
+            return { name: "daily-preset-editor", presetId };
+        }
+
         if (normalizedPath === "/hub" || normalizedPath === "/hub/intro") {
             return {
                 name: "hub",
@@ -247,28 +291,28 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const persistSelectedGame = (selectedGame) => {
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
-        sessionStorage.setItem(
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
+        SessionStorageManager.save(
             SELECTED_GAME_STORAGE.thName,
             String(selectedGame?.th_name || selectedGame?.thName || selectedGame?.displayName || "").trim(),
         );
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
     };
 
     const getPersistedSelectedGame = () => {
-        const gid = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.gid) || "").trim();
-        const name = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.name) || "").trim();
-        const thName = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.thName) || "").trim();
-        const mciGroup = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.group) || "").trim();
-        const stage = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.stage) || "").trim();
-        const level = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.level) || "").trim();
-        const day = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.day) || "").trim();
-        const presetDataId = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.presetDataId) || "").trim();
+        const gid = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.gid, "") || "").trim();
+        const name = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.name, "") || "").trim();
+        const thName = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.thName, "") || "").trim();
+        const mciGroup = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.group, "") || "").trim();
+        const stage = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.stage, "") || "").trim();
+        const level = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.level, "") || "").trim();
+        const day = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.day, "") || "").trim();
+        const presetDataId = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.presetDataId, "") || "").trim();
 
         if (!gid || !name) {
             return null;
@@ -300,7 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const readPendingGameHistoryMap = () => {
         try {
-            const parsed = JSON.parse(sessionStorage.getItem(PENDING_GAME_HISTORY_STORAGE.map) || "{}");
+            const parsed = SessionStorageManager.get(PENDING_GAME_HISTORY_STORAGE.map, {});
             return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
         } catch (error) {
             console.warn("Unable to parse pending game history map:", error);
@@ -314,11 +358,11 @@ document.addEventListener("DOMContentLoaded", () => {
             : {};
 
         if (Object.keys(normalizedMap).length === 0) {
-            sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.map);
+            SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.map);
             return;
         }
 
-        sessionStorage.setItem(PENDING_GAME_HISTORY_STORAGE.map, JSON.stringify(normalizedMap));
+        SessionStorageManager.save(PENDING_GAME_HISTORY_STORAGE.map, normalizedMap);
     };
 
     const setPendingGameHistoryByKey = (nodeKey, selectedGame, historyRecord, fallbackStartAt = "") => {
@@ -354,24 +398,24 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const clearSelectedGameState = () => {
-        sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.map);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyId);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.gid);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.name);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.thName);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.group);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.stage);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.level);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.day);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.presetDataId);
+        SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.map);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyId);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.gid);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.name);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.thName);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.group);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.stage);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.level);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.day);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.presetDataId);
     };
 
     const clearPatientClientState = () => {
         clearPatientSessionCookie();
-        sessionStorage.removeItem(PATIENT_LOGIN_ID_KEY);
-        sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+        SessionStorageManager.delete(PATIENT_LOGIN_ID_KEY);
+        SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
         clearSelectedGameState();
         Object.assign(hubUiState, createGameHubState());
     };
@@ -423,7 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showUiRoot();
 
         const rememberedPatient = getPatientSessionCookie();
-        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         await renderGameHubScreen(uiRoot, {
@@ -504,7 +548,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
-                sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                 navigateTo(getGameRouteHash(selectedGame));
             },
             // Test-only shortcut: opens a selected game without creating normal history.
@@ -547,7 +591,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
                         persistSelectedGame(selectedGame);
-                        sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                        SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                         navigateTo(getGameRouteHash(selectedGame));
                         return;
                     } catch (error) {
@@ -564,7 +608,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
                 navigateTo(getGameRouteHash(selectedGame));
             },
@@ -687,7 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
 
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 writePendingGameHistoryMap({});
 
                 await showPopup({
@@ -698,61 +742,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             },
             // Test-only placeholder: daily game data management tools will be wired here later.
-            onTestDailyDataTools: async () => {},
-            onTestChangeProgram: async (selectedProgram) => {
-                if (!patientCode) {
-                    await showPopup({
-                        title: "ไม่พบผู้เล่น",
-                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถเปลี่ยนโปรแกรมได้",
-                        confirmText: "รับทราบ",
-                        icon: "warning",
-                    });
-                    return false;
-                }
-
-                const programName = String(selectedProgram?.name || `Program ${selectedProgram?.id || ""}`).trim();
-                const hasConfirmed = await showPopup({
-                    title: "เปลี่ยนโปรแกรมทดสอบ",
-                    message: `ต้องการเปลี่ยนโปรแกรมของผู้เล่นเป็น ${programName} ใช่หรือไม่`,
-                    confirmText: "เปลี่ยนโปรแกรม",
-                    cancelText: "ยกเลิก",
-                    icon: "assignment",
-                });
-
-                if (!hasConfirmed) {
-                    return false;
-                }
-
-                try {
-                    await db.setUserGameProfileProgram({
-                        hn: patientCode,
-                        programId: selectedProgram?.id,
-                    });
-                } catch (error) {
-                    console.error("Unable to change user game program:", error);
-                    await showPopup({
-                        title: "เปลี่ยนโปรแกรมไม่สำเร็จ",
-                        message: error?.message || "ระบบยังไม่สามารถเขียนค่า program ลงฐานข้อมูลได้",
-                        confirmText: "รับทราบ",
-                        icon: "error",
-                        tone: "error",
-                    });
-                    return false;
-                }
-
-                await showPopup({
-                    title: "เปลี่ยนโปรแกรมสำเร็จ",
-                    message: `ระบบตั้งค่าโปรแกรมเป็น ${programName} แล้ว`,
-                    confirmText: "รับทราบ",
-                    icon: "check_circle",
-                });
-
-                window.location.reload();
-                return true;
+            onTestDailyDataTools: async () => {
+                navigateTo(ROUTES.dailyPresetTool);
             },
-            onRestNode: async (selectedNode) => {
-                const nodeGame = selectedNode?.gameData || null;
-                const restGame = nodeGame?.gid ? nodeGame : await db.getGameByGid("REST001");
+            onRestNode: async () => {
+                const restGame = await db.getGameByGid("REST001");
 
                 if (!restGame?.gid) {
                     throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
@@ -780,7 +774,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 persistSelectedGame(restGame);
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
                 navigateTo(getGameRouteHash(restGame));
                 return { redirected: true };
@@ -826,6 +820,193 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    const showDailyPresetTool = async () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const renderPresetToolView = (presetOptions = {}) => renderDailyPresetTool(uiRoot, {
+            ...presetOptions,
+            onBack: () => navigateTo(ROUTES.hub),
+            onOpenPreset: (preset) => {
+                const presetId = String(preset?.id || "preset-1").trim();
+                navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(presetId)}`);
+            },
+            onAddPreset: () => {
+                navigateTo(`${ROUTES.dailyPresetTool}/new`);
+            },
+        });
+
+        renderPresetToolView({ presets: [], isLoading: true });
+
+        try {
+            const presets = await getGameLevelPresetLists();
+            renderPresetToolView({ presets });
+        } catch (error) {
+            console.error("Failed to load daily preset list:", error);
+            renderPresetToolView({
+                presets: [],
+                errorMessage: "ไม่สามารถโหลด preset ได้",
+            });
+        }
+    };
+
+    const showDailyPresetEditor = async (presetId = "new") => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.remove("landing-mode");
+        document.body.classList.add("hub-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.remove("landing-mode");
+        app?.classList.add("hub-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const isNewPreset = presetId === "new";
+        let preset = {
+            id: null,
+            name: "Preset",
+            isNew: true,
+        };
+        // Future editor metadata flags: default them here, pass them into
+        // renderDailyPresetEditor, and forward them to saveGameLevelPreset.
+        let presetEditorData = {
+            rows: null,
+            stageFields: null,
+            hasDailyGoal: false,
+            hasDailyLoop: false,
+        };
+
+        if (!isNewPreset) {
+            try {
+                presetEditorData = await getGameLevelPresetEditorData(presetId);
+                preset = presetEditorData.preset;
+            } catch (error) {
+                console.error("Failed to load daily preset:", error);
+                await showPopup({
+                    title: "โหลด Preset ไม่สำเร็จ",
+                    message: "ไม่สามารถโหลดข้อมูล preset นี้ได้",
+                    confirmText: "กลับ",
+                    icon: "error",
+                    tone: "error",
+                });
+                navigateTo(ROUTES.dailyPresetTool);
+                return;
+            }
+        }
+
+        let gameOptions = [];
+        try {
+            gameOptions = await getGameListOptions();
+        } catch (error) {
+            console.error("Failed to load game list options:", error);
+            await showPopup({
+                title: "โหลดรายชื่อเกมไม่สำเร็จ",
+                message: "ไม่สามารถโหลดรายชื่อเกมสำหรับ preset ได้",
+                confirmText: "รับทราบ",
+                icon: "error",
+                tone: "error",
+            });
+        }
+
+        renderDailyPresetEditor(uiRoot, {
+            preset,
+            gameOptions,
+            initialRows: presetEditorData.rows,
+            initialStageFields: presetEditorData.stageFields,
+            initialHasDailyGoal: presetEditorData.hasDailyGoal,
+            initialHasDailyLoop: presetEditorData.hasDailyLoop,
+            onBack: () => navigateTo(ROUTES.dailyPresetTool),
+            onSavePreset: async (presetData) => {
+                const name = String(presetData.name || "").trim();
+                if (!name) {
+                    await showPopup({
+                        title: "กรุณากรอกชื่อ preset",
+                        message: "ต้องมีชื่อ preset ก่อนบันทึก",
+                        confirmText: "รับทราบ",
+                        icon: "edit",
+                    });
+                    return;
+                }
+
+                try {
+                    const savedPreset = await saveGameLevelPreset({
+                        id: presetData.isNew ? null : presetData.id,
+                        name,
+                        rowData: presetData.rowData,
+                        rows: presetData.rowData,
+                        stageFields: presetData.stageFields,
+                        hasDailyGoal: presetData.hasDailyGoal,
+                        hasDailyLoop: presetData.hasDailyLoop,
+                    });
+
+                    await showPopup({
+                        title: "บันทึก Preset แล้ว",
+                        message: "บันทึก preset ลง database เรียบร้อยแล้ว",
+                        confirmText: "ตกลง",
+                        icon: "check_circle",
+                    });
+                    navigateTo(`${ROUTES.dailyPresetTool}/${encodeURIComponent(savedPreset.id)}`);
+                } catch (error) {
+                    console.error("Failed to save daily preset:", error);
+                    await showPopup({
+                        title: "บันทึกไม่สำเร็จ",
+                        message: "ไม่สามารถบันทึก preset ได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                }
+            },
+            onDeletePreset: async (presetData) => {
+                if (!presetData?.id) {
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ลบ Preset",
+                    message: `ต้องการลบ preset "${presetData.name}" ใช่หรือไม่`,
+                    confirmText: "ลบ",
+                    cancelText: "ยกเลิก",
+                    icon: "delete",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                try {
+                    await deleteGameLevelPresetList(presetData.id);
+                    navigateTo(ROUTES.dailyPresetTool);
+                } catch (error) {
+                    console.error("Failed to delete daily preset:", error);
+                    await showPopup({
+                        title: "ลบไม่สำเร็จ",
+                        message: "ไม่สามารถลบ preset ได้",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                }
+            },
+        });
+    };
+
     const showCheckInSummary = async () => {
         if (!uiRoot || !gameContainer) {
             return;
@@ -842,7 +1023,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showUiRoot();
 
         const rememberedPatient = getPatientSessionCookie();
-        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
 
         if (!patientCode) {
             navigateTo(ROUTES.login, { replace: true });
@@ -883,7 +1064,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        const { parsedName, loader } = resolveGameModuleLoader(selectedGame?.name);
+        const { parsedName, slug, loader } = resolveGameModuleLoader(selectedGame?.name);
 
         if (!parsedName) {
             await showPopup({
@@ -946,6 +1127,95 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
+            
+            // Mount Minigame HUD
+            uiRoot.innerHTML = "";
+            uiRoot.hidden = false;
+            const hud = new MinigameHUD(uiRoot, {
+                gameTitle: selectedGame?.name,
+                timeLimit: selectedGame?.time_limit || 60, // Fallback
+                showTimer: slug !== "zoo-detective",
+            });
+            hud.render();
+            let activeResultPanel = null;
+
+
+            const handleExit = async () => {
+                const confirmed = await showPopup({
+                    title: "ออกจากเกม",
+                    message: "คุณต้องการออกจากเกมที่กำลังเล่นอยู่ใช่หรือไม่? ความก้าวหน้าในรอบนี้อาจจะไม่ถูกบันทึก",
+                    confirmText: "ออกจากการแข่งขัน",
+                    cancelText: "เล่นต่อ",
+                    icon: "logout",
+                    tone: "error"
+                });
+
+                if (confirmed) {
+                    cleanup();
+                    navigateTo(ROUTES.hub);
+                }
+            };
+
+            const handleGameOver = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
+                activeResultPanel?.destroy();
+                activeResultPanel = new MinigameResultPanel(uiRoot, {
+                    score,
+                    highScore: StorageManager.get("highscore", 0),
+                    gameTitle: selectedGame?.name,
+                });
+                activeResultPanel.render();
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level}`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
+            };
+
+            const handleLevelSelect = () => {
+                cleanup();
+                showGame(selectedGame);
+            };
+
+            const handleRetry = () => {
+                handleLevelSelect();
+            };
+
+            const handleExitConfirmed = () => {
+                cleanup();
+                navigateTo(ROUTES.hub);
+            };
+
+            const cleanup = () => {
+                EventBus.off("minigame:exit-request", handleExit);
+                EventBus.off("minigame:game-over", handleGameOver);
+                EventBus.off("minigame:retry-request", handleRetry);
+                EventBus.off("minigame:level-select-request", handleLevelSelect);
+                EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                activeResultPanel?.destroy();
+                activeResultPanel = null;
+                hud.destroy();
+            };
+
+            EventBus.on("minigame:exit-request", handleExit);
+            EventBus.on("minigame:game-over", handleGameOver);
+            EventBus.on("minigame:retry-request", handleRetry);
+            EventBus.on("minigame:level-select-request", handleLevelSelect);
+            EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+
             return true;
         } catch (error) {
             console.error(`Unable to start game ${parsedName}:`, error);
@@ -1026,8 +1296,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 await rememberPatientSession(createdPatient);
-                sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
-                sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+                SessionStorageManager.save(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
+                SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
                 navigateTo(ROUTES.hub);
             },
         });
@@ -1043,11 +1313,11 @@ document.addEventListener("DOMContentLoaded", () => {
             initialPatientCode: patientCode,
             onAccept: async ({ patientId: acceptedId }) => {
                 const patient = await db.getPatientByHn(acceptedId);
-                sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, acceptedId);
+                SessionStorageManager.save(PATIENT_LOGIN_ID_KEY, acceptedId);
 
                 if (patient) {
                     await rememberPatientSession(patient);
-                    sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+                    SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
                     navigateTo(ROUTES.hub);
                     return;
                 }
@@ -1227,15 +1497,132 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 navigateTo(ROUTES.hub);
             },
-            onExport: async () => {
+            onExport: async (exportPlayer, { exportTypes, exportScope } = {}) => {
+                const wantsPlayerExport = exportTypes?.includes(CsvExportType.Player);
+                const wantsGameExport = exportTypes?.includes(CsvExportType.Game);
+                const wantsHistoryExport = exportTypes?.includes(CsvExportType.History);
+
+                if (!wantsPlayerExport && !wantsGameExport && !wantsHistoryExport) {
+                    return false;
+                }
+
+                const exportedItems = [];
+
+                if (exportScope === CsvExportScope.All) {
+                    if (wantsPlayerExport) {
+                        const players = await db.getAllPatientCsvExportRows();
+
+                        if (players.length) {
+                            downloadCsv(getPlayersCsvFilename(), buildPlayersCsv(players));
+                            exportedItems.push(`ข้อมูลผู้เล่น ${players.length} คน`);
+                        }
+                    }
+
+                    if (wantsGameExport) {
+                        const gameRecords = await db.getGameCsvExportRows();
+
+                        if (gameRecords.length) {
+                            downloadCsv(getGamesCsvFilename(), buildGameCsv(gameRecords));
+                            exportedItems.push(`ข้อมูลเกม ${gameRecords.length} record`);
+                        }
+                    }
+
+                    if (wantsHistoryExport) {
+                        const historyRecords = await db.getGameHistoryCsvExportRows();
+
+                        if (historyRecords.length) {
+                            downloadCsv(getGameHistoriesCsvFilename(), buildGameHistoryCsv(historyRecords));
+                            exportedItems.push(`ประวัติการเล่นรายวัน ${historyRecords.length} record`);
+                        }
+                    }
+
+                    if (!exportedItems.length) {
+                        await showPopup({
+                            title: "ส่งออกข้อมูล",
+                            message: "ยังไม่มีข้อมูลสำหรับส่งออก",
+                            confirmText: "รับทราบ",
+                            icon: "download",
+                        });
+                        return false;
+                    }
+
+                    await showPopup({
+                        title: "ส่งออกข้อมูล",
+                        message: `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว`,
+                        confirmText: "รับทราบ",
+                        icon: "download",
+                    });
+                    return true;
+                }
+
+                const missingItems = [];
+
+                if (wantsPlayerExport) {
+                    let programName = "";
+
+                    try {
+                        const programPresets = await db.getGameLevelPresetList();
+                        const programId = Number(playerProgram?.programId);
+                        programName = programPresets.find((preset) => Number(preset.id) === programId)?.name || "";
+                    } catch (error) {
+                        console.warn("Unable to load program preset name for CSV export:", error);
+                    }
+
+                    const csvContent = buildPlayerCsv(exportPlayer, {
+                        educationName: exportPlayer.educationName,
+                        programDayCount: playerProgram?.programDayCount ?? null,
+                        programName,
+                    });
+
+                    downloadCsv(getPlayerCsvFilename(exportPlayer), csvContent);
+                    exportedItems.push("ข้อมูลผู้เล่น");
+                }
+
+                if (wantsGameExport) {
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    const gameRecords = await db.getGameCsvExportRows({ hn });
+
+                    if (!gameRecords.length) {
+                        missingItems.push("ข้อมูลเกม");
+                    } else {
+                        downloadCsv(getGameCsvFilename(exportPlayer), buildGameCsv(gameRecords));
+                        exportedItems.push(`ข้อมูลเกม ${gameRecords.length} record`);
+                    }
+                }
+
+                if (wantsHistoryExport) {
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    const historyRecords = await db.getGameHistoryCsvExportRows({ hn });
+
+                    if (!historyRecords.length) {
+                        missingItems.push("ประวัติการเล่นรายวัน");
+                    } else {
+                        downloadCsv(getGameHistoryCsvFilename(exportPlayer), buildGameHistoryCsv(historyRecords));
+                        exportedItems.push(`ประวัติการเล่นรายวัน ${historyRecords.length} record`);
+                    }
+                }
+
+                if (!exportedItems.length) {
+                    await showPopup({
+                        title: "ส่งออกข้อมูล",
+                        message: missingItems.length
+                            ? `ยังไม่มี${missingItems.join(" และ ")}ของผู้เล่นคนนี้สำหรับส่งออก`
+                            : "ยังไม่มีข้อมูลสำหรับส่งออก",
+                        confirmText: "รับทราบ",
+                        icon: "download",
+                    });
+                    return false;
+                }
+
                 await showPopup({
                     title: "ส่งออกข้อมูล",
-                    message: "ฟังก์ชันส่งออกข้อมูลจะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    message: missingItems.length
+                        ? `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว แต่ยังไม่มี${missingItems.join(" และ ")}ของผู้เล่นคนนี้`
+                        : `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว`,
                     confirmText: "รับทราบ",
                     icon: "download",
                 });
-
-                return false;
+                return true;
             },
         });
     };
@@ -1283,7 +1670,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "login") {
             showLogin({
-                patientCode: sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "",
+                patientCode: SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "",
             });
             return;
         }
@@ -1299,7 +1686,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "signup") {
-            const pendingPatientCode = sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "";
+            const pendingPatientCode = SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "";
             if (!pendingPatientCode) {
                 navigateTo(ROUTES.login, { replace: true });
                 return;
@@ -1313,6 +1700,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "checkin-summary") {
             await showCheckInSummary();
+            return;
+        }
+
+        if (route.name === "daily-preset-tool") {
+            showDailyPresetTool();
+            return;
+        }
+
+        if (route.name === "daily-preset-editor") {
+            showDailyPresetEditor(route.presetId);
             return;
         }
 
@@ -1387,10 +1784,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const pendingLaunchKey = sessionStorage.getItem(PENDING_GAME_LAUNCH_KEY) || "";
+            const pendingLaunchKey = SessionStorageManager.get(PENDING_GAME_LAUNCH_KEY, "") || "";
             const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
             if (hasStarted && pendingLaunchKey === selectedNodeKey) {
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 try {
                     await db.logUserEvent("SPG", selectedGame.gid);
                 } catch (error) {
@@ -1399,7 +1796,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+            SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
             if (!hasStarted) {
                 removePendingGameHistoryByKey(selectedNodeKey);
                 navigateTo(ROUTES.hub, { replace: true });

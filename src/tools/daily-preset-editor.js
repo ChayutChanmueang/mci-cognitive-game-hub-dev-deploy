@@ -5,15 +5,22 @@ import { showDailyPresetAddFieldPopup } from "./daily-preset-add-field-popup.js"
 import { showDailyPresetImportPopup } from "./daily-preset-import-popup.js";
 import { parseDailyPresetCsv } from "./daily-preset-csv-import.js";
 import { showPopup } from "../ui/popup-dialog.js";
+import "material-design-lite";
+import "material-design-lite/dist/material.min.css";
 import "./daily-preset-editor.css";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const DEFAULT_STAGE_COUNT = 3;
 const DAILY_GOAL_FIELD = "dailyGoal";
+const DAILY_LOOP_FIELD = "dailyLoop";
 const DAY_FIELD = "day";
 const ROW_ID_FIELD = "__presetRowId";
+const LEVEL_RECORD_ID_FIELD = "__levelPresetDataId";
 
+// Future optional daily fields: add a field constant here, track a hasX flag in
+// renderDailyPresetEditor, add a locked column in buildColumnDefs, wire add/remove
+// handlers, include it in add-day fields, CSV import/export, and onSavePreset.
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -116,7 +123,16 @@ function getDefaultStageFields() {
     return Array.from({ length: DEFAULT_STAGE_COUNT }, (_, index) => `stage${index + 1}`);
 }
 
-function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow, gameNameByGid) {
+function normalizeDailyLoop(value) {
+    const parsedLoop = Number(value);
+    if (!Number.isFinite(parsedLoop)) {
+        return 1;
+    }
+
+    return Math.max(1, Math.min(32767, Math.round(parsedLoop)));
+}
+
+function buildColumnDefs(stageFields, hasDailyGoal, hasDailyLoop, onRemoveColumn, onRemoveRow, gameNameByGid) {
     const stageColumns = stageFields.map((field, index) => ({
         field,
         headerName: `ด่านที่ ${index + 1}`,
@@ -161,6 +177,28 @@ function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow,
         ]
         : [];
 
+    const dailyLoopColumn = hasDailyLoop
+        ? [
+            {
+                field: DAILY_LOOP_FIELD,
+                headerName: "จำนวนรอบการเล่น",
+                editable: true,
+                width: 170,
+                minWidth: 150,
+                cellEditor: "agNumberCellEditor",
+                valueParser: (params) => normalizeDailyLoop(params.newValue),
+                lockPosition: "left",
+                suppressMovable: true,
+                headerComponent: DeletableHeader,
+                headerComponentParams: {
+                    field: DAILY_LOOP_FIELD,
+                    columnType: "dailyLoop",
+                    onRemoveColumn,
+                },
+            },
+        ]
+        : [];
+
     return [
         {
             field: DAY_FIELD,
@@ -189,14 +227,15 @@ function buildColumnDefs(stageFields, hasDailyGoal, onRemoveColumn, onRemoveRow,
             },
         },
         ...dailyGoalColumn,
+        ...dailyLoopColumn,
         ...stageColumns,
     ];
 }
 
-function getRowsWithField(rowData, field) {
+function getRowsWithField(rowData, field, defaultValue = "") {
     return rowData.map((row) => ({
         ...row,
-        [field]: "",
+        [field]: defaultValue,
     }));
 }
 
@@ -247,6 +286,146 @@ function downloadCsv(filename, csvContent) {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+}
+
+function showSavingOverlay() {
+    if (typeof document === "undefined") {
+        return () => {};
+    }
+
+    const overlay = document.createElement("div");
+    const titleId = `daily-preset-saving-title-${Date.now()}`;
+    const messageId = `daily-preset-saving-message-${Date.now()}`;
+    const previousOverflow = document.body.style.overflow;
+
+    overlay.className = "app-popup daily-preset-editor__saving-popup";
+    overlay.innerHTML = `
+        <div class="app-popup__backdrop"></div>
+        <div
+            class="app-popup__dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="${titleId}"
+            aria-describedby="${messageId}"
+        >
+            <div class="app-popup__header">
+                <div class="app-popup__icon-wrap">
+                    <span class="material-symbols-rounded app-popup__icon">hourglass_top</span>
+                </div>
+                <div class="app-popup__copy">
+                    <h2 id="${titleId}">กำลังบันทึกข้อมูล</h2>
+                    <p id="${messageId}">กรุณารอสักครู่</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.style.overflow = "hidden";
+    document.body.appendChild(overlay);
+
+    return () => {
+        overlay.remove();
+        document.body.style.overflow = previousOverflow;
+    };
+}
+
+function upgradeMdlTooltips(root) {
+    const componentHandler = globalThis.componentHandler;
+    if (!componentHandler?.upgradeElements) {
+        return;
+    }
+
+    const tooltips = root.querySelectorAll(".mdl-tooltip");
+    componentHandler.upgradeElements(tooltips);
+
+    root.querySelectorAll(".daily-preset-editor__csv-tooltip").forEach((tooltip) => {
+        const target = root.querySelector(`#${CSS.escape(tooltip.getAttribute("for") || "")}`);
+        if (!target) {
+            return;
+        }
+
+        const placeTooltip = () => {
+            requestAnimationFrame(() => {
+                const targetRect = target.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+                const x = 72;
+                const y = -42;
+                const viewportPadding = 8;
+                const left = Math.max(viewportPadding, targetRect.left - tooltipRect.width - x);
+                const top = Math.min(
+                    Math.max(viewportPadding, targetRect.top + (targetRect.height - tooltipRect.height + y) / 2),
+                    window.innerHeight - tooltipRect.height - viewportPadding,
+                );
+
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${top}px`;
+            });
+        };
+
+        target.addEventListener("mouseenter", placeTooltip);
+        target.addEventListener("focus", placeTooltip);
+        const onResize = () => {
+            if (!target.isConnected || !tooltip.isConnected) {
+                window.removeEventListener("resize", onResize);
+                return;
+            }
+
+            placeTooltip();
+        };
+        window.addEventListener("resize", onResize);
+    });
+}
+
+function fitEditorSurfaceToViewport(root) {
+    root.__dailyPresetSurfaceHeightCleanup?.();
+
+    const surface = root.querySelector(".daily-preset-editor__surface");
+    if (!surface || typeof window === "undefined") {
+        root.__dailyPresetSurfaceHeightCleanup = null;
+        return;
+    }
+
+    const visualViewport = window.visualViewport;
+    let frameId = null;
+
+    const updateSurfaceHeight = () => {
+        frameId = null;
+        if (!surface.isConnected) {
+            root.__dailyPresetSurfaceHeightCleanup?.();
+            return;
+        }
+
+        const viewportHeight = visualViewport?.height || window.innerHeight;
+        const surfaceTop = surface.getBoundingClientRect().top;
+        const bottomGap = 24;
+        const minSurfaceHeight = 420;
+        const nextHeight = Math.max(minSurfaceHeight, Math.floor(viewportHeight - surfaceTop - bottomGap));
+
+        surface.style.setProperty("--daily-preset-editor-surface-height", `${nextHeight}px`);
+    };
+
+    const scheduleUpdate = () => {
+        if (frameId != null) {
+            return;
+        }
+
+        frameId = requestAnimationFrame(updateSurfaceHeight);
+    };
+
+    const cleanup = () => {
+        if (frameId != null) {
+            cancelAnimationFrame(frameId);
+            frameId = null;
+        }
+        window.removeEventListener("resize", scheduleUpdate);
+        visualViewport?.removeEventListener("resize", scheduleUpdate);
+        root.__dailyPresetSurfaceHeightCleanup = null;
+    };
+
+    root.__dailyPresetSurfaceHeightCleanup = cleanup;
+    window.addEventListener("resize", scheduleUpdate);
+    visualViewport?.addEventListener("resize", scheduleUpdate);
+    scheduleUpdate();
 }
 
 function escapeCsvCell(value) {
@@ -301,6 +480,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         initialRows = null,
         initialStageFields = null,
         initialHasDailyGoal = false,
+        initialHasDailyLoop = false,
         onBack = () => {},
         onSavePreset = async () => {},
         onDeletePreset = async () => {},
@@ -321,12 +501,15 @@ export function renderDailyPresetEditor(root, options = {}) {
     }, DEFAULT_STAGE_COUNT) + 1;
     let nextRowId = 1;
     let hasDailyGoal = Boolean(initialHasDailyGoal);
+    let hasDailyLoop = Boolean(initialHasDailyLoop);
     const sourceRows = Array.isArray(initialRows) ? initialRows : DEFAULT_ROWS;
     let rowData = sourceRows.map((row) => ({
         [ROW_ID_FIELD]: nextRowId++,
         ...row,
     }));
     let gridApi = null;
+    let isSaving = false;
+    let hideSavingOverlay = null;
 
     root.innerHTML = `
         <section class="daily-preset-editor-screen">
@@ -381,16 +564,25 @@ export function renderDailyPresetEditor(root, options = {}) {
                 </main>
 
                 <div class="daily-preset-editor__file-actions" aria-label="เครื่องมือนำเข้าและส่งออก">
-                    <md-fab size="small" aria-label="ส่งออก CSV" title="ส่งออก CSV" data-export-csv>
+                    <md-fab id="daily-preset-export-csv" size="small" aria-label="ส่งออก CSV" data-export-csv>
                         <span class="material-symbols-rounded" slot="icon">file_download</span>
                     </md-fab>
-                    <md-fab size="small" aria-label="นำเข้า CSV" title="นำเข้า CSV" data-import-csv>
+                    <div class="mdl-tooltip mdl-tooltip--large daily-preset-editor__csv-tooltip" for="daily-preset-export-csv">
+                        ส่งออก CSV
+                    </div>
+                    <md-fab id="daily-preset-import-csv" size="small" aria-label="นำเข้า CSV" data-import-csv>
                         <span class="material-symbols-rounded" slot="icon">file_upload</span>
                     </md-fab>
+                    <div class="mdl-tooltip mdl-tooltip--large daily-preset-editor__csv-tooltip" for="daily-preset-import-csv">
+                        นำเข้า CSV
+                    </div>
                 </div>
             </div>
         </section>
     `;
+
+    upgradeMdlTooltips(root);
+    fitEditorSurfaceToViewport(root);
 
     const gridEl = root.querySelector("[data-preset-grid]");
     const addStage = () => {
@@ -411,10 +603,28 @@ export function renderDailyPresetEditor(root, options = {}) {
         gridApi.setGridOption("columnDefs", getGridColumns());
         gridApi.setGridOption("rowData", rowData);
     };
+    const addDailyLoop = () => {
+        if (hasDailyLoop) {
+            return;
+        }
+
+        hasDailyLoop = true;
+        rowData = getRowsWithField(rowData, DAILY_LOOP_FIELD, 1);
+        gridApi.setGridOption("columnDefs", getGridColumns());
+        gridApi.setGridOption("rowData", rowData);
+    };
     const removeColumn = (field, columnType) => {
         if (columnType === "dailyGoal") {
             hasDailyGoal = false;
             rowData = getRowsWithoutField(rowData, DAILY_GOAL_FIELD);
+            gridApi.setGridOption("columnDefs", getGridColumns());
+            gridApi.setGridOption("rowData", rowData);
+            return;
+        }
+
+        if (columnType === "dailyLoop") {
+            hasDailyLoop = false;
+            rowData = getRowsWithoutField(rowData, DAILY_LOOP_FIELD);
             gridApi.setGridOption("columnDefs", getGridColumns());
             gridApi.setGridOption("rowData", rowData);
             return;
@@ -464,7 +674,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         stageFields = displayedStageFields;
         gridApi.setGridOption("columnDefs", getGridColumns());
     };
-    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, removeColumn, removeRow, gameNameByGid);
+    const getGridColumns = () => buildColumnDefs(stageFields, hasDailyGoal, hasDailyLoop, removeColumn, removeRow, gameNameByGid);
     const replacePresetRows = (importedPreset) => {
         stageFields = importedPreset.stageFields.length
             ? [...importedPreset.stageFields]
@@ -474,6 +684,7 @@ export function renderDailyPresetEditor(root, options = {}) {
             return Number.isFinite(stageId) ? Math.max(max, stageId) : max;
         }, DEFAULT_STAGE_COUNT) + 1;
         hasDailyGoal = Boolean(importedPreset.hasDailyGoal);
+        hasDailyLoop = Boolean(importedPreset.hasDailyLoop);
         rowData = importedPreset.rows.map((row) => ({
             [ROW_ID_FIELD]: nextRowId++,
             ...row,
@@ -500,6 +711,10 @@ export function renderDailyPresetEditor(root, options = {}) {
 
                 if (hasDailyGoal) {
                     record["เป้าหมายประจำวัน"] = row[DAILY_GOAL_FIELD] || "";
+                }
+
+                if (hasDailyLoop) {
+                    record["จำนวนรอบการเล่น"] = normalizeDailyLoop(row[DAILY_LOOP_FIELD]);
                 }
 
                 stageFields.forEach((field, index) => {
@@ -531,6 +746,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         const columns = [
             "วันที่",
             ...(hasDailyGoal ? ["เป้าหมายประจำวัน"] : []),
+            ...(hasDailyLoop ? ["จำนวนรอบการเล่น"] : []),
             ...stageFields.map((_, index) => `ด่านที่ ${index + 1}`),
         ];
         const gameReferenceRecords = getCsvGameReferenceRecords();
@@ -552,10 +768,14 @@ export function renderDailyPresetEditor(root, options = {}) {
                 return row;
             }
 
+            const existingValue = row[field];
             return {
                 ...row,
                 [field]: value?.gid
                     ? {
+                        ...(existingValue?.[LEVEL_RECORD_ID_FIELD]
+                            ? { [LEVEL_RECORD_ID_FIELD]: existingValue[LEVEL_RECORD_ID_FIELD] }
+                            : {}),
                         gid: value.gid,
                         level: value.level,
                     }
@@ -575,6 +795,17 @@ export function renderDailyPresetEditor(root, options = {}) {
             ]
             : [];
 
+        const dailyLoopFields = hasDailyLoop
+            ? [
+                {
+                    field: DAILY_LOOP_FIELD,
+                    label: "จำนวนรอบการเล่น",
+                    value: 1,
+                    inputType: "number",
+                },
+            ]
+            : [];
+
         const stageInputFields = stageFields.map((field, index) => ({
             field,
             type: "stage",
@@ -582,7 +813,7 @@ export function renderDailyPresetEditor(root, options = {}) {
             value: null,
         }));
 
-        return [...dailyGoalFields, ...stageInputFields];
+        return [...dailyGoalFields, ...dailyLoopFields, ...stageInputFields];
     };
 
     gridApi = createGrid(gridEl, {
@@ -642,15 +873,40 @@ export function renderDailyPresetEditor(root, options = {}) {
     root.querySelector("[data-preset-name]")?.addEventListener("input", (event) => {
         presetName = event.target.value || "";
     });
+    const saveButton = root.querySelector("[data-save-preset]");
+    const setSaving = (nextIsSaving) => {
+        isSaving = nextIsSaving;
+        if (saveButton) {
+            saveButton.disabled = nextIsSaving;
+        }
+
+        if (nextIsSaving) {
+            hideSavingOverlay = showSavingOverlay();
+            return;
+        }
+
+        hideSavingOverlay?.();
+        hideSavingOverlay = null;
+    };
     root.querySelector("[data-save-preset]")?.addEventListener("click", async () => {
-        await onSavePreset({
-            id: preset?.id || null,
-            isNew: Boolean(preset?.isNew),
-            name: presetName,
-            rowData,
-            stageFields,
-            hasDailyGoal,
-        });
+        if (isSaving) {
+            return;
+        }
+
+        setSaving(true);
+        try {
+            await onSavePreset({
+                id: preset?.id || null,
+                isNew: Boolean(preset?.isNew),
+                name: presetName,
+                rowData,
+                stageFields,
+                hasDailyGoal,
+                hasDailyLoop,
+            });
+        } finally {
+            setSaving(false);
+        }
     });
     root.querySelector("[data-delete-preset]")?.addEventListener("click", async () => {
         await onDeletePreset(preset);
@@ -690,7 +946,7 @@ export function renderDailyPresetEditor(root, options = {}) {
         }
     });
     root.querySelector("[data-add-stage]")?.addEventListener("click", async () => {
-        const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal });
+        const fieldType = await showDailyPresetAddFieldPopup({ hasDailyGoal, hasDailyLoop });
 
         if (fieldType === "stage") {
             addStage();
@@ -699,6 +955,11 @@ export function renderDailyPresetEditor(root, options = {}) {
 
         if (fieldType === "dailyGoal") {
             addDailyGoal();
+            return;
+        }
+
+        if (fieldType === "dailyLoop") {
+            addDailyLoop();
         }
     });
     root.querySelector("[data-add-day]")?.addEventListener("click", async () => {
@@ -719,6 +980,9 @@ export function renderDailyPresetEditor(root, options = {}) {
         };
         if (hasDailyGoal) {
             nextRow[DAILY_GOAL_FIELD] = values[DAILY_GOAL_FIELD] || "";
+        }
+        if (hasDailyLoop) {
+            nextRow[DAILY_LOOP_FIELD] = normalizeDailyLoop(values[DAILY_LOOP_FIELD]);
         }
         stageFields.forEach((field) => {
             nextRow[field] = values[field] || "";

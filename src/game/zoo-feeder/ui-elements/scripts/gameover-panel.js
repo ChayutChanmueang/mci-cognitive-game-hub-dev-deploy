@@ -1,5 +1,4 @@
 import UIPanel from "../core/ui-panel";
-import game_db from "/src/util/minigame-db-util.js";
 import Theme from "../../../../util/game-theme.js";
 
 export default class GameOverPanel extends UIPanel {
@@ -50,9 +49,6 @@ export default class GameOverPanel extends UIPanel {
 
         this.homeBtn = this.createButton(0, 250, "กลับหน้าหลัก", Theme.colors.outline, Theme.colors.onSurface, () => {
             this.scene.scene.start('main-menu-scene');
-            game_db.pushGameData(this.finalScore, this.scene.conveyerNums, this.scene.gameStartedAt, this.scene.gameEndedAt)
-                .then(() => console.log("Game data saved"))
-                .catch((error) => console.error("Failed to save game data:", error));
         });
 
         this.addElements([

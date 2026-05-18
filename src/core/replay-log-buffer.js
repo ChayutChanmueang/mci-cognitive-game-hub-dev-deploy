@@ -44,6 +44,23 @@ function parseStorageJson(key, fallbackValue = null) {
     }
 }
 
+function parseStorageValue(key, fallbackValue = null) {
+    if (typeof sessionStorage === "undefined") {
+        return fallbackValue;
+    }
+
+    const rawValue = sessionStorage.getItem(key);
+    if (rawValue == null) {
+        return fallbackValue;
+    }
+
+    try {
+        return JSON.parse(rawValue);
+    } catch (error) {
+        return rawValue;
+    }
+}
+
 function normalizeNullableInteger(value) {
     if (value == null || value === "") {
         return null;
@@ -84,8 +101,8 @@ function readSelectedGameKeyFromStorage() {
         return { gid: "", stage: "", historyKey: "" };
     }
 
-    const gid = String(sessionStorage.getItem(GAME_STORAGE.gid) || "").trim();
-    const stage = String(sessionStorage.getItem(GAME_STORAGE.stage) || "").trim();
+    const gid = String(parseStorageValue(GAME_STORAGE.gid, "") || "").trim();
+    const stage = String(parseStorageValue(GAME_STORAGE.stage, "") || "").trim();
     const historyKey = stage ? `${gid}:stage-${stage}` : gid;
 
     return { gid, stage, historyKey };

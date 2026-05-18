@@ -7,6 +7,7 @@ import {
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
+import SessionStorageManager from "../core/session-storage-manager.js";
 
 const REST_GAME_GID = "REST001";
 
@@ -48,10 +49,10 @@ function getPatientLabel(fallback = "") {
         return getPatientSessionLabel(rememberedSession);
     }
 
-    const draft = sessionStorage.getItem("patient_signup_draft");
+    const draft = SessionStorageManager.get("patient_signup_draft");
     if (draft) {
         try {
-            const parsed = JSON.parse(draft);
+            const parsed = typeof draft === "string" ? JSON.parse(draft) : draft;
             const name = `${parsed?.firstname || ""} ${parsed?.lastname || ""}`.trim();
             if (name) {
                 return name;
@@ -61,7 +62,7 @@ function getPatientLabel(fallback = "") {
         }
     }
 
-    return fallback || sessionStorage.getItem("patient_login_id") || "ผู้เล่น";
+    return fallback || SessionStorageManager.get("patient_login_id", "") || "ผู้เล่น";
 }
 
 function getCategoryLabel(categoryId) {
@@ -288,6 +289,7 @@ function getSequentialCompletedCount(nodes, historyRecords) {
 function getDayCompletion(daySection, historyRecords) {
     const nodes = daySection?.nodes || [];
     const completedCount = getSequentialCompletedCount(nodes, historyRecords);
+    const nodeTarget = nodes.length;
     const gameTarget = nodes.filter((node) => node.type === "game").length;
     const completedGameCount = nodes
         .slice(0, completedCount)
@@ -295,9 +297,10 @@ function getDayCompletion(daySection, historyRecords) {
 
     return {
         completedCount,
+        nodeTarget,
         completedGameCount: Math.min(gameTarget, completedGameCount),
         gameTarget,
-        isComplete: nodes.length > 0 && completedCount >= nodes.length,
+        isComplete: nodeTarget > 0 && completedCount >= nodeTarget,
     };
 }
 
@@ -417,13 +420,13 @@ export async function renderGameHubScreen(root, options = {}) {
         const currentHistory = getDisplayHistoryForProgramDay(currentDay);
         const currentCompletion = getDayCompletion(currentSection, currentHistory);
         const activeDay = getActiveDay();
-        const progress = currentCompletion.gameTarget > 0
-            ? Math.min(1, currentCompletion.completedGameCount / currentCompletion.gameTarget)
+        const progress = currentCompletion.nodeTarget > 0
+            ? Math.min(1, currentCompletion.completedCount / currentCompletion.nodeTarget)
             : 0;
         const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const currentGoal = String(currentSection.goal || state.dailyProgram?.dailyPreset?.goal || "").trim()
-            || (currentCompletion.gameTarget > 0
-                ? `ทำภารกิจ ${currentCompletion.gameTarget} เกม ให้ครบตามแผนประจำวัน`
+            || (currentCompletion.nodeTarget > 0
+                ? `ทำภารกิจ ${currentCompletion.nodeTarget} ขั้นตอน ให้ครบตามแผนประจำวัน`
                 : "ยังไม่พบรายการเกมประจำวัน");
         const menuItems = state.allGames.map((game) => `
             <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
@@ -457,8 +460,8 @@ export async function renderGameHubScreen(root, options = {}) {
                             <h1>เป้าหมายของวันที่ ${escapeHtml(currentDay)}</h1>
                             <p>${escapeHtml(currentGoal)}</p>
                             <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
-                                <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${currentCompletion.completedGameCount} จาก ${currentCompletion.gameTarget} เกม"></md-linear-progress>
-                                <span>${currentCompletion.completedGameCount}/${currentCompletion.gameTarget}</span>
+                                <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${currentCompletion.completedCount} จาก ${currentCompletion.nodeTarget} ขั้นตอน"></md-linear-progress>
+                                <span>${currentCompletion.completedCount}/${currentCompletion.nodeTarget}</span>
                             </div>
                         </div>
                         <div class="hub-clean-profile" role="button" tabindex="0" aria-label="เปิดโปรไฟล์ผู้เล่น">

@@ -25,7 +25,7 @@ export const Config = Object.freeze({
     },
     ScorePerCorrect: 20,
     MemoryTimeS: 15, // 15 seconds to memorize
-    QuizTimeLimitMs: 120000 // 2 minutes for total quiz session
+    QuizTimeLimitMs: 180000 // 3 minutes for total quiz session
 });
 
 export const GameLevels = {
