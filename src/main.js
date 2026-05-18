@@ -1125,6 +1125,7 @@ document.addEventListener("DOMContentLoaded", () => {
             uiRoot.hidden = false;
             const hud = new MinigameHUD(uiRoot, {
                 gameTitle: selectedGame?.name,
+                gameSlug: slug,
                 timeLimit: selectedGame?.time_limit || 60, // Fallback
                 showTimer: slug !== "zoo-detective",
             });

@@ -9,6 +9,12 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
 export class MinigameHUD {
     constructor(root, options = {}) {
         this.root = root;
@@ -45,8 +51,23 @@ export class MinigameHUD {
 
         const container = document.createElement("div");
         container.className = "minigame-hud";
-        container.innerHTML = `
-            <div class="minigame-hud__topbar">
+        if (this.options.gameSlug === "zoo-feeder") {
+            container.classList.add("minigame-hud--zoo-feeder");
+        }
+        let topbarHtml = "";
+        if (this.options.gameSlug === "zoo-feeder") {
+            topbarHtml = `
+                <div class="minigame-hud__score-box">
+                    <img src="assets/icon_star.png" class="minigame-hud__score-star" alt="star" />
+                    <span class="minigame-hud__score-text"><span id="hud-score">${score}</span></span>
+                </div>
+                <div class="minigame-hud__time-box">
+                    <img src="assets/icon_time.png" class="minigame-hud__time-icon" alt="time" />
+                    <span class="minigame-hud__time-text"><span id="hud-time-display">${formatTime(timeLeft)}</span></span>
+                </div>
+            `;
+        } else {
+            topbarHtml = `
                 <div class="minigame-hud__left">
                     <md-icon-button id="hud-exit-button" aria-label="ออกจากเกม">
                         <md-icon class="material-symbols-rounded">arrow_back</md-icon>
@@ -66,6 +87,12 @@ export class MinigameHUD {
                         <span class="minigame-hud__stat-value" id="hud-score">${score}</span>
                     </div>
                 </div>
+            `;
+        }
+
+        container.innerHTML = `
+            <div class="minigame-hud__topbar">
+                ${topbarHtml}
             </div>
             
             ${showTimer ? `
@@ -83,6 +110,7 @@ export class MinigameHUD {
         this.element = container;
         this.scoreElement = container.querySelector("#hud-score");
         this.timeElement = container.querySelector("#hud-timer-text");
+        this.timeDisplayElement = container.querySelector("#hud-time-display");
         this.progressBar = container.querySelector("#hud-timer-progress");
 
         container.querySelector("#hud-exit-button")?.addEventListener("click", () => {
@@ -108,8 +136,10 @@ export class MinigameHUD {
         this.state.score = score;
         if (this.scoreElement) {
             this.scoreElement.textContent = score;
-            this.scoreElement.classList.add("pulse");
-            setTimeout(() => this.scoreElement.classList.remove("pulse"), 300);
+            this.scoreElement.classList.remove("pulse", "pop-animation");
+            // Force a reflow to reset the animation instantly
+            void this.scoreElement.offsetWidth;
+            this.scoreElement.classList.add("pop-animation");
         }
     }
 
@@ -143,6 +173,9 @@ export class MinigameHUD {
         }
         if (this.timeElement) {
             this.timeElement.textContent = `${timeLeft}s`;
+        }
+        if (this.timeDisplayElement) {
+            this.timeDisplayElement.textContent = formatTime(timeLeft);
         }
         if (this.progressBar) {
             const pct = this.state.maxTime > 0 ? timeLeft / this.state.maxTime : 0;
