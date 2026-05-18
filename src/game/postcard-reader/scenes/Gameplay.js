@@ -69,6 +69,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Initial HUD State
     EventBus.emit("minigame:show-hud");
+    EventBus.emit("minigame:show-timer");
     EventBus.emit("minigame:score", { score: this.allScore });
     EventBus.emit("minigame:level", {
       level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}`
@@ -90,10 +91,10 @@ export default class GameplayScene extends Phaser.Scene {
       this.gameplayUI.update(time, delta);
     }
 
-    if (this.isPlaying && !this.isGameEnded) {
+    if (!this.isGameEnded && this.countdownTimer) {
       let timeLeft = Math.trunc(this.countdownTimer.getRemainingSeconds() + 1);
       if (this.isTimeUp) timeLeft = 0;
-      EventBus.emit("minigame:tick", { timeLeft, maxTime: Config.QuizTimeLimitMs / 1000 });
+      EventBus.emit("minigame:tick", { timeLeft, maxTime: Config.QuizTimeLimitMs / 1000, updateProgress: false });
     }
   }
 
@@ -217,6 +218,9 @@ export default class GameplayScene extends Phaser.Scene {
       button.forceShow();
     }
     this.replayLogger.addEvent(ReplayEvent.PostcardReader.QUESTION_SHOWN, true);
+    
+    // Hide timer during quiz
+    EventBus.emit("minigame:hide-timer");
   }
 
   onCorrectAnswer(selectedButton) {
@@ -311,6 +315,8 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit("minigame:level", {
       level: `${this.level === 1 ? 'EASY' : this.level === 2 ? 'NORMAL' : 'HARD'} - โปสการ์ดใบที่ ${this.postcardsPlayed + 1}`
     });
+    
+    EventBus.emit("minigame:show-timer");
 
     this.gameplayUI.postcard.reinitializedPanel();
     this.replayLogger.addEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);

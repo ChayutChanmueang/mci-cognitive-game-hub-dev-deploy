@@ -1710,9 +1710,33 @@ body.hub-mode {
     padding: 0 40px !important;
 }
 
-/* Remove the green progress bar and second indicator for Zoo Feeder */
-.minigame-hud--zoo-feeder .minigame-hud__timer-wrap {
+/* Remove the green progress bar and second indicator for Zoo Feeder and Symmetry */
+.minigame-hud--zoo-feeder:not(.minigame-hud--postcard-reader) .minigame-hud__timer-wrap {
     display: none !important;
+}
+
+/* Custom Postcard Reader Timer Bar Positioning */
+.minigame-hud--postcard-reader .minigame-hud__timer-wrap {
+    position: absolute !important;
+    top: 105px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 600px !important;
+    max-width: 80% !important;
+    flex-direction: column-reverse !important;
+    align-items: flex-end !important; /* right side */
+    pointer-events: none;
+}
+
+.minigame-hud--postcard-reader .minigame-hud__timer-label {
+    margin-top: 8px !important; /* space between bar and label */
+}
+
+.minigame-hud--postcard-reader .minigame-hud__timer-bar {
+    height: 16px !important;
+    border-radius: 8px !important;
+    --md-linear-progress-track-height: 16px;
+    --md-linear-progress-active-indicator-height: 16px;
 }
 
 /* Custom Green Score Box for Zoo Feeder */

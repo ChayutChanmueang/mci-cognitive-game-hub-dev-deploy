@@ -37,6 +37,7 @@ export class MinigameHUD {
         this.boundOnScore = this.onScoreUpdate.bind(this);
         this.boundOnLevel = this.onLevelUpdate.bind(this);
         this.boundOnTick = this.onTick.bind(this);
+        this.boundOnTickProgress = this.onTickProgress.bind(this);
         this.boundOnLives = this.onLivesUpdate.bind(this);
 
         this.boundOnGameOver = this.onGameOver.bind(this);
@@ -51,11 +52,13 @@ export class MinigameHUD {
 
         const container = document.createElement("div");
         container.className = "minigame-hud";
-        if (this.options.gameSlug === "zoo-feeder" || this.options.gameSlug === "symmetry-decor") {
+        container.classList.add(`minigame-hud--${this.options.gameSlug}`);
+        const topbarStyleGames = ["zoo-feeder", "symmetry-decor", "postcard-reader"];
+        if (topbarStyleGames.includes(this.options.gameSlug)) {
             container.classList.add("minigame-hud--zoo-feeder");
         }
         let topbarHtml = "";
-        if (this.options.gameSlug === "zoo-feeder" || this.options.gameSlug === "symmetry-decor") {
+        if (topbarStyleGames.includes(this.options.gameSlug)) {
             const isSymmetry = this.options.gameSlug === "symmetry-decor";
             const scoreLabelText = isSymmetry ? `ด่าน ${score}` : score;
             const iconSrc = isSymmetry ? "assets/icon_level.png" : "assets/icon_star.png";
@@ -116,6 +119,7 @@ export class MinigameHUD {
         this.timeElement = container.querySelector("#hud-timer-text");
         this.timeDisplayElement = container.querySelector("#hud-time-display");
         this.progressBar = container.querySelector("#hud-timer-progress");
+        this.timerWrap = container.querySelector(".minigame-hud__timer-wrap");
 
         container.querySelector("#hud-exit-button")?.addEventListener("click", () => {
             EventBus.emit("minigame:exit-request");
@@ -129,11 +133,17 @@ export class MinigameHUD {
         EventBus.on("minigame:score", this.boundOnScore);
         EventBus.on("minigame:level", this.boundOnLevel);
         EventBus.on("minigame:tick", this.boundOnTick);
+        EventBus.on("minigame:tick-progress", this.boundOnTickProgress);
         EventBus.on("minigame:lives", this.boundOnLives);
         EventBus.on("minigame:game-over", this.boundOnGameOver);
         EventBus.on("minigame:show-hud", this.boundOnShow);
         EventBus.on("minigame:hide-hud", this.boundOnHide);
         EventBus.on("minigame:menu-mode", this.boundOnMenuMode);
+        
+        this.boundOnShowTimer = () => { if (this.timerWrap) this.timerWrap.style.display = ""; };
+        this.boundOnHideTimer = () => { if (this.timerWrap) this.timerWrap.style.display = "none"; };
+        EventBus.on("minigame:show-timer", this.boundOnShowTimer);
+        EventBus.on("minigame:hide-timer", this.boundOnHideTimer);
     }
 
     onScoreUpdate({ score }) {
@@ -171,7 +181,7 @@ export class MinigameHUD {
     }
 
 
-    onTick({ timeLeft, maxTime }) {
+    onTick({ timeLeft, maxTime, updateProgress = true }) {
         this.state.timeLeft = timeLeft;
         if (maxTime !== undefined) {
             this.state.maxTime = maxTime;
@@ -182,12 +192,28 @@ export class MinigameHUD {
         if (this.timeDisplayElement) {
             this.timeDisplayElement.textContent = formatTime(timeLeft);
         }
-        if (this.progressBar) {
+        if (this.progressBar && updateProgress) {
             const pct = this.state.maxTime > 0 ? timeLeft / this.state.maxTime : 0;
             this.progressBar.value = pct;
             
             if (pct < 0.25) {
                 this.progressBar.classList.add("warning");
+            }
+        }
+    }
+
+    onTickProgress({ timeLeft, maxTime }) {
+        if (this.timeElement) {
+            this.timeElement.textContent = `${timeLeft}s`;
+        }
+        if (this.progressBar) {
+            const pct = maxTime > 0 ? timeLeft / maxTime : 0;
+            this.progressBar.value = pct;
+            
+            if (pct < 0.25) {
+                this.progressBar.classList.add("warning");
+            } else {
+                this.progressBar.classList.remove("warning");
             }
         }
     }
@@ -251,11 +277,14 @@ export class MinigameHUD {
         EventBus.off("minigame:score", this.boundOnScore);
         EventBus.off("minigame:level", this.boundOnLevel);
         EventBus.off("minigame:tick", this.boundOnTick);
+        EventBus.off("minigame:tick-progress", this.boundOnTickProgress);
         EventBus.off("minigame:lives", this.boundOnLives);
         EventBus.off("minigame:game-over", this.boundOnGameOver);
         EventBus.off("minigame:show-hud", this.boundOnShow);
         EventBus.off("minigame:hide-hud", this.boundOnHide);
         EventBus.off("minigame:menu-mode", this.boundOnMenuMode);
+        EventBus.off("minigame:show-timer", this.boundOnShowTimer);
+        EventBus.off("minigame:hide-timer", this.boundOnHideTimer);
         this.element?.remove();
     }
 
