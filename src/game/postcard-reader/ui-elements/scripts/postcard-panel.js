@@ -49,7 +49,7 @@ export default class PostcardPanel extends UIPage {
         });
         
         // Signal HUD about memory phase
-        EventBus.emit("minigame:tick", { timeLeft: Config.MemoryTimeS, maxTime: Config.MemoryTimeS });
+        EventBus.emit("minigame:tick-progress", { timeLeft: Config.MemoryTimeS, maxTime: Config.MemoryTimeS });
     }
 
     reinitializedPanel() {
@@ -64,7 +64,7 @@ export default class PostcardPanel extends UIPage {
     update() {
         if (this.container.visible && this.countdownTimer) {
             const timeLeft = Math.trunc(this.countdownTimer.getRemainingSeconds() + 1);
-            EventBus.emit("minigame:tick", { timeLeft, maxTime: Config.MemoryTimeS });
+            EventBus.emit("minigame:tick-progress", { timeLeft, maxTime: Config.MemoryTimeS });
         }
     }
 

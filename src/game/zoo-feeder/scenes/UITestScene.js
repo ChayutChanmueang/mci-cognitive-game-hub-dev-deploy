@@ -8,6 +8,7 @@ import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import { ReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 const GAME_ID = "ATTN001";
 
@@ -100,7 +101,7 @@ export default class UITestScene extends Phaser.Scene {
     const gameTime = 180;
     EventBus.emit('minigame:tick', { timeLeft: gameTime, maxTime: gameTime }); // 3 minutes
 
-    this.conveyerNums = data.conveyerNums || 3;
+    this.conveyerNums = Number(SessionStorageManager.get("selected_game_level")) || data.conveyerNums || 3;
     this.conveyers = [];
 
     // 1. Define the exact pixel gap you want between each conveyor belt
