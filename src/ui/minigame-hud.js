@@ -51,15 +51,19 @@ export class MinigameHUD {
 
         const container = document.createElement("div");
         container.className = "minigame-hud";
-        if (this.options.gameSlug === "zoo-feeder") {
+        if (this.options.gameSlug === "zoo-feeder" || this.options.gameSlug === "symmetry-decor") {
             container.classList.add("minigame-hud--zoo-feeder");
         }
         let topbarHtml = "";
-        if (this.options.gameSlug === "zoo-feeder") {
+        if (this.options.gameSlug === "zoo-feeder" || this.options.gameSlug === "symmetry-decor") {
+            const isSymmetry = this.options.gameSlug === "symmetry-decor";
+            const scoreLabelText = isSymmetry ? `ด่าน ${score}` : score;
+            const iconSrc = isSymmetry ? "assets/icon_level.png" : "assets/icon_star.png";
+
             topbarHtml = `
                 <div class="minigame-hud__score-box">
-                    <img src="assets/icon_star.png" class="minigame-hud__score-star" alt="star" />
-                    <span class="minigame-hud__score-text"><span id="hud-score">${score}</span></span>
+                    <img src="${iconSrc}" class="minigame-hud__score-star" alt="icon" />
+                    <span class="minigame-hud__score-text"><span id="hud-score">${scoreLabelText}</span></span>
                 </div>
                 <div class="minigame-hud__time-box">
                     <img src="assets/icon_time.png" class="minigame-hud__time-icon" alt="time" />
@@ -135,7 +139,8 @@ export class MinigameHUD {
     onScoreUpdate({ score }) {
         this.state.score = score;
         if (this.scoreElement) {
-            this.scoreElement.textContent = score;
+            const isSymmetry = this.options.gameSlug === "symmetry-decor";
+            this.scoreElement.textContent = isSymmetry ? `ด่าน ${score}` : score;
             this.scoreElement.classList.remove("pulse", "pop-animation");
             // Force a reflow to reset the animation instantly
             void this.scoreElement.offsetWidth;

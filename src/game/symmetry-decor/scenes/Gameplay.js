@@ -88,7 +88,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Initial HUD State
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
-    EventBus.emit('minigame:score', { score: this.allScore });
+    EventBus.emit('minigame:score', { score: this.stage });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
     EventBus.emit('minigame:tick', { timeLeft: maxTimeS, maxTime: maxTimeS });
 
@@ -132,8 +132,6 @@ export default class GameplayScene extends Phaser.Scene {
     this.allScore += addScore;
     this.completedStages++;
 
-    EventBus.emit('minigame:score', { score: this.allScore });
-
     // Always trigger level complete effect for the final puzzle success
     showLevelCompleteEffect();
 
@@ -147,6 +145,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Otherwise, advance to the next round
     this.stage++;
+    EventBus.emit('minigame:score', { score: this.stage });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
 
     // Short delay for success feedback before loading next puzzle
