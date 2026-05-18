@@ -65,7 +65,7 @@ export function showPopup(options = {}) {
         overlay.innerHTML = `
             <div class="app-popup__backdrop"></div>
             <div
-                class="app-popup__dialog app-popup__dialog--${escapeHtml(tone)}"
+                class="app-popup__dialog app-popup__dialog--prompt app-popup__dialog--${escapeHtml(tone)}"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="${titleId}"

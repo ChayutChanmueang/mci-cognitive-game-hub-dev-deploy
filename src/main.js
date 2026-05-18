@@ -456,6 +456,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        EventBus.emit("minigame:hide-hud");
+
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
         document.body.classList.remove("landing-mode");

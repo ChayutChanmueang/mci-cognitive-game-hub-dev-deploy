@@ -606,7 +606,7 @@ export async function renderGameHubScreen(root, options = {}) {
                     <p>พักยืดเส้น</p>
                     <h2>${escapeHtml(node.title || "พักยืดเส้นยืดสาย")}</h2>
                     <span>พักสายตา ยืดเส้น และผ่อนคลายก่อนเล่นต่อ</span>
-                    <md-outlined-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">บันทึกการพัก</md-outlined-button>
+                    <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">บันทึกการพัก</md-filled-button>
                 </article>
             `;
         }
@@ -618,7 +618,7 @@ export async function renderGameHubScreen(root, options = {}) {
                 <p>${escapeHtml(getCategoryLabel(categoryId))}</p>
                 <h2>${escapeHtml(node.title || game.displayName || game.name || "เกมฝึกสมอง")}</h2>
                 <span>${escapeHtml(getCategoryDescription(categoryId))}</span>
-                <md-outlined-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">เริ่มเกม</md-outlined-button>
+                <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">เริ่มเกม</md-filled-button>
             </article>
         `;
     };
