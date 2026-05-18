@@ -8,9 +8,9 @@ import { createThaiText, getThaiFontFamily } from "../../../../util/thai-text.js
 export default class Quiz extends Entity{
     constructor(scene, x, y, id, textParts, answers, options, gameData, setting = {
         scaleSlot: {x:150, y:75},
-        quizTextSize: 48.0,
-        labelFontSize: 36.0,
-        slotFontSize: 36.0,
+        quizTextSize: 42.0,
+        labelFontSize: 32.0,
+        slotFontSize: 32.0,
         slotWidth: 240,
     }, quizBoxSize = {
         width: 700,
@@ -78,7 +78,7 @@ export default class Quiz extends Entity{
             quizTextSize: this.quizTextSize,
             labelFontSize: this.labelFontSize,
             slotWidth: this.slotWidth,
-            slotStrokeColor: 0xff92b7,
+            slotStrokeColor: 0x0c2c61,
             slotStrokeWidth: 6,
             slotFillColor: 0xffffff,
             slotFillAlpha: 0,
@@ -108,9 +108,9 @@ export default class Quiz extends Entity{
 
         this.scene.quizText.setDepth(100);
         this.answerBoxes = [];
-        const choiceWidth = 430;
+        const choiceWidth = 455;
         const choiceHeight = 145;
-        const choiceGapX = 42;
+        const choiceGapX = 62;
         const choiceGapY = 62;
         const choiceTopY = sceneHeight - bottomPanelHeight + 150;
         const choiceColor = 0xffffff;
@@ -188,7 +188,7 @@ export default class Quiz extends Entity{
                         data.handle.disableInteractive();
                         slotLabel[i].setText(data.word);
                         slot[i].setData("filled", true);
-                        slot[i].setStrokeStyle(3, 0x00ff00);
+                        slot[i].setStrokeStyle(6, 0x00ff00);
                         if (this.gameData) {
                             this.gameData.answers.push(data.word);
                             this.gameData.increaseScore(Config.IncreaseScore[this.scene.levelMap])
@@ -203,14 +203,14 @@ export default class Quiz extends Entity{
                         this.gameData.decreaseScore(Config.DecreaseScore[this.scene.levelMap])
                         this.dragDrop.moveHome(data.handle);
                         this.onAnswerIncorrect(data.word);
-                        slot[i].setStrokeStyle(3, 0xfe0000);
+                        slot[i].setStrokeStyle(6, 0xfe0000);
                     }
                 },
                 onDragEnter: () => {
-                    slot[i].setStrokeStyle(3, 0xfffb00);
+                    slot[i].setStrokeStyle(6, 0x4287f5);
                 },
                 onDragLeave: () => {
-                    slot[i].setStrokeStyle(3, 0xffffff);
+                    slot[i].setStrokeStyle(6, 0x0c2c61);
                 }
             });
         }

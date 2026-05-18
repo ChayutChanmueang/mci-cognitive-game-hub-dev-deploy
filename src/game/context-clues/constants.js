@@ -24,21 +24,21 @@ export const Config = Object.freeze({
 export const QuizUI_Setting = Object.freeze({
     setting: {
         scaleSlot: {x: 300, y: 120},
-        quizTextSize: 76.0,
-        labelFontSize: 72.0,
-        slotFontSize: 76.0,
+        quizTextSize: 62.0,
+        labelFontSize: 56.0,
+        slotFontSize: 62.0,
         slotWidth: 300,
     },
     // White question panel size. Increase height here if the text area should be taller.
     quizBoxSize: {
         easy: [
-            {width: 1280, height:800}
+            {width: 980, height:640}
         ],
         medium: [
-            {width: 1280, height:800}
+            {width: 980, height:780}
         ],
         hard: [
-            {width: 1280, height:800}
+            {width: 980, height:780}
         ]
     }
 });

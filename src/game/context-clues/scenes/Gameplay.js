@@ -206,11 +206,7 @@ export default class GameplayScene extends Phaser.Scene {
             console.error("Failed to save game data:", error);
         });
 
-        this.replayLog.pushToDatabase().then(r => {
-            console.log("Push data to database.");
-        }).catch((error) => {
-            console.error("Failed to push replay data:", error);
-        });
+        this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");})
 
         //Write debug here!
         console.log("[ContextClues ReplayLog]", this.replayLog.getEvents());
