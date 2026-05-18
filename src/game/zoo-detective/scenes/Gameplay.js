@@ -247,7 +247,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.animalTray?.destroy();
         this.gridBoard?.destroy();
 
-        this.frameGraphics = this.createFrame(sceneWidth, sceneHeight);
+        this.frameGraphics = this.createFrame(sceneWidth, sceneHeight - 102);
         const headerMetrics = this.createHeader(layoutConfig, this.sceneData);
         const answerItemsPerRow = this.sceneData.maxAnimalsPerRow ?? 5;
         const answerItemGap = 22;
@@ -305,7 +305,7 @@ export default class GameplayScene extends Phaser.Scene {
         const boardTop = headerMetrics.bottom + 100;
         const boardBottom = this.animalTray.y - 56;
         const boardWidth = Math.min(sceneWidth - 140, 930);
-        const boardHeight = Math.max(420, boardBottom - boardTop);
+        const boardHeight = Math.max(800, boardBottom - boardTop);
         const boardX = (sceneWidth - boardWidth) / 2;
 
         this.gridBoard = new SquareGridLayout(this, boardX, boardTop, {
