@@ -104,6 +104,16 @@ export default class GameplayScene extends Phaser.Scene {
       };
   }
 
+    resolveDecreaseScorePosition() {
+        const positionElement = QuizUI_Setting.decreaseScorePosition?.[this.levelMap];
+        const position = Array.isArray(positionElement) ? positionElement[0] : positionElement;
+
+        return {
+            x: position?.x ?? 0,
+            y: position?.y ?? 80,
+        };
+    }
+
   getNewQuiz(){
       const quizData = this.randomQuiz.getQuiz();
 
@@ -263,15 +273,16 @@ export default class GameplayScene extends Phaser.Scene {
     decreaseScore(score){
         this.allScore -= score;
 
+        const position = this.resolveDecreaseScorePosition();
         const scorePenaltyText = createThaiText(
             this,
-            this.scale.width / 2,
-            this.scale.height / 2 - 250,
+            this.scale.width / 2 + position.x,
+            this.scale.height / 2 + position.y,
             `-${score}`,
             {
-                fontSize: "48px",
+                fontSize: "72px",
                 fontStyle: "bold",
-                color: "#ff4d4d"
+                color: "#fe0000"
             },
             { origin: 0.5 }
         );
@@ -279,9 +290,9 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.tweens.add({
             targets: scorePenaltyText,
-            y: scorePenaltyText.y - 40,
+            y: scorePenaltyText.y - 80,
             alpha: 0,
-            duration: 700,
+            duration: 1000,
             ease: "Sine.easeOut",
             onComplete: () => {
                 scorePenaltyText.destroy();

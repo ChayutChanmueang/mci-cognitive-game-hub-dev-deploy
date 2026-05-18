@@ -12,6 +12,7 @@
     --md-sys-color-outline: #b7b0a8;
     --md-sys-color-error: #ba1a1a;
     --app-shadow: 0 24px 60px rgba(53, 104, 89, 0.14);
+    --game-mode-background: #028af8;
 }
 
 * {
@@ -35,7 +36,7 @@ body {
 
 body.game-mode {
     color: rgba(255, 255, 255, 0.87);
-    background: #028af8;
+    background: var(--game-mode-background);
     font-family: inherit;
 }
 
@@ -60,7 +61,7 @@ body.hub-mode {
     padding: 0 !important;
     margin: 0 !important;
     display: block;
-    background: #028af8;
+    background: var(--game-mode-background);
     /* Standard Game Background Blue */
 }
 

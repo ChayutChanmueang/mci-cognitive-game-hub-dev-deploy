@@ -9,8 +9,8 @@ export default class Quiz extends Entity{
     constructor(scene, x, y, id, textParts, answers, options, gameData, setting = {
         scaleSlot: {x:150, y:75},
         quizTextSize: 42.0,
-        labelFontSize: 32.0,
-        slotFontSize: 32.0,
+        labelFontSize: 38.0,
+        slotFontSize: 38.0,
         slotWidth: 240,
     }, quizBoxSize = {
         width: 700,
@@ -57,7 +57,7 @@ export default class Quiz extends Entity{
                 fillColor: 0xffffff,
                 fillAlpha: 0.98,
                 strokeColor: 0xffb0ca,
-                strokeWidth: 4,
+                strokeWidth: 6,
                 radius: 54,
                 depth: 10,
             }
@@ -121,10 +121,10 @@ export default class Quiz extends Entity{
             this.ownedContainer.add(box);
 
             const card = this.scene.add.graphics();
-            this.drawChoiceCard(card, choiceWidth, choiceHeight, 0xffffff);
+            this.drawChoiceCard(card, choiceWidth, choiceHeight, 8, 0xffffff, 0xffb0ca);
 
             const bg = this.scene.add.rectangle(0, 0, choiceWidth, choiceHeight, choiceColor, 0.001)
-                .setStrokeStyle(2, 0xffffff, 0)
+                .setStrokeStyle(6, 0xffb0ca, 0)
                 .setOrigin(0.5);
 
             const label = createThaiText(this.scene, 0, 0, word, {
@@ -148,9 +148,9 @@ export default class Quiz extends Entity{
 
                 },
                 onInvalidDrop: () => {
-                    this.drawChoiceCard(card, choiceWidth, choiceHeight, 0xff6666);
+                    this.drawChoiceCard(card, choiceWidth, choiceHeight, 8, 0xffffff, 0xff6666);
                     this.scene.time.delayedCall(120, () => {
-                        this.drawChoiceCard(card, choiceWidth, choiceHeight, 0xffffff);
+                        this.drawChoiceCard(card, choiceWidth, choiceHeight, 8, 0xffffff, 0xffffff);
                     });
                 }
             });
@@ -237,10 +237,10 @@ export default class Quiz extends Entity{
         };
     }
 
-    drawChoiceCard(graphics, width, height, strokeColor = 0xffffff) {
+    drawChoiceCard(graphics, width, height, strokeSize, fillColor = 0xffffff, strokeColor = 0xffffff) {
         graphics.clear();
-        graphics.fillStyle(0xffffff, 1);
-        graphics.lineStyle(4, strokeColor, 1);
+        graphics.fillStyle(fillColor, 1);
+        graphics.lineStyle(strokeSize, strokeColor, 1);
         graphics.fillRoundedRect(-width / 2, -height / 2, width, height, 46);
         graphics.strokeRoundedRect(-width / 2, -height / 2, width, height, 46);
     }

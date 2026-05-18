@@ -40,6 +40,26 @@ export const QuizUI_Setting = Object.freeze({
         hard: [
             {width: 980, height:780}
         ]
+    },
+    decreaseScorePosition: {
+        easy: [
+            {
+                x: 0,
+                y: -380
+            }
+        ],
+        medium: [
+            {
+                x: 0,
+                y: -460
+            }
+        ],
+        hard: [
+            {
+                x: 0,
+                y: -480
+            }
+        ]
     }
 });
 
