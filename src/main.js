@@ -92,13 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeGameInstance = null;
     let routeRenderVersion = 0;
 
-    /*// Initialize global HUD attached to the main app container
-    // (We do not attach to uiRoot because uiRoot is wiped when games start)
-    if (app) {
-        const hud = new MinigameHUD(app);
-        hud.render();
-        hud.hide(); // Hidden by default
-    }*/
 
     const destroyActiveGame = () => {
         if (activeGameInstance && typeof activeGameInstance.destroy === "function") {

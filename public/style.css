@@ -1473,7 +1473,7 @@ body.hub-mode {
 }
 
 /* Minigame HUD Styles */
-.minigame-hud {
+/* .minigame-hud {
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -1549,7 +1549,7 @@ body.hub-mode {
     font-weight: 700;
     color: var(--md-sys-color-primary);
     line-height: 1;
-}
+} */
 
 .minigame-hud__timer-wrap {
     margin-top: 16px;
@@ -1791,12 +1791,14 @@ body.hub-mode {
     width: 600px !important;
     max-width: 80% !important;
     flex-direction: column-reverse !important;
-    align-items: flex-end !important; /* right side */
+    align-items: flex-end !important;
+    /* right side */
     pointer-events: none;
 }
 
 .minigame-hud--postcard-reader .minigame-hud__timer-label {
-    margin-top: 8px !important; /* space between bar and label */
+    margin-top: 8px !important;
+    /* space between bar and label */
 }
 
 .minigame-hud--postcard-reader .minigame-hud__timer-bar {
