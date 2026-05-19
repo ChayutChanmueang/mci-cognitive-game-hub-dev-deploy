@@ -186,7 +186,7 @@ export class MinigameHUD {
         if (maxTime !== undefined) {
             this.state.maxTime = maxTime;
         }
-        if (this.timeElement) {
+        if (this.timeElement && this.options.gameSlug !== "postcard-reader") {
             this.timeElement.textContent = `${timeLeft}s`;
         }
         if (this.timeDisplayElement) {
