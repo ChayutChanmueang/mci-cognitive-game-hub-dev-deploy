@@ -45,7 +45,7 @@ const config = {
 };
 
 const StartGame = (parent) => {
-
+    document.documentElement.style.setProperty("--game-mode-background", config.backgroundColor);
     return new Game({ ...config, parent });
 
 }

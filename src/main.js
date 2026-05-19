@@ -103,6 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (gameContainer) {
             gameContainer.innerHTML = "";
         }
+
+        document.documentElement.style.removeProperty("--game-mode-background");
     };
 
     const showUiRoot = () => {
