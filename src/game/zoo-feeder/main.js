@@ -13,7 +13,7 @@ import { AUTO, Game } from 'phaser';
 const config = {
     type: AUTO,
     parent: 'game-container',
-    backgroundColor: '#028af8',
+    backgroundColor: '#83B351',
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -24,7 +24,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 }, // 0 for top-down, 300 for platformers
-            debug: true       // Keep this true while debugging!
+            debug: false      // Keep this true while debugging!
         }
     },
     scene: [
@@ -45,7 +45,7 @@ const config = {
 };
 
 export const StartGame = (parent) => {
-
+    document.documentElement.style.setProperty("--game-mode-background", config.backgroundColor);
     return new Game({ ...config, parent });
 
 }
