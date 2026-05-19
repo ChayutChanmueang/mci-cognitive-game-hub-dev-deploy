@@ -31,7 +31,7 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   init(data = {}) {
-    this.level = data.level ?? Number(SessionStorageManager.get("selected_game_level"));
+    this.level = (data.level ?? Number(SessionStorageManager.get("selected_game_level"))) || 1;
     this.levelMap = LevelMap[this.level];
     this.randomQuiz = new RandomQuiz(this.levelMap);
     this.allScore = 0;
