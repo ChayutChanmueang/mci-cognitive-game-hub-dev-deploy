@@ -41,12 +41,11 @@ import {
 import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
 import { EventBus } from "./core/EventBus.js";
+import { MinigameHUD } from "./ui/minigame-hud.js";
 import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
 import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
-
-
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -92,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const hubUiState = createGameHubState();
     let activeGameInstance = null;
     let routeRenderVersion = 0;
+
 
     const destroyActiveGame = () => {
         if (activeGameInstance && typeof activeGameInstance.destroy === "function") {
@@ -1120,10 +1120,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
-
-            // MinigameHUD is temporarily disabled while gameplay owns the full canvas.
+            
+            // Mount Minigame HUD
             uiRoot.innerHTML = "";
-            uiRoot.hidden = true;
+            uiRoot.hidden = false;
+            const hud = new MinigameHUD(uiRoot, {
+                gameTitle: selectedGame?.name,
+                gameSlug: slug,
+                timeLimit: selectedGame?.time_limit || 60, // Fallback
+                showTimer: slug !== "zoo-detective",
+            });
+            hud.render();
             let activeResultPanel = null;
 
 
@@ -1149,8 +1156,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const pendingHistory = historyMap[gid];
 
                 activeResultPanel?.destroy();
-                uiRoot.innerHTML = "";
-                uiRoot.hidden = false;
                 activeResultPanel = new MinigameResultPanel(uiRoot, {
                     score,
                     highScore: StorageManager.get("highscore", 0),
@@ -1196,8 +1201,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
                 activeResultPanel?.destroy();
                 activeResultPanel = null;
-                uiRoot.innerHTML = "";
-                uiRoot.hidden = true;
+                hud.destroy();
             };
 
             EventBus.on("minigame:exit-request", handleExit);

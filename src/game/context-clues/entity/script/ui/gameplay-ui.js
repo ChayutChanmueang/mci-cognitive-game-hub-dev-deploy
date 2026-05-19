@@ -22,8 +22,8 @@ export default class GameplayUI extends Entity{
 
         this.gameoverPanel = new GameOverPanel(scene);
 
-        this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1/10", ThaiTextPresets.hud, this.uiDepth);
-        this.timerText = this.createTextBox(scene.scale.width - 230, 130, 250, 75, this.formatSeconds(180), ThaiTextPresets.hud, this.uiDepth);
+        //this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1/10", ThaiTextPresets.hud, this.uiDepth);
+        //this.timerText = this.createTextBox(scene.scale.width - 230, 130, 250, 75, this.formatSeconds(180), ThaiTextPresets.hud, this.uiDepth);
     }
 
     showNextQuizPanel(onNext){
@@ -45,7 +45,7 @@ export default class GameplayUI extends Entity{
     }
 
     refreshLevelText() {
-        this.levelText[0].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
+        //this.levelText[0].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
     }
 
     setLives(newLives){
@@ -54,7 +54,7 @@ export default class GameplayUI extends Entity{
     }
 
     setTimeLeft(timeLeftS = 0) {
-        this.timerText[0].setText(this.formatSeconds(timeLeftS));
+        //this.timerText[0].setText(this.formatSeconds(timeLeftS));
     }
 
     formatSeconds(value = 0) {

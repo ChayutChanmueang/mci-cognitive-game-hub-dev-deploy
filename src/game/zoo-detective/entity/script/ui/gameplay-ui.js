@@ -34,8 +34,8 @@ export default class GameplayUI extends Entity{
             .strokeRoundedRect(barX, barY, barWidth, barHeight, 38)
             .setDepth(this.uiDepth - 1);
 
-        this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1/10", ThaiTextPresets.hud, this.uiDepth);
-        this.timerText = this.createTextBox(scene.scale.width - 230, 130, 250, 75, this.formatSeconds(0), ThaiTextPresets.hud, this.uiDepth);
+        //this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1/10", ThaiTextPresets.hud, this.uiDepth);
+        //this.timerText = this.createTextBox(scene.scale.width - 230, 130, 250, 75, this.formatSeconds(0), ThaiTextPresets.hud, this.uiDepth);
 
         this.currentScore = createThaiText(
             scene,
@@ -68,12 +68,12 @@ export default class GameplayUI extends Entity{
         this.setScore(0);
     }
     refreshLevelText() {
-        this.levelText[0].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
+        //this.levelText[0].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
     }
 
     setLevel(levelMap = "easy", levelNumber = 1, currentRound = 1, maxRound = 10) {
         this.levelName = String(levelMap || "easy").toUpperCase();
-        this.levelNumber = levelNumber;
+        //this.levelNumber = levelNumber;
         this.maxRound = Math.max(1, Number(maxRound) || 10);
         this.currentRound = Phaser.Math.Clamp(Number(currentRound) || 1, 1, this.maxRound);
 
@@ -92,11 +92,11 @@ export default class GameplayUI extends Entity{
 
     setElapsedTime(elapsedMs = 0) {
         const totalSeconds = Math.max(0, Math.floor((Number(elapsedMs) || 0) / 1000));
-        this.timerText[0].setText(this.formatSeconds(totalSeconds));
+        //this.timerText[0].setText(this.formatSeconds(totalSeconds));
     }
 
     setTimeLeft(timeLeftS = 0) {
-        this.timerText[0].setText(this.formatSeconds(timeLeftS));
+        //this.timerText[0].setText(this.formatSeconds(timeLeftS));
     }
 
     formatSeconds(value = 0) {
