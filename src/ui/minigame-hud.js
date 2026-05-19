@@ -53,7 +53,13 @@ export class MinigameHUD {
         const container = document.createElement("div");
         container.className = "minigame-hud";
         container.classList.add(`minigame-hud--${this.options.gameSlug}`);
-        const topbarStyleGames = ["zoo-feeder", "symmetry-decor", "postcard-reader"];
+        const topbarStyleGames = [
+            "zoo-feeder",
+            "zoo-detective",
+            "context-clues",
+            "symmetry-decor",
+            "postcard-reader",
+        ];
         if (topbarStyleGames.includes(this.options.gameSlug)) {
             container.classList.add("minigame-hud--zoo-feeder");
         }
