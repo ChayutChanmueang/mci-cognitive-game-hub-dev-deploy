@@ -47,8 +47,6 @@ import StorageManager from "./core/storage-manager.js";
 import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
 
-
-
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
 const ROUTES = Object.freeze({
