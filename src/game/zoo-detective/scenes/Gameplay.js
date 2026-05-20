@@ -6,10 +6,12 @@ import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
 import { DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
 import {Config} from "../../zoo-detective/constants.js";
-import ProgressBar from "../../../util/layout/progress-bar.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
-
+import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
+import {ZooDetectiveReplayEvent} from "../../../core/replay-event.js";
+import game_db from "/src/util/minigame-db-util.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -34,7 +36,6 @@ export default class GameplayScene extends Phaser.Scene {
         this.lockedAnimalIds = new Set();
         this.onPuzzleCompleted = null;
         this.onPlacementEvaluated = null;
-        this.progressBarRefs = [];
         this.puzzleTimer = new DateTimeTimer();
         this.timeLimitMs = Config.TimeLimitMs;
         this.isGameEnded = false;
@@ -49,34 +50,33 @@ export default class GameplayScene extends Phaser.Scene {
 
     init(data) {
         this.sceneData = { ...data };
-        this.level = data.level ?? 1;
+        this.level = data.level ?? Number(SessionStorageManager.get("selected_game_level"));
         this.levelMap = LevelMap[this.level] ?? "easy";
         this.puzzleData = null;
         this.round = 0;
         this.allScore = 0;
-        this.progressBarRefs = [];
         this.timeLimitMs = data.timeLimitMs ?? Config.TimeLimitMs;
         this.isGameEnded = false;
         this.onPlacementEvaluated = data.onPlacementEvaluated ?? null;
+        this.replayLog = new ReplayLogBuffer();
     }
 
     create(data) {
+        EventBus.emit('minigame:show-hud');
+
         this.gameplayUI = new GameplayUI(this, 0, 0);
         this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
         this.gameplayUI.setScore(this.allScore);
-        this.gameplayUI.setElapsedTime(0);
+        this.gameplayUI.setTimeLeft(Math.ceil(this.timeLimitMs / 1000));
 
         // Hide old Phaser UI elements
         this.gameplayUI.uiBackground.setVisible(false);
         this.gameplayUI.currentScore.setVisible(false);
-        this.gameplayUI.timerText.setVisible(false);
 
         // Initial state to HUD
         EventBus.emit('minigame:score', { score: this.allScore });
-        EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ 1/${Config.MaxRound[this.levelMap]}` });
+        EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
-
-
 
         this.gameStartedAt = new Date();
         this.gameEndedAt = new Date();
@@ -101,16 +101,12 @@ export default class GameplayScene extends Phaser.Scene {
             this.gameplayUI.setScore(this.allScore);
             EventBus.emit('minigame:score', { score: this.allScore });
             this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
-            EventBus.emit('minigame:level', { level: `${this.levelMap} - รอบที่ ${nextRoundDisplay}/${maxRound}` });
-
-
+            EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
 
             console.log(`allScore : ${this.allScore}`);
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
 
             if (this.round < maxRound) {
-                this.progressBarRefs[this.round].animateTo(1, 500)
-
                 this.time.delayedCall(500, () => {
                     if (this.isGameEnded) {
                         return;
@@ -126,48 +122,21 @@ export default class GameplayScene extends Phaser.Scene {
             }
         };
 
-        this.onPlacementEvaluated = (callback = {isCorrect: isCorrectForCurrentHint,
-                 cellIndex,
-                 animal,
-                 previousCellIndex,
-                 currentHintIndex: this.currentHintIndex,
-                 currentHint,
-                 placements: [...this.currentPlacements],
-                 lockedCellIndexes: [...this.lockedCellIndexes],
-                 lockedAnimalIds: [...this.lockedAnimalIds],
-                 puzzleData: this.puzzleData,
-                 level: this.level,
-                 scene: this
-             })=>{
+        this.onPlacementEvaluated = (callback = {})=>{
 
             if (!callback.isCorrect) {
                 this.roundScore -= Config.DecreaseScore[this.levelMap];
             }
-        };
 
-        let dotProgressBars = [];
-        for (let i = 0; i < Config.MaxRound[this.levelMap]; i++) {
-            const bar = new ProgressBar(this, 0, 0, {
-                width: 50,
-                height: 50
+            this.replayLog.addEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
+                cellIndex: callback.cellIndex,
+                animal: callback.animal,
+                previousCellIndex: callback.previousCellIndex,
+                currentHintIndex: callback.currentHintIndex,
+                currentHint: callback.currentHint,
+                value: callback.isCorrect
             });
-
-            bar.setValue(0);
-
-            this.progressBarRefs.push(bar);
-            dotProgressBars.push(bar.getContainer());
-        }
-
-        Phaser.Actions.GridAlign(dotProgressBars, {
-            width: 10,
-            cellWidth: 60,
-            cellHeight: 5,
-            x: this.scale.width / 2 - 275,
-            y: 140,
-            position: Phaser.Display.Align.TOP_LEFT
-        });
-
-        this.progressBarRefs[this.round]?.animateTo(1, 500);
+        };
 
         this.loadNextPuzzle();
     }
@@ -205,9 +174,8 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
-        this.gameplayUI.setElapsedTime(elapsedMs);
-
         const timeLeftS = Math.ceil((this.timeLimitMs - elapsedMs) / 1000);
+        this.gameplayUI.setTimeLeft(Math.max(0, timeLeftS));
         EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS) });
 
         if (!this.isGameEnded && elapsedMs >= this.timeLimitMs) {
@@ -240,7 +208,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameEndedAt = new Date();
 
         const elapsedMs = this.puzzleTimer.getElapsedMilliseconds();
-        this.gameplayUI?.setElapsedTime(elapsedMs);
+        const timeLeftS = Math.ceil((this.timeLimitMs - elapsedMs) / 1000);
+        this.gameplayUI?.setTimeLeft(Math.max(0, timeLeftS));
         this.gameplayUI?.setScore(this.allScore);
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
         EventBus.emit('minigame:game-over', { 
@@ -248,6 +217,14 @@ export default class GameplayScene extends Phaser.Scene {
             level: this.level
         });
 
+        //Save game data to database
+        game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+            console.log("Game data saved to database.");
+        }).catch((error) => {
+            console.error("Failed to save game data:", error);
+        });
+
+        this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");});
     }
 
     renderPuzzle() {
@@ -270,8 +247,26 @@ export default class GameplayScene extends Phaser.Scene {
         this.animalTray?.destroy();
         this.gridBoard?.destroy();
 
-        this.frameGraphics = this.createFrame(sceneWidth, sceneHeight);
+        this.frameGraphics = this.createFrame(sceneWidth, sceneHeight - 102);
         const headerMetrics = this.createHeader(layoutConfig, this.sceneData);
+        const answerItemsPerRow = this.sceneData.maxAnimalsPerRow ?? 5;
+        const answerItemGap = 22;
+        const answerTrayPadding = { top: 40, right: 36, bottom: 32, left: 36 };
+        const answerTrayWidth = sceneWidth - 96;
+        const answerItemSize = Math.max(
+            156,
+            Math.min(
+                196,
+                Math.floor(
+                    (
+                        answerTrayWidth
+                        - answerTrayPadding.left
+                        - answerTrayPadding.right
+                        - ((answerItemsPerRow - 1) * answerItemGap)
+                    ) / answerItemsPerRow
+                )
+            )
+        );
 
         this.animalTray = new AnimalIconTray(this, 48, 0,
             (data) => {
@@ -289,13 +284,17 @@ export default class GameplayScene extends Phaser.Scene {
                 }
             },
             {
-                width: sceneWidth - 96,
-                maxItemsPerRow: this.sceneData.maxAnimalsPerRow ?? 6,
-                itemWidth: 132,
-                itemHeight: 132,
-                itemGap: 18,
-                rowGap: 20,
-                padding: { top: 40, right: 36, bottom: 32, left: 36 },
+                width: answerTrayWidth,
+                maxItemsPerRow: answerItemsPerRow,
+                itemWidth: answerItemSize,
+                itemHeight: answerItemSize,
+                itemGap: answerItemGap,
+                rowGap: 24,
+                padding: answerTrayPadding,
+                itemTextStyle: {
+                    fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
+                    fontSize: `${Math.floor(answerItemSize * 0.72)}px`
+                },
                 trayRadius: 42,
                 footerReservedHeight: this.sceneData.answerButtonHeight ?? 0,
                 footerOffset: this.sceneData.answerButtonOffset ?? 12,
@@ -306,7 +305,7 @@ export default class GameplayScene extends Phaser.Scene {
         const boardTop = headerMetrics.bottom + 100;
         const boardBottom = this.animalTray.y - 56;
         const boardWidth = Math.min(sceneWidth - 140, 930);
-        const boardHeight = Math.max(420, boardBottom - boardTop);
+        const boardHeight = Math.max(800, boardBottom - boardTop);
         const boardX = (sceneWidth - boardWidth) / 2;
 
         this.gridBoard = new SquareGridLayout(this, boardX, boardTop, {
@@ -330,7 +329,7 @@ export default class GameplayScene extends Phaser.Scene {
         for (const cell of this.gridBoard.getCells()) {
             cell.container.setSize(cell.size, cell.size);
             cell.container.setInteractive(
-                new Phaser.Geom.Rectangle(0, 0, cell.size, cell.size),
+                new Phaser.Geom.Rectangle(cell.size / 2, cell.size / 2, cell.size, cell.size),
                 Phaser.Geom.Rectangle.Contains
             );
             cell.container.on("pointerdown", () => {
@@ -402,7 +401,7 @@ export default class GameplayScene extends Phaser.Scene {
     renderAnimalInCell(cell, animal) {
         const emojiText = this.add.text(0, 0, animal.icon ?? animal.label ?? "?", {
             fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
-            fontSize: `${Math.floor(cell.size * 0.45)}px`
+            fontSize: `${Math.floor(cell.size * 0.58)}px`
         }).setOrigin(0.5);
 
         this.gridBoard.clearCell(cell.index, true);
@@ -574,27 +573,19 @@ export default class GameplayScene extends Phaser.Scene {
     createHeader(layoutConfig, data) {
         const left = 52;
         const top = 255;
-        const chipWidth = 240;
         const chipHeight = 112;
-        const gap = 22;
-        const cardWidth = this.scale.width - left - 52 - chipWidth - gap;
-        const promptX = left + chipWidth + gap;
+        const right = 52;
+        const cardWidth = this.scale.width - left - right;
+        const promptX = left;
         const promptHints = this.getPromptHints(data);
         const promptStyle = {
-            fontSize: "40px",
+            fontSize: "52px",
             fontStyle: "bold",
             color: "#7d7790",
             align: "left"
         };
         const promptWrapWidth = cardWidth - 60;
         const hintViewerMinHeight = this.measureHintViewerHeight(promptHints, promptStyle, promptWrapWidth);
-
-        const stagePanel = this.drawRoundedPanel(left, top, chipWidth, chipHeight, {
-            fillColor: 0xffffff,
-            strokeColor: 0x1fd11a,
-            strokeWidth: 8,
-            radius: 24
-        });
 
         const hintViewerOptions = {
             width: cardWidth,
@@ -615,38 +606,20 @@ export default class GameplayScene extends Phaser.Scene {
         this.hintViewer = new HintLineViewer(this, promptX, top, promptHints, hintViewerOptions);
         this.hintViewer.setDepth(2);
 
-        const headerIcon = this.add.text(left + 26, top + (chipHeight / 2), "📝", {
-            fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
-            fontSize: "52px"
-        }).setOrigin(0, 0.5);
-
-        const stageText = createThaiText(
-            this,
-            left + 82,
-            top + (chipHeight / 2),
-            `${layoutConfig.stageLabel} ${layoutConfig.stageValue}`,
-            {
-                fontSize: "42px",
-                fontStyle: "bold",
-                color: "#3f5165"
-            },
-            { origin: [0, 0.5] }
-        );
-
         const promptText = createThaiText(
             this,
             this.scale.width / 2,
             top + chipHeight + 80,
             `${GameplayConfig.defaultPromptFallback}`,
             {
-                fontSize: "42px",
+                fontSize: "55px",
                 fontStyle: "bold",
                 color: "#3f5165"
             },
             { origin: [0.5, 0.5] }
         );
 
-        this.headerElements = [stagePanel, headerIcon, stageText, promptText];
+        this.headerElements = [promptText];
 
         return {
             bottom: top + Math.max(chipHeight, this.hintViewer.height)
@@ -689,14 +662,23 @@ export default class GameplayScene extends Phaser.Scene {
         strokeColor,
         strokeAlpha = 1,
         strokeWidth = 4,
-        radius = 18
+        radius = 18,
+        origin = [0, 0],
+        depth = 0
     }) {
+        const [originX = 0, originY = 0] = origin;
         const panel = this.add.graphics();
+
+        panel.setPosition(x, y);
+        panel.setDepth(depth);
+
+        const drawX = -width * originX;
+        const drawY = -height * originY;
 
         panel.fillStyle(fillColor, fillAlpha);
         panel.lineStyle(strokeWidth, strokeColor, strokeAlpha);
-        panel.fillRoundedRect(x, y, width, height, radius);
-        panel.strokeRoundedRect(x, y, width, height, radius);
+        panel.fillRoundedRect(drawX, drawY, width, height, radius);
+        panel.strokeRoundedRect(drawX, drawY, width, height, radius);
 
         return panel;
     }

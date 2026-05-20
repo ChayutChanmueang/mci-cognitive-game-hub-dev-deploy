@@ -1,5 +1,5 @@
 import UIPanel from "../core/ui-panel.js";
-import game_db from "/src/util/minigame-db-util.js";
+import { EventBus } from "../../../../core/EventBus.js";
 
 export default class GameOverPanel extends UIPanel{
     constructor(scene){
@@ -24,18 +24,15 @@ export default class GameOverPanel extends UIPanel{
         }).setOrigin(0.5);
         this.highscoreText.setScale(1.5);
 
-        this.homeBtn = this.createButton(0,225, "RETURN", () => {
-            this.scene.scene.start('main-menu-scene')
-
-            //Save game data to database
-            game_db.pushGameData(this.finalScore, this.scene.level, this.scene.gameStartedAt, this.scene.gameEndedAt).then(() => {
-                console.log("Game data saved to database.");
-            }).catch((error) => {
-                console.error("Failed to save game data:", error);
-            });
+        this.levelSelectBtn = this.createButton(0,175, "เลือกเลเวล", () => {
+            EventBus.emit("minigame:level-select-request", { source: "zoo-detective-game-over" });
         });
 
-        this.addElements([this.titleText, this.scoreText, this.highscoreText,...this.homeBtn]);
+        this.homeBtn = this.createButton(0,265, "กลับหน้าหลัก", () => {
+            EventBus.emit("minigame:exit-confirmed", { source: "zoo-detective-game-over" });
+        });
+
+        this.addElements([this.titleText, this.scoreText, this.highscoreText,...this.levelSelectBtn,...this.homeBtn]);
     }
 
     setResultStatus(status = "success"){

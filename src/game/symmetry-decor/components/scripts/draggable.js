@@ -1,5 +1,7 @@
 import Component from "../component";
+import DraggableDataComponent from "./draggableData";
 import SocketComponent from "./socket";
+import {ReplayEvent} from "../../../../core/replay-event.js";
 
 export default class DraggableComponent extends Component {
     constructor(entity) {
@@ -36,6 +38,9 @@ export default class DraggableComponent extends Component {
 
         this.entity.on('drag', (pointer, dragX, dragY) => {
             this.entity.setPosition(dragX, dragY);
+            /*if (this.scene.replayLogger) {
+                this.scene.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_DRAGGED, this.entity.getComponent(DraggableDataComponent).animal);
+            }*/
         });
 
         this.entity.on('drop', (pointer, dropZoneEntity) => {
@@ -87,6 +92,9 @@ export default class DraggableComponent extends Component {
                 } else {
                     // SCENARIO 3: The occupant is Locked, or the swap is invalid. Bounce back!
                     this.snapBack();
+                }
+                if (this.scene.replayLogger) {
+                    this.scene.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_DROPPED, this.entity.getComponent(DraggableDataComponent).animal);
                 }
             }
         });

@@ -12,6 +12,7 @@
     --md-sys-color-outline: #b7b0a8;
     --md-sys-color-error: #ba1a1a;
     --app-shadow: 0 24px 60px rgba(53, 104, 89, 0.14);
+    --game-mode-background: #028af8;
 }
 
 * {
@@ -35,7 +36,7 @@ body {
 
 body.game-mode {
     color: rgba(255, 255, 255, 0.87);
-    background: #028af8;
+    background: var(--game-mode-background);
     font-family: inherit;
 }
 
@@ -60,7 +61,8 @@ body.hub-mode {
     padding: 0 !important;
     margin: 0 !important;
     display: block;
-    background: #028af8; /* Standard Game Background Blue */
+    background: var(--game-mode-background);
+    /* Standard Game Background Blue */
 }
 
 #app.game-mode #game-container {
@@ -164,11 +166,11 @@ body.hub-mode {
 .signup-card__header h1,
 .player-info-card h1,
 .admin-login-label,
-.signup-row > span,
-.signup-row > label,
-.signup-row--hn > label,
+.signup-row>span,
+.signup-row>label,
+.signup-row--hn>label,
 .signup-hn-value,
-.player-info-row > span,
+.player-info-row>span,
 .app-popup__copy h2,
 .hub-clean-goal h1,
 .hub-clean-level__node,
@@ -334,9 +336,9 @@ body.hub-mode {
     align-items: center;
 }
 
-.signup-row > span,
-.signup-row > label,
-.signup-row--hn > label {
+.signup-row>span,
+.signup-row>label,
+.signup-row--hn>label {
     color: #1f1f1f;
     font-size: clamp(1.25rem, 3vw, 1.65rem);
     font-weight: 600;
@@ -402,7 +404,7 @@ body.hub-mode {
     align-items: center;
 }
 
-.player-info-row > span {
+.player-info-row>span {
     color: #1f1f1f;
     font-size: clamp(1.15rem, 3vw, 1.55rem);
     font-weight: 600;
@@ -505,7 +507,7 @@ body.hub-mode {
 
 .app-popup__copy h2 {
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 2rem;
     line-height: 1;
 }
 
@@ -514,11 +516,135 @@ body.hub-mode {
     line-height: 1.6;
 }
 
+.app-popup__dialog--prompt {
+    width: min(100%, 500px);
+    gap: 26px;
+    padding: 31px;
+}
+
+.app-popup__dialog--prompt .app-popup__header {
+    gap: 21px;
+}
+
+.app-popup__dialog--prompt .app-popup__icon-wrap {
+    width: 68px;
+    height: 68px;
+    border-radius: 23px;
+}
+
+.app-popup__dialog--prompt .app-popup__icon {
+    font-size: 36px;
+}
+
+.app-popup__dialog--prompt .app-popup__copy {
+    gap: 10px;
+}
+
+.app-popup__dialog--prompt .app-popup__copy h2 {
+    font-size: 2.5rem;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+}
+
+.app-popup__dialog--prompt .app-popup__copy p {
+    font-size: 1.6rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.player-info-export-popup__group {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.player-info-export-popup__option {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 10px 12px;
+    border: 1px solid rgba(121, 116, 126, 0.38);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #202124;
+    cursor: pointer;
+}
+
+.player-info-export-popup__option input {
+    inline-size: 20px;
+    block-size: 20px;
+    margin: 0;
+    accent-color: var(--md-sys-color-primary);
+}
+
+.player-info-export-popup__option md-checkbox {
+    flex: 0 0 auto;
+    inline-size: 24px;
+    block-size: 24px;
+    --md-checkbox-container-size: 24px;
+    --md-checkbox-icon-size: 24px;
+    --md-checkbox-state-layer-size: 48px;
+}
+
+.player-info-export-popup__option span {
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.player-info-export-popup__scope {
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.player-info-export-popup__scope-copy {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.player-info-export-popup__scope-title {
+    color: #202124;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.player-info-export-popup__scope-value {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.9rem;
+    line-height: 1.35;
+}
+
+.player-info-export-popup__scope md-switch {
+    flex: 0 0 auto;
+}
+
 .app-popup__actions {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+.app-popup__dialog--prompt .app-popup__actions {
+    gap: 16px;
+}
+
+.app-popup__dialog--prompt .app-popup__actions md-filled-button,
+.app-popup__dialog--prompt .app-popup__actions md-outlined-button {
+    min-width: 132px;
+    --md-filled-button-container-height: 64px;
+    --md-filled-button-label-text-size: 27px;
+    --md-filled-button-label-text-line-height: 1.5;
+    --md-filled-button-label-text-weight: 800;
+    --md-filled-button-label-text-font: "Noto Sans Thai", "Baloo 2", sans-serif;
+    --md-outlined-button-container-height: 64px;
+    --md-outlined-button-label-text-size: 27px;
+    --md-outlined-button-label-text-line-height: 1.5;
+    --md-outlined-button-label-text-weight: 800;
+    --md-outlined-button-label-text-font: "Noto Sans Thai", "Baloo 2", sans-serif;
 }
 
 .app-popup__dialog--success {
@@ -741,9 +867,11 @@ body.hub-mode {
     0% {
         transform: scale(1);
     }
+
     45% {
         transform: scale(1.06);
     }
+
     100% {
         transform: scale(1);
     }
@@ -888,25 +1016,32 @@ body.hub-mode {
 }
 
 .hub-clean-current-card p {
-    font-size: 12px;
+    font-size: 20px;
     font-weight: 800;
 }
 
 .hub-clean-current-card h2 {
-    font-size: 27px;
+    font-size: 30px;
     font-weight: 800;
     line-height: 0.98;
 }
 
 .hub-clean-current-card span {
     max-width: 170px;
-    font-size: 12px;
+    font-size: 18px;
     line-height: 1.35;
 }
 
-.hub-clean-current-card md-outlined-button {
-    width: 148px;
-    margin-top: 5px;
+.hub-clean-current-card md-filled-button {
+    width: 185px;
+    min-width: 185px;
+    margin-top: 8px;
+    --md-filled-button-container-height: 50px;
+    --md-filled-button-container-shape: 50px;
+    --md-filled-button-label-text-size: 27px;
+    --md-filled-button-label-text-line-height: 1.15;
+    --md-filled-button-label-text-weight: 800;
+    --md-filled-button-label-text-font: "Noto Sans Thai", "Baloo 2", sans-serif;
 }
 
 .hub-clean-game-pill {
@@ -917,7 +1052,7 @@ body.hub-mode {
     border: 1px solid rgba(183, 176, 168, 0.62);
     box-shadow: 0 8px 20px rgba(53, 104, 89, 0.08);
     color: var(--md-sys-color-on-surface);
-    font-size: 13px;
+    font-size: 18px;
     font-weight: 800;
     line-height: 1.15;
 }
@@ -1150,6 +1285,7 @@ body.hub-mode {
 }
 
 @media (max-width: 560px) {
+
     #app:has(.signup-screen),
     #app:has(.player-info-screen) {
         padding: 0;
@@ -1177,10 +1313,10 @@ body.hub-mode {
         gap: 8px;
     }
 
-    .signup-row > span,
-    .signup-row > label,
-    .signup-row--hn > label,
-    .player-info-row > span {
+    .signup-row>span,
+    .signup-row>label,
+    .signup-row--hn>label,
+    .player-info-row>span {
         font-size: clamp(1rem, 5vw, 1.25rem);
     }
 
@@ -1254,9 +1390,9 @@ body.hub-mode {
         align-items: start;
     }
 
-    .signup-row > span,
-    .signup-row > label,
-    .signup-row--hn > label {
+    .signup-row>span,
+    .signup-row>label,
+    .signup-row--hn>label {
         text-align: left;
         font-size: 1.08rem;
     }
@@ -1266,7 +1402,7 @@ body.hub-mode {
         align-items: center;
     }
 
-    .signup-row--hn > label {
+    .signup-row--hn>label {
         white-space: nowrap;
     }
 
@@ -1297,6 +1433,10 @@ body.hub-mode {
         width: 100%;
         padding: 20px;
         border-radius: 24px;
+    }
+
+    .app-popup__dialog--prompt {
+        padding: 26px;
     }
 
     .app-popup__actions {
@@ -1333,7 +1473,7 @@ body.hub-mode {
 }
 
 /* Minigame HUD Styles */
-.minigame-hud {
+/* .minigame-hud {
     position: absolute;
     inset: 0;
     pointer-events: none;
@@ -1409,7 +1549,7 @@ body.hub-mode {
     font-weight: 700;
     color: var(--md-sys-color-primary);
     line-height: 1;
-}
+} */
 
 .minigame-hud__timer-wrap {
     margin-top: 16px;
@@ -1448,9 +1588,17 @@ body.hub-mode {
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .minigame-hud__stat-value.pulse {
@@ -1462,92 +1610,311 @@ body.hub-mode {
     position: fixed;
     inset: 0;
     z-index: 1000;
-    display: grid;
-    place-items: center;
-    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 157px;
+    pointer-events: auto;
 }
 
 .result-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(16, 18, 20, 0.4);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.5);
 }
 
-.result-card {
+.result-panel {
     position: relative;
     z-index: 1;
-    width: min(100%, 400px);
-    background: white;
-    border-radius: 32px;
-    padding: 32px;
+    width: 876px;
+    height: 1319px;
+    background-color: #FFFFFF;
+    border: 12px solid #54AC24;
+    border-radius: 104px;
+    box-sizing: border-box;
+    transform-origin: top center;
+    flex-shrink: 0;
+}
+
+.result-header {
+    width: 100%;
+    height: 200px;
+    background-color: #65BD35;
+    /* Outer radius is 104px, minus 12px border = 92px inner radius for flush edges */
+    border-radius: 92px 92px 0 0;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 24px;
-    box-shadow: 0 24px 64px rgba(53, 104, 89, 0.25);
-    border: 1px solid rgba(183, 176, 168, 0.3);
-    text-align: center;
 }
 
-.result-icon {
-    font-size: 64px;
-    color: #C8A96E; /* Gold */
-    margin-bottom: 8px;
-}
-
-.result-card__header h2 {
+.result-header h2 {
     margin: 0;
-    font-family: "Baloo 2", sans-serif;
-    font-size: 2.25rem;
-    color: var(--md-sys-color-primary);
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 100px;
+    font-weight: 700;
+    /* Bold weight */
+    color: #FFFFFF;
+}
+
+.result-picture {
+    position: absolute;
+    width: 745px;
+    height: 570.5px;
+    top: 253.5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #eef2f5;
+    border-radius: 36px;
+}
+
+.result-compliment {
+    position: absolute;
+    /* Adjusted text position */
+    top: 886px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 60px;
+    font-weight: 500;
+    /* Medium weight */
+    color: #F77A05;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.result-score-box {
+    position: absolute;
+    width: 745px;
+    height: 281.5px;
+    /* Adjusted top to match the text gap */
+    top: 960px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #FFFBF6;
+    border: 1.65px solid #FFD9A3;
+    border-radius: 56px;
+    box-sizing: border-box;
+}
+
+.result-score-label {
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 56px;
+    font-weight: 500;
+    /* Medium weight */
+    color: #D39051;
+    white-space: nowrap;
+}
+
+.result-score-value {
+    position: absolute;
+    bottom: 35px;
+    /* Matches the top gap of the label */
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 150px;
+    /* Reduced from 200px so the middle gap perfectly matches 35px */
+    font-weight: 600;
+    /* SemiBold weight */
+    color: #F77A05;
+    white-space: nowrap;
     line-height: 1;
 }
 
-.result-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-}
-
-.result-stat {
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    background: rgba(53, 104, 89, 0.05);
-    border-radius: 16px;
-}
-
-.result-stat--secondary {
-    background: rgba(183, 176, 168, 0.1);
-}
-
-.result-stat__label {
-    font-size: 0.85rem;
+.result-btn-home {
+    position: absolute;
+    /* Panel height (1319px) + gap (40px) = 1359px */
+    top: 1359px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 658px;
+    height: 228px;
+    background: linear-gradient(to bottom, #76B8FF, #7691FF);
+    border: 13px solid #FFFFFF;
+    border-radius: 96.93px;
+    box-sizing: border-box;
+    cursor: pointer;
+    pointer-events: auto;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 80px;
     font-weight: 700;
-    color: var(--md-sys-color-on-surface-variant);
-    margin-bottom: 4px;
+    color: #FFFFFF;
+    /* Inset shadow creates the 10px gap perfectly following the corner curves, outer shadow is for depth */
+    box-shadow: inset 0 -10px 0 0 #5572E9, 0 10px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s ease;
 }
 
-.result-stat__value {
-    font-family: "Baloo 2", sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--md-sys-color-primary);
-    line-height: 1;
+.result-btn-home:active {
+    transform: translateX(-50%) scale(0.95);
 }
 
-.result-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    width: 100%;
-    margin-top: 8px;
+/* Zoo Feeder Custom DOM Top UI */
+.minigame-hud--zoo-feeder {
+    padding: 0 !important;
+    padding-top: 0 !important;
 }
 
-.result-actions md-filled-button,
-.result-actions md-outlined-button {
-    width: 100%;
+.minigame-hud--zoo-feeder .minigame-hud__topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: 99px;
+    background: rgba(128, 128, 128, 0.5) !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 40px !important;
 }
 
+/* Remove the green progress bar and second indicator for Zoo Feeder and Symmetry */
+.minigame-hud--zoo-feeder:not(.minigame-hud--postcard-reader) .minigame-hud__timer-wrap {
+    display: none !important;
+}
+
+/* Custom Postcard Reader Timer Bar Positioning */
+.minigame-hud--postcard-reader .minigame-hud__timer-wrap {
+    position: absolute !important;
+    top: 105px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 600px !important;
+    max-width: 80% !important;
+    flex-direction: column-reverse !important;
+    align-items: flex-end !important;
+    /* right side */
+    pointer-events: none;
+}
+
+.minigame-hud--postcard-reader .minigame-hud__timer-label {
+    margin-top: 8px !important;
+    /* space between bar and label */
+}
+
+.minigame-hud--postcard-reader .minigame-hud__timer-bar {
+    height: 16px !important;
+    border-radius: 8px !important;
+    --md-linear-progress-track-height: 16px;
+    --md-linear-progress-active-indicator-height: 16px;
+}
+
+/* Custom Green Score Box for Zoo Feeder */
+.minigame-hud--zoo-feeder .minigame-hud__score-box {
+    position: absolute;
+    left: 60px;
+    top: 28.5px;
+    width: 150px;
+    height: 42.5px;
+    background: #56AC2E !important;
+    border: 3.5px solid #ffffff !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 0 8px !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
+    overflow: visible !important;
+    /* Prevent star from being clipped */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__score-star {
+    width: 65px !important;
+    height: 65px !important;
+    object-fit: contain !important;
+    margin-left: -30px !important;
+    /* Overlap left edge */
+    z-index: 2 !important;
+    /* Keep star on top of border */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__score-text {
+    flex-grow: 1;
+    text-align: center;
+    color: #ffffff !important;
+    font-family: 'Noto Sans Thai', sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-right: 12px;
+    /* Visual offset to center the number relative to the box */
+}
+
+/* Score Change Pop-Up Animation */
+.minigame-hud--zoo-feeder #hud-score {
+    display: inline-block !important;
+    transform-origin: center !important;
+}
+
+@keyframes score-pop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.45);
+        color: #FFEB3B !important;
+        /* Premium golden glow mid-pop */
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pop-animation {
+    animation: score-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    /* Elastic bounce pop */
+}
+
+/* Custom Orange Time Box for Zoo Feeder */
+.minigame-hud--zoo-feeder .minigame-hud__time-box {
+    position: absolute;
+    right: 35px;
+    top: 28.5px;
+    width: 150px;
+    height: 42.5px;
+    background: #FFEDDF !important;
+    border: 3.5px solid #ffffff !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 0 8px !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
+    overflow: visible !important;
+    /* Prevent icon from being clipped */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__time-icon {
+    width: 65px !important;
+    height: 65px !important;
+    object-fit: contain !important;
+    margin-left: -30px !important;
+    /* Overlap left edge */
+    z-index: 2 !important;
+    /* Keep icon on top of border */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__time-text {
+    flex-grow: 1;
+    text-align: center;
+    color: #743D14 !important;
+    font-family: 'Noto Sans Thai', sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-right: 12px;
+    /* Visual offset to center the text relative to the box */
+}
