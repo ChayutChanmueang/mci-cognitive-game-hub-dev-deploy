@@ -11,6 +11,7 @@
 | [sprint-03](sprint-backlogs/sprint-03.md) | Mar 29-Apr 11 | Logic Games & Integration            | Completed |
 | [sprint-04](sprint-backlogs/sprint-04.md) | Apr 12-30     | Final Polish & Variety               | Completed |
 | [sprint-05](sprint-backlogs/sprint-05.md) | May 06-19     | User Management & Progression Overhaul | Completed |
+| [sprint-06](sprint-backlogs/sprint-06.md) | May 20-31     | **(Current)** Integration, Analytics & Admin | In-Progress |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -28,6 +29,8 @@ gantt
     Final Polish & Optimization :done, s4, 2026-04-12, 20d
     section Sprint 5
     User Management & Progression :done, s5, 2026-05-06, 14d
+    section Sprint 6
+    Integration, Analytics & Admin :active, s6, 2026-05-20, 12d
 ```
 
 ---

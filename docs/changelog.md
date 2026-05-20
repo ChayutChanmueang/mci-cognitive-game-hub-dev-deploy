@@ -2,6 +2,22 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+## [2026-05-20] - Sprint 6 Planning
+### Added
+- Created Sprint 6 Backlog (`docs/agile/sprint-backlogs/sprint-06.md`) specifying sprint goals, Gantt charts, and user stories.
+- Created User Story files for remaining Sprint 6 scope:
+  - `US-E3-06.md` - เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory)
+  - `US-E4-03.md` - บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect)
+  - `US-E5-01.md` - ระบบ Admin Login
+  - `US-E5-02.md` - ระบบส่งออกข้อมูลเป็นไฟล์ CSV
+  - `US-E5-03.md` - ระบบลบบัญชีและลงชื่อออก
+
+### Changed
+- Linked and updated status of all Sprint 6 User Stories to `In-Progress` in Product Backlog (`docs/agile/01-product-backlog.md`).
+- Added Sprint 6 row and Mermaid Gantt chart section to Sprint Roadmap (`docs/agile/02-sprint-planning.md`).
+- Populated Kanban Board (`docs/agile/kanban.md`) with Sprint 6 tasks in Backlog and In Progress columns.
+- Updated Project Index (`docs/index.md`) current status to Sprint 6.
+
 ## [2026-05-20] - Sprint 5 Finalization
 ### Added
 - Created Sprint 5 Retrospective report (`docs/agile/retrospectives/sprint-05-retro.md`) covering E2E integration, accessibility features, improvement points (database snake_case column names), and velocity.
