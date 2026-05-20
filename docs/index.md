@@ -1,8 +1,8 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** ✅ Completed | **Current Sprint:** Sprint 4 (Final Polish)
-**Last Updated:** 2026-05-31 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 Ongoing | **Current Sprint:** Sprint 5 (Finished)
+**Last Updated:** 2026-05-20 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 

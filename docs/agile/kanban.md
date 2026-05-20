@@ -14,6 +14,13 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [ ] [US-E1-02](user-stories/US-E1-02.md) ระบบลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, เพศ, การศึกษา)
+- [ ] [US-E1-03](user-stories/US-E1-03.md) ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน)
+- [ ] [US-E2-02](user-stories/US-E2-02.md) ระบบแผนที่ด่าน (Level Progression Map)
+- [ ] [US-E2-03](user-stories/US-E2-03.md) ระบบ Daily Goal Progress Bar
+- [ ] [US-E2-04](user-stories/US-E2-04.md) ระบบ Daily Streak Tracking
+- [ ] [US-E2-05](user-stories/US-E2-05.md) มินิเกมด่านจุดพัก (Rest Level)
+- [ ] [US-E2-06](user-stories/US-E2-06.md) ด่านเส้นชัยและระบบเช็คชื่อ (Finish Level)
 - [ ] [US-E1-01](US-E1-01.md) Zoo Detective Core Logic
 - [ ] [US-E1-03](US-E1-03.md) Zoo Feeder Conveyor System
 - [ ] [US-E1-02](US-E1-02.md) Zoo Detective UI & Feedback

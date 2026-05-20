@@ -13,18 +13,18 @@
 | ID                                     | User Story                                                    | Priority | Status   |
 | -------------------------------------- | ------------------------------------------------------------- | -------- | -------- |
 | [US-E1-01](./user-stories/US-E1-01.md) | เข้าใช้งานระบบด้วยรหัส HN (Hospital Number)                   | High     | ✅ Done   |
-| [US-E1-02](./user-stories/US-E1-02.md) | ลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, อายุ, เพศ, ระดับการศึกษา) | High     | 🏗 To Do |
-| [US-E1-03](./user-stories/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน)               | Med      | 🏗 To Do |
+| [US-E1-02](./user-stories/US-E1-02.md) | ลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, อายุ, เพศ, ระดับการศึกษา) | High     | ✅ Done  |
+| [US-E1-03](./user-stories/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน)               | Med      | ✅ Done  |
 
 ### E2: Core Gamehub & Progression System (P0)
 | ID       | User Story                                                         | Priority | Status   |
 | -------- | ------------------------------------------------------------------ | -------- | -------- |
 | [US-E2-01](./user-stories/US-E2-01.md) | หน้า Gamehub รวมฟีเจอร์หลัก (ข้อมูลผู้เล่น, เป้าหมาย, ความคืบหน้า) | High     | ✅ Done   |
-| [US-E2-02](./user-stories/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression) แบบล็อคด่านตามวันที่            | High     | 🏗 To Do |
-| [US-E2-03](./user-stories/US-E2-03.md) | ระบบ Daily Goal (ความคืบหน้า 10 ด่านในแต่ละวัน)                    | High     | 🏗 To Do |
-| [US-E2-04](./user-stories/US-E2-04.md) | ระบบ Daily Streak (ติดตามการเล่นติดต่อกัน 14 วัน)                  | Med      | 🏗 To Do |
-| [US-E2-05](./user-stories/US-E2-05.md) | ด่านจุดพัก (Rest Level) มินิเกมยืดเส้นยืดสาย                       | Low      | 🏗 To Do |
-| [US-E2-06](./user-stories/US-E2-06.md) | ด่านเส้นชัย (Finish Level) เช็คชื่อและแสดงความยินดี                | High     | 🏗 To Do |
+| [US-E2-02](./user-stories/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression) แบบล็อคด่านตามวันที่            | High     | ✅ Done  |
+| [US-E2-03](./user-stories/US-E2-03.md) | ระบบ Daily Goal (ความคืบหน้า 10 ด่านในแต่ละวัน)                    | High     | ✅ Done  |
+| [US-E2-04](./user-stories/US-E2-04.md) | ระบบ Daily Streak (ติดตามการเล่นติดต่อกัน 14 วัน)                  | Med      | ✅ Done  |
+| [US-E2-05](./user-stories/US-E2-05.md) | ด่านจุดพัก (Rest Level) มินิเกมยืดเส้นยืดสาย                       | Low      | ✅ Done  |
+| [US-E2-06](./user-stories/US-E2-06.md) | ด่านเส้นชัย (Finish Level) เช็คชื่อและแสดงความยินดี                | High     | ✅ Done  |
 
 ### E3: Cognitive Games Implementation (P1)
 | ID       | User Story                                                     | Priority | Status  |
