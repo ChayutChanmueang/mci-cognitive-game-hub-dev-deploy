@@ -43,6 +43,26 @@ const CATEGORY_META = Object.freeze({
 
 const CATEGORY_ORDER = ["Memory", "Visuospatial", "Attention", "Language", "Executive"];
 const PAGE_SIZE = 10;
+const LEVEL_OPTIONS = Object.freeze([
+    {
+        value: 3,
+        label: "ยาก",
+        icon: "local_fire_department",
+        description: "ระดับท้าทาย",
+    },
+    {
+        value: 2,
+        label: "กลาง",
+        icon: "adjust",
+        description: "ระดับสมดุล",
+    },
+    {
+        value: 1,
+        label: "ง่าย",
+        icon: "spa",
+        description: "ระดับเริ่มต้น",
+    },
+]);
 
 function escapeHtml(value) {
     return String(value || "")
@@ -187,6 +207,78 @@ function buildLoadMoreMarkup() {
     `;
 }
 
+function buildLevelDialogMarkup(game) {
+    const levelOptionsHtml = LEVEL_OPTIONS.map((level) => `
+        <button class="hub-level-option" type="button" data-level-value="${level.value}">
+            <span class="material-symbols-rounded">${level.icon}</span>
+            <span class="hub-level-option__copy">
+                <strong>${escapeHtml(level.label)}</strong>
+                <span>${escapeHtml(level.description)}</span>
+            </span>
+        </button>
+    `).join("");
+
+    return `
+        <div class="hub-level-dialog" role="presentation">
+            <button class="hub-level-dialog__backdrop" type="button" data-level-cancel aria-label="ปิด"></button>
+            <section class="hub-level-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="hub-level-dialog-title">
+                <div class="hub-level-dialog__header">
+                    <div>
+                        <p>เลือก Level</p>
+                        <h2 id="hub-level-dialog-title">${escapeHtml(game.name)}</h2>
+                    </div>
+                    <md-outlined-icon-button data-level-cancel aria-label="ปิด">
+                        <span class="material-symbols-rounded">close</span>
+                    </md-outlined-icon-button>
+                </div>
+                <div class="hub-level-options">
+                    ${levelOptionsHtml}
+                </div>
+            </section>
+        </div>
+    `;
+}
+
+function promptGameLevel(root, game) {
+    return new Promise((resolve) => {
+        const dialogContainer = document.createElement("div");
+        dialogContainer.innerHTML = buildLevelDialogMarkup(game);
+        const dialog = dialogContainer.firstElementChild;
+
+        if (!dialog) {
+            resolve(null);
+            return;
+        }
+
+        const cleanup = (levelValue = null) => {
+            document.removeEventListener("keydown", handleKeyDown);
+            dialog.remove();
+            resolve(levelValue);
+        };
+
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape") {
+                cleanup(null);
+            }
+        };
+
+        dialog.querySelectorAll("[data-level-value]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const levelValue = Number(button.getAttribute("data-level-value"));
+                cleanup(Number.isFinite(levelValue) ? levelValue : null);
+            });
+        });
+
+        dialog.querySelectorAll("[data-level-cancel]").forEach((button) => {
+            button.addEventListener("click", () => cleanup(null));
+        });
+
+        document.addEventListener("keydown", handleKeyDown);
+        (root.querySelector(".test-game-hub") || root).append(dialog);
+        dialog.querySelector("[data-level-value]")?.focus();
+    });
+}
+
 function buildSelectionMarkup({ activeCategory, categoryStates }) {
     const currentCategory = CATEGORY_META[activeCategory];
     const currentState = categoryStates[activeCategory];
@@ -301,7 +393,15 @@ export async function renderTestGameHubScreen(root, options = {}) {
                 }
 
                 try {
-                    await onLaunchGame(selectedGame);
+                    const selectedLevel = await promptGameLevel(root, selectedGame);
+                    if (!selectedLevel) {
+                        return;
+                    }
+
+                    await onLaunchGame({
+                        ...selectedGame,
+                        level: selectedLevel,
+                    });
                 } catch (error) {
                     console.error("Unable to launch selected game:", error);
                 }
