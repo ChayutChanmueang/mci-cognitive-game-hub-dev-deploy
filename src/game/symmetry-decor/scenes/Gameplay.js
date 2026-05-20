@@ -5,16 +5,20 @@ import DraggableComponent from "../components/scripts/draggable";
 import SocketComponent from "../components/scripts/socket";
 import EntityGrid from "../entity/entityGrid";
 import NonDraggableComponent from "../components/scripts/non-draggable";
-import { Difficulty, GameLevels, Config } from "../constants";
+import { Difficulty, GameLevels, Config, DifficultyLevelNumber } from "../constants";
 import SolutionSocketComponent from "../components/scripts/solutionSocket";
 import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
 
 import LevelGenerator from "../components/scripts/level-generator";
-
+import game_db from "/src/util/minigame-db-util.js";
 import EmojiRenderer from "../components/scripts/emoji-renderer";
 import SpriteRenderer from "../components/scripts/sprite-renderer";
 import DebugMenu from "./DebugMenu";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
+import { ReplayEvent } from "../../../core/replay-event.js";
+import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
+import SessionStorageManager from "../../../core/session-storage-manager.js";
 
 // Pool of animal sprite keys (loaded in preload)
 const ANIMAL_SPRITES = [
@@ -40,19 +44,37 @@ export default class GameplayScene extends Phaser.Scene {
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
 
     // Animal icons for draggable entities
-    this.load.image('icon_bear',     'assets/common/animal/icons/H_Bear.png')
-    this.load.image('icon_cow',      'assets/common/animal/icons/H_Cow.png')
+    this.load.image('icon_bear', 'assets/common/animal/icons/H_Bear.png')
+    this.load.image('icon_cow', 'assets/common/animal/icons/H_Cow.png')
     this.load.image('icon_elephant', 'assets/common/animal/icons/H_ele.png')
-    this.load.image('icon_fox',      'assets/common/animal/icons/H_Fox.png')
-    this.load.image('icon_lion',     'assets/common/animal/icons/H_Li.png')
-    this.load.image('icon_panda',    'assets/common/animal/icons/H_Pan.png')
+    this.load.image('icon_fox', 'assets/common/animal/icons/H_Fox.png')
+    this.load.image('icon_lion', 'assets/common/animal/icons/H_Li.png')
+    this.load.image('icon_panda', 'assets/common/animal/icons/H_Pan.png')
   }
 
   create(data) {
+    //Initialize Logging
+    if (this.replayLogger == null) {
+      this.replayLogger = new ReplayLogBuffer();
+    }
+    else {
+      this.replayLogger.clearEvents();
+    }
+
+    this.correctSlotMove = 0;
+    this.wrongSlotMove = 0;
+    this.totalMove = 0;
+
     EventBus.emit('minigame:show-hud');
 
     this.sceneData = { ...data };
-    this.level = data.level || Difficulty.EASY;
+    var _tempLevel = Difficulty.EASY;
+    switch (Number(SessionStorageManager.get("selected_game_level"))) {
+      case 1: _tempLevel = Difficulty.EASY; break;
+      case 2: _tempLevel = Difficulty.NORMAL; break;
+      case 3: _tempLevel = Difficulty.HARD; break;
+    }
+    this.level = _tempLevel || data.level || Difficulty.EASY;
     this.stage = 1;
     this.allScore = 0;
     this.completedStages = 0;
@@ -61,10 +83,11 @@ export default class GameplayScene extends Phaser.Scene {
     this.constructGrid(true);
 
     this.gameStartedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.ROUND_START, this.gameStartedAt);
     this.gameEndedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
-    
+
     // Hide old internal Phaser UI
     this.gameplayUI.uiBackground.setVisible(false);
     this.gameplayUI.currentScore.setVisible(false);
@@ -72,7 +95,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Initial HUD State
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
-    EventBus.emit('minigame:score', { score: this.allScore });
+    EventBus.emit('minigame:score', { score: this.stage });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
     EventBus.emit('minigame:tick', { timeLeft: maxTimeS, maxTime: maxTimeS });
 
@@ -85,12 +108,19 @@ export default class GameplayScene extends Phaser.Scene {
       console.log(`Locked into ${socketComponent.name}`);
       if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
         var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
+        this.totalMove++;
         if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
           console.log("Correct Socket");
+          this.correctSlotMove++;
+          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "CORRECT");
           if (this.checkIfAllSocketIsFilledCorrectly()) {
             console.log("Game Complete");
             this.handleRoundComplete();
           }
+        }
+        else {
+          this.wrongSlotMove++;
+          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "WRONG");
         }
       }
     });
@@ -109,21 +139,25 @@ export default class GameplayScene extends Phaser.Scene {
     this.allScore += addScore;
     this.completedStages++;
 
-    EventBus.emit('minigame:score', { score: this.allScore });
+    // Always trigger level complete effect for the final puzzle success
+    showLevelCompleteEffect();
 
-    // If timer already expired, end the game now that the puzzle is done
+    // If timer already expired, end the game after the effect
     if (this.pendingGameOver) {
+      this.time.delayedCall(1500, () => {
         this.onGameOver("success");
-        return;
+      });
+      return;
     }
 
     // Otherwise, advance to the next round
     this.stage++;
+    EventBus.emit('minigame:score', { score: this.stage });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
 
     // Short delay for success feedback before loading next puzzle
-    this.time.delayedCall(1000, () => {
-        this.constructGrid(true);
+    this.time.delayedCall(1500, () => {
+      this.constructGrid(true);
     });
   }
 
@@ -132,30 +166,39 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
+    this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.pushToDatabase();
+
+    //Save game data to database
+    game_db.pushGameData(this.allScore, DifficultyLevelNumber[this.level], this.gameStartedAt, this.gameEndedAt).then(() => {
+      console.log("Game data saved to database.");
+    }).catch((error) => {
+      console.error("Failed to save game data:", error);
+    });
 
     const finalTime = ((this.time.now - this.levelStartTime) / 1000).toFixed(2);
     // stages completed = current stage - 1 (since stage increments at round start)
     // but if pendingGameOver triggered after finishing, stage is already incremented by handleRoundComplete
     // so we track completedStages separately
     const completedStages = this.completedStages || 0;
-    
-    this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
-    // EventBus.emit('minigame:game-over', { 
-    //   score: this.allScore, 
-    //   level: this.level
-    // });
+
+    // this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
+    EventBus.emit('minigame:game-over', {
+      score: this.allScore,
+      level: this.level
+    });
   }
 
   update() {
     if (this.isGameEnded || !this.levelIsActive) return;
 
     if (this.levelStartTime === null) {
-        this.levelStartTime = this.time.now;
+      this.levelStartTime = this.time.now;
     }
 
     const elapsePlaytimeMS = this.time.now - this.levelStartTime;
     const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);
-    
+
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
 
@@ -167,7 +210,7 @@ export default class GameplayScene extends Phaser.Scene {
 
   constructGrid(isProcedural = false) {
     if (this.grid) {
-        this.grid.destroy();
+      this.grid.destroy();
     }
 
     var _gridConfig, _level, _solution;
@@ -208,7 +251,7 @@ export default class GameplayScene extends Phaser.Scene {
               box.clearTint();
               box.setDisplaySize(this.grid.cellWidth * 0.8, this.grid.cellHeight * 0.8);
               box.setDepth(100);
-              
+
               const drag = box.addComponent(DraggableComponent);
               const data = box.addComponent(DraggableDataComponent, _level[currentEntity]);
 
@@ -242,7 +285,7 @@ export default class GameplayScene extends Phaser.Scene {
             currentEntity++;
           }
         }
-        
+
         if (currentCorrectSocket < _solution.length) {
           if (_solution[currentCorrectSocket].POS.X === i && _solution[currentCorrectSocket].POS.Y === j) {
             cell.addComponent(SolutionSocketComponent, _solution[currentCorrectSocket]);
@@ -302,7 +345,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Ensure cells are square by adjusting height based on the column/row ratio
     if (config.columns > 0 && config.rows > 0) {
-        config.height = config.width * (config.rows / config.columns);
+      config.height = config.width * (config.rows / config.columns);
     }
 
     return config;
@@ -314,7 +357,7 @@ export default class GameplayScene extends Phaser.Scene {
       const cell = this.grid.getEntityAt(_solution[i].POS.X, _solution[i].POS.Y);
       const socket = cell.getComponent(SocketComponent);
       const solution = cell.getComponent(SolutionSocketComponent);
-      
+
       if (!socket.occupant) return false;
       if (!solution.checkEntity(socket.occupant.getComponent(DraggableDataComponent))) return false;
     }

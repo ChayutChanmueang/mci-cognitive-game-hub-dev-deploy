@@ -31,6 +31,22 @@ export default class DebugMenu {
                 },
             },
             {
+                label: '🕒 Set Time to 30s',
+                style: { background: '#fb8c00', hoverBg: '#ffa726' },
+                action: () => {
+                    if (scene.countdownTimer) {
+                        scene.countdownTimer.reset({
+                            delay: scene.countdownTimer.elapsed + 30000,
+                            callback: () => {
+                                scene.isTimeUp = true;
+                            },
+                        });
+                        scene.isTimeUp = false;
+                    }
+                    this._close();
+                },
+            },
+            {
                 label: '🔄 Restart Scene',
                 style: { background: '#1565c0', hoverBg: '#1e88e5' },
                 action: () => {

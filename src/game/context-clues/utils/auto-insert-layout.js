@@ -18,6 +18,11 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const textPaddingTop = Math.ceil(fontSize * 0.25);
     const textPaddingBottom = Math.ceil(fontSize * 0.16);
     const lineHeight = Math.max(maxHeight, fontSize + textPaddingTop + textPaddingBottom) + 24;
+    const minSlotWidth = Math.max(0, Number(style.slotWidth) || 0);
+    const slotStrokeColor = style.slotStrokeColor ?? 0xffffff;
+    const slotStrokeWidth = style.slotStrokeWidth ?? 3;
+    const slotFillColor = style.slotFillColor ?? 0xffffff;
+    const slotFillAlpha = style.slotFillAlpha ?? 0.15;
     const slot = [];
     const slotLabel = [];
 
@@ -70,7 +75,10 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
         }
 
         if (i + 1 < textParts.length) {
-            const answerWidth = measureTextWidth(scene, blankWord.text, labelTextStyle);
+            const answerWidth = Math.max(
+                minSlotWidth,
+                measureTextWidth(scene, blankWord.text || " ", labelTextStyle)
+            );
 
             if (cursorX + answerWidth > lineLimit && cursorX > 0) {
                 cursorX = 0;
@@ -85,9 +93,9 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
                 cursorY + (maxHeight * (origin.y - 0.5)),
                 answerWidth,
                 maxHeight,
-                0xffffff,
-                0.15
-            ).setOrigin(origin.x, origin.y).setStrokeStyle(3, 0xffffff);
+                slotFillColor,
+                slotFillAlpha
+            ).setOrigin(origin.x, origin.y).setStrokeStyle(slotStrokeWidth, slotStrokeColor);
 
             rect.setData("slotId", `slot-${i}`);
             rect.setData("lineIndex", lineIndex);
@@ -111,6 +119,12 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
 
     container.add(objects);
     applyContainerOrigin(container, objects, origin);
+    fitContainerToLayoutBounds(container, {
+        maxWidth,
+        maxHeight: options.maxLayoutHeight,
+        minScale: options.minScale,
+        enabled: options.fitToBounds,
+    });
 
     return {container, slot, slotLabel};
 }
@@ -272,4 +286,31 @@ function applyContainerOrigin(container, objects, origin) {
         object.x += offsetX;
         object.y += offsetY;
     }
+}
+
+function fitContainerToLayoutBounds(container, {
+    maxWidth,
+    maxHeight,
+    minScale = 0.1,
+    enabled = false,
+} = {}) {
+    if (!enabled) {
+        return;
+    }
+
+    const parsedMaxWidth = Number(maxWidth);
+    const parsedMaxHeight = Number(maxHeight);
+    const bounds = container.getBounds();
+    const widthScale = Number.isFinite(parsedMaxWidth) && parsedMaxWidth > 0 && bounds.width > 0
+        ? parsedMaxWidth / bounds.width
+        : 1;
+    const heightScale = Number.isFinite(parsedMaxHeight) && parsedMaxHeight > 0 && bounds.height > 0
+        ? parsedMaxHeight / bounds.height
+        : 1;
+    const parsedMinScale = Number.isFinite(Number(minScale))
+        ? Math.min(1, Math.max(0.1, Number(minScale)))
+        : 0.1;
+    const nextScale = Math.max(parsedMinScale, Math.min(1, widthScale, heightScale));
+
+    container.setScale(nextScale);
 }

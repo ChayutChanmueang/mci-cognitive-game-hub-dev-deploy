@@ -7,6 +7,7 @@ import {
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
+import SessionStorageManager from "../core/session-storage-manager.js";
 
 const REST_GAME_GID = "REST001";
 
@@ -48,10 +49,10 @@ function getPatientLabel(fallback = "") {
         return getPatientSessionLabel(rememberedSession);
     }
 
-    const draft = sessionStorage.getItem("patient_signup_draft");
+    const draft = SessionStorageManager.get("patient_signup_draft");
     if (draft) {
         try {
-            const parsed = JSON.parse(draft);
+            const parsed = typeof draft === "string" ? JSON.parse(draft) : draft;
             const name = `${parsed?.firstname || ""} ${parsed?.lastname || ""}`.trim();
             if (name) {
                 return name;
@@ -61,7 +62,7 @@ function getPatientLabel(fallback = "") {
         }
     }
 
-    return fallback || sessionStorage.getItem("patient_login_id") || "ผู้เล่น";
+    return fallback || SessionStorageManager.get("patient_login_id", "") || "ผู้เล่น";
 }
 
 function getCategoryLabel(categoryId) {
@@ -288,6 +289,7 @@ function getSequentialCompletedCount(nodes, historyRecords) {
 function getDayCompletion(daySection, historyRecords) {
     const nodes = daySection?.nodes || [];
     const completedCount = getSequentialCompletedCount(nodes, historyRecords);
+    const nodeTarget = nodes.length;
     const gameTarget = nodes.filter((node) => node.type === "game").length;
     const completedGameCount = nodes
         .slice(0, completedCount)
@@ -295,9 +297,10 @@ function getDayCompletion(daySection, historyRecords) {
 
     return {
         completedCount,
+        nodeTarget,
         completedGameCount: Math.min(gameTarget, completedGameCount),
         gameTarget,
-        isComplete: nodes.length > 0 && completedCount >= nodes.length,
+        isComplete: nodeTarget > 0 && completedCount >= nodeTarget,
     };
 }
 
@@ -417,13 +420,13 @@ export async function renderGameHubScreen(root, options = {}) {
         const currentHistory = getDisplayHistoryForProgramDay(currentDay);
         const currentCompletion = getDayCompletion(currentSection, currentHistory);
         const activeDay = getActiveDay();
-        const progress = currentCompletion.gameTarget > 0
-            ? Math.min(1, currentCompletion.completedGameCount / currentCompletion.gameTarget)
+        const progress = currentCompletion.nodeTarget > 0
+            ? Math.min(1, currentCompletion.completedCount / currentCompletion.nodeTarget)
             : 0;
         const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const currentGoal = String(currentSection.goal || state.dailyProgram?.dailyPreset?.goal || "").trim()
-            || (currentCompletion.gameTarget > 0
-                ? `ทำภารกิจ ${currentCompletion.gameTarget} เกม ให้ครบตามแผนประจำวัน`
+            || (currentCompletion.nodeTarget > 0
+                ? `ทำภารกิจ ${currentCompletion.nodeTarget} ขั้นตอน ให้ครบตามแผนประจำวัน`
                 : "ยังไม่พบรายการเกมประจำวัน");
         const menuItems = state.allGames.map((game) => `
             <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
@@ -457,8 +460,8 @@ export async function renderGameHubScreen(root, options = {}) {
                             <h1>เป้าหมายของวันที่ ${escapeHtml(currentDay)}</h1>
                             <p>${escapeHtml(currentGoal)}</p>
                             <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
-                                <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${currentCompletion.completedGameCount} จาก ${currentCompletion.gameTarget} เกม"></md-linear-progress>
-                                <span>${currentCompletion.completedGameCount}/${currentCompletion.gameTarget}</span>
+                                <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${currentCompletion.completedCount} จาก ${currentCompletion.nodeTarget} ขั้นตอน"></md-linear-progress>
+                                <span>${currentCompletion.completedCount}/${currentCompletion.nodeTarget}</span>
                             </div>
                         </div>
                         <div class="hub-clean-profile" role="button" tabindex="0" aria-label="เปิดโปรไฟล์ผู้เล่น">
@@ -481,7 +484,7 @@ export async function renderGameHubScreen(root, options = {}) {
                                 ` : ""}
                             </div>
                         </div>
-                        <md-fab class="hub-clean-fab" aria-label="เลื่อนกลับด้านบน" data-scroll-top>
+                        <md-fab class="hub-clean-fab" aria-label="เลื่อนไปยังจุดปัจจุบัน" data-scroll-top>
                             <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                         </md-fab>
                     </section>
@@ -603,7 +606,7 @@ export async function renderGameHubScreen(root, options = {}) {
                     <p>พักยืดเส้น</p>
                     <h2>${escapeHtml(node.title || "พักยืดเส้นยืดสาย")}</h2>
                     <span>พักสายตา ยืดเส้น และผ่อนคลายก่อนเล่นต่อ</span>
-                    <md-outlined-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">บันทึกการพัก</md-outlined-button>
+                    <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">บันทึกการพัก</md-filled-button>
                 </article>
             `;
         }
@@ -615,7 +618,7 @@ export async function renderGameHubScreen(root, options = {}) {
                 <p>${escapeHtml(getCategoryLabel(categoryId))}</p>
                 <h2>${escapeHtml(node.title || game.displayName || game.name || "เกมฝึกสมอง")}</h2>
                 <span>${escapeHtml(getCategoryDescription(categoryId))}</span>
-                <md-outlined-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">เริ่มเกม</md-outlined-button>
+                <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">เริ่มเกม</md-filled-button>
             </article>
         `;
     };
@@ -623,21 +626,90 @@ export async function renderGameHubScreen(root, options = {}) {
     const bind = (sections, activeDay) => {
         const scrollArea = root.querySelector("[data-hub-scroll]");
         const scrollTop = root.querySelector("[data-scroll-top]");
+        const scrollTopIcon = scrollTop?.querySelector("md-icon");
+        const getCurrentDayScrollOffset = () => {
+            if (!scrollArea) {
+                return 0;
+            }
+
+            const topbar = root.querySelector(".hub-clean-topbar");
+            const topbarBottom = topbar
+                ? topbar.offsetTop + topbar.offsetHeight
+                : 160;
+
+            return Math.max(120, topbarBottom + Math.round(scrollArea.clientHeight * 0.03));
+        };
+        const getCurrentDayScrollTolerance = () => {
+            if (!scrollArea) {
+                return 96;
+            }
+
+            return Math.max(96, Math.round(scrollArea.clientHeight * 0.3));
+        };
+        const getCurrentNodeScrollTarget = () => {
+            const activeSection = root.querySelector(`[data-program-day="${activeDay}"]`);
+
+            if (!activeSection) {
+                return null;
+            }
+
+            const currentNode = activeSection.querySelector(".hub-clean-level.is-current");
+            if (currentNode) {
+                return currentNode;
+            }
+
+            const completedNodes = Array.from(activeSection.querySelectorAll(".hub-clean-level.is-done"));
+            return completedNodes.at(-1)
+                || activeSection.querySelector(".hub-clean-level")
+                || activeSection;
+        };
+        const getCurrentNodeScrollTop = () => {
+            if (!scrollArea) {
+                return 0;
+            }
+
+            const targetNode = getCurrentNodeScrollTarget();
+            if (!targetNode) {
+                return 0;
+            }
+
+            const scrollAreaRect = scrollArea.getBoundingClientRect();
+            const targetRect = targetNode.getBoundingClientRect();
+
+            return targetRect
+                ? Math.max(0, scrollArea.scrollTop + targetRect.top - scrollAreaRect.top - getCurrentDayScrollOffset())
+                : 0;
+        };
         const updateFab = () => {
             const value = scrollArea?.scrollTop || 0;
+            const targetTop = getCurrentNodeScrollTop();
+            const deltaFromCurrentDay = value - targetTop;
+            const scrollTolerance = getCurrentDayScrollTolerance();
+            const isAwayFromCurrentDay = Math.abs(deltaFromCurrentDay) > scrollTolerance;
+            const shouldScrollDown = deltaFromCurrentDay < -scrollTolerance;
+
             state.scrollTop = value;
-            scrollTop?.classList.toggle("is-visible", value > 160);
+            scrollTop?.classList.toggle("is-visible", isAwayFromCurrentDay);
+            scrollTop?.setAttribute(
+                "aria-label",
+                shouldScrollDown ? "เลื่อนลงไปยังจุดปัจจุบัน" : "เลื่อนขึ้นไปยังจุดปัจจุบัน",
+            );
+            scrollTop?.setAttribute("data-scroll-direction", shouldScrollDown ? "down" : "up");
+
+            if (scrollTopIcon) {
+                scrollTopIcon.textContent = shouldScrollDown ? "arrow_downward" : "arrow_upward";
+            }
         };
 
         on(scrollArea, "scroll", updateFab, { passive: true });
-        on(scrollTop, "click", () => scrollArea?.scrollTo({ top: 0, behavior: "smooth" }));
+        on(scrollTop, "click", () => scrollArea?.scrollTo({ top: getCurrentNodeScrollTop(), behavior: "smooth" }));
         requestAnimationFrame(() => {
             if (!scrollArea) {
                 return;
             }
-            const activeSection = root.querySelector(`[data-program-day="${activeDay}"]`);
-            scrollArea.scrollTop = activeSection
-                ? Math.max(0, activeSection.offsetTop - scrollArea.offsetTop)
+            const currentNodeTarget = getCurrentNodeScrollTarget();
+            scrollArea.scrollTop = currentNodeTarget
+                ? getCurrentNodeScrollTop()
                 : Math.max(0, Number(state.scrollTop) || 0);
             updateFab();
         });
