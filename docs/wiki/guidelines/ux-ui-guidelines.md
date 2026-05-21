@@ -1,6 +1,6 @@
 # UX/UI Improvement Guidelines for Phaser & Web UI
 
-This document serves as the general guideline for all UX/UI in the project. For the latest patterns (MUI, Glassmorphism, 2026+ updates), please refer to the **[Modern UX/UI Modernization Guidelines](ux-ui-modernization-guidelines.md)**.
+This document serves as the general guideline for all UX/UI in the project. For the latest patterns (MUI, Glassmorphism, 2026+ updates), please refer to the **[Modern UX/UI Modernization Guidelines](ux-ui-modernization-guidelines.md)**. For mobile responsiveness research, CSS scaling, Phaser canvas configuration, and testing plans, please refer to the **[Mobile Responsiveness Guidelines](ux-ui-mobile-responsiveness-guidelines.md)**.
 
 ## 1. Unified Design Token System
 All UI elements (both Phaser and DOM) must use the centralized tokens defined in `src/util/game-theme.js`.
