@@ -167,7 +167,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.ROUND_COMPLETED, this.gameEndedAt);
     this.replayLogger.pushToDatabase();
 
     //Save game data to database
