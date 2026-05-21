@@ -2,8 +2,9 @@ import Phaser from 'phaser'
 
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 
-import UITestScene from  './scenes/UITestScene';
+import UITestScene from './scenes/UITestScene';
 import MainMenuScene from './scenes/MainMenu';
+import StartMenuScene from './scenes/StartMenu';
 import { Boot } from './scenes/Boot';
 import { Preloader } from './scenes/Preloader';
 import { AUTO, Game } from 'phaser';
@@ -13,7 +14,7 @@ import { AUTO, Game } from 'phaser';
 const config = {
     type: AUTO,
     parent: 'game-container',
-    backgroundColor: '#028af8',
+    backgroundColor: '#83B351',
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -21,20 +22,21 @@ const config = {
         height: 2000
     },
     physics: {
-        default: 'arcade', 
+        default: 'arcade',
         arcade: {
             gravity: { y: 0 }, // 0 for top-down, 300 for platformers
-            debug: true       // Keep this true while debugging!
+            debug: false      // Keep this true while debugging!
         }
     },
     scene: [
-        MainMenuScene,
+        //MainMenuScene,
+        StartMenuScene,
         UITestScene,
         Boot,
         Preloader,
     ],
     plugins: {
-        scene:[
+        scene: [
             {
                 key: 'rexUI',
                 plugin: UIPlugin,
@@ -45,7 +47,7 @@ const config = {
 };
 
 export const StartGame = (parent) => {
-
+    document.documentElement.style.setProperty("--game-mode-background", config.backgroundColor);
     return new Game({ ...config, parent });
 
 }

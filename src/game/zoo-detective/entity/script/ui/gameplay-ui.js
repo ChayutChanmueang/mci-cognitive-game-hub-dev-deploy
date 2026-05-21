@@ -2,9 +2,10 @@ import Phaser from "phaser";
 import StorageManager from "../../../../../core/storage-manager.js";
 import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
-import { createThaiText, getThaiFontFamily } from "../../../../../util/thai-text.js";
+import {createThaiText, getThaiFontFamily, ThaiTextPresets} from "../../../../../util/thai-text.js";
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
+import { EventBus } from "../../../../../core/EventBus.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -22,8 +23,7 @@ export default class GameplayUI extends Entity{
         const barWidth = scene.scale.width - (barX * 2);
         const barHeight = 188;
         const infoRight = barX + barWidth - 22;
-        const infoStartY = barY + 5;
-        const rowGap = 54;
+        const infoStartY = barY + 34;
         const hudFontFamily = `"Noto Color Emoji", ${getThaiFontFamily()}`;
 
         this.uiBackground = scene.add.graphics();
@@ -34,38 +34,13 @@ export default class GameplayUI extends Entity{
             .strokeRoundedRect(barX, barY, barWidth, barHeight, 38)
             .setDepth(this.uiDepth - 1);
 
-        this.levelText = createThaiText(
-            scene,
-            infoRight,
-            infoStartY,
-            "",
-            {
-                fontFamily: hudFontFamily,
-                fontSize: "28px",
-                fontStyle: "bold",
-                color: "#2e4962"
-            },
-            { origin: [1, 0] }
-        ).setDepth(this.uiDepth);
-
-        this.timerText = createThaiText(
-            scene,
-            infoRight,
-            infoStartY + rowGap,
-            "",
-            {
-                fontFamily: hudFontFamily,
-                fontSize: "40px",
-                fontStyle: "bold",
-                color: "#1f3a53"
-            },
-            { origin: [1, 0] }
-        ).setDepth(this.uiDepth);
+        //this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1/10", ThaiTextPresets.hud, this.uiDepth);
+        //this.timerText = this.createTextBox(scene.scale.width - 230, 130, 250, 75, this.formatSeconds(0), ThaiTextPresets.hud, this.uiDepth);
 
         this.currentScore = createThaiText(
             scene,
             infoRight,
-            infoStartY + (rowGap * 2),
+            infoStartY + 108,
             "",
             {
                 fontFamily: hudFontFamily,
@@ -82,23 +57,23 @@ export default class GameplayUI extends Entity{
         this.gameoverPanel = new GameOverPanel(scene);
         this.NextQuizPanel = new NextQuizPanel(scene);
 
-        this.returnBtn = scene.createButton(scene.scale.width / 2 - 325, 105, "◀️ RETURN", () => {
-            scene.scene.start("main-menu-scene");
+        /*this.returnBtn = scene.createButton(scene.scale.width / 2 - 325, 105, "◀️ RETURN", () => {
+            EventBus.emit("minigame:level-select-request", { source: "zoo-detective-gameplay" });
         });
 
-        this.returnBtn[0].setDepth(this.uiDepth);
+        this.returnBtn[0].setDepth(this.uiDepth);*/
 
         this.refreshLevelText();
-        this.setElapsedTime(0);
+        this.setTimeLeft(0);
         this.setScore(0);
     }
     refreshLevelText() {
-        this.levelText.setText(`${this.levelName} - ด่าน ${this.currentRound}/${this.maxRound}`);
+        //this.levelText[0].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
     }
 
     setLevel(levelMap = "easy", levelNumber = 1, currentRound = 1, maxRound = 10) {
         this.levelName = String(levelMap || "easy").toUpperCase();
-        this.levelNumber = levelNumber;
+        //this.levelNumber = levelNumber;
         this.maxRound = Math.max(1, Number(maxRound) || 10);
         this.currentRound = Phaser.Math.Clamp(Number(currentRound) || 1, 1, this.maxRound);
 
@@ -117,9 +92,18 @@ export default class GameplayUI extends Entity{
 
     setElapsedTime(elapsedMs = 0) {
         const totalSeconds = Math.max(0, Math.floor((Number(elapsedMs) || 0) / 1000));
+        //this.timerText[0].setText(this.formatSeconds(totalSeconds));
+    }
+
+    setTimeLeft(timeLeftS = 0) {
+        //this.timerText[0].setText(this.formatSeconds(timeLeftS));
+    }
+
+    formatSeconds(value = 0) {
+        const totalSeconds = Math.max(0, Math.ceil(Number(value) || 0));
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
-        this.timerText.setText(`⏱ ${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
     }
 
     setGameOverHighscore(score){
@@ -150,5 +134,35 @@ export default class GameplayUI extends Entity{
         this.setScore(finalScore);
         this.gameoverPanel.setHighscore(StorageManager.get('EXEC001-highscore'));
         this.gameoverPanel.show();
+    }
+
+    createTextBox(x, y, width, height, label, hudFontFamily, depth = 0, scale = 1.5){
+        const stagePanel = this.scene.drawRoundedPanel(x, y, width, height, {
+            fillColor: 0x56AC2E,
+            strokeColor: 0xffffff,
+            strokeWidth: 4,
+            radius: 24,
+            origin: [0.5, 0.5],
+            depth: depth
+        });
+        stagePanel.setScale(scale);
+
+        const labelText = createThaiText(
+            this.scene,
+            x - (width / 2),
+            y,
+            label,
+            {
+                fontFamily: hudFontFamily,
+                fontSize: "48px",
+                fontStyle: "bold",
+                color: "#ffffff"
+            },
+            { origin: [0, 0.5] }
+        );
+        labelText.setText(label);
+        labelText.setDepth(depth + 1);
+
+        return [labelText, stagePanel];
     }
 }

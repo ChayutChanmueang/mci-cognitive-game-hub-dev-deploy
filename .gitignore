@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 .env
 public/js/material-web docs-components
+.env.example
 .ai
 .env.example
 graphify-out/cache

@@ -1,0 +1,118 @@
+/**
+ * video-player.css
+ *
+ * Styles for the VideoPlayer component only.
+ * Does NOT include popup/modal/backdrop styles — those belong to the caller.
+ *
+ * The player fills 100% of its container (.vp-root).
+ * Container must have a defined size (e.g. aspect-ratio: 16/9).
+ *
+ * CSS custom properties (override per project):
+ *   --vp-primary    : accent color for FAB and progress bar  (default: #356859)
+ *   --vp-on-primary : icon/text color on primary             (default: #ffffff)
+ */
+
+:root {
+    --vp-primary:    #ffffff;
+    --vp-on-primary: #ffffff;
+}
+
+/* ── Root ─────────────────────────────────────────────────────────────── */
+
+.vp-root {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* ── Video ────────────────────────────────────────────────────────────── */
+
+.vp-root .vp-video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+/* ── Overlays ─────────────────────────────────────────────────────────── */
+
+.vp-root .vp-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transition: opacity 180ms ease;
+}
+
+.vp-root .vp-overlay.vp-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.vp-root .vp-overlay--init {
+    background: rgba(0, 0, 0, 0.42);
+}
+
+.vp-root .vp-overlay--paused {
+    background: rgba(0, 0, 0, 0.32);
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────── */
+
+.vp-root .vp-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* FAB — primary color */
+.vp-root md-fab[size="large"] {
+    --md-fab-large-container-shape: 20px;
+    --md-sys-color-primary:         var(--vp-primary);
+    --md-sys-color-on-primary:      var(--vp-on-primary);
+}
+
+.material-symbols-outlined {
+    font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 48
+}
+
+/* Replay button — tonal on dark overlay */
+.vp-root md-filled-tonal-icon-button {
+    --md-filled-tonal-icon-button-container-width:  56px;
+    --md-filled-tonal-icon-button-container-height: 56px;
+    --md-sys-color-secondary-container:             rgba(255, 255, 255, 0.22);
+    --md-sys-color-on-secondary-container:          #fff;
+}
+
+/* ── Progress bar (read-only, bottom edge) ────────────────────────────── */
+
+.vp-root .vp-progress-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none; /* cannot seek */
+}
+
+.vp-root .vp-progress-wrap md-linear-progress {
+    display: block;
+    width: 100%;
+    --md-linear-progress-track-height:            4px;
+    --md-linear-progress-track-shape:             0px;
+    --md-linear-progress-active-indicator-height: 4px;
+    --md-linear-progress-track-color:             rgba(255, 255, 255, 0.85);
+    --md-sys-color-primary:                       var(--vp-primary);
+}
+
+.play-symbols-size{
+    width: 100%;
+    height: 100%;
+    font-size: 5.8em;
+}

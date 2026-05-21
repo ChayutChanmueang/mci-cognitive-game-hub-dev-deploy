@@ -6,13 +6,13 @@
 
 ## 1. Key Terminology (คำศัพท์สำคัญ)
 
-| Term | Full Name | Description | Example |
-| --- | --- | --- | --- |
-| **HN** | Health Number | รหัสประจำตัวผู้ป่วย (ใช้เป็น Primary Key ในการระบุตัวตนผู้เล่น) | `HN001`, `P0025` |
-| **GID** | Game ID | รหัสเฉพาะของแต่ละมินิเกม | `ZOO001` (Zoo Detective) |
-| **GPID** | Game Program ID | รหัสโปรแกรมการฝึก (หนึ่งโปรแกรมมีหลายด่าน หลายวัน) | `1` (Standard Program) |
-| **Stage** | Game Stage | ลำดับการเล่นภายในหนึ่งวัน (เริ่มที่ 0 หรือ 1 ตามการตั้งค่า) | `0`, `1`, `2` |
-| **Level** | Difficulty Level | ระดับความยากที่ส่งเข้าไปใน Phaser Engine | `1` (Easy), `2` (Normal) |
+| Term      | Full Name        | Description                                                                         | Example                  |
+| --------- | ---------------- | ----------------------------------------------------------------------------------- | ------------------------ |
+| **HN**    | Health Number    | รหัสประจำตัวผู้ป่วย (ใช้เป็น Primary Key ในการระบุตัวตนผู้เล่น)                     | `HN001`, `P0025`         |
+| **GID**   | Game ID          | รหัสเฉพาะของแต่ละมินิเกม                                                            | `ZOO001` (Zoo Detective) |
+| **GPID**  | Game Program ID  | รหัสโปรแกรมการฝึก (หนึ่งโปรแกรมมีหลายด่าน หลายวัน)                                  | `1` (Standard Program)   |
+| **Stage** | Game Stage       | ลำดับการเล่นภายในหนึ่งวัน (เริ่มที่ 0 หรือ 1 ตามการตั้งค่า) ที่แสดงออกมาใน Game Hub | `0`, `1`, `2`            |
+| **Level** | Difficulty Level | ระดับความยากที่ส่งเข้าไปใน Phaser Engine                                            | `1` (Easy), `2` (Normal) |
 
 ---
 

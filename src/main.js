@@ -1,6 +1,7 @@
 import db from "./core/database.js";
 import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
+import { createTestGameHubState, renderTestGameHubScreen } from "./ui/test-game-hub.js";
 import { renderAdminLoginScreen } from "./ui/admin-login-screen.js";
 import { renderLandingScreen } from "./ui/landing-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
@@ -23,15 +24,29 @@ import {
     getPatientSessionLabel,
     setPatientSessionCookie,
 } from "./util/patient-session.js";
+import {
+    buildGameCsv,
+    buildGameHistoryCsv,
+    buildPlayerCsv,
+    buildPlayersCsv,
+    CsvExportScope,
+    CsvExportType,
+    downloadCsv,
+    getGameHistoriesCsvFilename,
+    getGameHistoryCsvFilename,
+    getGameCsvFilename,
+    getGamesCsvFilename,
+    getPlayerCsvFilename,
+    getPlayersCsvFilename,
+} from "./util/player-csv-export.js";
 import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
 import { EventBus } from "./core/EventBus.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
 import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
+import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
-
-
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -42,6 +57,7 @@ const ROUTES = Object.freeze({
     playerInfo: "#/player-info",
     signup: "#/signup",
     hub: "#/hub",
+    testGameHub: "#/test-game-hub",
     checkInSummary: "#/checkin-summary",
     dailyPresetTool: "#/tools/daily-presets",
 });
@@ -54,6 +70,7 @@ const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
+const TEST_GAME_HUB_LAUNCH_GID_KEY = "test_game_hub_launch_gid";
 const PENDING_GAME_HISTORY_STORAGE = Object.freeze({
     map: "pending_game_history_by_gid",
     legacyId: "pending_game_history_id",
@@ -75,8 +92,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const uiRoot = document.getElementById("ui-root");
     const gameContainer = document.getElementById("game-container");
     const hubUiState = createGameHubState();
+    const testGameHubUiState = createTestGameHubState();
     let activeGameInstance = null;
     let routeRenderVersion = 0;
+
 
     const destroyActiveGame = () => {
         if (activeGameInstance && typeof activeGameInstance.destroy === "function") {
@@ -88,6 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (gameContainer) {
             gameContainer.innerHTML = "";
         }
+
+        document.documentElement.style.removeProperty("--game-mode-background");
     };
 
     const showUiRoot = () => {
@@ -154,6 +175,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         return `${HUB_ROUTE_PREFIX}intro`;
+    };
+
+    const getTestGameHubRouteHash = (options = {}) => {
+        const rawCategory = String(options?.category || DEFAULT_HUB_CATEGORY).trim();
+        const category = HUB_CATEGORIES.has(rawCategory) ? rawCategory : DEFAULT_HUB_CATEGORY;
+        return `${ROUTES.testGameHub}/selection/${category}`;
+    };
+
+    const getGameExitRoute = (selectedGame = null) => {
+        const selectedGid = String(selectedGame?.gid || "").trim();
+        const testLaunchGid = String(SessionStorageManager.get(TEST_GAME_HUB_LAUNCH_GID_KEY, "") || "").trim();
+
+        return selectedGid && testLaunchGid === selectedGid
+            ? getTestGameHubRouteHash({ scene: "selection", category: selectedGame?.mci_group })
+            : ROUTES.hub;
     };
 
     const getCurrentRoute = () => {
@@ -224,6 +260,28 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         }
 
+        if (normalizedPath === "/test-game-hub" || normalizedPath === "/test-game-hub/intro") {
+            return {
+                name: "test-game-hub",
+                scene: "selection",
+                category: DEFAULT_HUB_CATEGORY,
+            };
+        }
+
+        if (normalizedPath.startsWith("/test-game-hub/selection")) {
+            const segments = normalizedPath
+                .slice("/test-game-hub/".length)
+                .split("/")
+                .map((segment) => String(segment || "").trim())
+                .filter(Boolean);
+
+            return {
+                name: "test-game-hub",
+                scene: "selection",
+                category: segments[1] || DEFAULT_HUB_CATEGORY,
+            };
+        }
+
         if (normalizedPath.startsWith("/game/")) {
             const segments = normalizedPath
                 .slice("/game/".length)
@@ -267,28 +325,28 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const persistSelectedGame = (selectedGame) => {
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
-        sessionStorage.setItem(
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.gid, String(selectedGame?.gid || "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.name, String(selectedGame?.name || "").trim());
+        SessionStorageManager.save(
             SELECTED_GAME_STORAGE.thName,
             String(selectedGame?.th_name || selectedGame?.thName || selectedGame?.displayName || "").trim(),
         );
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
-        sessionStorage.setItem(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.group, String(selectedGame?.mci_group || "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.stage, String(selectedGame?.stage ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.level, String(selectedGame?.level ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.day, String(selectedGame?.day ?? "").trim());
+        SessionStorageManager.save(SELECTED_GAME_STORAGE.presetDataId, String(selectedGame?.presetDataId ?? selectedGame?.preset_data_id ?? "").trim());
     };
 
     const getPersistedSelectedGame = () => {
-        const gid = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.gid) || "").trim();
-        const name = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.name) || "").trim();
-        const thName = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.thName) || "").trim();
-        const mciGroup = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.group) || "").trim();
-        const stage = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.stage) || "").trim();
-        const level = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.level) || "").trim();
-        const day = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.day) || "").trim();
-        const presetDataId = String(sessionStorage.getItem(SELECTED_GAME_STORAGE.presetDataId) || "").trim();
+        const gid = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.gid, "") || "").trim();
+        const name = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.name, "") || "").trim();
+        const thName = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.thName, "") || "").trim();
+        const mciGroup = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.group, "") || "").trim();
+        const stage = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.stage, "") || "").trim();
+        const level = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.level, "") || "").trim();
+        const day = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.day, "") || "").trim();
+        const presetDataId = String(SessionStorageManager.get(SELECTED_GAME_STORAGE.presetDataId, "") || "").trim();
 
         if (!gid || !name) {
             return null;
@@ -320,7 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const readPendingGameHistoryMap = () => {
         try {
-            const parsed = JSON.parse(sessionStorage.getItem(PENDING_GAME_HISTORY_STORAGE.map) || "{}");
+            const parsed = SessionStorageManager.get(PENDING_GAME_HISTORY_STORAGE.map, {});
             return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
         } catch (error) {
             console.warn("Unable to parse pending game history map:", error);
@@ -334,11 +392,11 @@ document.addEventListener("DOMContentLoaded", () => {
             : {};
 
         if (Object.keys(normalizedMap).length === 0) {
-            sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.map);
+            SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.map);
             return;
         }
 
-        sessionStorage.setItem(PENDING_GAME_HISTORY_STORAGE.map, JSON.stringify(normalizedMap));
+        SessionStorageManager.save(PENDING_GAME_HISTORY_STORAGE.map, normalizedMap);
     };
 
     const setPendingGameHistoryByKey = (nodeKey, selectedGame, historyRecord, fallbackStartAt = "") => {
@@ -374,24 +432,25 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const clearSelectedGameState = () => {
-        sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.map);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyId);
-        sessionStorage.removeItem(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.gid);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.name);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.thName);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.group);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.stage);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.level);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.day);
-        sessionStorage.removeItem(SELECTED_GAME_STORAGE.presetDataId);
+        SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+        SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.map);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyId);
+        SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.gid);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.name);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.thName);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.group);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.stage);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.level);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.day);
+        SessionStorageManager.delete(SELECTED_GAME_STORAGE.presetDataId);
     };
 
     const clearPatientClientState = () => {
         clearPatientSessionCookie();
-        sessionStorage.removeItem(PATIENT_LOGIN_ID_KEY);
-        sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+        SessionStorageManager.delete(PATIENT_LOGIN_ID_KEY);
+        SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
         clearSelectedGameState();
         Object.assign(hubUiState, createGameHubState());
     };
@@ -432,6 +491,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        EventBus.emit("minigame:hide-hud");
+
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
         document.body.classList.remove("landing-mode");
@@ -443,7 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showUiRoot();
 
         const rememberedPatient = getPatientSessionCookie();
-        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         await renderGameHubScreen(uiRoot, {
@@ -524,7 +585,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
-                sessionStorage.setItem(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
+                SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                 navigateTo(getGameRouteHash(selectedGame));
             },
             // Test-only shortcut: opens a selected game without creating normal history.
@@ -534,20 +596,59 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                const hasConfirmed = await showPopup({
+                const launchMode = await showPopup({
                     title: "เปิดเกมทดสอบ",
-                    message: `ต้องการเปิดเกม ${getGameDisplayName(selectedGame)} โดยไม่บันทึกประวัติใช่หรือไม่`,
-                    confirmText: "เปิดเกม",
-                    cancelText: "ยกเลิก",
+                    message: `เลือกวิธีเปิดเกม ${getGameDisplayName(selectedGame)}`,
                     icon: "sports_esports",
+                    actions: [
+                        { value: "cancel", label: "ยกเลิก", variant: "outlined" },
+                        { value: "no-history", label: "เปิดเกมไม่เก็บประวัติ", variant: "outlined" },
+                        { value: "with-history", label: "เปิดเกมเก็บประวัติ", variant: "filled" },
+                    ],
                 });
 
-                if (!hasConfirmed) {
+                if (launchMode === "cancel" || !launchMode) {
                     return;
                 }
 
+                if (launchMode === "with-history") {
+                    const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+                    try {
+                        const startedAt = new Date().toISOString();
+                        const historyRecord = await db.addUserGameHistory({
+                            hn: patientCode,
+                            gid: selectedGid,
+                            stage: selectedGame?.stage ?? null,
+                            startAt: startedAt,
+                            userGameDataId: null,
+                        });
+
+                        if (!historyRecord?.id) {
+                            throw new Error("Missing user_game_history id");
+                        }
+
+                        setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
+                        persistSelectedGame(selectedGame);
+                        SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
+                        SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                        navigateTo(getGameRouteHash(selectedGame));
+                        return;
+                    } catch (error) {
+                        console.warn("Unable to write test launch history:", error);
+                        await showPopup({
+                            title: "บันทึกประวัติไม่สำเร็จ",
+                            message: "ระบบยังไม่สามารถบันทึกประวัติการเล่นเกมทดสอบลงฐานข้อมูลได้",
+                            confirmText: "รับทราบ",
+                            icon: "error",
+                            tone: "error",
+                        });
+                        return;
+                    }
+                }
+
                 persistSelectedGame(selectedGame);
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
                 navigateTo(getGameRouteHash(selectedGame));
             },
@@ -670,7 +771,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
 
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 writePendingGameHistoryMap({});
 
                 await showPopup({
@@ -713,7 +814,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 persistSelectedGame(restGame);
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
                 navigateTo(getGameRouteHash(restGame));
                 return { redirected: true };
@@ -755,6 +857,49 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
+            },
+        });
+    };
+
+    const showTestGameHub = async (options = {}) => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        EventBus.emit("minigame:hide-hud");
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.add("hub-mode");
+        document.body.classList.remove("landing-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.add("hub-mode");
+        app?.classList.remove("landing-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        await renderTestGameHubScreen(uiRoot, {
+            loadGamesByCategory: (categoryId, pageOptions) => db.getGamesByMciGroup(categoryId, pageOptions),
+            initialScene: options.initialScene,
+            initialCategory: options.initialCategory,
+            sharedState: testGameHubUiState,
+            onStateChange: ({ scene, activeCategory }) => {
+                navigateTo(getTestGameHubRouteHash({
+                    scene,
+                    category: activeCategory,
+                }), { replace: true });
+            },
+            onLaunchGame: async (selectedGame) => {
+                const selectedGid = String(selectedGame?.gid || "").trim();
+                if (!selectedGid) {
+                    return;
+                }
+
+                persistSelectedGame(selectedGame);
+                SessionStorageManager.save(TEST_GAME_HUB_LAUNCH_GID_KEY, selectedGid);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+                removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
+                navigateTo(getGameRouteHash(selectedGame));
             },
         });
     };
@@ -962,7 +1107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showUiRoot();
 
         const rememberedPatient = getPatientSessionCookie();
-        const patientCode = String(rememberedPatient?.patientCode || sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "").trim();
+        const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
 
         if (!patientCode) {
             navigateTo(ROUTES.login, { replace: true });
@@ -1003,7 +1148,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
-        const { parsedName, loader } = resolveGameModuleLoader(selectedGame?.name);
+        const { parsedName, slug, loader } = resolveGameModuleLoader(selectedGame?.name);
 
         if (!parsedName) {
             await showPopup({
@@ -1072,9 +1217,12 @@ document.addEventListener("DOMContentLoaded", () => {
             uiRoot.hidden = false;
             const hud = new MinigameHUD(uiRoot, {
                 gameTitle: selectedGame?.name,
-                timeLimit: selectedGame?.time_limit || 60 // Fallback
+                gameSlug: slug,
+                timeLimit: selectedGame?.time_limit || 60, // Fallback
+                showTimer: slug !== "zoo-detective",
             });
             hud.render();
+            let activeResultPanel = null;
 
 
             const handleExit = async () => {
@@ -1089,21 +1237,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (confirmed) {
                     cleanup();
-                    navigateTo(ROUTES.hub);
+                    navigateTo(getGameExitRoute(selectedGame));
                 }
             };
 
-            const handleGameOver = async ({ score, level: eventLevel }) => {
+            const handleGameOver = async ({ score, level: eventLevel, panelBorderColor = null, panelHeaderColor = null }) => {
                 const gid = String(selectedGame?.gid || "").trim();
                 const historyMap = readPendingGameHistoryMap();
                 const pendingHistory = historyMap[gid];
 
-                const resultPanel = new MinigameResultPanel(uiRoot, {
+                activeResultPanel?.destroy();
+                activeResultPanel = new MinigameResultPanel(uiRoot, {
                     score,
                     highScore: StorageManager.get("highscore", 0),
                     gameTitle: selectedGame?.name,
+                    panelBorderColor,
+                    panelHeaderColor,
                 });
-                resultPanel.render();
+                activeResultPanel.render();
 
                 if (pendingHistory) {
                     try {
@@ -1121,27 +1272,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             };
 
-            const handleRetry = () => {
+            const handleLevelSelect = () => {
                 cleanup();
                 showGame(selectedGame);
             };
 
+            const handleRetry = () => {
+                handleLevelSelect();
+            };
+
             const handleExitConfirmed = () => {
                 cleanup();
-                navigateTo(ROUTES.hub);
+                navigateTo(getGameExitRoute(selectedGame));
             };
 
             const cleanup = () => {
                 EventBus.off("minigame:exit-request", handleExit);
                 EventBus.off("minigame:game-over", handleGameOver);
                 EventBus.off("minigame:retry-request", handleRetry);
+                EventBus.off("minigame:level-select-request", handleLevelSelect);
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                activeResultPanel?.destroy();
+                activeResultPanel = null;
                 hud.destroy();
             };
 
             EventBus.on("minigame:exit-request", handleExit);
             EventBus.on("minigame:game-over", handleGameOver);
             EventBus.on("minigame:retry-request", handleRetry);
+            EventBus.on("minigame:level-select-request", handleLevelSelect);
             EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
 
             return true;
@@ -1213,7 +1372,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
                 } catch (error) {
                     // TODO: Replace this client-side compensation with a Supabase RPC transaction
-                    // that creates user_patient_data and user_game_profile_data atomically.
+                    // that creates user_data and user_game_profile_data atomically.
                     console.error("Unable to create user game profile after patient signup:", error);
                     try {
                         await db.deletePatientProfileByHn({ hn: createdPatient?.hn || formData?.hn });
@@ -1224,8 +1383,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 await rememberPatientSession(createdPatient);
-                sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
-                sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+                SessionStorageManager.save(PATIENT_LOGIN_ID_KEY, String(formData?.hn || "").trim());
+                SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
                 navigateTo(ROUTES.hub);
             },
         });
@@ -1241,11 +1400,11 @@ document.addEventListener("DOMContentLoaded", () => {
             initialPatientCode: patientCode,
             onAccept: async ({ patientId: acceptedId }) => {
                 const patient = await db.getPatientByHn(acceptedId);
-                sessionStorage.setItem(PATIENT_LOGIN_ID_KEY, acceptedId);
+                SessionStorageManager.save(PATIENT_LOGIN_ID_KEY, acceptedId);
 
                 if (patient) {
                     await rememberPatientSession(patient);
-                    sessionStorage.removeItem(PATIENT_SIGNUP_DRAFT_KEY);
+                    SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
                     navigateTo(ROUTES.hub);
                     return;
                 }
@@ -1425,15 +1584,132 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 navigateTo(ROUTES.hub);
             },
-            onExport: async () => {
+            onExport: async (exportPlayer, { exportTypes, exportScope } = {}) => {
+                const wantsPlayerExport = exportTypes?.includes(CsvExportType.Player);
+                const wantsGameExport = exportTypes?.includes(CsvExportType.Game);
+                const wantsHistoryExport = exportTypes?.includes(CsvExportType.History);
+
+                if (!wantsPlayerExport && !wantsGameExport && !wantsHistoryExport) {
+                    return false;
+                }
+
+                const exportedItems = [];
+
+                if (exportScope === CsvExportScope.All) {
+                    if (wantsPlayerExport) {
+                        const players = await db.getAllPatientCsvExportRows();
+
+                        if (players.length) {
+                            downloadCsv(getPlayersCsvFilename(), buildPlayersCsv(players));
+                            exportedItems.push(`ข้อมูลผู้เล่น ${players.length} คน`);
+                        }
+                    }
+
+                    if (wantsGameExport) {
+                        const gameRecords = await db.getGameCsvExportRows();
+
+                        if (gameRecords.length) {
+                            downloadCsv(getGamesCsvFilename(), buildGameCsv(gameRecords));
+                            exportedItems.push(`ข้อมูลเกม ${gameRecords.length} record`);
+                        }
+                    }
+
+                    if (wantsHistoryExport) {
+                        const historyRecords = await db.getGameHistoryCsvExportRows();
+
+                        if (historyRecords.length) {
+                            downloadCsv(getGameHistoriesCsvFilename(), buildGameHistoryCsv(historyRecords));
+                            exportedItems.push(`ประวัติการเล่นรายวัน ${historyRecords.length} record`);
+                        }
+                    }
+
+                    if (!exportedItems.length) {
+                        await showPopup({
+                            title: "ส่งออกข้อมูล",
+                            message: "ยังไม่มีข้อมูลสำหรับส่งออก",
+                            confirmText: "รับทราบ",
+                            icon: "download",
+                        });
+                        return false;
+                    }
+
+                    await showPopup({
+                        title: "ส่งออกข้อมูล",
+                        message: `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว`,
+                        confirmText: "รับทราบ",
+                        icon: "download",
+                    });
+                    return true;
+                }
+
+                const missingItems = [];
+
+                if (wantsPlayerExport) {
+                    let programName = "";
+
+                    try {
+                        const programPresets = await db.getGameLevelPresetList();
+                        const programId = Number(playerProgram?.programId);
+                        programName = programPresets.find((preset) => Number(preset.id) === programId)?.name || "";
+                    } catch (error) {
+                        console.warn("Unable to load program preset name for CSV export:", error);
+                    }
+
+                    const csvContent = buildPlayerCsv(exportPlayer, {
+                        educationName: exportPlayer.educationName,
+                        programDayCount: playerProgram?.programDayCount ?? null,
+                        programName,
+                    });
+
+                    downloadCsv(getPlayerCsvFilename(exportPlayer), csvContent);
+                    exportedItems.push("ข้อมูลผู้เล่น");
+                }
+
+                if (wantsGameExport) {
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    const gameRecords = await db.getGameCsvExportRows({ hn });
+
+                    if (!gameRecords.length) {
+                        missingItems.push("ข้อมูลเกม");
+                    } else {
+                        downloadCsv(getGameCsvFilename(exportPlayer), buildGameCsv(gameRecords));
+                        exportedItems.push(`ข้อมูลเกม ${gameRecords.length} record`);
+                    }
+                }
+
+                if (wantsHistoryExport) {
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    const historyRecords = await db.getGameHistoryCsvExportRows({ hn });
+
+                    if (!historyRecords.length) {
+                        missingItems.push("ประวัติการเล่นรายวัน");
+                    } else {
+                        downloadCsv(getGameHistoryCsvFilename(exportPlayer), buildGameHistoryCsv(historyRecords));
+                        exportedItems.push(`ประวัติการเล่นรายวัน ${historyRecords.length} record`);
+                    }
+                }
+
+                if (!exportedItems.length) {
+                    await showPopup({
+                        title: "ส่งออกข้อมูล",
+                        message: missingItems.length
+                            ? `ยังไม่มี${missingItems.join(" และ ")}ของผู้เล่นคนนี้สำหรับส่งออก`
+                            : "ยังไม่มีข้อมูลสำหรับส่งออก",
+                        confirmText: "รับทราบ",
+                        icon: "download",
+                    });
+                    return false;
+                }
+
                 await showPopup({
                     title: "ส่งออกข้อมูล",
-                    message: "ฟังก์ชันส่งออกข้อมูลจะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    message: missingItems.length
+                        ? `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว แต่ยังไม่มี${missingItems.join(" และ ")}ของผู้เล่นคนนี้`
+                        : `ส่งออก${exportedItems.join(" และ ")}เป็นไฟล์ CSV เรียบร้อยแล้ว`,
                     confirmText: "รับทราบ",
                     icon: "download",
                 });
-
-                return false;
+                return true;
             },
         });
     };
@@ -1462,6 +1738,11 @@ document.addEventListener("DOMContentLoaded", () => {
             && route.name !== "signup"
             && route.name !== "admin-login"
             && route.name !== "player-info"
+            && route.name !== "test-game-hub"
+            && !(
+                route.name === "game"
+                && String(SessionStorageManager.get(TEST_GAME_HUB_LAUNCH_GID_KEY, "") || "").trim() === route.gid
+            )
             && !rememberedPatient
         ) {
             if (route.name === "home") {
@@ -1481,7 +1762,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "login") {
             showLogin({
-                patientCode: sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "",
+                patientCode: SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "",
             });
             return;
         }
@@ -1497,7 +1778,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "signup") {
-            const pendingPatientCode = sessionStorage.getItem(PATIENT_LOGIN_ID_KEY) || "";
+            const pendingPatientCode = SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "";
             if (!pendingPatientCode) {
                 navigateTo(ROUTES.login, { replace: true });
                 return;
@@ -1521,6 +1802,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "daily-preset-editor") {
             showDailyPresetEditor(route.presetId);
+            return;
+        }
+
+        if (route.name === "test-game-hub") {
+            const canonicalTestHubRoute = getTestGameHubRouteHash({
+                scene: route.scene,
+                category: route.category,
+            });
+
+            if (window.location.hash !== canonicalTestHubRoute) {
+                navigateTo(canonicalTestHubRoute, { replace: true });
+                return;
+            }
+
+            await showTestGameHub({
+                initialScene: route.scene,
+                initialCategory: route.category,
+            });
             return;
         }
 
@@ -1595,10 +1894,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const pendingLaunchKey = sessionStorage.getItem(PENDING_GAME_LAUNCH_KEY) || "";
+            const pendingLaunchKey = SessionStorageManager.get(PENDING_GAME_LAUNCH_KEY, "") || "";
             const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
             if (hasStarted && pendingLaunchKey === selectedNodeKey) {
-                sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 try {
                     await db.logUserEvent("SPG", selectedGame.gid);
                 } catch (error) {
@@ -1607,10 +1906,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            sessionStorage.removeItem(PENDING_GAME_LAUNCH_KEY);
+            SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
             if (!hasStarted) {
                 removePendingGameHistoryByKey(selectedNodeKey);
-                navigateTo(ROUTES.hub, { replace: true });
+                navigateTo(getGameExitRoute(selectedGame), { replace: true });
             }
         }
     };
