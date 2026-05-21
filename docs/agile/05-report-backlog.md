@@ -28,8 +28,9 @@
 
 | วันที่     | รหัสรายงาน   | หัวข้อการทดสอบ                | สรุปผลลัพธ์                                                  | เอกสาร                                        |
 | :--------- | :----------- | :---------------------------- | :----------------------------------------------------------- | :-------------------------------------------- |
-| 2026-05-31 | QA-FINAL     | **Final System Test Report**  | ระบบสมบูรณ์ 100% พร้อมใช้งาน; รวม Polish & Voice Over        | [260531_Final_System_Test_Report.md](reports/260531_Final_System_Test_Report.md)        |
+| 2026-05-31 | QA-FINAL     | **Final System Test Report**  | ระบบสมบูรณ์ 100% พร้อมใช้งาน; รวม Polish & Voice Over        | [260503_Final_System_Test_Report.md](reports/260503_Final_System_Test_Report.md)        |
 | 2026-05-20 | QA-260520-S5-FINAL | **Sprint 5 Final Test Report** | ผ่านการทดสอบ ระบบลงทะเบียน แผนที่ด่าน และจุดพักยืดเส้น | [260520_Sprint5_Final_Test_Report.md](reports/260520_Sprint5_Final_Test_Report.md) |
+| 2026-05-08 | QA-20260508-W5 | **Weekly Progress Report** | สรุปความก้าวหน้าการเชื่อมต่อระบบ Phaser กับฐานข้อมูล Supabase และเพิ่มระบบ Retry | [260508_Weekly_Progress_Report.md](reports/260508_Weekly_Progress_Report.md) |
 | 2026-05-06 | TP-S5-01     | **Sprint 05 Initial Test Plan** | แผนการทดสอบสำหรับ User Registration และ Progression Map (May 05-06) | [260506_Test_Plan_Sprint05_Initial.md](reports/260506_Test_Plan_Sprint05_Initial.md) |
 | 2026-05-03 | ST-S3-01     | **Sprint 3 Integration Test** | ระบบ Auth และ Score API ทำงานถูกต้อง; แก้ไข Bug ทั้งหมดในแผน | [260503_Sprint3_Integration_Test_Report.md](reports/260503_Sprint3_Integration_Test_Report.md) |
 | 2026-05-02 | HF-260502-01 | **Minigame Hotfix**           | แก้ไขปัญหา Console Error และ Plugin Loading                  | [260502_1640_Minigame_Hotfix_Report.md](reports/260502_1640_Minigame_Hotfix_Report.md)     |
