@@ -1,6 +1,7 @@
 import db from "./core/database.js";
 import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
+import { createTestGameHubState, renderTestGameHubScreen } from "./ui/test-game-hub.js";
 import { renderAdminLoginScreen } from "./ui/admin-login-screen.js";
 import { renderLandingScreen } from "./ui/landing-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
@@ -56,6 +57,7 @@ const ROUTES = Object.freeze({
     playerInfo: "#/player-info",
     signup: "#/signup",
     hub: "#/hub",
+    testGameHub: "#/test-game-hub",
     checkInSummary: "#/checkin-summary",
     dailyPresetTool: "#/tools/daily-presets",
 });
@@ -68,6 +70,7 @@ const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
+const TEST_GAME_HUB_LAUNCH_GID_KEY = "test_game_hub_launch_gid";
 const PENDING_GAME_HISTORY_STORAGE = Object.freeze({
     map: "pending_game_history_by_gid",
     legacyId: "pending_game_history_id",
@@ -89,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const uiRoot = document.getElementById("ui-root");
     const gameContainer = document.getElementById("game-container");
     const hubUiState = createGameHubState();
+    const testGameHubUiState = createTestGameHubState();
     let activeGameInstance = null;
     let routeRenderVersion = 0;
 
@@ -173,6 +177,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${HUB_ROUTE_PREFIX}intro`;
     };
 
+    const getTestGameHubRouteHash = (options = {}) => {
+        const rawCategory = String(options?.category || DEFAULT_HUB_CATEGORY).trim();
+        const category = HUB_CATEGORIES.has(rawCategory) ? rawCategory : DEFAULT_HUB_CATEGORY;
+        return `${ROUTES.testGameHub}/selection/${category}`;
+    };
+
+    const getGameExitRoute = (selectedGame = null) => {
+        const selectedGid = String(selectedGame?.gid || "").trim();
+        const testLaunchGid = String(SessionStorageManager.get(TEST_GAME_HUB_LAUNCH_GID_KEY, "") || "").trim();
+
+        return selectedGid && testLaunchGid === selectedGid
+            ? getTestGameHubRouteHash({ scene: "selection", category: selectedGame?.mci_group })
+            : ROUTES.hub;
+    };
+
     const getCurrentRoute = () => {
         const rawHash = window.location.hash || "";
         const hashWithoutMarker = rawHash.startsWith("#") ? rawHash.slice(1) : rawHash;
@@ -236,6 +255,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return {
                 name: "hub",
+                scene: "selection",
+                category: segments[1] || DEFAULT_HUB_CATEGORY,
+            };
+        }
+
+        if (normalizedPath === "/test-game-hub" || normalizedPath === "/test-game-hub/intro") {
+            return {
+                name: "test-game-hub",
+                scene: "selection",
+                category: DEFAULT_HUB_CATEGORY,
+            };
+        }
+
+        if (normalizedPath.startsWith("/test-game-hub/selection")) {
+            const segments = normalizedPath
+                .slice("/test-game-hub/".length)
+                .split("/")
+                .map((segment) => String(segment || "").trim())
+                .filter(Boolean);
+
+            return {
+                name: "test-game-hub",
                 scene: "selection",
                 category: segments[1] || DEFAULT_HUB_CATEGORY,
             };
@@ -392,6 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const clearSelectedGameState = () => {
         SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+        SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
         SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.map);
         SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyId);
         SessionStorageManager.delete(PENDING_GAME_HISTORY_STORAGE.legacyStartAt);
@@ -543,6 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
+                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
                 SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                 navigateTo(getGameRouteHash(selectedGame));
             },
@@ -586,6 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
                         persistSelectedGame(selectedGame);
+                        SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
                         SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
                         navigateTo(getGameRouteHash(selectedGame));
                         return;
@@ -603,6 +647,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 persistSelectedGame(selectedGame);
+                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
                 SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
                 navigateTo(getGameRouteHash(selectedGame));
@@ -769,6 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 persistSelectedGame(restGame);
+                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
                 SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
                 removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
                 navigateTo(getGameRouteHash(restGame));
@@ -811,6 +857,49 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.login);
+            },
+        });
+    };
+
+    const showTestGameHub = async (options = {}) => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        EventBus.emit("minigame:hide-hud");
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.add("hub-mode");
+        document.body.classList.remove("landing-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.add("hub-mode");
+        app?.classList.remove("landing-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        await renderTestGameHubScreen(uiRoot, {
+            loadGamesByCategory: (categoryId, pageOptions) => db.getGamesByMciGroup(categoryId, pageOptions),
+            initialScene: options.initialScene,
+            initialCategory: options.initialCategory,
+            sharedState: testGameHubUiState,
+            onStateChange: ({ scene, activeCategory }) => {
+                navigateTo(getTestGameHubRouteHash({
+                    scene,
+                    category: activeCategory,
+                }), { replace: true });
+            },
+            onLaunchGame: async (selectedGame) => {
+                const selectedGid = String(selectedGame?.gid || "").trim();
+                if (!selectedGid) {
+                    return;
+                }
+
+                persistSelectedGame(selectedGame);
+                SessionStorageManager.save(TEST_GAME_HUB_LAUNCH_GID_KEY, selectedGid);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+                removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
+                navigateTo(getGameRouteHash(selectedGame));
             },
         });
     };
@@ -1148,11 +1237,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (confirmed) {
                     cleanup();
-                    navigateTo(ROUTES.hub);
+                    navigateTo(getGameExitRoute(selectedGame));
                 }
             };
 
-            const handleGameOver = async ({ score, level: eventLevel }) => {
+            const handleGameOver = async ({ score, level: eventLevel, panelBorderColor = null, panelHeaderColor = null }) => {
                 const gid = String(selectedGame?.gid || "").trim();
                 const historyMap = readPendingGameHistoryMap();
                 const pendingHistory = historyMap[gid];
@@ -1162,6 +1251,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     score,
                     highScore: StorageManager.get("highscore", 0),
                     gameTitle: selectedGame?.name,
+                    panelBorderColor,
+                    panelHeaderColor,
                 });
                 activeResultPanel.render();
 
@@ -1192,7 +1283,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const handleExitConfirmed = () => {
                 cleanup();
-                navigateTo(ROUTES.hub);
+                navigateTo(getGameExitRoute(selectedGame));
             };
 
             const cleanup = () => {
@@ -1281,7 +1372,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
                 } catch (error) {
                     // TODO: Replace this client-side compensation with a Supabase RPC transaction
-                    // that creates user_patient_data and user_game_profile_data atomically.
+                    // that creates user_data and user_game_profile_data atomically.
                     console.error("Unable to create user game profile after patient signup:", error);
                     try {
                         await db.deletePatientProfileByHn({ hn: createdPatient?.hn || formData?.hn });
@@ -1647,6 +1738,11 @@ document.addEventListener("DOMContentLoaded", () => {
             && route.name !== "signup"
             && route.name !== "admin-login"
             && route.name !== "player-info"
+            && route.name !== "test-game-hub"
+            && !(
+                route.name === "game"
+                && String(SessionStorageManager.get(TEST_GAME_HUB_LAUNCH_GID_KEY, "") || "").trim() === route.gid
+            )
             && !rememberedPatient
         ) {
             if (route.name === "home") {
@@ -1706,6 +1802,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (route.name === "daily-preset-editor") {
             showDailyPresetEditor(route.presetId);
+            return;
+        }
+
+        if (route.name === "test-game-hub") {
+            const canonicalTestHubRoute = getTestGameHubRouteHash({
+                scene: route.scene,
+                category: route.category,
+            });
+
+            if (window.location.hash !== canonicalTestHubRoute) {
+                navigateTo(canonicalTestHubRoute, { replace: true });
+                return;
+            }
+
+            await showTestGameHub({
+                initialScene: route.scene,
+                initialCategory: route.category,
+            });
             return;
         }
 
@@ -1795,7 +1909,7 @@ document.addEventListener("DOMContentLoaded", () => {
             SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
             if (!hasStarted) {
                 removePendingGameHistoryByKey(selectedNodeKey);
-                navigateTo(ROUTES.hub, { replace: true });
+                navigateTo(getGameExitRoute(selectedGame), { replace: true });
             }
         }
     };

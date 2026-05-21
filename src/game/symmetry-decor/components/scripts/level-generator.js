@@ -24,109 +24,55 @@ export default class LevelGenerator {
         let solutionData = [];
         let numItems = config.itemCount || 3;
 
-        let usedPositions = new Set();
+        // 1. Build cell pools for fixed and draggable positions
+        const fixedPool = this.buildCellPool(symmetryType, 'fixed', columns, rows, halfCols, halfRows);
+        const dragPool = this.buildCellPool(symmetryType, 'drag', columns, rows, halfCols, halfRows);
+
+        this.shuffle(fixedPool);
+        this.shuffle(dragPool);
+
+        // 2. Cap items to available pool size
+        //    FOUR_WAY needs 3 drag cells per fixed item; all others need 1
+        const mirrorsPerItem = symmetryType === 'FOUR_WAY' ? 3 : 1;
+        numItems = Math.min(
+            numItems,
+            fixedPool.length,
+            Math.floor(dragPool.length / mirrorsPerItem),
+        );
+
+        // 3. Place items using pools (no collisions possible)
+        let dragIdx = 0;
 
         for (let i = 0; i < numItems; i++) {
-            let fixedX, fixedY;
-            let safety = 0;
-            
-            // 1. Generate Fixed Target
-            do {
-                if (symmetryType === 'T-B') {
-                    fixedX = Math.floor(Math.random() * columns);
-                    fixedY = Math.floor(Math.random() * halfRows);
-                } else if (symmetryType === 'B-T') {
-                    fixedX = Math.floor(Math.random() * columns);
-                    fixedY = halfRows + Math.floor(Math.random() * (rows - halfRows));
-                } else if (symmetryType === 'R-L') {
-                    fixedX = halfCols + Math.floor(Math.random() * (columns - halfCols));
-                    fixedY = Math.floor(Math.random() * rows);
-                } else if (symmetryType === 'QUADRANT' || symmetryType === 'FOUR_WAY') {
-                    fixedX = Math.floor(Math.random() * halfCols);
-                    fixedY = Math.floor(Math.random() * halfRows);
-                } else if (symmetryType === 'DIAGONAL') {
-                    fixedY = Math.floor(Math.random() * rows);
-                    fixedX = Math.floor(Math.random() * fixedY);
-                } else { // L-R
-                    fixedX = Math.floor(Math.random() * halfCols);
-                    fixedY = Math.floor(Math.random() * rows);
-                }
-                safety++;
-            } while (usedPositions.has(`${fixedX},${fixedY}`) && safety < 100);
-            
-            usedPositions.add(`${fixedX},${fixedY}`);
+            const { x: fixedX, y: fixedY } = fixedPool[i];
 
             const animal = this.availableAssets[Math.floor(Math.random() * this.availableAssets.length)];
-            levelData.push({ 
-                POS: { X: fixedX, Y: fixedY }, 
-                Type: "Rectangle", 
+            levelData.push({
+                POS: { X: fixedX, Y: fixedY },
+                Type: "Rectangle",
                 Animal: animal,
-                DRAGGABLE: false 
+                DRAGGABLE: false
             });
 
-            // 2. Calculate Mirror Targets (Solutions)
-            let mirrorTargets = [];
-
-            if (symmetryType === 'T-B' || symmetryType === 'B-T') {
-                mirrorTargets.push({ X: fixedX, Y: (rows - 1) - fixedY });
-            } else if (symmetryType === 'QUADRANT') {
-                mirrorTargets.push({ X: (columns - 1) - fixedX, Y: (rows - 1) - fixedY });
-            } else if (symmetryType === 'DIAGONAL') {
-                mirrorTargets.push({ X: fixedY, Y: fixedX });
-            } else if (symmetryType === 'FOUR_WAY') {
-                mirrorTargets.push({ X: (columns - 1) - fixedX, Y: fixedY });
-                mirrorTargets.push({ X: fixedX, Y: (rows - 1) - fixedY });
-                mirrorTargets.push({ X: (columns - 1) - fixedX, Y: (rows - 1) - fixedY });
-            } else { // L-R
-                mirrorTargets.push({ X: (columns - 1) - fixedX, Y: fixedY });
-            }
+            // Calculate mirror targets (solutions)
+            const mirrorTargets = this.computeMirrors(symmetryType, fixedX, fixedY, columns, rows);
 
             for (let target of mirrorTargets) {
-                solutionData.push({ 
-                    POS: { X: target.X, Y: target.Y }, 
-                    Type: "Rectangle", 
+                solutionData.push({
+                    POS: { X: target.X, Y: target.Y },
+                    Type: "Rectangle",
                     Animal: animal
                 });
             }
 
-            // 3. Spawn Draggable Items
+            // Spawn draggable items from the drag pool
             for (let target of mirrorTargets) {
-                let dragX, dragY;
-                safety = 0;
-                do {
-                    if (symmetryType === 'T-B') {
-                        dragX = Math.floor(Math.random() * columns);
-                        dragY = halfRows + Math.floor(Math.random() * (rows - halfRows));
-                    } else if (symmetryType === 'B-T') {
-                        dragX = Math.floor(Math.random() * columns);
-                        dragY = Math.floor(Math.random() * halfRows);
-                    } else if (symmetryType === 'R-L') {
-                        dragX = Math.floor(Math.random() * halfCols);
-                        dragY = Math.floor(Math.random() * rows);
-                    } else if (symmetryType === 'QUADRANT') {
-                        dragX = halfCols + Math.floor(Math.random() * (columns - halfCols));
-                        dragY = halfRows + Math.floor(Math.random() * (rows - halfRows));
-                    } else if (symmetryType === 'DIAGONAL') {
-                        dragY = Math.floor(Math.random() * rows);
-                        dragX = dragY + 1 + Math.floor(Math.random() * (columns - dragY - 1));
-                        if (dragX >= columns) dragX = columns - 1;
-                    } else if (symmetryType === 'FOUR_WAY') {
-                        let quad = Math.floor(Math.random() * 3);
-                        dragX = (quad === 0 || quad === 2) ? halfCols + Math.floor(Math.random() * (columns - halfCols)) : Math.floor(Math.random() * halfCols);
-                        dragY = (quad === 1 || quad === 2) ? halfRows + Math.floor(Math.random() * (rows - halfRows)) : Math.floor(Math.random() * halfRows);
-                    } else { // L-R
-                        dragX = halfCols + Math.floor(Math.random() * (columns - halfCols));
-                        dragY = Math.floor(Math.random() * rows);
-                    }
-                    safety++;
-                } while (usedPositions.has(`${dragX},${dragY}`) && safety < 100);
-
-                usedPositions.add(`${dragX},${dragY}`);
-                levelData.push({ 
-                    POS: { X: dragX, Y: dragY }, 
-                    Type: "Rectangle", 
+                const { x: dragX, y: dragY } = dragPool[dragIdx++];
+                levelData.push({
+                    POS: { X: dragX, Y: dragY },
+                    Type: "Rectangle",
                     Animal: animal,
-                    DRAGGABLE: true 
+                    DRAGGABLE: true
                 });
             }
         }
@@ -135,5 +81,96 @@ export default class LevelGenerator {
         solutionData.sort((a, b) => (a.POS.X === b.POS.X) ? a.POS.Y - b.POS.Y : a.POS.X - b.POS.X);
 
         return { GRIDCONFIG: config, LEVEL: levelData, SOLUTION: solutionData };
+    }
+
+    /**
+     * Compute the mirror positions for a fixed item based on symmetry type.
+     * Returns an array of { X, Y } target positions.
+     */
+    computeMirrors(symmetryType, fixedX, fixedY, columns, rows) {
+        const mirrors = [];
+
+        if (symmetryType === 'T-B' || symmetryType === 'B-T') {
+            mirrors.push({ X: fixedX, Y: (rows - 1) - fixedY });
+        } else if (symmetryType === 'QUADRANT') {
+            mirrors.push({ X: (columns - 1) - fixedX, Y: (rows - 1) - fixedY });
+        } else if (symmetryType === 'DIAGONAL') {
+            mirrors.push({ X: fixedY, Y: fixedX });
+        } else if (symmetryType === 'FOUR_WAY') {
+            mirrors.push({ X: (columns - 1) - fixedX, Y: fixedY });
+            mirrors.push({ X: fixedX, Y: (rows - 1) - fixedY });
+            mirrors.push({ X: (columns - 1) - fixedX, Y: (rows - 1) - fixedY });
+        } else { // L-R, R-L
+            mirrors.push({ X: (columns - 1) - fixedX, Y: fixedY });
+        }
+
+        return mirrors;
+    }
+
+    /**
+     * Build a pool of valid grid cells for a given symmetry type and role.
+     * @param {string} symmetryType - The symmetry mode
+     * @param {string} role - 'fixed' (non-draggable source) or 'drag' (draggable spawn)
+     * @returns {Array<{x: number, y: number}>} array of valid cell positions
+     */
+    buildCellPool(symmetryType, role, columns, rows, halfCols, halfRows) {
+        const pool = [];
+
+        for (let x = 0; x < columns; x++) {
+            for (let y = 0; y < rows; y++) {
+                if (this.isCellInRegion(symmetryType, role, x, y, halfCols, halfRows)) {
+                    pool.push({ x, y });
+                }
+            }
+        }
+
+        return pool;
+    }
+
+    /**
+     * Check if a cell (x, y) belongs to the valid region for the given
+     * symmetry type and role.
+     */
+    isCellInRegion(symmetryType, role, x, y, halfCols, halfRows) {
+        const isFixed = role === 'fixed';
+
+        switch (symmetryType) {
+            case 'L-R':
+                return isFixed ? x < halfCols : x >= halfCols;
+            case 'R-L':
+                return isFixed ? x >= halfCols : x < halfCols;
+            case 'T-B':
+                return isFixed ? y < halfRows : y >= halfRows;
+            case 'B-T':
+                return isFixed ? y >= halfRows : y < halfRows;
+            case 'QUADRANT':
+                return isFixed
+                    ? (x < halfCols && y < halfRows)
+                    : (x >= halfCols && y >= halfRows);
+            case 'FOUR_WAY':
+                if (isFixed) {
+                    return x < halfCols && y < halfRows;
+                }
+                // Draggables can go in any of the 3 non-fixed quadrants
+                return !(x < halfCols && y < halfRows);
+            case 'DIAGONAL':
+                // Strictly below diagonal (x < y) for fixed,
+                // strictly above diagonal (x > y) for drag.
+                // Cells ON the diagonal (x == y) are excluded from both.
+                return isFixed ? x < y : x > y;
+            default:
+                return isFixed ? x < halfCols : x >= halfCols;
+        }
+    }
+
+    /**
+     * Fisher-Yates in-place shuffle.
+     */
+    shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 }
