@@ -33,10 +33,11 @@ showLevelCompleteEffect();
 ```
 
 ### Step 3: Emit the `minigame:game-over` Event
-Use a `delayedCall` so the player has time to see the Level Complete effect before the panel appears (usually 1.5 seconds). Pass the player's final score to the event so the panel can display it.
+Use a `delayedCall` so the player has time to see the Level Complete effect before the panel appears (usually 1.5 seconds). Pass the player's final score to the event so the panel can display it. You should also pass your game's specific color theme from your `constants.js` file.
 
 ```javascript
 import { EventBus } from "../../../core/EventBus.js";
+import { GameOverSetting } from "../constants.js";
 
 this.time.delayedCall(1500, () => {
     // Save high score if necessary
@@ -45,10 +46,14 @@ this.time.delayedCall(1500, () => {
         StorageManager.save('highscore', this.score);
     }
 
-    // Trigger the global DOM panel
+    // Trigger the global DOM panel and pass styling properties
     EventBus.emit('minigame:game-over', { 
         score: this.score,   // <--- Passed to the panel
-        level: this.level
+        level: this.level,
+        panelBorderColor: GameOverSetting.panelBorderColor,
+        panelHeaderColor: GameOverSetting.panelHeaderColor,
+        primaryFontColor: GameOverSetting.primaryFontColor,
+        secondaryFontColor: GameOverSetting.secondaryFontColor,
     });
 });
 ```
@@ -57,8 +62,10 @@ That's it! The global wrapper will automatically handle rendering the panel, sca
 
 ## 3. Customizing the Panel
 
-If you need to change the visual look, dimensions, or fonts of the panel across all games:
+The panel uses shared default styling, but you can override specific colors for your game by passing them in the `minigame:game-over` payload (as shown above).
+
+If you need to change the base visual look, dimensions, or structure of the panel across all games:
 - **Logic / Structure**: Edit `src/ui/minigame-result-panel.js`
-- **Styling**: Edit the `.result-panel`, `.result-score-value`, and `.result-btn-home` classes inside `public/style.css`.
+- **Default Styling**: Edit the `.result-panel`, `.result-score-value`, and `.result-btn-home` classes inside `public/style.css`.
 
 > **Note on Event Priority**: The panel automatically adds `pointer-events: auto` to itself to prevent the underlying Phaser canvas from consuming click events. Ensure your game wrapper does not add an invisible `pointer-events: none` overlay that could block interaction.
