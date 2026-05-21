@@ -361,14 +361,45 @@ export async function renderTestGameHubScreen(root, options = {}) {
         sharedState.categoryStates = categoryStates;
     }
 
+    const categoryRailScroll = sharedState?.categoryRailScroll || { left: 0, top: 0 };
+
+    if (sharedState && !sharedState.categoryRailScroll) {
+        sharedState.categoryRailScroll = categoryRailScroll;
+    }
+
     const scene = "selection";
     let activeCategory = CATEGORY_META[initialCategory] ? initialCategory : "Attention";
 
+    const captureCategoryRailScroll = () => {
+        const categoryRail = root.querySelector(".hub-category-rail");
+        if (!categoryRail) {
+            return;
+        }
+
+        categoryRailScroll.left = categoryRail.scrollLeft;
+        categoryRailScroll.top = categoryRail.scrollTop;
+    };
+
+    const restoreCategoryRailScroll = () => {
+        const categoryRail = root.querySelector(".hub-category-rail");
+        if (!categoryRail) {
+            return;
+        }
+
+        categoryRail.scrollLeft = categoryRailScroll.left;
+        categoryRail.scrollTop = categoryRailScroll.top;
+        categoryRail.addEventListener("scroll", captureCategoryRailScroll, { passive: true });
+    };
+
     const render = () => {
+        captureCategoryRailScroll();
+
         root.innerHTML = buildSelectionMarkup({
             activeCategory,
             categoryStates,
         });
+
+        restoreCategoryRailScroll();
 
         root.querySelectorAll("[data-category-id]").forEach((button) => {
             button.addEventListener("click", async () => {
