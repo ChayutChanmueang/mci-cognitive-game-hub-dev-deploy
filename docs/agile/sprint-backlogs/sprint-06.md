@@ -29,19 +29,19 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task / Tech Debt | Priority | Status |
 |----|--------------------------|----------|--------|
-| [US-E3-06](../user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | High | 🏗 To Do |
-| [US-E4-03](../user-stories/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med | 🏗 To Do |
-| [US-E5-01](../user-stories/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | High | 🏗 To Do |
-| [US-E5-02](../user-stories/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV | Med | 🏗 To Do |
-| [US-E5-03](../user-stories/US-E5-03.md) | ระบบลบบัญชีและลงชื่อออก | Med | 🏗 To Do |
+| [US-E3-06](../user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | High | 🏗 In-Progress |
+| [US-E4-03](../user-stories/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med | ✅ Done |
+| [US-E5-01](../user-stories/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | High | ✅ Done |
+| [US-E5-02](../user-stories/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV | Med | ✅ Done |
+| [US-E5-03](../user-stories/US-E5-03.md) | ระบบลบบัญชีและลงชื่อออก | Med | 🏗 In-Progress |
 | [UX-RESP-01](../user-stories/UX-RESP-01.md) | **Research & Design**: ค้นคว้าความละเอียดหน้าจอมือถือ และแนวทางการพัฒนา UX/UI ให้ Responsive (Phaser + DOM) พร้อมแผนทดสอบ | High | ✅ Done |
-| **TD-DB-01** | **Technical Debt**: ปรับแต่ง Database Naming (kebab-case `"check-in"` ⮕ snake_case `check_in` และเปลี่ยนชื่อคอลัมน์ `date` ⮕ `birth_date` ใน `user_patient_data` พร้อมปรับ SQL / API JS ในระบบให้สอดคล้องกัน) | High | 🏗 To Do |
+| **TD-DB-01** | **Technical Debt**: ปรับแต่ง Database Naming (kebab-case `"check-in"` ⮕ snake_case `check_in` และเปลี่ยนชื่อคอลัมน์ `date` ⮕ `birth_date` ใน `user_patient_data` พร้อมปรับ SQL / API JS ในระบบให้สอดคล้องกัน) | High | 🏗 In-Progress |
 
 ---
 
 ## 📊 Sprint Summary & Velocity
 - **งานที่วางแผนไว้ (Planned):** 5 User Stories + 1 Technical Debt Task
-- **สถานะปัจจุบัน (Status):** 🏗 Planned / In-Progress (อยู่ระหว่างจัดเตรียมเอกสารและเตรียมเข้าสู่กระบวนการเขียนโปรแกรม)
+- **สถานะปัจจุบัน (Status):** 🏗 In-Progress (ระบบวิเคราะห์เชิงลึก E4-03, ระบบแอดมิน E5-01, และระบบส่งออก CSV E5-02 พัฒนาและทดสอบเสร็จสิ้นแล้ว; ระบบจำสัตว์ E3-06, ระบบลบบัญชี E5-03 และ Database Normalization TD-DB-01 อยู่ระหว่างการดำเนินการ)
 - **เป้าหมายความสำเร็จ (Sprint Target):** ปิดงานฟังก์ชันทางคลินิกและระบบรายงานผลทั้งหมด พร้อมสำหรับการส่งมอบโครงการภายในวันที่ 31 พฤษภาคม 2026
 
 ---

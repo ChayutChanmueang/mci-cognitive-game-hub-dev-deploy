@@ -42,13 +42,13 @@
 | -------- | ------------------------------------------------------------- | -------- | -------- |
 | [US-E4-01](./user-stories/US-E4-01.md) | บันทึกข้อมูลส่วนตัวและเวลาการใช้งาน Gamehub                   | High     | ✅ Done   |
 | [US-E4-02](./user-stories/US-E4-02.md) | บันทึกผลการเล่นมินิเกม (Score, Time, Difficulty)              | High     | ✅ Done   |
-| [US-E4-03](./user-stories/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med      | 🏗 In-Progress |
+| [US-E4-03](./user-stories/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med      | ✅ Done   |
 
 ### E5: Admin & Data Management (P2)
 | ID       | User Story                            | Priority | Status   |
 | -------- | ------------------------------------- | -------- | -------- |
-| [US-E5-01](./user-stories/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | Med      | 🏗 In-Progress |
-| [US-E5-02](./user-stories/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV          | Low      | 🏗 In-Progress |
+| [US-E5-01](./user-stories/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | Med      | ✅ Done   |
+| [US-E5-02](./user-stories/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV          | Low      | ✅ Done   |
 | [US-E5-03](./user-stories/US-E5-03.md) | ระบบลบบัญชีและลงชื่อออก               | Low      | 🏗 In-Progress |
 
 ---
