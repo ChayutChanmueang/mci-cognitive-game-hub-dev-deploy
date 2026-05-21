@@ -1,3 +1,41 @@
+// ---------------------------------------------------------------------------
+// Start Menu Panel Settings
+// ---------------------------------------------------------------------------
+export const StartMenuSetting = Object.freeze({
+    title: 'Symmetry Dec',
+    description: 'เกมจัดวางของให้สมมาตรกัน',
+    instructions: 'จัดของให้สมมาตรกัน ตามการสะท้อนของกระจก',
+    /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
+    defaultLevel: 1,
+    /** Callback-style template for the level detail string; receives `level` at render time */
+    levelDetailTemplate: (level) => {
+        if (level === 1) return 'ตาราง 4x4 / สะท้อน 2 ทิศทาง';
+        if (level === 2) return 'ตารางใหญ่ขึ้น / สะท้อน 4 ทิศทาง';
+        return 'ตารางใหญ่สุด / สะท้อนหลายรูปแบบ';
+    },
+    // Panel colour tokens — override the shared CSS defaults for this game
+    panelBorderColor: '#DB4670',
+    panelHeaderColor: '#FF5585',
+    // Font colour tokens
+    primaryFontColor: '#A83855',
+    secondaryFontColor: '#F26A8D',
+});
+
+// ---------------------------------------------------------------------------
+// Game Over Panel Settings
+// ---------------------------------------------------------------------------
+export const GameOverSetting = Object.freeze({
+    // Panel colour tokens for the game-over result panel
+    panelBorderColor: '#DB4670',
+    panelHeaderColor: '#FF5585',
+    // Font colour tokens
+    primaryFontColor: '#A83855',
+    secondaryFontColor: '#F26A8D',
+});
+
+// ---------------------------------------------------------------------------
+// Game constants
+// ---------------------------------------------------------------------------
 export const SampleConstants = Object.freeze({
     VARIABLE1: "Testing..."
 })

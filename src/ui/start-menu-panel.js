@@ -19,6 +19,10 @@ export class StartMenuPanel {
         const levelDetail = this.options.levelDetail !== undefined
             ? this.options.levelDetail
             : `${level} สายพาน`;
+        const panelBorderColor = this.options.panelBorderColor || null;
+        const panelHeaderColor = this.options.panelHeaderColor || null;
+        const primaryFontColor = this.options.primaryFontColor || '#945E17';
+        const secondaryFontColor = this.options.secondaryFontColor || '#DE8519';
 
         let levelText = "ง่าย";
         let starCount = 1;
@@ -51,7 +55,7 @@ export class StartMenuPanel {
                     font-family: 'Noto Looped Thai', sans-serif;
                     font-size: 40px;
                     font-weight: 500;
-                    color: #945E17;
+                    color: ${primaryFontColor};
                     text-align: center;
                     white-space: nowrap;
                 ">${description}</div>
@@ -63,7 +67,7 @@ export class StartMenuPanel {
                     font-family: 'Noto Looped Thai', sans-serif;
                     font-size: 56px;
                     font-weight: 700;
-                    color: #945E17;
+                    color: ${primaryFontColor};
                 ">วิธีการเล่น</div>
                 <div style="
                     position: absolute;
@@ -73,7 +77,7 @@ export class StartMenuPanel {
                     font-family: 'Noto Looped Thai', sans-serif;
                     font-size: 40px;
                     font-weight: 500;
-                    color: #DE8519;
+                    color: ${secondaryFontColor};
                     line-height: 1.4;
                 ">${instructions}</div>
                 <div style="
@@ -95,7 +99,7 @@ export class StartMenuPanel {
                     font-size: 56px;
                     font-weight: 700;
                 ">
-                    <span style="color: #945E17;">ระดับ :</span>
+                    <span style="color: ${primaryFontColor};">ระดับ :</span>
                     <span style="color: #F6C234; margin-right: 16px;">${levelText}</span>
                     <div style="display: flex; gap: 8px; align-items: center; position: relative; top: -5px;">
                         ${starsHtml}
@@ -108,7 +112,7 @@ export class StartMenuPanel {
                     font-family: 'Noto Looped Thai', sans-serif;
                     font-size: 40px;
                     font-weight: 500;
-                    color: #DE8519;
+                    color: ${secondaryFontColor};
                 ">${levelDetail}</div>
                 <button id="result-exit-button" class="result-btn-home" style="
                     background: linear-gradient(to bottom, #7DD74C, #4A9D1D);
@@ -120,6 +124,16 @@ export class StartMenuPanel {
 
         this.element = overlay;
         this.root.appendChild(overlay);
+
+        // Apply per-game panel colour overrides
+        const panel = overlay.querySelector("#gameover-result-panel");
+        const header = overlay.querySelector(".result-header");
+        if (panel && panelBorderColor) {
+            panel.style.borderColor = panelBorderColor;
+        }
+        if (header && panelHeaderColor) {
+            header.style.backgroundColor = panelHeaderColor;
+        }
 
         const btn = overlay.querySelector("#result-exit-button");
         if (btn) {

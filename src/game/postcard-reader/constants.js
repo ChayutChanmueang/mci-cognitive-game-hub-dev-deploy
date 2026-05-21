@@ -1,3 +1,41 @@
+// ---------------------------------------------------------------------------
+// Start Menu Panel Settings
+// ---------------------------------------------------------------------------
+export const StartMenuSetting = Object.freeze({
+    title: 'Postcard',
+    description: 'เกมอ่านข้อความและตอบคำถาม',
+    instructions: 'อ่านข้อความในโปสการ์ด แล้วตอบคำถามให้ถูกต้อง',
+    /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
+    defaultLevel: 1,
+    /** Callback-style template for the level detail string; receives `level` at render time */
+    levelDetailTemplate: (level) => {
+        if (level === 1) return 'ประโยคสั้นๆ จำข้อมูลเดียว';
+        if (level === 2) return '2 ประโยค จำข้อมูล 2 อย่าง';
+        return '3 ประโยค มีตัวเลขเข้ามาเกี่ยว';
+    },
+    // Panel colour tokens — override the shared CSS defaults for this game
+    panelBorderColor: '#54AC24',
+    panelHeaderColor: '#65BD35',
+    // Font colour tokens
+    primaryFontColor: '#446930',
+    secondaryFontColor: '#6F9F55',
+});
+
+// ---------------------------------------------------------------------------
+// Game Over Panel Settings
+// ---------------------------------------------------------------------------
+export const GameOverSetting = Object.freeze({
+    // Panel colour tokens for the game-over result panel
+    panelBorderColor: '#54AC24',
+    panelHeaderColor: '#65BD35',
+    // Font colour tokens
+    primaryFontColor: '#446930',
+    secondaryFontColor: '#6F9F55',
+});
+
+// ---------------------------------------------------------------------------
+// Game constants
+// ---------------------------------------------------------------------------
 export const SampleConstants = Object.freeze({
     VARIABLE1: "Testing..."
 })

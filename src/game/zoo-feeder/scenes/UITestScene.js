@@ -9,6 +9,8 @@ import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import { ReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
+import DebugMenu from "./DebugMenu.js";
+import { GameOverSetting } from '../constants.js';
 
 const GAME_ID = "ATTN001";
 
@@ -134,6 +136,8 @@ export default class UITestScene extends Phaser.Scene {
 
     //const _fruit = new Fruit(this, this.scale.width/2, 50);
 
+    // Debug menu
+    this.debugMenu = new DebugMenu(this);
   }
 
   startTimer() {
@@ -262,7 +266,9 @@ export default class UITestScene extends Phaser.Scene {
       // this.gameplayUI.showGameOverPanel(this.score);
       EventBus.emit('minigame:game-over', {
         score: this.score,
-        level: this.level
+        level: this.level,
+        panelBorderColor: GameOverSetting.panelBorderColor,
+        panelHeaderColor: GameOverSetting.panelHeaderColor,
       });
     });
   }

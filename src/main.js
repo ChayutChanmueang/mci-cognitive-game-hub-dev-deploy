@@ -1241,7 +1241,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             };
 
-            const handleGameOver = async ({ score, level: eventLevel }) => {
+            const handleGameOver = async ({ score, level: eventLevel, panelBorderColor = null, panelHeaderColor = null }) => {
                 const gid = String(selectedGame?.gid || "").trim();
                 const historyMap = readPendingGameHistoryMap();
                 const pendingHistory = historyMap[gid];
@@ -1251,6 +1251,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     score,
                     highScore: StorageManager.get("highscore", 0),
                     gameTitle: selectedGame?.name,
+                    panelBorderColor,
+                    panelHeaderColor,
                 });
                 activeResultPanel.render();
 

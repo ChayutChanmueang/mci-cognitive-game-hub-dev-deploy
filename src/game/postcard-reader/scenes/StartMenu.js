@@ -6,7 +6,7 @@ import { StartMenuSetting } from '../constants.js';
 
 export default class StartMenuScene extends Phaser.Scene {
     constructor() {
-        super('start-menu-scene');
+        super('postcard-start-menu-scene');
     }
 
     preload() {
@@ -18,17 +18,17 @@ export default class StartMenuScene extends Phaser.Scene {
         EventBus.emit('minigame:hide-hud');
 
         // Get the current game level from session storage
-        const levelString = SessionStorageManager.get("selected_game_level", "1");
+        const levelString = SessionStorageManager.get('selected_game_level', '1');
         let level = parseInt(levelString, 10);
         if (isNaN(level)) {
-            if (levelString === "easy") level = 1;
-            else if (levelString === "medium" || levelString === "normal") level = 2;
-            else if (levelString === "hard") level = 3;
-            else level = 1;
+            if (levelString === 'easy') level = 1;
+            else if (levelString === 'medium' || levelString === 'normal') level = 2;
+            else if (levelString === 'hard') level = 3;
+            else level = StartMenuSetting.defaultLevel;
         }
 
         // Render the DOM-based StartMenuPanel
-        const uiRoot = document.getElementById("ui-root");
+        const uiRoot = document.getElementById('ui-root');
         if (uiRoot) {
             this.startMenuPanel = new StartMenuPanel(uiRoot, {
                 title: StartMenuSetting.title,
@@ -44,9 +44,9 @@ export default class StartMenuScene extends Phaser.Scene {
             this.startMenuPanel.render();
         }
 
-        // Listen for the start button press and transition to the game scene
+        // Listen for the start button press and transition to the gameplay scene
         const handleStartGame = () => {
-            this.scene.start('ui-test-scene');
+            this.scene.start('gameplay-scene');
         };
         EventBus.on('startmenu:start-game', handleStartGame);
 
