@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
-import { Difficulty, GameLevels, Config, getDifficultyLevelNumber } from "../constants";
+import { Difficulty, GameLevelsByTopic, Config, getDifficultyLevelNumber } from "../constants";
 import UIPanel from "../ui-elements/core/ui-panel";
 import Button from "../ui-elements/core/button";
 import StorageManager from "../../../core/storage-manager";
@@ -62,6 +62,9 @@ export default class GameplayScene extends Phaser.Scene {
       WrongPool: [],
     };
 
+    const topics = Object.keys(GameLevelsByTopic);
+    this.currentTopic = topics[Math.floor(Math.random() * topics.length)];
+
     this.choosePostcard();
     this.chooseQuestion();
     this.intializeGamePage();
@@ -101,25 +104,20 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   choosePostcard() {
-    let options = [];
+    let difficultyKey = "easy";
     switch (this.level) {
-      case 1: options = GameLevels[Difficulty.EASY]; break;
-      case 2: options = GameLevels[Difficulty.NORMAL]; break;
-      case 3: options = GameLevels[Difficulty.HARD]; break;
-      default: options = GameLevels[Difficulty.EASY];
+      case 1: difficultyKey = "easy"; break;
+      case 2: difficultyKey = "medium"; break;
+      case 3: difficultyKey = "hard"; break;
+      default: difficultyKey = "easy";
     }
 
-    const totalOptions = options.length;
-    let newIndex;
+    let options = GameLevelsByTopic[this.currentTopic][difficultyKey];
+    let newIndex = this.postcardsPlayed % options.length;
 
-    do {
-      newIndex = Math.trunc(Math.random() * totalOptions);
-    } while (newIndex === this.lastChosenIndex && totalOptions > 1);
-
-    this.lastChosenIndex = newIndex;
     this.currentPostcard = options[newIndex];
-    this.postcardText = this.currentPostcard.Postcard;
-    this.currentQuestionList = [...this.currentPostcard.Questions];
+    this.postcardText = this.currentPostcard.text || this.currentPostcard.Postcard;
+    this.currentQuestionList = [...(this.currentPostcard.questions || this.currentPostcard.Questions)];
   }
 
   chooseQuestion() {
