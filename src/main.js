@@ -1372,7 +1372,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
                 } catch (error) {
                     // TODO: Replace this client-side compensation with a Supabase RPC transaction
-                    // that creates user_patient_data and user_game_profile_data atomically.
+                    // that creates user_data and user_game_profile_data atomically.
                     console.error("Unable to create user game profile after patient signup:", error);
                     try {
                         await db.deletePatientProfileByHn({ hn: createdPatient?.hn || formData?.hn });
