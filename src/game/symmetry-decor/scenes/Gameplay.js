@@ -19,6 +19,7 @@ import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-
 import { ReplayEvent } from "../../../core/replay-event.js";
 import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
+import { GameOverSetting } from "../constants.js";
 
 // Pool of animal sprite keys (loaded in preload)
 const ANIMAL_SPRITES = [
@@ -166,7 +167,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.ROUND_COMPLETED, this.gameEndedAt);
     this.replayLogger.pushToDatabase();
 
     //Save game data to database
@@ -185,7 +186,9 @@ export default class GameplayScene extends Phaser.Scene {
     // this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
     EventBus.emit('minigame:game-over', {
       score: this.allScore,
-      level: this.level
+      level: this.level,
+      panelBorderColor: GameOverSetting.panelBorderColor,
+      panelHeaderColor: GameOverSetting.panelHeaderColor,
     });
   }
 

@@ -10,6 +10,7 @@ import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
 
 const REST_GAME_GID = "REST001";
+const MINIGAME_DEFAULT_BG_COLOR = '#028af8';
 
 const CATEGORY_META = Object.freeze({
     Attention: {
@@ -355,6 +356,8 @@ export async function renderGameHubScreen(root, options = {}) {
     if (!root) {
         return;
     }
+
+    document.documentElement.style.setProperty("--game-mode-background", MINIGAME_DEFAULT_BG_COLOR);
 
     const state = options.sharedState || createGameHubInitialState();
     Object.assign(state, createGameHubInitialState(), {

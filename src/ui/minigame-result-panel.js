@@ -34,6 +34,16 @@ export class MinigameResultPanel {
         this.element = overlay;
         this.root.appendChild(overlay);
 
+        // Apply per-game panel colour overrides
+        const panel = overlay.querySelector("#gameover-result-panel");
+        const header = overlay.querySelector(".result-header");
+        if (panel && this.options.panelBorderColor) {
+            panel.style.borderColor = this.options.panelBorderColor;
+        }
+        if (header && this.options.panelHeaderColor) {
+            header.style.backgroundColor = this.options.panelHeaderColor;
+        }
+
         const btn = overlay.querySelector("#result-exit-button");
         if (btn) {
             const handleExit = (e) => {
