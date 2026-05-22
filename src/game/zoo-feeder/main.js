@@ -50,6 +50,15 @@ export const StartGame = (parent) => {
     document.documentElement.style.setProperty("--game-mode-background", config.backgroundColor);
     return new Game({ ...config, parent });
 
+    const originalDestroy = game.destroy.bind(game);
+    game.destroy = (removeCanvas, noReturn) => {
+        if (versionContainer && versionContainer.parentNode) {
+            versionContainer.parentNode.removeChild(versionContainer);
+        }
+        originalDestroy(removeCanvas, noReturn);
+    };
+
+    return game;
 }
 
 export default StartGame;
