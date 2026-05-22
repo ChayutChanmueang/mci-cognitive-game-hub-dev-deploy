@@ -48,6 +48,7 @@ export default class Quiz extends Entity{
         const bottomPanelHeight = 590;
         const questionPanel = this.getQuestionPanelLayout(sceneWidth);
 
+        // Question panel — white rounded card (#ffffff) that holds the quiz sentence and blank slots
         const quizBG = this.scene.drawRoundedPanel(
             questionPanel.x,
             questionPanel.y,
@@ -64,13 +65,14 @@ export default class Quiz extends Entity{
         );
         this.ownedContainer.add(quizBG);
 
+        // Bottom answer area overlay — black fade (#000000) to visually separate the answer choices from the question
         const bottonBG = this.scene.add.rectangle(
             this.scene.scale.width / 2,
             this.scene.scale.height,
             this.scene.scale.width,
             bottomPanelHeight,
-            0xc73969,
-            0.58
+            0x000000,
+            0.45
         ).setOrigin(0.5, 1);
         this.ownedContainer.add(bottonBG);
 
