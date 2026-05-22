@@ -20,13 +20,19 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E1-02](../user-stories/US-E1-02.md) | ระบบลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, เพศ, การศึกษา) | High | 🏗 In-Progress |
-| [US-E1-03](../user-stories/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน) | Med | 🏗 In-Progress |
-| [US-E2-02](../user-stories/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression Map) | High | 🏗 In-Progress |
-| [US-E2-03](../user-stories/US-E2-03.md) | ระบบ Daily Goal Progress Bar | High | 🏗 In-Progress |
-| [US-E2-04](../user-stories/US-E2-04.md) | ระบบ Daily Streak Tracking | Med | 🏗 In-Progress |
-| [US-E2-05](../user-stories/US-E2-05.md) | มินิเกมด่านจุดพัก (Rest Level) | Low | 🏗 In-Progress |
-| [US-E2-06](../user-stories/US-E2-06.md) | ด่านเส้นชัยและระบบเช็คชื่อ (Finish Level) | High | 🏗 In-Progress |
+| [US-E1-02](../user-stories/US-E1-02.md) | ระบบลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, เพศ, การศึกษา) | High | ✅ Done |
+| [US-E1-03](../user-stories/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน) | Med | ✅ Done |
+| [US-E2-02](../user-stories/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression Map) | High | ✅ Done |
+| [US-E2-03](../user-stories/US-E2-03.md) | ระบบ Daily Goal Progress Bar | High | ✅ Done |
+| [US-E2-04](../user-stories/US-E2-04.md) | ระบบ Daily Streak Tracking | Med | ✅ Done |
+| [US-E2-05](../user-stories/US-E2-05.md) | มินิเกมด่านจุดพัก (Rest Level) | Low | ✅ Done |
+| [US-E2-06](../user-stories/US-E2-06.md) | ด่านเส้นชัยและระบบเช็คชื่อ (Finish Level) | High | ✅ Done |
+
+## 📊 Sprint Summary & Velocity
+- **งานที่วางแผนไว้ (Planned):** 7 Stories
+- **งานที่ทำเสร็จ (Completed):** 7 Stories (100% Completion)
+- **อัตราการทำงาน (Velocity):** 7 User Stories สำเร็จลุล่วง
+- **การทดสอบระบบ:** ผ่านเกณฑ์ความเสถียรและเชื่อมโยงข้อมูลกับ Supabase Database 100%
 
 ## 🛠 Sprint Specifics
 - **Definition of Done:**
@@ -34,5 +40,5 @@ gantt
   - ข้อมูลถูกบันทึกและดึงมาจาก Supabase ได้ถูกต้อง
   - UI/UX เป็นไปตามแนวทางที่กำหนดใน GDD
 - **Risks & Blockers:**
-  - ความซับซ้อนของการวาดเส้นทางในแผนที่ด่าน (Progression Map)
-  - การจัดการสถานะ Locked/Unlocked ของด่านตามวันจริง
+  - *แก้ไขแล้ว*: ความซับซ้อนของการวาดเส้นทางในแผนที่ด่าน (Progression Map) - แก้ไขโดยปรับโครงสร้าง UI ของด่านให้อยู่ในหน้าเดียวและเลื่อนอัตโนมัติ (Auto-scroll) ไปหาวันปัจจุบันเพื่อความชัดเจน
+  - *แก้ไขแล้ว*: การจัดการสถานะ Locked/Unlocked ของด่านตามวันจริง - ใช้ `started_program` ในการเปรียบเทียบระยะเวลาจริงกับประวัติการเข้าเล่นเพื่อความถูกต้อง แม่นยำ
