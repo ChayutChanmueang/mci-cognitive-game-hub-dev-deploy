@@ -1,6 +1,6 @@
-export function measureTextWidth(scene, text, style) {
+export function measureTextWidth(scene, text, style, gep = 72) {
     const temp = scene.add.text(0, 0, text, normalizeTextStyle(style)).setVisible(false);
-    const width = temp.width;
+    const width = temp.width + gep;
     temp.destroy();
     return width;
 }
@@ -15,7 +15,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const quizTextStyle = normalizeTextStyle(style, "quiz");
     const labelTextStyle = normalizeTextStyle(style, "label");
     const fontSize = parseFontSize(quizTextStyle.fontSize, maxHeight);
-    const textPaddingTop = Math.ceil(fontSize * 0.25);
+    const textPaddingTop = Math.ceil(fontSize * 0.16);
     const textPaddingBottom = Math.ceil(fontSize * 0.16);
     const lineHeight = Math.max(maxHeight, fontSize + textPaddingTop + textPaddingBottom) + 24;
     const minSlotWidth = Math.max(0, Number(style.slotWidth) || 0);
