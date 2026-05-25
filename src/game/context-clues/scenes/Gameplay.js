@@ -232,21 +232,9 @@ export default class GameplayScene extends Phaser.Scene {
 
         const overlay = this.add.graphics();
 
-        // Full-screen pink tint (#f45ca1) — keeps the scene's pink theme while letting BG show through
-        overlay.fillStyle(0xf45ca1, 0.32);
-        overlay.fillRect(0, 0, width, height);
-
-        // Top header highlight strip (#ff9ccc)
-        overlay.fillStyle(0xff9ccc, 0.18);
-        overlay.fillRect(0, 0, width, 240);
-
-        // Bottom answer-area dark strip (#d83d73) — visually separates the answer choices zone
-        overlay.fillStyle(0xd83d73, 0.28);
-        overlay.fillRect(0, height - 520, width, 520);
-
-        // Divider line between question area and answer area (#9d375c)
-        overlay.lineStyle(4, 0x9d375c, 0.3);
-        overlay.lineBetween(0, height - 520, width, height - 520);
+        // Diagnostic highlight: divider between the question area and answer area.
+        overlay.lineStyle(6, 0x000000, 0.25);
+        overlay.lineBetween(0, height - 590, width, height - 590);
 
         overlay.setDepth(-19);
     }

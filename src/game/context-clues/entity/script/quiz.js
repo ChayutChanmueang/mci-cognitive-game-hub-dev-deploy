@@ -72,7 +72,7 @@ export default class Quiz extends Entity{
             this.scene.scale.width,
             bottomPanelHeight,
             0x000000,
-            0.45
+            0.1
         ).setOrigin(0.5, 1);
         this.ownedContainer.add(bottonBG);
 
@@ -80,7 +80,7 @@ export default class Quiz extends Entity{
             quizTextSize: this.quizTextSize,
             labelFontSize: this.labelFontSize,
             slotWidth: this.slotWidth,
-            slotStrokeColor: 0x0c2c61,
+            slotStrokeColor: 0xffb0ca,
             slotStrokeWidth: 6,
             slotFillColor: 0xffffff,
             slotFillAlpha: 0,
@@ -89,7 +89,7 @@ export default class Quiz extends Entity{
             color: "#7a4699",
         };
 
-        const { container: quizText, slot: slot, slotLabel: slotLabel } = createInlineSentence(
+        const { container: quizText, slot, slotLabel, slotBorder } = createInlineSentence(
             this.scene,
             questionPanel.x,
             questionPanel.y,
@@ -190,7 +190,7 @@ export default class Quiz extends Entity{
                         data.handle.disableInteractive();
                         slotLabel[i].setText(data.word);
                         slot[i].setData("filled", true);
-                        slot[i].setStrokeStyle(6, 0x00ff00);
+                        slotBorder[i].setTint(0x00ff00); // correct answer — green tint
                         if (this.gameData) {
                             this.gameData.answers.push(data.word);
                             this.gameData.increaseScore(Config.IncreaseScore[this.scene.levelMap])
@@ -205,14 +205,15 @@ export default class Quiz extends Entity{
                         this.gameData.decreaseScore(Config.DecreaseScore[this.scene.levelMap])
                         this.dragDrop.moveHome(data.handle);
                         this.onAnswerIncorrect(data.word);
-                        slot[i].setStrokeStyle(6, 0xfe0000);
+                        slotBorder[i].setTint(0xfe0000); // wrong answer — red tint, then reset
+                        this.scene.time.delayedCall(300, () => slotBorder[i].setTint(0xffb0ca));
                     }
                 },
                 onDragEnter: () => {
-                    slot[i].setStrokeStyle(6, 0x4287f5);
+                    slotBorder[i].setTint(0x4287f5); // drag hover — blue tint
                 },
                 onDragLeave: () => {
-                    slot[i].setStrokeStyle(6, 0x0c2c61);
+                    slotBorder[i].setTint(0xffb0ca); // reset to default pink
                 }
             });
         }
