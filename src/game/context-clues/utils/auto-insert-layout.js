@@ -315,11 +315,11 @@ function createDashedSlotTexture(scene, width, height, strokeWidth) {
     const inset = strokeWidth / 2;
 
     ctx.clearRect(0, 0, w, h);
-    ctx.setLineDash([10, 7]);
+    ctx.setLineDash([16, 12]);
     ctx.lineWidth = strokeWidth;
     ctx.strokeStyle = '#ffffff';
     ctx.beginPath();
-    ctx.roundRect(inset, inset, w - inset * 2, h - inset * 2, 10);
+    ctx.roundRect(inset, inset, w - inset * 2, h - inset * 2, 36);
     ctx.stroke();
 
     tex.refresh();

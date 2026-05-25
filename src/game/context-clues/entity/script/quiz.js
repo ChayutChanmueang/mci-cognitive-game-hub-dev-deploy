@@ -4,6 +4,7 @@ import {BlankWord, Config} from "../../constants.js";
 import {createInlineSentence} from "../../utils/auto-insert-layout.js";
 import DragDropManager from "/src/core/drag-drop-manager.js";
 import { createThaiText, getThaiFontFamily } from "../../../../util/thai-text.js";
+import { ShadowRoundedPanel } from "../../../../util/layout/index.js";
 
 export default class Quiz extends Entity{
     constructor(scene, x, y, id, textParts, answers, options, gameData, setting = {
@@ -48,8 +49,8 @@ export default class Quiz extends Entity{
         const bottomPanelHeight = 590;
         const questionPanel = this.getQuestionPanelLayout(sceneWidth);
 
-        // Question panel — white rounded card (#ffffff) that holds the quiz sentence and blank slots
-        const quizBG = this.scene.drawRoundedPanel(
+        const quizBG = new ShadowRoundedPanel(
+            this.scene,
             questionPanel.x,
             questionPanel.y,
             questionPanel.width,
@@ -61,6 +62,19 @@ export default class Quiz extends Entity{
                 strokeWidth: 6,
                 radius: 54,
                 depth: 10,
+                shadows: [
+                    {
+                        offsetY: 22,
+                        spread: 6,
+                        color: 0x6c214b,
+                        alpha: 0.1
+                    },
+                    {
+                        offsetY: 12,
+                        color: 0x6c214b,
+                        alpha: 0.24
+                    }
+                ]
             }
         );
         this.ownedContainer.add(quizBG);
@@ -109,6 +123,30 @@ export default class Quiz extends Entity{
         this.ownedContainer.add(quizText);
 
         this.scene.quizText.setDepth(100);
+        const instructionY = Math.min(
+            questionPanel.y + (questionPanel.height / 2) + 82,
+            sceneHeight - bottomPanelHeight - 56
+        );
+        const dragInstruction = createThaiText(
+            this.scene,
+            sceneWidth / 2,
+            instructionY,
+            "ลากคำศัพท์ไปเติมในช่องว่าง",
+            {
+                fontSize: "42px",
+                fontFamily: getThaiFontFamily(),
+                fontStyle: "bold",
+                color: "#ffffff",
+                stroke: "#cc4177",
+                strokeThickness: 3,
+                align: "center",
+            },
+            { origin: 0.5 }
+        );
+        dragInstruction.setShadow(0, 4, "rgba(108, 33, 75, 0.35)", 6);
+        dragInstruction.setDepth(100);
+        this.ownedContainer.add(dragInstruction);
+
         this.answerBoxes = [];
         const choiceWidth = 455;
         const choiceHeight = 145;
