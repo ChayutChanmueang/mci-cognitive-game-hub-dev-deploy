@@ -256,11 +256,11 @@ export default class GameplayScene extends Phaser.Scene {
         this.frameGraphics = this.createFrame(sceneWidth, sceneHeight - 102);
         const headerMetrics = this.createHeader(layoutConfig, this.sceneData);
         const answerItemsPerRow = this.sceneData.maxAnimalsPerRow ?? 5;
-        const answerItemGap = 26;
-        const answerTrayPadding = { top: 46, right: 54, bottom: 44, left: 54 };
+        const answerItemGap = 32;
+        const answerTrayPadding = { top: 36, right: 25, bottom: 25, left: 25 };
         const answerTrayWidth = sceneWidth;
         const answerItemSize = Math.max(
-            156,
+            236,
             Math.min(
                 204,
                 Math.floor(
@@ -274,7 +274,7 @@ export default class GameplayScene extends Phaser.Scene {
             )
         );
 
-        this.animalTray = new AnimalIconTray(this, 0, 0,
+        this.animalTray = new AnimalIconTray(this, 0, -15,
             (data) => {
                 console.log(`selected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
                 if (this.lockedAnimalIds.has(data.id)) {
@@ -301,7 +301,7 @@ export default class GameplayScene extends Phaser.Scene {
                     fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
                     fontSize: `${Math.floor(answerItemSize * 0.72)}px`
                 },
-                trayRadius: 42,
+                trayRadius: 32,
                 trayFillColor: Theme.colors.surfaceContainer,
                 trayFillAlpha: 0.96,
                 trayStrokeAlpha: 0,
@@ -331,7 +331,7 @@ export default class GameplayScene extends Phaser.Scene {
             columns: layoutConfig.columns,
             width: boardWidth,
             height: boardHeight,
-            gap: 34,
+            gap: 48,
             padding: 4,
             cellRadius: 42,
             cellFillColor: Theme.colors.warmSurface,
