@@ -10,8 +10,8 @@ import { ReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import DebugMenu from "./DebugMenu.js";
-import { GameOverSetting } from '../constants.js';
-
+import { GameOverSetting, StartMenuSetting } from '../constants.js';
+import { TutorialPanel } from '../../../ui/tutorial-panel.js';
 const GAME_ID = "ATTN001";
 
 export default class UITestScene extends Phaser.Scene {
@@ -131,13 +131,27 @@ export default class UITestScene extends Phaser.Scene {
     }
 
     console.log(this.conveyers.length);
-    //this.spawnFruit();
-    this.physics.resume();
-
-    //const _fruit = new Fruit(this, this.scale.width/2, 50);
+    // Pause physics initially until tutorial is dismissed
+    this.physics.pause();
 
     // Debug menu
     this.debugMenu = new DebugMenu(this);
+
+    // Show DOM Tutorial Panel
+    const uiRoot = document.getElementById('ui-root');
+    this.tutorialPanel = new TutorialPanel(uiRoot, {
+      title: "คู่มือการเล่น",
+      description: StartMenuSetting.instructions, 
+      panelBorderColor: StartMenuSetting.panelBorderColor,
+      panelHeaderColor: StartMenuSetting.panelHeaderColor,
+      primaryFontColor: StartMenuSetting.primaryFontColor,
+      onStart: () => {
+        this.physics.resume();
+        this.spawnFruit();
+        this.startTimer();
+      }
+    });
+    this.tutorialPanel.render();
   }
 
   startTimer() {
