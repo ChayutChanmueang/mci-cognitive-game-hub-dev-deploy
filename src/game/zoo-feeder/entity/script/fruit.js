@@ -38,6 +38,7 @@ export default class Fruit extends Entity {
                 //console.log("You clicked the food!");
                 entity.emit('itemSorted');
                 entity.disableInteractive();
+                entity.setCollideWorldBounds(false);
 
                 const _direction = Phaser.Math.RND.pick([-1, 1]);
                 const _speed = 300;

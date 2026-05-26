@@ -179,8 +179,8 @@ export class TutorialPanel {
                         gap: 10px;
                     ">
                         <img src="assets/zoo-feeder/food/Battery.png" style="width: 170px; height: 170px; object-fit: contain;" />
-                        <img src="assets/zoo-feeder/food/Garbage.png" style="width: 170px; height: 170px; object-fit: contain;" />
-                        <img src="assets/zoo-feeder/food/Soda.png" style="width: 170px; height: 170px; object-fit: contain;" />
+                        <img src="assets/zoo-feeder/food/Boot.png" style="width: 170px; height: 170px; object-fit: contain;" />
+                        <img src="assets/zoo-feeder/food/Bottle.png" style="width: 170px; height: 170px; object-fit: contain;" />
                     </div>
                 </div>
                 <button id="tutorial-start-button" class="result-btn-home result-btn-home--start result-btn-home--tutorial">เริ่มเล่นเกม</button>
