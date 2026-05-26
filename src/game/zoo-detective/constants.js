@@ -38,18 +38,28 @@ export const PuzzleLevelConfig = Object.freeze({
     3: Object.freeze({ rows: 3, columns: 3, name: "Hard" })
 });
 
+export const AnimalIconAssets = Object.freeze({
+    bear: Object.freeze({ texture: "zoo-detective-animal-bear", path: "assets/common/animal/icons/H_Bear.png" }),
+    cow: Object.freeze({ texture: "zoo-detective-animal-cow", path: "assets/common/animal/icons/H_Cow.png" }),
+    elephant: Object.freeze({ texture: "zoo-detective-animal-elephant", path: "assets/common/animal/icons/H_ele.png" }),
+    fox: Object.freeze({ texture: "zoo-detective-animal-fox", path: "assets/common/animal/icons/H_Fox.png" }),
+    lion: Object.freeze({ texture: "zoo-detective-animal-lion", path: "assets/common/animal/icons/H_Li.png" }),
+    panda: Object.freeze({ texture: "zoo-detective-animal-panda", path: "assets/common/animal/icons/H_Pan.png" })
+});
+
 export const DefaultAnimals = Object.freeze([
-    Object.freeze({ id: "lion", label: "สิงโต", icon: "🦁" }),
-    Object.freeze({ id: "elephant", label: "ช้าง", icon: "🐘" }),
+    Object.freeze({ id: "bear", label: "หมี", icon: "🐻", ...AnimalIconAssets.bear }),
+    Object.freeze({ id: "lion", label: "สิงโต", icon: "🦁", ...AnimalIconAssets.lion }),
+    Object.freeze({ id: "elephant", label: "ช้าง", icon: "🐘", ...AnimalIconAssets.elephant }),
     Object.freeze({ id: "giraffe", label: "ยีราฟ", icon: "🦒" }),
     Object.freeze({ id: "monkey", label: "ลิง", icon: "🐒" }),
     Object.freeze({ id: "zebra", label: "ม้าลาย", icon: "🦓" }),
-    Object.freeze({ id: "panda", label: "แพนด้า", icon: "🐼" }),
+    Object.freeze({ id: "panda", label: "แพนด้า", icon: "🐼", ...AnimalIconAssets.panda }),
     Object.freeze({ id: "tiger", label: "เสือ", icon: "🐯" }),
     Object.freeze({ id: "hippo", label: "ฮิปโป", icon: "🦛" }),
-    Object.freeze({ id: "fox", label: "สุนัขจิ้งจอก", icon: "🦊" }),
+    Object.freeze({ id: "fox", label: "สุนัขจิ้งจอก", icon: "🦊", ...AnimalIconAssets.fox }),
     Object.freeze({ id: "koala", label: "โคอาลา", icon: "🐨" }),
-    Object.freeze({ id: "cow", label: "วัว", icon: "🐮" }),
+    Object.freeze({ id: "cow", label: "วัว", icon: "🐮", ...AnimalIconAssets.cow }),
     Object.freeze({ id: "pig", label: "หมู", icon: "🐷" }),
     Object.freeze({ id: "frog", label: "กบ", icon: "🐸" }),
     Object.freeze({ id: "chicken", label: "ไก่", icon: "🐔" }),

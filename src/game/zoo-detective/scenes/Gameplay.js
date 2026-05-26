@@ -5,7 +5,7 @@ import { AnimalIconTray, InlineContentLayout, ShadowRoundedPanel, SquareGridLayo
 import Theme from "../../../util/game-theme.js";
 import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
-import { DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
+import { AnimalIconAssets, DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
 import {Config} from "../../zoo-detective/constants.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
@@ -48,6 +48,10 @@ export default class GameplayScene extends Phaser.Scene {
         this.load.image('context-clues-bg','assets/zoo-detective/etc/BG.png')
         this.load.image("button-idle", "assets/button_rectangle_depth_flat.png");
         this.load.image("button-press", "assets/button_rectangle_flat.png");
+
+        for (const asset of Object.values(AnimalIconAssets)) {
+            this.load.image(asset.texture, asset.path);
+        }
     }
 
     init(data) {
@@ -281,7 +285,7 @@ export default class GameplayScene extends Phaser.Scene {
                     return;
                 }
 
-                this.selectedAnimal = data;
+                this.selectedAnimal = animals.find((animal) => animal.id === data.id) ?? data;
             },
             (data) => {
                 console.log(`unselected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
@@ -301,6 +305,10 @@ export default class GameplayScene extends Phaser.Scene {
                     fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
                     fontSize: `${Math.floor(answerItemSize * 0.72)}px`
                 },
+                createItemContent: (scene, animal, index, bounds) => this.createAnimalVisual(
+                    animal,
+                    Math.floor(Math.min(bounds.width, bounds.height) * 0.72)
+                ),
                 trayRadius: 32,
                 trayFillColor: Theme.colors.surfaceContainer,
                 trayFillAlpha: 0.96,
@@ -419,13 +427,10 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     renderAnimalInCell(cell, animal) {
-        const emojiText = this.add.text(0, 0, animal.icon ?? animal.label ?? "?", {
-            fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
-            fontSize: `${Math.floor(cell.size * 0.58)}px`
-        }).setOrigin(0.5);
+        const animalVisual = this.createAnimalVisual(animal, Math.floor(cell.size * 0.7));
 
         this.gridBoard.clearCell(cell.index, true);
-        this.gridBoard.addToCell(cell.index, emojiText);
+        this.gridBoard.addToCell(cell.index, animalVisual);
     }
 
     setCellState(cell, state = "default") {
@@ -641,10 +646,10 @@ export default class GameplayScene extends Phaser.Scene {
             contentFactory: (scene, hint, bounds) => this.createHintContent(hint, bounds)
         };
 
-        this.hintViewer = new HintLineViewer(this, promptX, top, promptHints, hintViewerOptions);
+        this.hintViewer = new HintLineViewer(this, promptX, top - 6, promptHints, hintViewerOptions);
         this.hintViewer.setDepth(3);
 
-        const instructionY = top + hintViewerMinHeight + 78;
+        const instructionY = top + hintViewerMinHeight + 86;
 
         const promptText = createThaiText(
             this,
@@ -652,7 +657,7 @@ export default class GameplayScene extends Phaser.Scene {
             instructionY,
             `${GameplayConfig.defaultPromptFallback}`,
             {
-                fontSize: "46px",
+                fontSize: "36px",
                 fontStyle: "bold",
                 color: Theme.toCssColor(Theme.colors.warmText)
             },
@@ -694,9 +699,10 @@ export default class GameplayScene extends Phaser.Scene {
     createHintContent(hint, bounds) {
         return new InlineContentLayout(this, 0, 0, this.createHintSegments(hint), {
             width: bounds.width,
-            height: bounds.height,
-            gap: this.sceneData.hintSegmentGap ?? 18,
-            justify: this.sceneData.hintContentAlign ?? "left",
+            height: bounds.height + 25,
+            padding: { left: 32, right: 32 },
+            gap: 12,
+            justify: "left",
             align: "center"
         });
     }
@@ -772,6 +778,19 @@ export default class GameplayScene extends Phaser.Scene {
                 fontSize
             }
         };
+    }
+
+    createAnimalVisual(animal, size) {
+        if (animal?.texture && this.textures.exists(animal.texture)) {
+            return this.add.image(0, 0, animal.texture)
+                .setDisplaySize(size, size)
+                .setOrigin(0.5);
+        }
+
+        return this.add.text(0, 0, animal?.icon ?? animal?.label ?? "?", {
+            fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
+            fontSize: `${size}px`
+        }).setOrigin(0.5);
     }
 
     formatPositionLabel(position = "") {

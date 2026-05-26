@@ -22,6 +22,7 @@ export default class InlineContentLayout extends Phaser.GameObjects.Container {
             gap: 18,
             justify: "center",
             align: "center",
+            padding: normalizePadding(options.padding),
             textStyle: {
                 fontFamily: getThaiFontFamily(),
                 fontSize: "44px",
@@ -29,6 +30,7 @@ export default class InlineContentLayout extends Phaser.GameObjects.Container {
                 color: Theme.toCssColor(Theme.colors.onSurface)
             },
             ...options,
+            padding: normalizePadding(options.padding),
             textStyle: {
                 fontFamily: getThaiFontFamily(),
                 fontSize: "44px",
@@ -45,15 +47,26 @@ export default class InlineContentLayout extends Phaser.GameObjects.Container {
     }
 
     setLayoutOptions(options = {}) {
+        const nextPadding = "padding" in options
+            ? mergePadding(this.options.padding, options.padding)
+            : this.options.padding;
+
         this.options = this.buildOptions({
             ...this.options,
             ...options,
+            padding: nextPadding,
             textStyle: {
                 ...this.options.textStyle,
                 ...(options.textStyle ?? {})
             }
         });
         return this.rebuild();
+    }
+
+    setPadding(left = 0, right = left, top = 0, bottom = top) {
+        return this.setLayoutOptions({
+            padding: { left, right, top, bottom }
+        });
     }
 
     rebuild() {
@@ -65,12 +78,19 @@ export default class InlineContentLayout extends Phaser.GameObjects.Container {
         const gapTotal = Math.max(0, this.itemContainers.length - 1) * this.options.gap;
         const contentWidth = this.itemContainers.reduce((width, item) => width + item.width, 0) + gapTotal;
         const contentHeight = this.itemContainers.reduce((height, item) => Math.max(height, item.height), 0);
-        const width = Math.max(this.options.width, contentWidth);
-        const height = Math.max(this.options.height, contentHeight);
-        let cursorX = this.resolveStartX(width, contentWidth);
+        const horizontalPadding = this.options.padding.left + this.options.padding.right;
+        const verticalPadding = this.options.padding.top + this.options.padding.bottom;
+        const width = Math.max(this.options.width, contentWidth + horizontalPadding);
+        const height = Math.max(this.options.height, contentHeight + verticalPadding);
+        const innerWidth = Math.max(0, width - horizontalPadding);
+        const innerHeight = Math.max(0, height - verticalPadding);
+        let cursorX = this.options.padding.left + this.resolveStartX(innerWidth, contentWidth);
 
         for (const item of this.itemContainers) {
-            item.setPosition(cursorX, this.resolveY(height, item.height));
+            item.setPosition(
+                cursorX,
+                this.options.padding.top + this.resolveY(innerHeight, item.height)
+            );
             this.add(item);
             cursorX += item.width + this.options.gap;
         }
@@ -173,7 +193,37 @@ export default class InlineContentLayout extends Phaser.GameObjects.Container {
             width: this.width,
             height: this.height,
             contentWidth: this.contentWidth,
-            contentHeight: this.contentHeight
+            contentHeight: this.contentHeight,
+            padding: { ...this.options.padding }
         };
     }
+}
+
+function normalizePadding(padding) {
+    if (typeof padding === "number") {
+        return {
+            top: padding,
+            left: padding,
+            right: padding,
+            bottom: padding
+        };
+    }
+
+    return {
+        top: padding?.top ?? 0,
+        left: padding?.left ?? 0,
+        right: padding?.right ?? 0,
+        bottom: padding?.bottom ?? 0
+    };
+}
+
+function mergePadding(currentPadding, nextPadding) {
+    if (typeof nextPadding === "number") {
+        return normalizePadding(nextPadding);
+    }
+
+    return normalizePadding({
+        ...currentPadding,
+        ...nextPadding
+    });
 }
