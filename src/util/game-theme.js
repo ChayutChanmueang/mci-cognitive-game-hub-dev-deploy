@@ -21,6 +21,7 @@ const Theme = {
         warmSurfaceContainer: 0xffefbd,
         warmAccent: 0xf0b34c,
         warmText: 0x83503a,
+        warmHighlight: 0xed7816,
         warmTrayItem: 0xeadbc4,
         coolShadow: 0x27647a,
         

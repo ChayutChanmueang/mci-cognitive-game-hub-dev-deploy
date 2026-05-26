@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
-import { AnimalIconTray, ShadowRoundedPanel, SquareGridLayout } from "../../../util/layout/index.js";
+import { AnimalIconTray, InlineContentLayout, ShadowRoundedPanel, SquareGridLayout } from "../../../util/layout/index.js";
 import Theme from "../../../util/game-theme.js";
 import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
@@ -256,13 +256,13 @@ export default class GameplayScene extends Phaser.Scene {
         this.frameGraphics = this.createFrame(sceneWidth, sceneHeight - 102);
         const headerMetrics = this.createHeader(layoutConfig, this.sceneData);
         const answerItemsPerRow = this.sceneData.maxAnimalsPerRow ?? 5;
-        const answerItemGap = 32;
+        const answerItemGap = Config.ItemGapSize[this.levelMap];
         const answerTrayPadding = { top: 36, right: 25, bottom: 25, left: 25 };
         const answerTrayWidth = sceneWidth;
         const answerItemSize = Math.max(
-            236,
+            Config.GridSize[this.levelMap],
             Math.min(
-                204,
+                100,
                 Math.floor(
                     (
                         answerTrayWidth
@@ -331,7 +331,7 @@ export default class GameplayScene extends Phaser.Scene {
             columns: layoutConfig.columns,
             width: boardWidth,
             height: boardHeight,
-            gap: 48,
+            gap: Config.SlotGapSize[this.levelMap],
             padding: 4,
             cellRadius: 42,
             cellFillColor: Theme.colors.warmSurface,
@@ -600,17 +600,8 @@ export default class GameplayScene extends Phaser.Scene {
         const cardWidth = this.scale.width - left - right;
         const promptX = left;
         const promptHints = this.getPromptHints(data);
-        const promptStyle = {
-            fontSize: "56px",
-            fontStyle: "bold",
-            color: Theme.toCssColor(Theme.colors.warmText),
-            align: "left"
-        };
         const promptWrapWidth = cardWidth - 92;
-        const hintViewerMinHeight = Math.max(
-            chipHeight,
-            this.measureHintViewerHeight(promptHints, promptStyle, promptWrapWidth)
-        );
+        const hintViewerMinHeight = chipHeight;
         const hintPanel = new ShadowRoundedPanel(this, promptX, top, cardWidth, hintViewerMinHeight, {
             origin: [0, 0],
             fillColor: Theme.colors.warmSurfaceContainer,
@@ -635,7 +626,7 @@ export default class GameplayScene extends Phaser.Scene {
         const hintViewerOptions = {
             width: cardWidth,
             minHeight: hintViewerMinHeight,
-            padding: 46,
+            padding: 0,
             radius: 48,
             fillColor: Theme.colors.warmSurfaceContainer,
             fillAlpha: 0,
@@ -643,11 +634,11 @@ export default class GameplayScene extends Phaser.Scene {
             strokeAlpha: 0,
             strokeWidth: 0,
             emptyText: "",
-            textStyle: promptStyle,
             textOptions: {
                 origin: [0, 0],
                 wrapWidth: promptWrapWidth
-            }
+            },
+            contentFactory: (scene, hint, bounds) => this.createHintContent(hint, bounds)
         };
 
         this.hintViewer = new HintLineViewer(this, promptX, top, promptHints, hintViewerOptions);
@@ -693,7 +684,99 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     getPromptHints(data) {
-        return [...(data.questionHints ?? this.puzzleData?.hintTexts ?? [])];
+        if (Array.isArray(data.questionHints)) {
+            return [...data.questionHints];
+        }
+
+        return [...(this.puzzleData?.hints ?? [])];
+    }
+
+    createHintContent(hint, bounds) {
+        return new InlineContentLayout(this, 0, 0, this.createHintSegments(hint), {
+            width: bounds.width,
+            height: bounds.height,
+            gap: this.sceneData.hintSegmentGap ?? 18,
+            justify: this.sceneData.hintContentAlign ?? "left",
+            align: "center"
+        });
+    }
+
+    createHintSegments(hint) {
+        if (!hint || typeof hint === "string") {
+            return [{
+                text: hint ?? "",
+                style: {
+                    fontSize: "55px",
+                    color: Theme.toCssColor(Theme.colors.warmText)
+                }
+            }];
+        }
+
+        return [
+            this.createHintVisualItem(hint.animal, "96px"),
+            {
+                text: hint.animal?.label ?? hint.animal?.id ?? "",
+                style: {
+                    fontSize: "55px",
+                    color: Theme.toCssColor(Theme.colors.warmText)
+                }
+            },
+            {
+                create: (scene) => new InlineContentLayout(scene, 0, 0, this.createPositionSegments(hint), {
+                    gap: 6,
+                    justify: "center",
+                    align: "center"
+                })
+            }
+        ];
+    }
+
+    createPositionSegments(hint) {
+        const relationText = hint.type === "relation"
+            ? {
+                up: "อยู่ด้านบนของ",
+                down: "อยู่ด้านล่างของ",
+                left: "อยู่ด้านซ้ายของ",
+                right: "อยู่ด้านขวาของ"
+            }[hint.direction] ?? "อยู่ใกล้"
+            : `อยู่${this.formatPositionLabel(hint.position)}`;
+        const segments = [{
+            text: relationText,
+            style: {
+                fontSize: "55px",
+                color: Theme.toCssColor(Theme.colors.warmHighlight)
+            }
+        }];
+
+        if (hint.type === "relation" && hint.referenceAnimal) {
+            segments.push(this.createHintVisualItem(hint.referenceAnimal, "60px"));
+        }
+
+        return segments;
+    }
+
+    createHintVisualItem(animal, fontSize) {
+        if (animal?.texture) {
+            return {
+                texture: animal.texture,
+                frame: animal.frame,
+                displayWidth: animal.displayWidth ?? 82,
+                displayHeight: animal.displayHeight ?? 82
+            };
+        }
+
+        return {
+            text: animal?.icon ?? "",
+            style: {
+                fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
+                fontSize
+            }
+        };
+    }
+
+    formatPositionLabel(position = "") {
+        const label = String(position);
+        return label.startsWith("ด้าน") ? label : `ด้าน${label}`;
     }
 
     measureHintViewerHeight(hints, textStyle, wrapWidth) {

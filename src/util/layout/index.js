@@ -3,3 +3,4 @@ export { default as AnimalIconTray } from "./animal-icon-tray";
 export { default as ProgressBar } from "./progress-bar";
 export { default as ScrollContainer } from "./scroll-container";
 export { default as ShadowRoundedPanel } from "./shadow-rounded-panel";
+export { default as InlineContentLayout } from "./inline-content-layout";
