@@ -222,7 +222,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
+            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .eq("hn", parsedHn)
             .maybeSingle();
 
@@ -244,7 +244,7 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
+            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .eq("uid", parsedUid)
             .maybeSingle();
 
@@ -289,7 +289,7 @@ class Database {
         ] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date",
+                "id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date",
                 [{ column: "hn", ascending: true }],
             ),
             this.getAllTableRows(
@@ -840,14 +840,14 @@ class Database {
             gender: parsedGender,
             education_level: parsedEducation,
             started_program: normalizedStartedProgram.toISOString(),
-            date: parsedBirthDate,
+            birth_date: parsedBirthDate,
         };
 
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
+            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .maybeSingle();
 
         if (error) {

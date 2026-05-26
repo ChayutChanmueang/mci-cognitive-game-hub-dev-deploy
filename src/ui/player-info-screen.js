@@ -160,7 +160,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
 
     const hn = String(player.hn || player.patientCode || "").trim();
     const phoneDisplay = formatThaiPhoneNumber(player.phone || "");
-    const birthDate = player.date || player.birthDate || "";
+    const birthDate = player.birth_date || player.date || player.birthDate || "";
     const age = calculateAgeFromBirthDate(birthDate);
     const ageDisplay = Number.isInteger(age) ? `${age} ปี` : "- ปี";
     const startedProgram = player.started_program || player.startedProgram || createDateValue();
