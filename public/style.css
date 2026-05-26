@@ -331,7 +331,7 @@ body.hub-mode {
 
 .signup-row {
     display: grid;
-    grid-template-columns: minmax(72px, 0.42fr) minmax(0, 1fr);
+    grid-template-columns: minmax(128px, 0.42fr) minmax(0, 1fr);
     gap: clamp(10px, 2vw, 18px);
     align-items: center;
 }
@@ -1034,7 +1034,7 @@ body.hub-mode {
 
 .hub-clean-current-card md-filled-button {
     width: 185px;
-    min-width: 185px;
+    min-width: 0;
     margin-top: 8px;
     --md-filled-button-container-height: 50px;
     --md-filled-button-container-shape: 50px;
@@ -1309,7 +1309,7 @@ body.hub-mode {
     }
 
     .signup-row {
-        grid-template-columns: minmax(84px, 0.34fr) minmax(0, 1fr);
+        grid-template-columns: minmax(96px, 0.34fr) minmax(0, 1fr);
         gap: 8px;
     }
 
