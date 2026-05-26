@@ -307,7 +307,7 @@ export default class GameplayScene extends Phaser.Scene {
                 },
                 createItemContent: (scene, animal, index, bounds) => this.createAnimalVisual(
                     animal,
-                    Math.floor(Math.min(bounds.width, bounds.height) * 0.72)
+                    Math.floor(Math.min(bounds.width, bounds.height) * 0.9)
                 ),
                 trayRadius: 32,
                 trayFillColor: Theme.colors.surfaceContainer,
@@ -699,7 +699,7 @@ export default class GameplayScene extends Phaser.Scene {
     createHintContent(hint, bounds) {
         return new InlineContentLayout(this, 0, 0, this.createHintSegments(hint), {
             width: bounds.width,
-            height: bounds.height + 25,
+            height: bounds.height,
             padding: { left: 32, right: 32 },
             gap: 12,
             justify: "left",
@@ -719,7 +719,7 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         return [
-            this.createHintVisualItem(hint.animal, "96px"),
+            this.createHintVisualItem(hint.animal, 190),
             {
                 text: hint.animal?.label ?? hint.animal?.id ?? "",
                 style: {
@@ -729,7 +729,7 @@ export default class GameplayScene extends Phaser.Scene {
             },
             {
                 create: (scene) => new InlineContentLayout(scene, 0, 0, this.createPositionSegments(hint), {
-                    gap: 6,
+                    gap: 12,
                     justify: "center",
                     align: "center"
                 })
@@ -755,19 +755,25 @@ export default class GameplayScene extends Phaser.Scene {
         }];
 
         if (hint.type === "relation" && hint.referenceAnimal) {
-            segments.push(this.createHintVisualItem(hint.referenceAnimal, "60px"));
+            segments.push({
+                text: hint.referenceAnimal.label ?? hint.referenceAnimal.id ?? "",
+                style: {
+                    fontSize: "55px",
+                    color: Theme.toCssColor(Theme.colors.warmText)
+                }
+            });
         }
 
         return segments;
     }
 
-    createHintVisualItem(animal, fontSize) {
+    createHintVisualItem(animal, size) {
         if (animal?.texture) {
             return {
                 texture: animal.texture,
                 frame: animal.frame,
-                displayWidth: animal.displayWidth ?? 82,
-                displayHeight: animal.displayHeight ?? 82
+                displayWidth: animal.displayWidth ?? size,
+                displayHeight: animal.displayHeight ?? size
             };
         }
 
@@ -775,7 +781,7 @@ export default class GameplayScene extends Phaser.Scene {
             text: animal?.icon ?? "",
             style: {
                 fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
-                fontSize
+                fontSize: `${size}px`
             }
         };
     }
