@@ -68,8 +68,8 @@ export class MinigameResultPanel {
 
         const availableWidth = window.innerWidth * 0.9;
         // Total height of panel (1319) + gap (40) + button (228) = 1587px.
-        // It sits 112px from top. Leave a small gap at the bottom of the screen.
-        const availableHeight = window.innerHeight - 112 - 40;
+        // It sits 157px from top. Leave a small gap at the bottom of the screen.
+        const availableHeight = window.innerHeight - 157 - 40;
 
         const scaleX = availableWidth / 876;
         const scaleY = availableHeight / 1587;

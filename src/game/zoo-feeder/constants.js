@@ -40,7 +40,7 @@ export const FoodTypes = Object.freeze({
 export const FoodSpriteLibrary = {
     [FoodTypes.VEGETABLE]: ['apple_sprite', 'corn_sprite', 'plant_sprite'],
     [FoodTypes.MEAT]: ['beef_sprite', 'chicken_sprite', 'fish_sprite'],
-    [FoodTypes.JUNK]: ['battery_sprite', 'garbage_sprite', 'soda_sprite']
+    [FoodTypes.JUNK]: ['battery_sprite', 'boot_sprite', 'bottle_sprite']
 }
 export const AnimalSetting = Object.freeze({
     BEAR: {
