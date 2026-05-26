@@ -2,17 +2,16 @@
 
 ---
 
-## *Document Version: 1.2*  
-*Project: MCI Cognitive Games*  
-*Last Updated: 2026-05-08*
+## *Document Version: 1.3*
+*Project: MCI Cognitive Games*
+*Last Updated: 2026-05-26*
 
 ## 1. Database Overview
 
 ```mermaid
 erDiagram
-    USERS ||--o{ USER_PATIENT_DATA : "has"
-    USER_PATIENT_DATA ||--o{ USER_GAME_HISTORY : "tracks"
-    USER_PATIENT_DATA ||--o{ USER_GAME_PROFILE_DATA : "assigned to"
+    USER_DATA ||--o{ USER_GAME_HISTORY : "tracks"
+    USER_DATA ||--o{ USER_GAME_PROFILE_DATA : "assigned to"
     USER_GAME_HISTORY ||--o| USER_GAME_DATA : "linked to"
     GAME_LIST_DATA ||--o{ USER_GAME_DATA : "records"
     GAME_LEVEL_PRESET_LIST ||--o{ GAME_LEVEL_PRESET_DATA : "defines"
@@ -26,18 +25,17 @@ erDiagram
 ### 2.1 USERS (Supabase Auth)
 Supabase built-in authentication table (`auth.users`).
 
-### 2.2 user_patient_data
+### 2.2 user_data
 ข้อมูลผู้ป่วย/ผู้ใช้งานหลัก
 
 | Column          | Type      | Constraints | Description                         |
 | --------------- | --------- | ----------- | ----------------------------------- |
-| id              | uuid      | PK          | Primary Key                         |
-| uid             | uuid      | FK          | Reference to auth.users             |
-| hn              | string    | UK          | หมายเลข HN ของผู้ป่วย (Patient ID)  |
+| id              | bigint    | PK, identity | Primary Key                       |
+| hn              | string    | UK, NULLABLE | หมายเลข HN ของผู้ป่วย (Patient ID) |
 | firstname       | string    | NOT NULL    | ชื่อ                                |
 | lastname        | string    | NOT NULL    | นามสกุล                             |
 | phone           | string    | UK          | เบอร์โทรศัพท์                       |
-| date            | string    | NOT NULL    | วันเกิด (Birth Date)                |
+| birth_date      | date      | NOT NULL    | วันเกิด (Birth Date)                |
 | gender          | string    | NOT NULL    | เพศ                                 |
 | education_level | string    | NULLABLE    | ระดับการศึกษา (ID)                  |
 | started_program | timestamp | NOT NULL    | วันที่เริ่มโปรแกรม                  |
@@ -65,7 +63,7 @@ Supabase built-in authentication table (`auth.users`).
 
 | Column     | Type      | Constraints | Description                 |
 | ---------- | --------- | ----------- | --------------------------- |
-| id         | uuid      | PK          | Primary Key                 |
+| id         | bigint    | PK, identity | Primary Key                |
 | gid        | string    | FK          | Reference to game_list_data |
 | score      | int       | NULLABLE    | คะแนนที่ได้                 |
 | level      | int       | NULLABLE    | ระดับความยาก (ถ้ามี)        |
@@ -80,12 +78,12 @@ Supabase built-in authentication table (`auth.users`).
 | Column            | Type      | Constraints | Description                             |
 | ----------------- | --------- | ----------- | --------------------------------------- |
 | id                | int       | PK          | Primary Key                             |
-| hn                | string    | FK          | Reference to user_patient_data(hn)      |
+| hn                | string    | FK          | Reference to user_data(hn)              |
 | gid               | string    | FK          | Reference to game_list_data(gid)        |
 | stage             | int       | NULLABLE    | ลำดับด่านในโปรแกรม                      |
 | start_at          | timestamp | NOT NULL    | เวลาที่กดเริ่ม                          |
 | end_at            | timestamp | NULLABLE    | เวลาที่เล่นเสร็จ                        |
-| user_game_data_id | uuid      | FK          | Linked to user_game_data                |
+| user_game_data_id | bigint    | FK          | Linked to user_game_data                |
 | check-in          | boolean   | DEFAULT F   | สถานะการเช็คชื่อ                        |
 
 ---
@@ -120,7 +118,7 @@ Supabase built-in authentication table (`auth.users`).
 | Column  | Type   | Description                         |
 | ------- | ------ | ----------------------------------- |
 | id      | int    | PK                                  |
-| hn      | string | FK (user_patient_data)              |
+| hn      | string | FK (user_data)                      |
 | program | int    | FK (game_level_preset_list)         |
 
 ---
@@ -129,9 +127,8 @@ Supabase built-in authentication table (`auth.users`).
 
 ```mermaid
 erDiagram
-    auth_users ||--o{ user_patient_data : "has profile"
-    user_patient_data ||--o{ user_game_history : "timeline"
-    user_patient_data ||--o{ user_game_profile_data : "assigned"
+    user_data ||--o{ user_game_history : "timeline"
+    user_data ||--o{ user_game_profile_data : "assigned"
     
     game_list_data ||--o{ user_game_data : "scores"
     game_list_data ||--o{ user_game_history : "logs"

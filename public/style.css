@@ -331,7 +331,7 @@ body.hub-mode {
 
 .signup-row {
     display: grid;
-    grid-template-columns: minmax(108px, 0.42fr) minmax(0, 1fr);
+    grid-template-columns: minmax(72px, 0.42fr) minmax(0, 1fr);
     gap: clamp(10px, 2vw, 18px);
     align-items: center;
 }

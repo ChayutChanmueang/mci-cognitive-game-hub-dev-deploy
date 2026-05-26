@@ -2,6 +2,11 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+## [2026-05-26] - User Identifier Schema Update
+### Changed
+- Updated `docs/software/03-data-schema.md` to describe `user_data` and `user_game_data` without the removed `uid` column and with the current `birth_date` and bigint identity keys.
+- Updated `docs/software/02-class-diagram.md` to remove obsolete `uid` and `getPatientByUid()` references from the application model.
+
 ## [2026-05-21] - Sprint 6 Progress Sync
 ### Changed
 - Updated Product Backlog (`docs/agile/01-product-backlog.md`) and Kanban Board (`docs/agile/kanban.md`) to reflect the completion of US-E4-03, US-E5-01, and US-E5-02, and set US-E5-03 as In-Progress.

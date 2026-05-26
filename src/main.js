@@ -456,8 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const rememberPatientSession = async (patient) => {
-        const user = await db.getCurrentUser();
-        const patientSession = buildPatientSession(patient, user?.id || "");
+        const patientSession = buildPatientSession(patient);
         setPatientSessionCookie(patientSession);
         return patientSession;
     };

@@ -178,7 +178,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
 
                 <form id="player-info-form" class="player-info-form" novalidate>
                     <label class="player-info-row">
-                        <span>หมายเลข HN :</span>
+                        <span>หมายเลข ID :</span>
                         <div id="player-info-hn" class="player-info-value">${escapeHtml(hn)}</div>
                     </label>
 

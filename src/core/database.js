@@ -170,11 +170,6 @@ class Database {
         return data.session;
     }
 
-    async getCurrentUser() {
-        const session = await this.getCurrentSession();
-        return session?.user || null;
-    }
-
     async _withRetry(operation, { attempts = 3, delayMs = 500 } = {}) {
         let lastError = null;
 
@@ -222,30 +217,8 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
+            .select("id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .eq("hn", parsedHn)
-            .maybeSingle();
-
-        if (error) {
-            throw error;
-        }
-
-        return data || null;
-    }
-
-    async getPatientByUid(uid) {
-        const parsedUid = String(uid || "").trim();
-        if (!parsedUid) {
-            throw new Error("Invalid uid");
-        }
-
-        await this.initAuth();
-
-        const client = this.getClient();
-        const { data, error } = await client
-            .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
-            .eq("uid", parsedUid)
             .maybeSingle();
 
         if (error) {
@@ -289,7 +262,7 @@ class Database {
         ] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date",
+                "id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date",
                 [{ column: "hn", ascending: true }],
             ),
             this.getAllTableRows(
@@ -395,7 +368,7 @@ class Database {
         ] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, hn, uid",
+                "id, hn",
                 [{ column: "id", ascending: true }],
             ),
             this.getAllTableRows(
@@ -775,8 +748,7 @@ class Database {
         educationLevel,
         startedProgram,
     }) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
+        await this.initAuth();
         const parsedHn = String(hn || "").trim();
         const parsedFirstname = String(firstname || "").trim();
         const parsedLastname = String(lastname || "").trim();
@@ -827,12 +799,7 @@ class Database {
             throw new Error("กรุณาเลือกวันที่เริ่มโปรแกรม");
         }
 
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
-        }
-
         const payload = {
-            uid: user.id,
             hn: parsedHn,
             firstname: parsedFirstname,
             lastname: parsedLastname,
@@ -847,7 +814,7 @@ class Database {
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
+            .select("id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .maybeSingle();
 
         if (error) {
@@ -1383,8 +1350,7 @@ class Database {
     }
 
     async submitGameData({ gid, score = null, level = null, startedAt, endedAt }) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
+        await this.initAuth();
         const parsedGid = String(gid || "").trim();
         const parsedScore = score == null ? null : Number(score);
         const parsedLevel = level == null ? null : Number(level);
@@ -1413,10 +1379,6 @@ class Database {
 
         if (normalizedEndedAt < normalizedStartedAt) {
             throw new Error("endedAt must be greater than or equal to startedAt");
-        }
-
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
         }
 
         const payload = {

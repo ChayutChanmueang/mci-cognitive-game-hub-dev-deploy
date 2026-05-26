@@ -19,16 +19,14 @@ function parseCookieMap() {
         }, new Map());
 }
 
-export function buildPatientSession(patient, fallbackUid = "") {
+export function buildPatientSession(patient) {
     const firstname = String(patient?.firstname || "").trim();
     const lastname = String(patient?.lastname || "").trim();
     const patientCode = String(patient?.hn || "").trim();
-    const uid = String(patient?.uid || fallbackUid || "").trim();
 
     return {
         patientId: patient?.id ?? null,
         patientCode,
-        uid,
         firstname,
         lastname,
     };
@@ -42,7 +40,6 @@ export function setPatientSessionCookie(patientSession) {
     const normalizedSession = {
         patientId: patientSession?.patientId ?? null,
         patientCode: String(patientSession?.patientCode || "").trim(),
-        uid: String(patientSession?.uid || "").trim(),
         firstname: String(patientSession?.firstname || "").trim(),
         lastname: String(patientSession?.lastname || "").trim(),
     };
@@ -64,16 +61,14 @@ export function getPatientSessionCookie() {
     try {
         const parsed = JSON.parse(decodeURIComponent(cookieValue));
         const patientCode = String(parsed?.patientCode || "").trim();
-        const uid = String(parsed?.uid || "").trim();
 
-        if (!patientCode && !uid) {
+        if (!patientCode) {
             return null;
         }
 
         return {
             patientId: parsed?.patientId ?? null,
             patientCode,
-            uid,
             firstname: String(parsed?.firstname || "").trim(),
             lastname: String(parsed?.lastname || "").trim(),
         };
