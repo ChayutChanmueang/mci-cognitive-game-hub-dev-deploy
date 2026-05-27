@@ -1,4 +1,5 @@
 import db from "./core/database.js";
+import edgeFunction from "./core/edge-function.js";
 import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
 import { createTestGameHubState, renderTestGameHubScreen } from "./ui/test-game-hub.js";
@@ -95,7 +96,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const testGameHubUiState = createTestGameHubState();
     let activeGameInstance = null;
     let routeRenderVersion = 0;
+    let exitLogHn = "";
+    let gameOpenedLogged = false;
 
+    const handleBeforeUnload = () => {
+        if (exitLogHn) {
+            edgeFunction.logUserEventKeepalive(exitLogHn, "game.closed");
+        }
+    };
+
+    const setupExitLog = (hn) => {
+        teardownExitLog();
+        exitLogHn = String(hn || "").trim();
+        if (exitLogHn) {
+            window.addEventListener("beforeunload", handleBeforeUnload);
+        }
+    };
+
+    const teardownExitLog = () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        exitLogHn = "";
+    };
 
     const destroyActiveGame = () => {
         if (activeGameInstance && typeof activeGameInstance.destroy === "function") {
@@ -448,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const clearPatientClientState = () => {
+        teardownExitLog();
         clearPatientSessionCookie();
         SessionStorageManager.delete(PATIENT_LOGIN_ID_KEY);
         SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
@@ -505,6 +527,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const rememberedPatient = getPatientSessionCookie();
         const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
+
+        setupExitLog(patientCode);
+
+        if (!gameOpenedLogged && patientCode) {
+            gameOpenedLogged = true;
+            edgeFunction.logUserEvent(patientCode, "game.opened").catch(() => {});
+        }
 
         await renderGameHubScreen(uiRoot, {
             loadGameList: () => db.getGameList(),
@@ -1404,6 +1433,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (patient) {
                     await rememberPatientSession(patient);
                     SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
+                    edgeFunction.logUserEvent(acceptedId, "user.login").catch(() => {});
                     navigateTo(ROUTES.hub);
                     return;
                 }
@@ -1897,11 +1927,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
             if (hasStarted && pendingLaunchKey === selectedNodeKey) {
                 SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
-                try {
-                    await db.logUserEvent("SPG", selectedGame.gid);
-                } catch (error) {
-                    console.warn("Unable to log start game event:", error);
-                }
                 return;
             }
 

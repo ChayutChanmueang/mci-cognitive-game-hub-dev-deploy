@@ -12,6 +12,30 @@ class EdgeFunction {
         this.supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || "";
     }
 
+    logUserEventKeepalive(hn, actionId, value = {}) {
+        const parsedHn = String(hn || "").trim();
+        const parsedActionId = String(actionId || "").trim();
+
+        if (!parsedHn || !parsedActionId || !VALID_ACTION_IDS.includes(parsedActionId)) {
+            return;
+        }
+
+        if (!this.supabaseUrl || !this.supabaseAnonKey) {
+            return;
+        }
+
+        const url = `${this.supabaseUrl}/functions/v1/mci_functions_log/write-database/logUserEvent`;
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${this.supabaseAnonKey}`,
+            },
+            body: JSON.stringify({ hn: parsedHn, actionId: parsedActionId, value }),
+            keepalive: true,
+        }).catch(() => {});
+    }
+
     async logUserEvent(hn, actionId, value = {}) {
         const parsedHn = String(hn || "").trim();
         const parsedActionId = String(actionId || "").trim();
