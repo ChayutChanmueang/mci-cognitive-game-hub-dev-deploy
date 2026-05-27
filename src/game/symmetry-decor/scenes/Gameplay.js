@@ -51,6 +51,8 @@ export default class GameplayScene extends Phaser.Scene {
     this.load.image('icon_fox', 'assets/common/animal/icons/H_Fox.png')
     this.load.image('icon_lion', 'assets/common/animal/icons/H_Li.png')
     this.load.image('icon_panda', 'assets/common/animal/icons/H_Pan.png')
+    // BG
+    this.load.image('background', 'assets/symmetry-decor/etc/BG.png')
   }
 
   create(data) {
@@ -67,6 +69,10 @@ export default class GameplayScene extends Phaser.Scene {
     this.totalMove = 0;
 
     EventBus.emit('minigame:show-hud');
+
+    this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+    this.background.setDisplaySize(this.scale.width, this.scale.height);
+    this.background.setDepth(-10);
 
     this.sceneData = { ...data };
     var _tempLevel = Difficulty.EASY;
