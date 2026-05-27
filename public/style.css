@@ -1613,7 +1613,7 @@ body.hub-mode {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 157px;
+    padding-top: 112px;
     pointer-events: auto;
 }
 
@@ -1753,6 +1753,96 @@ body.hub-mode {
 
 .result-btn-home:active {
     transform: translateX(-50%) scale(0.95);
+}
+
+.result-btn-home--start {
+    background: linear-gradient(to bottom, #7DD74C, #4A9D1D);
+    box-shadow: inset 0 -10px 0 0 #42861D, 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Start Menu specific styles */
+.result-description {
+    position: absolute;
+    top: 240px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 40px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.result-picture--start {
+    height: 520px;
+    top: 320px;
+}
+
+.result-how-to-play-title {
+    position: absolute;
+    top: 890px;
+    left: 120px;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 56px;
+    font-weight: 700;
+}
+
+.result-how-to-play-text {
+    position: absolute;
+    top: 930px;
+    left: 120px;
+    right: 120px;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.result-divider {
+    position: absolute;
+    top: 1070px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 745px;
+    border-top: 4px dashed #E3E3E3CC;
+}
+
+.result-level-info {
+    position: absolute;
+    top: 1105px;
+    left: 120px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 56px;
+    font-weight: 700;
+}
+
+.result-level-stars {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+    top: -5px;
+}
+
+.result-level-detail {
+    position: absolute;
+    top: 1200px;
+    left: 120px;
+    font-family: 'Noto Looped Thai', sans-serif;
+    font-size: 40px;
+    font-weight: 500;
+}
+
+/* Tutorial Panel specific styles */
+.result-panel--tutorial {
+    height: 1700px;
+}
+
+.result-btn-home--tutorial {
+    top: 1740px; /* 1700 + 40 */
 }
 
 /* Zoo Feeder Custom DOM Top UI */
