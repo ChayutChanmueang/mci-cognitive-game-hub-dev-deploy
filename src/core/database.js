@@ -8,7 +8,6 @@ import { getProgramDayStatus } from "../util/program-date-util.js";
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
 const USER_GAME_HISTORY_TABLE = "user_game_history";
-const USER_EVENT_LOG_TABLE = "user_event_log";
 const REPLAY_LOG_TABLE = "game_replay_log";
 const USER_PATIENT_DATA_TABLE = "user_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
@@ -18,11 +17,6 @@ const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
 const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
 const DEFAULT_GAME_PROFILE_PROGRAM_ID = 5;
-const EVENT_IDS = Object.freeze({
-    OPEN_APP: "OPAPP",
-    START_PLAY_GAME: "SPG",
-});
-
 class Database {
     constructor() {
         const env = import.meta.env || {};
@@ -2144,45 +2138,6 @@ class Database {
         if (error) {
             throw error;
         }
-    }
-
-    async logUserEvent(eventId, gid = null) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
-        const parsedEventId = String(eventId || "").trim().toUpperCase();
-        const parsedGid = gid == null ? null : String(gid).trim();
-
-        if (!parsedEventId) {
-            throw new Error("Invalid eventId");
-        }
-
-        if (!Object.values(EVENT_IDS).includes(parsedEventId)) {
-            throw new Error(`Unsupported eventId: ${parsedEventId}`);
-        }
-
-        if (parsedGid === "") {
-            throw new Error("Invalid gid");
-        }
-
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
-        }
-
-        const payload = {
-            eventid: parsedEventId,
-            gid: parsedGid,
-        };
-
-        const client = this.getClient();
-        const { error } = await client
-            .from(USER_EVENT_LOG_TABLE)
-            .insert([payload]);
-
-        if (error) {
-            throw error;
-        }
-
-        return payload;
     }
 
     async writeReplayLog({
