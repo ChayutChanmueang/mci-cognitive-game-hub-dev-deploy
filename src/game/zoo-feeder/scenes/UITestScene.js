@@ -10,7 +10,7 @@ import { ReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import DebugMenu from "./DebugMenu.js";
-import { GameOverSetting, StartMenuSetting } from '../constants.js';
+import { GameOverSetting, StartMenuSetting, GameplaySetting } from '../constants.js';
 import { TutorialPanel } from '../../../ui/tutorial-panel.js';
 const GAME_ID = "ATTN001";
 
@@ -78,8 +78,8 @@ export default class UITestScene extends Phaser.Scene {
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
     //this.animal = new Animal(this,this.scale.width/2,1200);
-    this.background = this.add.sprite(0, 0, 'background');
-    this.background.setScale(27);
+    this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+    this.background.setDisplaySize(this.scale.width, this.scale.height);
     this.background.setDepth(-10);
     this.score = 0;
     this.level = this.score / 100;
@@ -310,8 +310,9 @@ export default class UITestScene extends Phaser.Scene {
     this.randomSpawnFruit();
     console.log(this.spawnFruitTimer);
     if (this.spawnFruitTimer == null) {
+      const cooldowns = GameplaySetting.spawnCooldowns[this.conveyerNums] || GameplaySetting.spawnCooldowns[1];
       this.spawnFruitTimer = this.time.addEvent({
-        delay: this.randomChooseNum(9, 15) * 100, //ms
+        delay: this.randomChooseNum(cooldowns.min, cooldowns.max) * 100, //ms
         callback: this.randomSpawnFruit,
         callbackScope: this,
         loop: true
@@ -321,7 +322,8 @@ export default class UITestScene extends Phaser.Scene {
   randomSpawnFruit() {
     this.conveyers[this.randomChooseNum(0, this.conveyers.length - 1)].spawnFoods();
     if (this.spawnFruitTimer) {
-      this.spawnFruitTimer.delay = this.randomChooseNum(9, 15) * 100;
+      const cooldowns = GameplaySetting.spawnCooldowns[this.conveyerNums] || GameplaySetting.spawnCooldowns[1];
+      this.spawnFruitTimer.delay = this.randomChooseNum(cooldowns.min, cooldowns.max) * 100;
     }
   }
   randomChooseNum(min, max) {

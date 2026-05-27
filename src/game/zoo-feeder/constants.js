@@ -73,4 +73,15 @@ export const AnimalSetting = Object.freeze({
         Sprite: 'panda_sprite',
         Icon: 'panda_icon'
     }
-})
+});
+
+// ---------------------------------------------------------------------------
+// Gameplay Settings
+// ---------------------------------------------------------------------------
+export const GameplaySetting = Object.freeze({
+    spawnCooldowns: {
+        1: { min: 21, max: 27 }, // Easy
+        2: { min: 15, max: 21 },  // Normal
+        3: { min: 9, max: 15 }   // Hard
+    }
+});
