@@ -14,7 +14,7 @@ import { AUTO, Game } from 'phaser';
 const config = {
     type: AUTO,
     parent: 'game-container',
-    backgroundColor: '#028af8',
+    backgroundColor: '#FFAB38',
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -47,6 +47,7 @@ const config = {
 };
 
 const StartGame = (parent) => {
+    document.documentElement.style.setProperty("--game-mode-background", config.backgroundColor);
     const game = new Game({ ...config, parent });
 
     const parentEl = typeof parent === 'string' ? document.getElementById(parent) : parent;

@@ -27,9 +27,15 @@ export default class GameplayScene extends Phaser.Scene {
   preload() {
     this.load.image("button-idle", "assets/button_rectangle_depth_flat.png");
     this.load.image("button-press", "assets/button_rectangle_flat.png");
+    this.load.image('background', 'assets/postcard-reader/etc/BG.png');
   }
 
   create(data) {
+    // Add background
+    this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+    this.background.setDisplaySize(this.scale.width, this.scale.height);
+    this.background.setDepth(-10);
+
     //Initialize Logging
     if (this.replayLogger == null) {
       this.replayLogger = new ReplayLogBuffer();
