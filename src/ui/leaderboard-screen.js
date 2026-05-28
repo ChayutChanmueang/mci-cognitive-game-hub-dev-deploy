@@ -95,6 +95,12 @@ export function renderLeaderboardScreen(root, options = {}) {
         <section class="hub-clean-screen leaderboard-screen" aria-labelledby="leaderboard-title">
             <div class="hub-clean-shell leaderboard-shell">
                 <header class="hub-clean-topbar leaderboard-topbar">
+                    <div class="hub-clean-profile leaderboard-back" role="button" tabindex="0" aria-label="กลับไปหน้าเกม">
+                        <md-filled-tonal-icon-button aria-label="กลับไปหน้าเกม">
+                            <md-icon class="material-symbols-rounded">arrow_back</md-icon>
+                        </md-filled-tonal-icon-button>
+                        <strong>กลับ</strong>
+                    </div>
                     <div class="hub-clean-goal">
                         <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
                         <h1 id="leaderboard-title">ชุมชนพัฒนาสมอง</h1>
@@ -103,12 +109,6 @@ export function renderLeaderboardScreen(root, options = {}) {
                             <span>อันดับของคุณ</span>
                             <strong>${escapeHtml(currentPlayer?.rank || "-")}/${escapeHtml(totalPlayers || "-")}</strong>
                         </div>
-                    </div>
-                    <div class="hub-clean-profile leaderboard-back" role="button" tabindex="0" aria-label="กลับไปหน้าเกม">
-                        <md-filled-tonal-icon-button aria-label="กลับไปหน้าเกม">
-                            <md-icon class="material-symbols-rounded">arrow_back</md-icon>
-                        </md-filled-tonal-icon-button>
-                        <strong>กลับ</strong>
                     </div>
                 </header>
                 <section class="hub-clean-stage leaderboard-stage">
@@ -128,6 +128,11 @@ export function renderLeaderboardScreen(root, options = {}) {
                         <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                     </md-fab>
                 </section>
+                ${currentPlayer ? `
+                    <aside class="leaderboard-bottom-bar" aria-label="อันดับของผู้เล่นคนนี้">
+                        ${renderLeaderboardRow({ ...currentPlayer, current: false })}
+                    </aside>
+                ` : ""}
             </div>
         </section>
     `;

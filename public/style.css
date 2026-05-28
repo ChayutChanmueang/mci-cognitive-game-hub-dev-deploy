@@ -1140,7 +1140,7 @@ body.hub-mode {
 }
 
 .leaderboard-topbar {
-    grid-template-columns: minmax(0, 1fr) 76px;
+    grid-template-columns: 76px minmax(0, 1fr);
 }
 
 .leaderboard-topbar .hub-clean-goal h1 {
@@ -1172,8 +1172,13 @@ body.hub-mode {
     font-family: "Material Symbols Rounded";
 }
 
+.leaderboard-back {
+    border-left: 0;
+    border-right: 0;
+}
+
 .leaderboard-content {
-    padding: 170px 16px 110px;
+    padding: 165px 16px 185px;
 }
 
 .leaderboard-table-head {
@@ -1185,7 +1190,7 @@ body.hub-mode {
     color: var(--md-sys-color-on-surface);
     font-size: 23px;
     font-weight: 800;
-    line-height: 1.05;
+    line-height: 2.25;
 }
 
 .leaderboard-table-head span:last-child {
@@ -1324,6 +1329,30 @@ body.hub-mode {
 
 .leaderboard-fab {
     right: 20px;
+    bottom: 115px; !important;
+}
+
+.leaderboard-bottom-bar {
+    position: absolute;
+    z-index: 35;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 9px 8px calc(9px + env(safe-area-inset-bottom));
+    border-radius: 10px 10px 0 0;
+    background: #8f8f8f;
+    box-shadow: 0 -10px 26px rgba(0, 0, 0, 0.12);
+}
+
+.leaderboard-bottom-bar .leaderboard-row {
+    min-height: 72px;
+    background: #ffffff;
+    box-shadow: none;
+}
+
+.leaderboard-bottom-bar .leaderboard-score {
+    background: #d8d8d8;
 }
 
 .checkin-summary-screen {
