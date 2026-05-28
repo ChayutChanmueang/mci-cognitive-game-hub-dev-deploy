@@ -37,7 +37,8 @@ export default class StartMenuScene extends Phaser.Scene {
         const uiRoot = document.getElementById('ui-root');
         if (uiRoot) {
             this.startMenuPanel = new StartMenuPanel(uiRoot, {
-                title: StartMenuSetting.title,
+                title: "จดหมายจากหลานรัก",
+                titleFontSize: "80px",
                 description: StartMenuSetting.description,
                 instructions: StartMenuSetting.instructions,
                 level: level,
