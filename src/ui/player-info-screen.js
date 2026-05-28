@@ -26,6 +26,53 @@ function formatDisplayDate(value) {
     return formatThaiProgramDate(value);
 }
 
+function normalizeTestGame(item, index = 0) {
+    const gid = String(item?.gid || "").trim();
+    const name = String(item?.name || `เกมที่ ${index + 1}`).trim();
+    const thName = String(item?.th_name || item?.thName || "").trim();
+
+    return {
+        ...item,
+        gid,
+        name,
+        th_name: thName,
+        displayName: thName || item?.displayName || name || gid || "เกม",
+    };
+}
+
+function buildTestGameMenuItems(testGames) {
+    return (Array.isArray(testGames) ? testGames : [])
+        .map((item, index) => normalizeTestGame(item, index))
+        .filter((game) => game.gid)
+        .map((game) => `
+            <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
+                <div slot="headline">${escapeHtml(game.displayName || game.name || game.gid || "เกม")}</div>
+                <div slot="supporting-text">${escapeHtml(game.gid || "")}</div>
+            </md-menu-item>
+        `)
+        .join("");
+}
+
+function buildTestProgramMenuItems(testProgramPresets, activeProgramId) {
+    return (Array.isArray(testProgramPresets) ? testProgramPresets : [])
+        .map((program) => {
+            const programId = Number(program?.id);
+            const isCurrent = Number(activeProgramId || 0) > 0 && programId === Number(activeProgramId);
+            const description = String(program?.description || "").trim();
+            const supportingText = isCurrent
+                ? "ใช้อยู่ตอนนี้"
+                : description || `Program ID ${programId}`;
+
+            return `
+                <md-menu-item data-program-preset-item data-program-id="${escapeHtml(programId)}" ${isCurrent ? "selected" : ""}>
+                    <div slot="headline">${escapeHtml(program?.name || `Program ${programId}`)}</div>
+                    <div slot="supporting-text">${escapeHtml(supportingText)}</div>
+                </md-menu-item>
+            `;
+        })
+        .join("");
+}
+
 function showExportOptionsPopup() {
     return new Promise((resolve) => {
         const overlay = document.createElement("div");
@@ -156,8 +203,20 @@ export function renderPlayerInfoScreen(root, options = {}) {
         onEndProgram = () => {},
         onLogout = () => {},
         onExport = () => {},
+        testGames = [],
+        testProgramPresets = [],
+        activeProgramId = null,
+        onTestQuickLaunchGame = () => {},
+        onTestChangeProgram = () => {},
+        onTestClearTodayHistory = () => {},
+        onTestCompleteAll = () => {},
+        onTestDailyDataTools = () => {},
+        onTestLogout = () => {},
     } = options;
 
+    const normalizedTestGames = (Array.isArray(testGames) ? testGames : []).map((item, index) => normalizeTestGame(item, index));
+    const menuItems = buildTestGameMenuItems(normalizedTestGames);
+    const programItems = buildTestProgramMenuItems(testProgramPresets, activeProgramId);
     const hn = String(player.hn || player.patientCode || "").trim();
     const phoneDisplay = formatThaiPhoneNumber(player.phone || "");
     const birthDate = player.birth_date || player.date || player.birthDate || "";
@@ -244,16 +303,140 @@ export function renderPlayerInfoScreen(root, options = {}) {
                 </form>
             </div>
         </section>
+        <div class="hub-clean-test-menu">
+            <md-fab class="hub-clean-test-fab" data-test-menu-trigger variant="secondary" aria-label="เปิดเมนูทดสอบ">
+                <md-icon class="material-symbols-rounded" slot="icon">settings</md-icon>
+            </md-fab>
+            <md-menu data-test-menu positioning="popover" has-overflow>
+                <md-menu-item data-test-clear-history>
+                    <md-icon class="material-symbols-rounded" slot="start">delete</md-icon>
+                    <div slot="headline">ลบประวัติการเล่น</div>
+                </md-menu-item>
+                <md-menu-item data-test-complete-all>
+                    <md-icon class="material-symbols-rounded" slot="start">checklist</md-icon>
+                    <div slot="headline">เล่นเกมครบทั้งหมด</div>
+                </md-menu-item>
+                <md-sub-menu anchor-corner="start-end" menu-corner="start-start">
+                    <md-menu-item slot="item">
+                        <md-icon class="material-symbols-rounded" slot="start">sports_esports</md-icon>
+                        <div slot="headline">เลือกเกมทดสอบ</div>
+                        <md-icon class="material-symbols-rounded" slot="end">arrow_right</md-icon>
+                    </md-menu-item>
+                    <md-menu slot="menu" data-test-quick-game-menu positioning="popover">
+                        ${menuItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการเกม</div></md-menu-item>`}
+                    </md-menu>
+                </md-sub-menu>
+                <md-sub-menu anchor-corner="start-end" menu-corner="start-start">
+                    <md-menu-item slot="item">
+                        <md-icon class="material-symbols-rounded" slot="start">assignment</md-icon>
+                        <div slot="headline">เปลี่ยนโปรแกรมผู้ใช้</div>
+                        <md-icon class="material-symbols-rounded" slot="end">arrow_right</md-icon>
+                    </md-menu-item>
+                    <md-menu slot="menu" data-test-program-menu positioning="popover">
+                        ${programItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการโปรแกรม</div></md-menu-item>`}
+                    </md-menu>
+                </md-sub-menu>
+                <md-menu-item data-test-daily-data-tools>
+                    <md-icon class="material-symbols-rounded" slot="start">database</md-icon>
+                    <div slot="headline">เครื่องมือจัดการข้อมูลรายวันเกม</div>
+                </md-menu-item>
+                <md-divider role="separator" tabindex="-1"></md-divider>
+                <md-menu-item data-test-logout>
+                    <md-icon class="material-symbols-rounded" slot="start">logout</md-icon>
+                    <div slot="headline">ออกจากระบบ</div>
+                </md-menu-item>
+            </md-menu>
+        </div>
     `;
 
     const form = root.querySelector("#player-info-form");
     const endProgramButton = root.querySelector("#player-info-end-program");
     const logoutButton = root.querySelector("#player-info-logout");
     const feedback = root.querySelector("#player-info-feedback");
+    const bindTestControls = () => {
+        const testTrigger = root.querySelector("[data-test-menu-trigger]");
+        const testMenu = root.querySelector("[data-test-menu]");
+        const quickMenu = root.querySelector("[data-test-quick-game-menu]");
+        const programMenu = root.querySelector("[data-test-program-menu]");
+
+        const closeTestMenus = () => {
+            if (quickMenu) {
+                quickMenu.open = false;
+            }
+            if (programMenu) {
+                programMenu.open = false;
+            }
+            if (testMenu) {
+                testMenu.open = false;
+            }
+            testTrigger?.setAttribute("aria-expanded", "false");
+        };
+
+        if (testTrigger && testMenu) {
+            testMenu.anchorElement = testTrigger;
+            testTrigger.setAttribute("aria-haspopup", "menu");
+            testTrigger.setAttribute("aria-expanded", "false");
+            testTrigger.addEventListener("click", () => {
+                testMenu.open = !testMenu.open;
+                testTrigger.setAttribute("aria-expanded", testMenu.open ? "true" : "false");
+            });
+            testMenu.addEventListener("closed", () => {
+                testTrigger.setAttribute("aria-expanded", "false");
+            });
+        }
+
+        const selectableGameMap = new Map(normalizedTestGames.map((game) => [game.gid, game]));
+        root.querySelectorAll("[data-quick-game-item]").forEach((item) => {
+            item.addEventListener("click", async () => {
+                const selectedGame = selectableGameMap.get(String(item.getAttribute("data-gid") || "").trim());
+                if (selectedGame) {
+                    await onTestQuickLaunchGame(selectedGame);
+                }
+                closeTestMenus();
+            });
+        });
+
+        const selectableProgramMap = new Map(
+            (Array.isArray(testProgramPresets) ? testProgramPresets : [])
+                .map((program) => [String(program?.id || "").trim(), program]),
+        );
+        root.querySelectorAll("[data-program-preset-item]").forEach((item) => {
+            item.addEventListener("click", async () => {
+                const selectedProgramId = String(item.getAttribute("data-program-id") || "").trim();
+                const selectedProgram = selectableProgramMap.get(selectedProgramId);
+                if (selectedProgram) {
+                    await onTestChangeProgram(selectedProgram);
+                }
+                closeTestMenus();
+            });
+        });
+
+        root.querySelector("[data-test-clear-history]")?.addEventListener("click", async () => {
+            await onTestClearTodayHistory();
+            closeTestMenus();
+        });
+
+        root.querySelector("[data-test-complete-all]")?.addEventListener("click", async () => {
+            await onTestCompleteAll();
+            closeTestMenus();
+        });
+
+        root.querySelector("[data-test-daily-data-tools]")?.addEventListener("click", async () => {
+            await onTestDailyDataTools();
+            closeTestMenus();
+        });
+
+        root.querySelector("[data-test-logout]")?.addEventListener("click", () => {
+            onTestLogout();
+            closeTestMenus();
+        });
+    };
 
     if (!form || !endProgramButton || !logoutButton || !feedback) {
         return;
     }
+
+    bindTestControls();
 
     endProgramButton.addEventListener("click", async () => {
         await onEndProgram(player);

@@ -1528,6 +1528,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const rememberedPatient = getPatientSessionCookie();
         let player = rememberedPatient || {};
         let playerProgram = null;
+        let testGames = [];
+        let testProgramPresets = [];
 
         if (rememberedPatient?.patientCode) {
             try {
@@ -1570,10 +1572,27 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        try {
+            const [
+                gameListItems,
+                programPresets,
+            ] = await Promise.all([
+                db.getGameList(),
+                db.getGameLevelPresetList(),
+            ]);
+            testGames = Array.isArray(gameListItems) ? gameListItems : [];
+            testProgramPresets = Array.isArray(programPresets) ? programPresets : [];
+        } catch (error) {
+            console.warn("Unable to load player info test menu data:", error);
+        }
+
         renderPlayerInfoScreen(uiRoot, {
             player,
             programDayCount: playerProgram?.programDayCount ?? null,
             programEndedAt: playerProgram?.programEndDate || "",
+            testGames,
+            testProgramPresets,
+            activeProgramId: playerProgram?.programId ?? null,
             onEndProgram: async () => {
                 await showPopup({
                     title: "จบโปรแกรม",
@@ -1612,6 +1631,241 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.hub);
+            },
+            onTestQuickLaunchGame: async (selectedGame) => {
+                const selectedGid = String(selectedGame?.gid || "").trim();
+                if (!selectedGid) {
+                    return;
+                }
+
+                const launchMode = await showPopup({
+                    title: "เปิดเกมทดสอบ",
+                    message: `เลือกวิธีเปิดเกม ${getGameDisplayName(selectedGame)}`,
+                    icon: "sports_esports",
+                    actions: [
+                        { value: "cancel", label: "ยกเลิก", variant: "outlined" },
+                        { value: "no-history", label: "เปิดเกมไม่เก็บประวัติ", variant: "outlined" },
+                        { value: "with-history", label: "เปิดเกมเก็บประวัติ", variant: "filled" },
+                    ],
+                });
+
+                if (launchMode === "cancel" || !launchMode) {
+                    return;
+                }
+
+                if (launchMode === "with-history") {
+                    const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+                    try {
+                        const startedAt = new Date().toISOString();
+                        const historyRecord = await db.addUserGameHistory({
+                            hn: playerHn,
+                            gid: selectedGid,
+                            stage: selectedGame?.stage ?? null,
+                            startAt: startedAt,
+                            userGameDataId: null,
+                        });
+
+                        if (!historyRecord?.id) {
+                            throw new Error("Missing user_game_history id");
+                        }
+
+                        setPendingGameHistoryByKey(selectedNodeKey, selectedGame, historyRecord, startedAt);
+                        persistSelectedGame(selectedGame);
+                        SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
+                        SessionStorageManager.save(PENDING_GAME_LAUNCH_KEY, selectedNodeKey);
+                        navigateTo(getGameRouteHash(selectedGame));
+                        return;
+                    } catch (error) {
+                        console.warn("Unable to write test launch history:", error);
+                        await showPopup({
+                            title: "บันทึกประวัติไม่สำเร็จ",
+                            message: "ระบบยังไม่สามารถบันทึกประวัติการเล่นเกมทดสอบลงฐานข้อมูลได้",
+                            confirmText: "รับทราบ",
+                            icon: "error",
+                            tone: "error",
+                        });
+                        return;
+                    }
+                }
+
+                persistSelectedGame(selectedGame);
+                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+                removePendingGameHistoryByKey(getGameHistoryNodeKey(selectedGame));
+                navigateTo(getGameRouteHash(selectedGame));
+            },
+            onTestChangeProgram: async () => {
+                await showPopup({
+                    title: "เปลี่ยนโปรแกรมผู้ใช้",
+                    message: "ฟังก์ชันนี้ยังไม่ได้เชื่อมต่อกับหน้าโปรไฟล์ผู้เล่น",
+                    confirmText: "รับทราบ",
+                    icon: "assignment",
+                });
+            },
+            onTestClearTodayHistory: async () => {
+                if (!playerHn) {
+                    await showPopup({
+                        title: "ไม่พบผู้เล่น",
+                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถลบประวัติได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการลบประวัติ",
+                    message: "ต้องการลบประวัติการเล่นทั้งหมดของวันนี้ใช่หรือไม่",
+                    confirmText: "ลบข้อมูลวันนี้",
+                    cancelText: "ยกเลิก",
+                    icon: "delete",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                const start = new Date();
+                start.setHours(0, 0, 0, 0);
+                const end = new Date(start);
+                end.setDate(end.getDate() + 1);
+
+                await db.deleteUserGameHistoryByHn({
+                    hn: playerHn,
+                    playedFrom: start.toISOString(),
+                    playedTo: end.toISOString(),
+                });
+
+                await showPopup({
+                    title: "ลบประวัติสำเร็จ",
+                    message: "ระบบลบประวัติการเล่นของวันนี้เรียบร้อยแล้ว",
+                    confirmText: "รับทราบ",
+                    icon: "check_circle",
+                });
+            },
+            onTestCompleteAll: async () => {
+                if (!playerHn) {
+                    await showPopup({
+                        title: "ไม่พบผู้เล่น",
+                        message: "ยังไม่พบข้อมูลผู้เล่นที่กำลังใช้งาน จึงไม่สามารถบันทึกประวัติได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                    });
+                    return;
+                }
+
+                const dailyProgram = playerProgram || await db.getDailyGameProgramByHn({
+                    hn: playerHn,
+                    windowBefore: 0,
+                    windowAfter: 0,
+                });
+                const currentDay = Number(dailyProgram?.programDay || 1);
+                const dayItem = (dailyProgram?.days || []).find((item) => Number(item?.day) === currentDay);
+                const dailyGames = Array.isArray(dayItem?.games)
+                    ? dayItem.games
+                    : Array.isArray(dailyProgram?.games)
+                        ? dailyProgram.games
+                        : [];
+                const gameNodes = dailyGames
+                    .filter((game) => {
+                        const gid = String(game?.gid || "").trim();
+                        return gid && gid !== "REST001";
+                    })
+                    .map((game, index) => ({
+                        type: "game",
+                        gid: String(game.gid || "").trim(),
+                        stage: game?.stage == null || game?.stage === "" ? null : Number(game.stage),
+                        order: index,
+                    }));
+                const splitIndex = Math.ceil(gameNodes.length / 2);
+                const playableNodes = [
+                    ...gameNodes.slice(0, splitIndex),
+                    ...(gameNodes.length ? [{ type: "rest", gid: "REST001", stage: null }] : []),
+                    ...gameNodes.slice(splitIndex),
+                ];
+
+                if (!playableNodes.length) {
+                    await showPopup({
+                        title: "ไม่พบรายการเกม",
+                        message: "ยังไม่มีรายการภารกิจประจำวันที่ใช้บันทึกข้อมูลทดสอบได้",
+                        confirmText: "รับทราบ",
+                        icon: "info",
+                    });
+                    return;
+                }
+
+                const hasConfirmed = await showPopup({
+                    title: "บันทึกว่าเล่นครบทั้งหมด",
+                    message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพัก โดยไม่บันทึกเช็คชื่อ",
+                    confirmText: "บันทึกข้อมูลทดสอบ",
+                    cancelText: "ยกเลิก",
+                    icon: "checklist",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                const intervalMs = 2000;
+                const baseTime = new Date();
+                baseTime.setMilliseconds(0);
+
+                for (const [index, node] of playableNodes.entries()) {
+                    const startAt = new Date(baseTime.getTime() + (index * intervalMs));
+                    const endAt = node.type === "game"
+                        ? new Date(startAt.getTime() + 1000)
+                        : null;
+
+                    await db.addUserGameHistory({
+                        hn: playerHn,
+                        gid: node.gid,
+                        stage: node.stage ?? null,
+                        startAt: startAt.toISOString(),
+                        endAt: endAt ? endAt.toISOString() : null,
+                        userGameDataId: null,
+                        rest: node.type === "rest",
+                        checkIn: false,
+                        reuseExisting: false,
+                    });
+                }
+
+                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+                writePendingGameHistoryMap({});
+
+                await showPopup({
+                    title: "บันทึกสำเร็จ",
+                    message: "ระบบเพิ่มประวัติทดสอบว่าเล่นเกมครบทั้งหมดแล้ว",
+                    confirmText: "รับทราบ",
+                    icon: "check_circle",
+                });
+            },
+            onTestDailyDataTools: async () => {
+                navigateTo(ROUTES.dailyPresetTool);
+            },
+            onTestLogout: async () => {
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการออกจากระบบ",
+                    message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
+                    confirmText: "ออกจากระบบ",
+                    cancelText: "ยกเลิก",
+                    icon: "logout",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                clearPatientClientState();
+
+                try {
+                    await db.signOut();
+                } catch (error) {
+                    console.warn("Unable to sign out Supabase session:", error);
+                }
+
+                navigateTo(ROUTES.login);
             },
             onExport: async (exportPlayer, { exportTypes, exportScope } = {}) => {
                 const wantsPlayerExport = exportTypes?.includes(CsvExportType.Player);
