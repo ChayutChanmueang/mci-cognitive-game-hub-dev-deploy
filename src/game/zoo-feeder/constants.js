@@ -2,7 +2,7 @@
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'Zoo Feeder',
+    title: 'สายพานอาหาร',
     description: 'เกมคัดเลือกอาหารให้ถูกต้อง',
     instructions: 'แตะอาหารที่สัตว์ชนิดนั้นไม่สามารถกินได้ออกจากสายพาน',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
