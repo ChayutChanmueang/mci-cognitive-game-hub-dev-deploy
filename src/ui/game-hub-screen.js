@@ -431,29 +431,6 @@ export async function renderGameHubScreen(root, options = {}) {
             || (currentCompletion.nodeTarget > 0
                 ? `ทำภารกิจ ${currentCompletion.nodeTarget} ขั้นตอน ให้ครบตามแผนประจำวัน`
                 : "ยังไม่พบรายการเกมประจำวัน");
-        const menuItems = state.allGames.map((game) => `
-            <md-menu-item data-quick-game-item data-gid="${escapeHtml(game.gid)}">
-                <div slot="headline">${escapeHtml(game.displayName || game.th_name || game.name || game.gid || "เกม")}</div>
-                <div slot="supporting-text">${escapeHtml(game.gid || "")}</div>
-            </md-menu-item>
-        `).join("");
-        const activeProgramId = Number(state.dailyProgram?.programId || 0);
-        const programItems = state.programPresets.map((program) => {
-            const programId = Number(program?.id);
-            const isCurrent = activeProgramId > 0 && programId === activeProgramId;
-            const description = String(program?.description || "").trim();
-            const supportingText = isCurrent
-                ? "ใช้อยู่ตอนนี้"
-                : description || `Program ID ${programId}`;
-
-            return `
-                <md-menu-item data-program-preset-item data-program-id="${escapeHtml(programId)}" ${isCurrent ? "selected" : ""}>
-                    <div slot="headline">${escapeHtml(program?.name || `Program ${programId}`)}</div>
-                    <div slot="supporting-text">${escapeHtml(supportingText)}</div>
-                </md-menu-item>
-            `;
-        }).join("");
-
         root.innerHTML = `
             <section class="hub-clean-screen">
                 <div class="hub-clean-shell">
@@ -491,50 +468,6 @@ export async function renderGameHubScreen(root, options = {}) {
                             <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                         </md-fab>
                     </section>
-                    <div class="hub-clean-test-menu">
-                        <md-fab class="hub-clean-test-fab" data-test-menu-trigger variant="secondary" aria-label="เปิดเมนูทดสอบ">
-                            <md-icon class="material-symbols-rounded" slot="icon">settings</md-icon>
-                        </md-fab>
-                        <md-menu data-test-menu positioning="popover" has-overflow>
-                            <md-menu-item data-test-clear-history>
-                                <md-icon class="material-symbols-rounded" slot="start">delete</md-icon>
-                                <div slot="headline">ลบประวัติการเล่น</div>
-                            </md-menu-item>
-                            <md-menu-item data-test-complete-all>
-                                <md-icon class="material-symbols-rounded" slot="start">checklist</md-icon>
-                                <div slot="headline">เล่นเกมครบทั้งหมด</div>
-                            </md-menu-item>
-                            <md-sub-menu anchor-corner="start-end" menu-corner="start-start">
-                                <md-menu-item slot="item">
-                                    <md-icon class="material-symbols-rounded" slot="start">sports_esports</md-icon>
-                                    <div slot="headline">เลือกเกมทดสอบ</div>
-                                    <md-icon class="material-symbols-rounded" slot="end">arrow_right</md-icon>
-                                </md-menu-item>
-                                <md-menu slot="menu" data-test-quick-game-menu positioning="popover">
-                                    ${menuItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการเกม</div></md-menu-item>`}
-                                </md-menu>
-                            </md-sub-menu>
-                            <md-sub-menu anchor-corner="start-end" menu-corner="start-start">
-                                <md-menu-item slot="item">
-                                    <md-icon class="material-symbols-rounded" slot="start">assignment</md-icon>
-                                    <div slot="headline">เปลี่ยนโปรแกรมผู้ใช้</div>
-                                    <md-icon class="material-symbols-rounded" slot="end">arrow_right</md-icon>
-                                </md-menu-item>
-                                <md-menu slot="menu" data-test-program-menu positioning="popover">
-                                    ${programItems || `<md-menu-item disabled><div slot="headline">ไม่พบรายการโปรแกรม</div></md-menu-item>`}
-                                </md-menu>
-                            </md-sub-menu>
-                            <md-menu-item data-test-daily-data-tools>
-                                <md-icon class="material-symbols-rounded" slot="start">database</md-icon>
-                                <div slot="headline">เครื่องมือจัดการข้อมูลรายวันเกม</div>
-                            </md-menu-item>
-                            <md-divider role="separator" tabindex="-1"></md-divider>
-                            <md-menu-item data-test-logout>
-                                <md-icon class="material-symbols-rounded" slot="start">logout</md-icon>
-                                <div slot="headline">ออกจากระบบ</div>
-                            </md-menu-item>
-                        </md-menu>
-                    </div>
                 </div>
             </section>
         `;
@@ -734,96 +667,6 @@ export async function renderGameHubScreen(root, options = {}) {
             });
         });
 
-        bindTestControls(sections, activeDay);
-    };
-
-    const bindTestControls = (sections, activeDay) => {
-        const testTrigger = root.querySelector("[data-test-menu-trigger]");
-        const testMenu = root.querySelector("[data-test-menu]");
-        const quickMenu = root.querySelector("[data-test-quick-game-menu]");
-        const programMenu = root.querySelector("[data-test-program-menu]");
-
-        const closeTestMenus = () => {
-            if (quickMenu) {
-                quickMenu.open = false;
-            }
-            if (programMenu) {
-                programMenu.open = false;
-            }
-            if (testMenu) {
-                testMenu.open = false;
-            }
-            testTrigger?.setAttribute("aria-expanded", "false");
-        };
-
-        if (testTrigger && testMenu) {
-            testMenu.anchorElement = testTrigger;
-            testTrigger.setAttribute("aria-haspopup", "menu");
-            testTrigger.setAttribute("aria-expanded", "false");
-            on(testTrigger, "click", () => {
-                testMenu.open = !testMenu.open;
-                testTrigger.setAttribute("aria-expanded", testMenu.open ? "true" : "false");
-            });
-            on(testMenu, "closed", () => {
-                testTrigger.setAttribute("aria-expanded", "false");
-            });
-        }
-
-        const selectableGameMap = new Map(state.allGames.map((game) => [game.gid, game]));
-        root.querySelectorAll("[data-quick-game-item]").forEach((item) => {
-            on(item, "click", async () => {
-                const selectedGame = selectableGameMap.get(String(item.getAttribute("data-gid") || "").trim());
-                if (selectedGame) {
-                    await options.onTestQuickLaunchGame?.(selectedGame);
-                }
-                closeTestMenus();
-            });
-        });
-
-        const selectableProgramMap = new Map(state.programPresets.map((program) => [String(program?.id || "").trim(), program]));
-        root.querySelectorAll("[data-program-preset-item]").forEach((item) => {
-            on(item, "click", async () => {
-                const selectedProgramId = String(item.getAttribute("data-program-id") || "").trim();
-                const selectedProgram = selectableProgramMap.get(selectedProgramId);
-                if (!selectedProgram) {
-                    closeTestMenus();
-                    return;
-                }
-
-                await options.onTestChangeProgram?.(selectedProgram);
-                closeTestMenus();
-            });
-        });
-
-        on(root.querySelector("[data-test-clear-history]"), "click", async () => {
-            await options.onTestClearTodayHistory?.();
-            await loadHistory(true);
-            closeTestMenus();
-        });
-
-        on(root.querySelector("[data-test-complete-all]"), "click", async () => {
-            const targetSection = sections.find((section) => Number(section.day) === Number(activeDay))
-                || getCurrentDaySection(sections);
-            const { playedFrom, playedTo } = getProgramDateRange(getProgramDayDate(getStartedProgram(), Number(targetSection.day || 1)));
-            await options.onTestCompleteAll?.({
-                nodes: targetSection.nodes || [],
-                historyRecords: state.historyRecords,
-                playedFrom,
-                playedTo,
-            });
-            await loadHistory(true);
-            closeTestMenus();
-        });
-
-        on(root.querySelector("[data-test-daily-data-tools]"), "click", async () => {
-            await options.onTestDailyDataTools?.();
-            closeTestMenus();
-        });
-
-        on(root.querySelector("[data-test-logout]"), "click", () => {
-            options.onTestLogout?.();
-            closeTestMenus();
-        });
     };
 
     const handleNodeAction = async (node) => {

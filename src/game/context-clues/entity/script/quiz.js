@@ -4,6 +4,7 @@ import {BlankWord, Config} from "../../constants.js";
 import {createInlineSentence} from "../../utils/auto-insert-layout.js";
 import DragDropManager from "/src/core/drag-drop-manager.js";
 import { createThaiText, getThaiFontFamily } from "../../../../util/thai-text.js";
+import { ShadowRoundedPanel } from "../../../../util/layout/index.js";
 
 export default class Quiz extends Entity{
     constructor(scene, x, y, id, textParts, answers, options, gameData, setting = {
@@ -48,7 +49,8 @@ export default class Quiz extends Entity{
         const bottomPanelHeight = 590;
         const questionPanel = this.getQuestionPanelLayout(sceneWidth);
 
-        const quizBG = this.scene.drawRoundedPanel(
+        const quizBG = new ShadowRoundedPanel(
+            this.scene,
             questionPanel.x,
             questionPanel.y,
             questionPanel.width,
@@ -60,17 +62,31 @@ export default class Quiz extends Entity{
                 strokeWidth: 6,
                 radius: 54,
                 depth: 10,
+                shadows: [
+                    {
+                        offsetY: 22,
+                        spread: 6,
+                        color: 0x6c214b,
+                        alpha: 0.1
+                    },
+                    {
+                        offsetY: 12,
+                        color: 0x6c214b,
+                        alpha: 0.24
+                    }
+                ]
             }
         );
         this.ownedContainer.add(quizBG);
 
+        // Bottom answer area overlay — black fade (#000000) to visually separate the answer choices from the question
         const bottonBG = this.scene.add.rectangle(
             this.scene.scale.width / 2,
             this.scene.scale.height,
             this.scene.scale.width,
             bottomPanelHeight,
-            0xc73969,
-            0.58
+            0x000000,
+            0.1
         ).setOrigin(0.5, 1);
         this.ownedContainer.add(bottonBG);
 
@@ -78,7 +94,7 @@ export default class Quiz extends Entity{
             quizTextSize: this.quizTextSize,
             labelFontSize: this.labelFontSize,
             slotWidth: this.slotWidth,
-            slotStrokeColor: 0x0c2c61,
+            slotStrokeColor: 0xffb0ca,
             slotStrokeWidth: 6,
             slotFillColor: 0xffffff,
             slotFillAlpha: 0,
@@ -87,7 +103,7 @@ export default class Quiz extends Entity{
             color: "#7a4699",
         };
 
-        const { container: quizText, slot: slot, slotLabel: slotLabel } = createInlineSentence(
+        const { container: quizText, slot, slotLabel, slotBorder } = createInlineSentence(
             this.scene,
             questionPanel.x,
             questionPanel.y,
@@ -107,6 +123,30 @@ export default class Quiz extends Entity{
         this.ownedContainer.add(quizText);
 
         this.scene.quizText.setDepth(100);
+        const instructionY = Math.min(
+            questionPanel.y + (questionPanel.height / 2) + 82,
+            sceneHeight - bottomPanelHeight - 56
+        );
+        const dragInstruction = createThaiText(
+            this.scene,
+            sceneWidth / 2,
+            instructionY,
+            "ลากคำศัพท์ไปเติมในช่องว่าง",
+            {
+                fontSize: "42px",
+                fontFamily: getThaiFontFamily(),
+                fontStyle: "bold",
+                color: "#ffffff",
+                stroke: "#cc4177",
+                strokeThickness: 3,
+                align: "center",
+            },
+            { origin: 0.5 }
+        );
+        dragInstruction.setShadow(0, 4, "rgba(108, 33, 75, 0.35)", 6);
+        dragInstruction.setDepth(100);
+        this.ownedContainer.add(dragInstruction);
+
         this.answerBoxes = [];
         const choiceWidth = 455;
         const choiceHeight = 145;
@@ -188,7 +228,7 @@ export default class Quiz extends Entity{
                         data.handle.disableInteractive();
                         slotLabel[i].setText(data.word);
                         slot[i].setData("filled", true);
-                        slot[i].setStrokeStyle(6, 0x00ff00);
+                        slotBorder[i].setTint(0x00ff00); // correct answer — green tint
                         if (this.gameData) {
                             this.gameData.answers.push(data.word);
                             this.gameData.increaseScore(Config.IncreaseScore[this.scene.levelMap])
@@ -203,14 +243,15 @@ export default class Quiz extends Entity{
                         this.gameData.decreaseScore(Config.DecreaseScore[this.scene.levelMap])
                         this.dragDrop.moveHome(data.handle);
                         this.onAnswerIncorrect(data.word);
-                        slot[i].setStrokeStyle(6, 0xfe0000);
+                        slotBorder[i].setTint(0xfe0000); // wrong answer — red tint, then reset
+                        this.scene.time.delayedCall(300, () => slotBorder[i].setTint(0xffb0ca));
                     }
                 },
                 onDragEnter: () => {
-                    slot[i].setStrokeStyle(6, 0x4287f5);
+                    slotBorder[i].setTint(0x4287f5); // drag hover — blue tint
                 },
                 onDragLeave: () => {
-                    slot[i].setStrokeStyle(6, 0x0c2c61);
+                    slotBorder[i].setTint(0xffb0ca); // reset to default pink
                 }
             });
         }

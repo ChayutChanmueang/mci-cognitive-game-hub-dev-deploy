@@ -8,8 +8,7 @@ import { getProgramDayStatus } from "../util/program-date-util.js";
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
 const USER_GAME_HISTORY_TABLE = "user_game_history";
-const USER_EVENT_LOG_TABLE = "user_event_log";
-const REPLAY_LOG_TABLE = "replay_log";
+const REPLAY_LOG_TABLE = "game_replay_log";
 const USER_PATIENT_DATA_TABLE = "user_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
@@ -18,11 +17,6 @@ const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
 const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
 const DEFAULT_GAME_PROFILE_PROGRAM_ID = 5;
-const EVENT_IDS = Object.freeze({
-    OPEN_APP: "OPAPP",
-    START_PLAY_GAME: "SPG",
-});
-
 class Database {
     constructor() {
         const env = import.meta.env || {};
@@ -170,11 +164,6 @@ class Database {
         return data.session;
     }
 
-    async getCurrentUser() {
-        const session = await this.getCurrentSession();
-        return session?.user || null;
-    }
-
     async _withRetry(operation, { attempts = 3, delayMs = 500 } = {}) {
         let lastError = null;
 
@@ -222,30 +211,8 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
+            .select("id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .eq("hn", parsedHn)
-            .maybeSingle();
-
-        if (error) {
-            throw error;
-        }
-
-        return data || null;
-    }
-
-    async getPatientByUid(uid) {
-        const parsedUid = String(uid || "").trim();
-        if (!parsedUid) {
-            throw new Error("Invalid uid");
-        }
-
-        await this.initAuth();
-
-        const client = this.getClient();
-        const { data, error } = await client
-            .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
-            .eq("uid", parsedUid)
             .maybeSingle();
 
         if (error) {
@@ -289,7 +256,7 @@ class Database {
         ] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date",
+                "id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date",
                 [{ column: "hn", ascending: true }],
             ),
             this.getAllTableRows(
@@ -395,7 +362,7 @@ class Database {
         ] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, hn, uid",
+                "id, hn",
                 [{ column: "id", ascending: true }],
             ),
             this.getAllTableRows(
@@ -775,8 +742,7 @@ class Database {
         educationLevel,
         startedProgram,
     }) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
+        await this.initAuth();
         const parsedHn = String(hn || "").trim();
         const parsedFirstname = String(firstname || "").trim();
         const parsedLastname = String(lastname || "").trim();
@@ -827,12 +793,7 @@ class Database {
             throw new Error("กรุณาเลือกวันที่เริ่มโปรแกรม");
         }
 
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
-        }
-
         const payload = {
-            uid: user.id,
             hn: parsedHn,
             firstname: parsedFirstname,
             lastname: parsedLastname,
@@ -840,14 +801,14 @@ class Database {
             gender: parsedGender,
             education_level: parsedEducation,
             started_program: normalizedStartedProgram.toISOString(),
-            date: parsedBirthDate,
+            birth_date: parsedBirthDate,
         };
 
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
+            .select("id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .maybeSingle();
 
         if (error) {
@@ -1383,8 +1344,7 @@ class Database {
     }
 
     async submitGameData({ gid, score = null, level = null, startedAt, endedAt }) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
+        await this.initAuth();
         const parsedGid = String(gid || "").trim();
         const parsedScore = score == null ? null : Number(score);
         const parsedLevel = level == null ? null : Number(level);
@@ -1413,10 +1373,6 @@ class Database {
 
         if (normalizedEndedAt < normalizedStartedAt) {
             throw new Error("endedAt must be greater than or equal to startedAt");
-        }
-
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
         }
 
         const payload = {
@@ -2182,45 +2138,6 @@ class Database {
         if (error) {
             throw error;
         }
-    }
-
-    async logUserEvent(eventId, gid = null) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
-        const parsedEventId = String(eventId || "").trim().toUpperCase();
-        const parsedGid = gid == null ? null : String(gid).trim();
-
-        if (!parsedEventId) {
-            throw new Error("Invalid eventId");
-        }
-
-        if (!Object.values(EVENT_IDS).includes(parsedEventId)) {
-            throw new Error(`Unsupported eventId: ${parsedEventId}`);
-        }
-
-        if (parsedGid === "") {
-            throw new Error("Invalid gid");
-        }
-
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
-        }
-
-        const payload = {
-            eventid: parsedEventId,
-            gid: parsedGid,
-        };
-
-        const client = this.getClient();
-        const { error } = await client
-            .from(USER_EVENT_LOG_TABLE)
-            .insert([payload]);
-
-        if (error) {
-            throw error;
-        }
-
-        return payload;
     }
 
     async writeReplayLog({

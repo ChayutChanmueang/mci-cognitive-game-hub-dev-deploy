@@ -1,9 +1,13 @@
 import Phaser from "phaser";
+import {ShadowRoundedPanel} from "./index.js";
+import Theme from "../game-theme.js";
 
 export default class AnimalIconTray extends Phaser.GameObjects.Container {
     constructor(scene, x, y, onSelected, onUnSelected, options = {}) {
         super(scene, x, y);
 
+        this.positionX = x;
+        this.positionY = y;
         this.onSelected = onSelected;
         this.onUnSelected = onUnSelected;
         this.itemSelected = null;
@@ -150,24 +154,14 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
             itemGap,
             rowGap,
             padding,
-            trayRadius,
-            trayFillColor,
-            trayFillAlpha,
-            trayStrokeColor,
-            trayStrokeAlpha,
-            trayStrokeWidth,
-            itemRadius,
-            itemSelectedFillColor,
             itemUnSelectedFillColor,
-            itemFillAlpha,
-            itemStrokeColor,
-            itemStrokeAlpha,
-            itemStrokeWidth,
             itemTextStyle,
             footerReservedHeight,
             footerOffset,
             createItemContent
         } = this.options;
+
+        const strokeWidth = 8;
 
         const safeItemsPerRow = Math.max(1, maxItemsPerRow);
         const rowCount = this.items.length > 0 ? Math.ceil(this.items.length / safeItemsPerRow) : 0;
@@ -175,12 +169,26 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
             ? (rowCount * itemHeight) + ((rowCount - 1) * rowGap)
             : 0;
         const totalHeight = this.measureHeight();
-        const background = this.scene.add.graphics();
-
-        background.fillStyle(trayFillColor, trayFillAlpha);
-        background.lineStyle(trayStrokeWidth, trayStrokeColor, trayStrokeAlpha);
-        background.fillRoundedRect(0, 0, width, totalHeight, trayRadius);
-        background.strokeRoundedRect(0, 0, width, totalHeight, trayRadius);
+        const background = new ShadowRoundedPanel(this.scene, this.positionX + (strokeWidth / 2), this.positionY, width - (strokeWidth + 1), totalHeight, {
+            origin: [0, 0],
+            fillColor: 0xfff9f0,
+            strokeWidth: strokeWidth,
+            radius: 48,
+            depth: 2,
+            shadows: [
+                {
+                    offsetY: 15,
+                    spread: 2,
+                    color: Theme.colors.coolShadow,
+                    alpha: 0.2
+                },
+                {
+                    offsetY: 8,
+                    color: Theme.colors.warmAccent,
+                    alpha: 0.75
+                }
+            ]
+        });
 
         this.add(background);
         this.setSize(width, totalHeight);
@@ -189,8 +197,8 @@ export default class AnimalIconTray extends Phaser.GameObjects.Container {
             const startIndex = row * safeItemsPerRow;
             const rowItems = this.items.slice(startIndex, startIndex + safeItemsPerRow);
             const rowWidth = (rowItems.length * itemWidth) + (Math.max(0, rowItems.length - 1) * itemGap);
-            const rowStartX = (width - rowWidth) / 2;
-            const centerY = padding.top + (row * (itemHeight + rowGap)) + (itemHeight / 2);
+            const rowStartX = (width - rowWidth) / 2 + this.positionX;
+            const centerY = padding.top + (row * (itemHeight + rowGap)) + (itemHeight / 2) + this.positionY;
 
             for (let column = 0; column < rowItems.length; column++) {
                 const item = rowItems[column];

@@ -27,7 +27,7 @@ export default class GameplayScene extends Phaser.Scene {
   preload() {
     this.load.image('button-idle','assets/button_rectangle_depth_flat.png')
     this.load.image('button-press','assets/button_rectangle_flat.png')
-    this.load.image('context-clues-bg','assets/bg.png')
+    this.load.image('context-clues-bg','assets/context-clues/etc/BG.png')
   }
 
   init(data = {}) {
@@ -225,21 +225,17 @@ export default class GameplayScene extends Phaser.Scene {
     createSceneBackdrop() {
         const { width, height } = this.scale;
 
+        // Main background image — assets/context-clues/etc/BG.png, depth -20 (bottommost layer)
         const background = this.add.image(width / 2, height / 2, 'context-clues-bg');
         background.setDisplaySize(width, height);
-        background.setTint(0xf36baa);
-        background.setAlpha(0.26);
         background.setDepth(-20);
 
         const overlay = this.add.graphics();
-        overlay.fillStyle(0xf45ca1, 0.86);
-        overlay.fillRect(0, 0, width, height);
-        overlay.fillStyle(0xff9ccc, 0.26);
-        overlay.fillRect(0, 0, width, 240);
-        overlay.fillStyle(0xd83d73, 0.36);
-        overlay.fillRect(0, height - 520, width, 520);
-        overlay.lineStyle(4, 0x9d375c, 0.3);
-        overlay.lineBetween(0, height - 520, width, height - 520);
+
+        // Diagnostic highlight: divider between the question area and answer area.
+        overlay.lineStyle(6, 0x000000, 0.25);
+        overlay.lineBetween(0, height - 590, width, height - 590);
+
         overlay.setDepth(-19);
     }
 

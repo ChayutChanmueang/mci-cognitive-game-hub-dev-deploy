@@ -17,6 +17,13 @@ const Theme = {
         onSurfaceVariant: 0x64605a,
         outline: 0xb7b0a8,
         error: 0xba1a1a,
+        warmSurface: 0xfffaf1,
+        warmSurfaceContainer: 0xffefbd,
+        warmAccent: 0xf0b34c,
+        warmText: 0x83503a,
+        warmHighlight: 0xed7816,
+        warmTrayItem: 0xeadbc4,
+        coolShadow: 0x27647a,
         
         // Transparent variants (using alpha separately in Phaser)
         overlay: 0x000000,
@@ -43,6 +50,10 @@ const Theme = {
     // Helper to convert hex string to number
     hexToNum(hex) {
         return parseInt(hex.replace('#', ''), 16);
+    },
+
+    toCssColor(color) {
+        return `#${Number(color).toString(16).padStart(6, "0")}`;
     }
 };
 

@@ -1,14 +1,4 @@
-﻿import {PresetQuiz} from "../../constants.js";
-import "../../utils/array-helper.js"
-import {removeFirstMatchingValueInPlace} from "../../utils/array-helper.js";
-
-Array.prototype.remove = function(value) {
-    const index = this.indexOf(value);
-    if (index !== -1) {
-        this.splice(index, 1);
-    }
-    return this;
-};
+import {PresetQuiz} from "../../constants.js";
 
 export default class RandomQuiz{
     constructor(level){
@@ -18,17 +8,27 @@ export default class RandomQuiz{
             console.log(`Invalid level: ${level}`);
         }
 
-        this.shuffled = this.shuffle(preset)
+        this.story = this.pickRandomStory(preset);
+        this.currentIndex = 0;
+    }
+
+    pickRandomStory(preset) {
+        if (!preset) {
+            return [];
+        }
+
+        const storyKeys = Object.keys(preset);
+        const selectedKey = storyKeys[Math.floor(Math.random() * storyKeys.length)];
+        console.log(`Selected story: ${selectedKey}`);
+        return [...preset[selectedKey]];
     }
 
     getQuiz(){
-        if (this.shuffled.length <= 0) {
+        if (this.currentIndex >= this.story.length) {
             return null;
         }
 
-        const quizData = this.shuffled[Math.floor(Math.random() * this.shuffled.length)];
-        removeFirstMatchingValueInPlace(this.shuffled, quizData);
-        return quizData;
+        return this.story[this.currentIndex++];
     }
 
     shuffle(array) {

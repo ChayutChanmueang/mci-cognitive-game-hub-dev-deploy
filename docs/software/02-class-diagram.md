@@ -4,7 +4,7 @@
 
 ## *Document Version: 1.2*  
 *Project: MCI Cognitive Games*  
-*Last Updated: 2026-05-08*
+*Last Updated: 2026-05-26*
 
 ## 1. Game Architecture & ECS Lite
 
@@ -499,9 +499,7 @@ classDiagram
         +signup(email, password)
         +signOut()
         +getCurrentSession()
-        +getCurrentUser()
         +getPatientByHn(hn)
-        +getPatientByUid(uid)
         +patientExists(hn)
         +getEducationLevels()
         +createPatientProfile(data)
@@ -549,10 +547,10 @@ classDiagram
 
     class PatientData {
         +id: string
-        +uid: string
         +hn: string
         +firstname: string
         +lastname: string
+        +birth_date: Date
         +age: int
         +gender: string
         +education_level: int
@@ -731,4 +729,3 @@ classDiagram
 
 ---
 [Back to Index](../index.md)
-

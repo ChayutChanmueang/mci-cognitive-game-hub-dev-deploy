@@ -55,7 +55,7 @@ export const GAME_HISTORY_CSV_COLUMNS = Object.freeze([
 
 export function buildPlayerCsvRecord(player = {}, options = {}) {
     const startedProgram = player.started_program || player.startedProgram || "";
-    const birthDate = player.date || player.birthDate || "";
+    const birthDate = player.birth_date || player.date || player.birthDate || "";
     const programDayCount = options.programDayCount
         ?? player.programDayCount
         ?? player.program_day_count
