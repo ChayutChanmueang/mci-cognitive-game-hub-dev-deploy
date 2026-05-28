@@ -5,6 +5,7 @@ import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js
 import { createTestGameHubState, renderTestGameHubScreen } from "./ui/test-game-hub.js";
 import { renderAdminLoginScreen } from "./ui/admin-login-screen.js";
 import { renderLandingScreen } from "./ui/landing-screen.js";
+import { renderLeaderboardScreen } from "./ui/leaderboard-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
@@ -56,6 +57,7 @@ const ROUTES = Object.freeze({
     login: "#/login",
     adminLogin: "#/admin-login",
     playerInfo: "#/player-info",
+    leaderboard: "#/leaderboard",
     signup: "#/signup",
     hub: "#/hub",
     testGameHub: "#/test-game-hub",
@@ -236,6 +238,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (normalizedPath === "/player-info") {
             return { name: "player-info" };
+        }
+
+        if (normalizedPath === "/leaderboard") {
+            return { name: "leaderboard" };
         }
 
         if (normalizedPath === "/signup") {
@@ -1997,6 +2003,32 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    const showLeaderboard = () => {
+        if (!uiRoot || !gameContainer) {
+            return;
+        }
+
+        EventBus.emit("minigame:hide-hud");
+
+        document.body.classList.remove("game-mode");
+        document.body.classList.add("hub-mode");
+        document.body.classList.remove("landing-mode");
+        app?.classList.remove("game-mode");
+        app?.classList.add("hub-mode");
+        app?.classList.remove("landing-mode");
+        destroyActiveGame();
+        gameContainer.classList.add("game-container--hidden");
+        showUiRoot();
+
+        const rememberedPatient = getPatientSessionCookie();
+        const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : "ผู้เล่น";
+
+        renderLeaderboardScreen(uiRoot, {
+            patientLabel,
+            onBack: () => navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login),
+        });
+    };
+
     const renderCurrentRoute = async () => {
         const currentRenderVersion = ++routeRenderVersion;
         const route = getCurrentRoute();
@@ -2056,7 +2088,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "player-info") {
+            let isAdminSession = false;
+
+            try {
+                const currentSession = await db.getCurrentSession();
+                isAdminSession = Boolean(currentSession?.user) && currentSession.user.is_anonymous !== true;
+            } catch (error) {
+                console.warn("Unable to verify admin session for player info:", error);
+            }
+
+            if (!isAdminSession) {
+                navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
+                return;
+            }
+
             await showPlayerInfo();
+            return;
+        }
+
+        if (route.name === "leaderboard") {
+            showLeaderboard();
             return;
         }
 

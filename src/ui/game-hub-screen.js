@@ -8,6 +8,7 @@ import {
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
+import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
 
 const REST_GAME_GID = "REST001";
 const MINIGAME_DEFAULT_BG_COLOR = '#028af8';
@@ -560,94 +561,11 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const bind = (sections, activeDay) => {
-        const scrollArea = root.querySelector("[data-hub-scroll]");
-        const scrollTop = root.querySelector("[data-scroll-top]");
-        const scrollTopIcon = scrollTop?.querySelector("md-icon");
-        const getCurrentDayScrollOffset = () => {
-            if (!scrollArea) {
-                return 0;
-            }
-
-            const topbar = root.querySelector(".hub-clean-topbar");
-            const topbarBottom = topbar
-                ? topbar.offsetTop + topbar.offsetHeight
-                : 160;
-
-            return Math.max(120, topbarBottom + Math.round(scrollArea.clientHeight * 0.03));
-        };
-        const getCurrentDayScrollTolerance = () => {
-            if (!scrollArea) {
-                return 96;
-            }
-
-            return Math.max(96, Math.round(scrollArea.clientHeight * 0.3));
-        };
-        const getCurrentNodeScrollTarget = () => {
-            const activeSection = root.querySelector(`[data-program-day="${activeDay}"]`);
-
-            if (!activeSection) {
-                return null;
-            }
-
-            const currentNode = activeSection.querySelector(".hub-clean-level.is-current");
-            if (currentNode) {
-                return currentNode;
-            }
-
-            const completedNodes = Array.from(activeSection.querySelectorAll(".hub-clean-level.is-done"));
-            return completedNodes.at(-1)
-                || activeSection.querySelector(".hub-clean-level")
-                || activeSection;
-        };
-        const getCurrentNodeScrollTop = () => {
-            if (!scrollArea) {
-                return 0;
-            }
-
-            const targetNode = getCurrentNodeScrollTarget();
-            if (!targetNode) {
-                return 0;
-            }
-
-            const scrollAreaRect = scrollArea.getBoundingClientRect();
-            const targetRect = targetNode.getBoundingClientRect();
-
-            return targetRect
-                ? Math.max(0, scrollArea.scrollTop + targetRect.top - scrollAreaRect.top - getCurrentDayScrollOffset())
-                : 0;
-        };
-        const updateFab = () => {
-            const value = scrollArea?.scrollTop || 0;
-            const targetTop = getCurrentNodeScrollTop();
-            const deltaFromCurrentDay = value - targetTop;
-            const scrollTolerance = getCurrentDayScrollTolerance();
-            const isAwayFromCurrentDay = Math.abs(deltaFromCurrentDay) > scrollTolerance;
-            const shouldScrollDown = deltaFromCurrentDay < -scrollTolerance;
-
-            state.scrollTop = value;
-            scrollTop?.classList.toggle("is-visible", isAwayFromCurrentDay);
-            scrollTop?.setAttribute(
-                "aria-label",
-                shouldScrollDown ? "เลื่อนลงไปยังจุดปัจจุบัน" : "เลื่อนขึ้นไปยังจุดปัจจุบัน",
-            );
-            scrollTop?.setAttribute("data-scroll-direction", shouldScrollDown ? "down" : "up");
-
-            if (scrollTopIcon) {
-                scrollTopIcon.textContent = shouldScrollDown ? "arrow_downward" : "arrow_upward";
-            }
-        };
-
-        on(scrollArea, "scroll", updateFab, { passive: true });
-        on(scrollTop, "click", () => scrollArea?.scrollTo({ top: getCurrentNodeScrollTop(), behavior: "smooth" }));
-        requestAnimationFrame(() => {
-            if (!scrollArea) {
-                return;
-            }
-            const currentNodeTarget = getCurrentNodeScrollTarget();
-            scrollArea.scrollTop = currentNodeTarget
-                ? getCurrentNodeScrollTop()
-                : Math.max(0, Number(state.scrollTop) || 0);
-            updateFab();
+        bindCurrentNodeScrollController({
+            root,
+            state,
+            activeKey: activeDay,
+            on,
         });
 
         on(root.querySelector(".hub-clean-profile"), "click", () => options.onProfile?.());
