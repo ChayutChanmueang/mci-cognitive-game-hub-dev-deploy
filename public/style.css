@@ -1074,6 +1074,13 @@ body.hub-mode {
     pointer-events: auto;
 }
 
+.hub-clean-leaderboard-fab {
+    position: absolute;
+    z-index: 30;
+    left: 24px;
+    bottom: 18px;
+}
+
 .hub-clean-test-menu {
     position: absolute;
     z-index: 30;
@@ -1131,6 +1138,11 @@ body.hub-mode {
 }
 
 .hub-clean-fab md-icon {
+    display: inline-flex;
+    font-size: 30px;
+}
+
+.hub-clean-leaderboard-fab md-icon {
     display: inline-flex;
     font-size: 30px;
 }

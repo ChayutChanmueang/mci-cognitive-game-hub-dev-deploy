@@ -574,6 +574,9 @@ document.addEventListener("DOMContentLoaded", () => {
             onProfile: () => {
                 navigateTo(ROUTES.adminLogin);
             },
+            onLeaderboard: () => {
+                navigateTo(ROUTES.leaderboard);
+            },
             onLaunchGame: async (selectedGame) => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการเข้าเกม",

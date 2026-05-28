@@ -468,6 +468,9 @@ export async function renderGameHubScreen(root, options = {}) {
                         <md-fab class="hub-clean-fab" aria-label="เลื่อนไปยังจุดปัจจุบัน" data-scroll-top>
                             <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                         </md-fab>
+                        <md-fab class="hub-clean-leaderboard-fab" aria-label="เปิดหน้าคะแนนผู้เล่น" data-leaderboard-action>
+                            <md-icon class="material-symbols-rounded" slot="icon">trophy</md-icon>
+                        </md-fab>
                     </section>
                 </div>
             </section>
@@ -576,6 +579,7 @@ export async function renderGameHubScreen(root, options = {}) {
             event.preventDefault();
             options.onProfile?.();
         });
+        on(root.querySelector("[data-leaderboard-action]"), "click", () => options.onLeaderboard?.());
 
         const nodeMap = new Map(sections.flatMap((section) => section.nodes.map((node) => [node.id, node])));
         root.querySelectorAll("[data-node-action]").forEach((button) => {
