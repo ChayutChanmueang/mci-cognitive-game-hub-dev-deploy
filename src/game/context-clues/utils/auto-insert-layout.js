@@ -1,6 +1,6 @@
-export function measureTextWidth(scene, text, style) {
+export function measureTextWidth(scene, text, style, gep = 72) {
     const temp = scene.add.text(0, 0, text, normalizeTextStyle(style)).setVisible(false);
-    const width = temp.width;
+    const width = temp.width + gep;
     temp.destroy();
     return width;
 }
@@ -15,7 +15,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const quizTextStyle = normalizeTextStyle(style, "quiz");
     const labelTextStyle = normalizeTextStyle(style, "label");
     const fontSize = parseFontSize(quizTextStyle.fontSize, maxHeight);
-    const textPaddingTop = Math.ceil(fontSize * 0.25);
+    const textPaddingTop = Math.ceil(fontSize * 0.16);
     const textPaddingBottom = Math.ceil(fontSize * 0.16);
     const lineHeight = Math.max(maxHeight, fontSize + textPaddingTop + textPaddingBottom) + 24;
     const minSlotWidth = Math.max(0, Number(style.slotWidth) || 0);
@@ -25,6 +25,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const slotFillAlpha = style.slotFillAlpha ?? 0.15;
     const slot = [];
     const slotLabel = [];
+    const slotBorder = [];
 
     let cursorX = 0;
     let cursorY = 0;
@@ -88,6 +89,15 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
 
             const slotCenterX = cursorX + (answerWidth * origin.x);
 
+            // Dashed border visual — canvas texture (white dashes), tinted to slotStrokeColor
+            const borderTexKey = createDashedSlotTexture(scene, answerWidth, maxHeight, slotStrokeWidth);
+            const borderImg = scene.add.image(
+                slotCenterX,
+                cursorY + (maxHeight * (origin.y - 0.5)),
+                borderTexKey
+            ).setOrigin(origin.x, origin.y).setTint(slotStrokeColor);
+
+            // Drop zone rect — invisible, used only for DragDrop interaction
             const rect = scene.add.rectangle(
                 slotCenterX,
                 cursorY + (maxHeight * (origin.y - 0.5)),
@@ -95,7 +105,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
                 maxHeight,
                 slotFillColor,
                 slotFillAlpha
-            ).setOrigin(origin.x, origin.y).setStrokeStyle(slotStrokeWidth, slotStrokeColor);
+            ).setOrigin(origin.x, origin.y);
 
             rect.setData("slotId", `slot-${i}`);
             rect.setData("lineIndex", lineIndex);
@@ -110,9 +120,10 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
             hint.setData("slotId", `slot-${i}`);
             hint.setData("lineIndex", lineIndex);
 
-            objects.push(rect, hint);
+            objects.push(borderImg, rect, hint);
             slot.push(rect);
             slotLabel.push(hint);
+            slotBorder.push(borderImg);
             cursorX += answerWidth + gap;
         }
     }
@@ -126,7 +137,7 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
         enabled: options.fitToBounds,
     });
 
-    return {container, slot, slotLabel};
+    return {container, slot, slotLabel, slotBorder};
 }
 
 function splitTextForLayout(scene, text, style, maxWidth, startX = 0) {
@@ -286,6 +297,33 @@ function applyContainerOrigin(container, objects, origin) {
         object.x += offsetX;
         object.y += offsetY;
     }
+}
+
+// Creates a canvas texture of a dashed rounded rectangle using white strokes.
+// Tint the resulting image to apply any color — white base allows full tint control.
+function createDashedSlotTexture(scene, width, height, strokeWidth) {
+    const w = Math.ceil(width);
+    const h = Math.ceil(height);
+    const key = `dashed-slot-${w}-${h}-${strokeWidth}`;
+
+    if (scene.textures.exists(key)) {
+        return key;
+    }
+
+    const tex = scene.textures.createCanvas(key, w, h);
+    const ctx = tex.getContext();
+    const inset = strokeWidth / 2;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.setLineDash([16, 12]);
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.roundRect(inset, inset, w - inset * 2, h - inset * 2, 36);
+    ctx.stroke();
+
+    tex.refresh();
+    return key;
 }
 
 function fitContainerToLayoutBounds(container, {
