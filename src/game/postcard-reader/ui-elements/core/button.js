@@ -19,10 +19,31 @@ export default class Button {
 
     this.container = scene.add.container(x, y);
 
-    this.uiBackground = scene.add
-      .rectangle(0, 0, this.width, this.height, this.defaultColor, 1)
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
+    this.uiBackground = scene.add.graphics();
+    this.drawBg = (color) => {
+        this.uiBackground.clear();
+        
+        // Shadow (Figma: X=0, Y=12, Blur=4, Spread=0, Color=#E49A2C)
+        // Simulate slight blur by drawing outer layers with lower alpha
+        this.uiBackground.fillStyle(0xE49A2C, 0.3);
+        this.uiBackground.fillRoundedRect(-this.width / 2 - 2, -this.height / 2 + 10, this.width + 4, this.height + 4, 54);
+        this.uiBackground.fillStyle(0xE49A2C, 0.6);
+        this.uiBackground.fillRoundedRect(-this.width / 2 - 1, -this.height / 2 + 11, this.width + 2, this.height + 2, 53);
+        // Core shadow
+        this.uiBackground.fillStyle(0xE49A2C, 1);
+        this.uiBackground.fillRoundedRect(-this.width / 2, -this.height / 2 + 12, this.width, this.height, 52);
+
+        // Main Background
+        this.uiBackground.fillStyle(color, 1);
+        this.uiBackground.fillRoundedRect(-this.width / 2, -this.height / 2, this.width, this.height, 52);
+    };
+    this.drawBg(this.defaultColor);
+
+    this.uiBackground.setInteractive(
+        new Phaser.Geom.Rectangle(-this.width / 2, -this.height / 2, this.width, this.height),
+        Phaser.Geom.Rectangle.Contains
+    );
+    this.uiBackground.input.cursor = 'pointer';
 
     if (!this.useThaiText) {
       this.label = scene.add
@@ -38,11 +59,11 @@ export default class Button {
         0 + this.labelOffset.y,
         this.labelText,
         {
-          fontSize: "48px",
+          fontSize: "72px",
           fontStyle: "bold",
-          color: "#ffffff",
+          color: "#743D14", // Better contrast against light background
         },
-        { origin: 0, wrapWidth: 700 },
+        { origin: 0.5, wrapWidth: 800 },
       );
     }
 
@@ -51,22 +72,22 @@ export default class Button {
     if (settings.onClick != null) {
       this.uiBackground.on("pointerdown", () => {
         settings.onClick();
-        this.uiBackground.setFillStyle(this.clickColor);
+        this.drawBg(this.clickColor);
       });
     } else {
       this.uiBackground.on("pointerdown", () =>
-        this.uiBackground.setFillStyle(this.clickColor),
+        this.drawBg(this.clickColor),
       );
     }
 
     this.uiBackground.on("pointerover", () =>
-      this.uiBackground.setFillStyle(this.hoverColor),
+      this.drawBg(this.hoverColor),
     );
     this.uiBackground.on("pointerout", () =>
-      this.uiBackground.setFillStyle(this.defaultColor),
+      this.drawBg(this.defaultColor),
     );
     this.uiBackground.on("pointerup", () =>
-      this.uiBackground.setFillStyle(this.defaultColor),
+      this.drawBg(this.defaultColor),
     );
   }
   forceShow() {
