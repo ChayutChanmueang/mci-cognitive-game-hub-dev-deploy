@@ -338,7 +338,7 @@ export default class GameplayScene extends Phaser.Scene {
           const cycle = _Level % 3;
           if (cycle === 1) { config.columns = 4; config.rows = 4; }
           else if (cycle === 2) { config.columns = 6; config.rows = 6; }
-          else { config.columns = 8; config.rows = 6; }
+          else { config.columns = 6; config.rows = 8; }
         } else {
           config.columns = (_Level % 2 !== 0) ? 4 : 6;
           config.rows = config.columns;

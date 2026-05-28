@@ -45,6 +45,7 @@ export default class StartMenuScene extends Phaser.Scene {
                 panelHeaderColor: StartMenuSetting.panelHeaderColor,
                 primaryFontColor: StartMenuSetting.primaryFontColor,
                 secondaryFontColor: StartMenuSetting.secondaryFontColor,
+                titleFontSize: StartMenuSetting.titleFontSize,
             });
             this.startMenuPanel.render();
         }

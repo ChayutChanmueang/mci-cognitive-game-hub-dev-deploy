@@ -2,9 +2,10 @@
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'Symmetry Dec',
+    title: 'ภาพสะท้อน',
     description: 'เกมจัดวางของให้สมมาตรกัน',
     instructions: 'จัดของให้สมมาตรกัน ตามการสะท้อนของกระจก',
+    titleFontSize: '80px',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,
     /** Callback-style template for the level detail string; receives `level` at render time */
