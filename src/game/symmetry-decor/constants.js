@@ -5,6 +5,7 @@ export const StartMenuSetting = Object.freeze({
     title: 'ภาพสะท้อน',
     description: 'เกมจัดวางของให้สมมาตรกัน',
     instructions: 'จัดของให้สมมาตรกัน ตามการสะท้อนของกระจก',
+    coverImage: 'assets/common/cover/cover_symmetry_decor.png',
     titleFontSize: '80px',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,

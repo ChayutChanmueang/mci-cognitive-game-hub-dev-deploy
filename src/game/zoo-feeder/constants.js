@@ -5,6 +5,7 @@ export const StartMenuSetting = Object.freeze({
     title: 'สายพานอาหาร',
     description: 'เกมคัดเลือกอาหารให้ถูกต้อง',
     instructions: 'แตะอาหารที่สัตว์ชนิดนั้นไม่สามารถกินได้ออกจากสายพาน',
+    coverImage: 'assets/common/cover/cover_zoo_feeder.png',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,
     /** Callback-style template for the level detail string; receives `level` at render time */

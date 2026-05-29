@@ -37,7 +37,7 @@ export default class StartMenuScene extends Phaser.Scene {
         const uiRoot = document.getElementById('ui-root');
         if (uiRoot) {
             this.startMenuPanel = new StartMenuPanel(uiRoot, {
-                title: "จดหมายจากหลานรัก",
+                title: StartMenuSetting.title,
                 titleFontSize: "80px",
                 description: StartMenuSetting.description,
                 instructions: StartMenuSetting.instructions,
@@ -47,6 +47,7 @@ export default class StartMenuScene extends Phaser.Scene {
                 panelHeaderColor: StartMenuSetting.panelHeaderColor,
                 primaryFontColor: StartMenuSetting.primaryFontColor,
                 secondaryFontColor: StartMenuSetting.secondaryFontColor,
+                coverImage: StartMenuSetting.coverImage,
             });
             this.startMenuPanel.render();
         }

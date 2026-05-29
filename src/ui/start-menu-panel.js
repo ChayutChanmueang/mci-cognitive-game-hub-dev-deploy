@@ -24,6 +24,7 @@ export class StartMenuPanel {
         const primaryFontColor = this.options.primaryFontColor || '#945E17';
         const secondaryFontColor = this.options.secondaryFontColor || '#DE8519';
         const titleFontSize = this.options.titleFontSize || null;
+        const coverImage = this.options.coverImage || null;
 
         let levelText = "ง่าย";
         let starCount = 1;
@@ -42,6 +43,10 @@ export class StartMenuPanel {
             starsHtml += `<img src="${src}" style="width: 62px; height: 60px; object-fit: contain;" />`;
         }
 
+        const coverStyle = coverImage 
+            ? `background-image: url('${coverImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;` 
+            : "";
+
         overlay.innerHTML = `
             <div class="result-backdrop"></div>
             <div class="result-panel" id="gameover-result-panel">
@@ -49,7 +54,7 @@ export class StartMenuPanel {
                     <h2 style="${titleFontSize ? `font-size: ${titleFontSize};` : ''}">${title}</h2>
                 </div>
                 <div class="result-description" style="color: ${primaryFontColor};">${description}</div>
-                <div class="result-picture result-picture--start"></div>
+                <div class="result-picture result-picture--start" style="${coverStyle}"></div>
                 <div class="result-how-to-play-title" style="color: ${primaryFontColor};">วิธีการเล่น</div>
                 <div class="result-how-to-play-text" style="color: ${secondaryFontColor};">${instructions}</div>
                 <div class="result-divider"></div>
