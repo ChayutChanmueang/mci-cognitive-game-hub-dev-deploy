@@ -34,16 +34,16 @@ export const GameOverSetting = Object.freeze({
 // Accelerometer / Frying Pan Tilt Settings
 // ---------------------------------------------------------------------------
 export const AccelerometerSettings = Object.freeze({
-    /** Multiplier applied to gamma angle to get pan rotation (1 = 1:1 mapping) */
-    sensitivity: 1,
     /** Ignore orientation angles below this threshold in degrees (noise filter) */
     deadZone: 1.0,
-    /** Maximum pan rotation in degrees (clamped to ±this value) */
-    maxTiltAngle: 30,
-    /** Lerp factor for smoothing pan rotation (0 = frozen, 1 = instant) */
-    smoothing: 0.15,
-    /** Speed at which food slides along the tilted pan surface (px/sec) */
-    foodSlideSpeed: 250,
     /** Radius of the frying pan visual (px in game coordinates) */
     panRadius: 320,
+
+    // -- Flip Mechanic Settings --
+    /** Minimum time to wait before egg is ready to flip (ms) */
+    minCookTime: 5000,
+    /** Maximum time to wait before egg is ready to flip (ms) */
+    maxCookTime: 10000,
+    /** How far forward (in degrees) the player must tilt the device to trigger a flip */
+    flipThresholdBeta: 15,
 });
