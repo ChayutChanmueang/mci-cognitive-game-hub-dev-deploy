@@ -228,6 +228,7 @@ export default class GameplayScene extends Phaser.Scene {
             // iOS requires a user gesture — show a button
             this._showIOSPermissionButton();
         } else {
+            this._tryLockOrientation();
             const status = await AccelerometerManager.start();
             console.log('[FryFood] Accelerometer status:', status);
         }
@@ -262,6 +263,7 @@ export default class GameplayScene extends Phaser.Scene {
         });
 
         this._iosButton.addEventListener('click', async () => {
+            this._tryLockOrientation();
             const status = await AccelerometerManager.start();
             console.log('[FryFood] iOS accelerometer status:', status);
             this._removeIOSButton();
@@ -277,6 +279,21 @@ export default class GameplayScene extends Phaser.Scene {
         if (this._iosButton && this._iosButton.parentNode) {
             this._iosButton.parentNode.removeChild(this._iosButton);
             this._iosButton = null;
+        }
+    }
+
+    /**
+     * Attempt to lock the screen orientation to portrait.
+     * Note: This usually requires a user gesture or fullscreen mode on mobile browsers.
+     */
+    async _tryLockOrientation() {
+        if (screen.orientation && typeof screen.orientation.lock === 'function') {
+            try {
+                await screen.orientation.lock('portrait');
+                console.log('[FryFood] Screen orientation locked to portrait.');
+            } catch (error) {
+                console.warn('[FryFood] Could not lock screen orientation:', error);
+            }
         }
     }
 
