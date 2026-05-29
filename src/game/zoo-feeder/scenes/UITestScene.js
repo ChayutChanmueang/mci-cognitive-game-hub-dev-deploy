@@ -285,6 +285,7 @@ export default class UITestScene extends Phaser.Scene {
         level: this.level,
         panelBorderColor: GameOverSetting.panelBorderColor,
         panelHeaderColor: GameOverSetting.panelHeaderColor,
+        resultImage: 'assets/common/result/result_zoo_feeder.png',
       });
     });
   }

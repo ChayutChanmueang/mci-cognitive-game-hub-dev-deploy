@@ -16,6 +16,10 @@ export class MinigameResultPanel {
         const title = "จบเกม";
         const formattedScore = (this.options.score || 0).toLocaleString();
         const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+        const resultImage = this.options.resultImage || null;
+        const resultStyle = resultImage 
+            ? `background-image: url('${resultImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;` 
+            : "";
 
         overlay.innerHTML = `
             <div class="result-backdrop"></div>
@@ -23,7 +27,7 @@ export class MinigameResultPanel {
                 <div class="result-header">
                     <h2>${title}</h2>
                 </div>
-                <div class="result-picture"></div>
+                <div class="result-picture" style="${resultStyle}"></div>
                 <div class="result-compliment">${randomEncouragement}</div>
                 <div class="result-score-box">
                     <div class="result-score-label">คะแนนของคุณ</div>

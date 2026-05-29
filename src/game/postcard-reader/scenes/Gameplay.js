@@ -355,6 +355,7 @@ export default class GameplayScene extends Phaser.Scene {
       level: getDifficultyLevelNumber(this.level),
       panelBorderColor: GameOverSetting.panelBorderColor,
       panelHeaderColor: GameOverSetting.panelHeaderColor,
+      resultImage: 'assets/common/result/result_postcard_reader.png',
     });
   }
 

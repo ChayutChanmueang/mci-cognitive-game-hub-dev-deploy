@@ -206,7 +206,8 @@ export default class GameplayScene extends Phaser.Scene {
         EventBus.emit('minigame:game-over', {
             score: this.allScore,
             level: this.level,
-            resultStatus
+            resultStatus,
+            resultImage: 'assets/common/result/result_context_clue.png',
         });
 
         //Save game data to database

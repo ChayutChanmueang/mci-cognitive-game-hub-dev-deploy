@@ -195,6 +195,7 @@ export default class GameplayScene extends Phaser.Scene {
       level: this.level,
       panelBorderColor: GameOverSetting.panelBorderColor,
       panelHeaderColor: GameOverSetting.panelHeaderColor,
+      resultImage: 'assets/common/result/result_symmetry_decor.png',
     });
   }
 
