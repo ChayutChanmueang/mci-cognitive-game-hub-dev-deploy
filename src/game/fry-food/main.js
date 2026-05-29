@@ -15,6 +15,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        fullscreenTarget: 'app',
         width: 1100, // The "logical" resolution
         height: 2000
     },

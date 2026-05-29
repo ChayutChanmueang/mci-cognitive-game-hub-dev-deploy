@@ -21,6 +21,7 @@ export default class GameplayScene extends Phaser.Scene {
         this._gameState = 'COOKING'; // 'COOKING', 'READY', 'FLIPPING'
         this._cookTimer = null;
         this._flipInitiated = false; // tracked when device tilted forward past threshold
+        this._startBetaAngle = 0;    // Baseline angle captured when smoke appears
         this._cookLevel = 0;         // Tracks how many times it was flipped
         this._flipThresholdBeta = AccelerometerSettings.flipThresholdBeta; // dynamic threshold for designer
         
@@ -74,19 +75,19 @@ export default class GameplayScene extends Phaser.Scene {
 
         // -- Gesture Recognition: Flip --------------------------------------
         if (this._gameState === 'READY') {
-            // Player tilts phone up/forward
-            if (rawBeta > this._flipThresholdBeta) {
+            const targetBeta = this._startBetaAngle + this._flipThresholdBeta;
+
+            // Player tilts phone up/forward past the relative threshold
+            if (rawBeta > targetBeta) {
                 this._flipInitiated = true;
             } 
-            // Player brings phone back down after tilting up
-            else if (this._flipInitiated && rawBeta < 5) { // 5 degrees threshold to count as "back to flat"
+            // Player brings phone back down after tilting up past the threshold
+            else if (this._flipInitiated && rawBeta < targetBeta) { 
                 this._executeFlip();
             }
         } else {
-            // Reset if they tilt while cooking or just to clear stale state
-            if (rawBeta < 5) {
-                this._flipInitiated = false;
-            }
+            // Reset if they aren't ready
+            this._flipInitiated = false;
         }
 
         // -- Update debug overlay -------------------------------------------
@@ -122,6 +123,9 @@ export default class GameplayScene extends Phaser.Scene {
 
     _readyToFlip() {
         this._gameState = 'READY';
+        
+        // Capture the baseline device angle at the exact moment the egg is ready
+        this._startBetaAngle = AccelerometerManager.getOrientation().beta;
         
         // Show smoke to indicate it's ready
         if (this._smokeGfx) {
@@ -400,9 +404,10 @@ export default class GameplayScene extends Phaser.Scene {
             `  Cook Level: ${this._cookLevel}`,
             `  Timer: ${this._gameState === 'COOKING' ? timeLeft + 's' : '---'}`,
             `  Flip Initiated: ${this._flipInitiated}`,
-            `  Flip Threshold: ${this._flipThresholdBeta}°`,
+            `  Flip Threshold: +${this._flipThresholdBeta}°`,
             `── Sensor Data ──`,
             `  β (Pitch): ${orientation.beta.toFixed(1)}°`,
+            `  Baseline β: ${this._gameState === 'READY' ? this._startBetaAngle.toFixed(1) + '°' : '---'}`,
         ];
 
         if (!AccelerometerManager.isSupported()) {
