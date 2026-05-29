@@ -92,16 +92,13 @@ export default class GameplayScene extends Phaser.Scene {
         );
 
         // -- Apply tilt to pan container ------------------------------------
-        if (this._panContainer) {
-            // Rotate for left/right tilt
-            this._panContainer.setAngle(this._currentTiltAngle);
-
-            // Scale Y to simulate forward/back perspective tilt
-            // At 0° pitch → scaleY = 1.0 (flat), at ±30° → scaleY ≈ 0.5
-            const pitchNorm = Math.abs(this._currentPitchAngle) / settings.maxTiltAngle;
-            const scaleY = Phaser.Math.Linear(1.0, 0.5, pitchNorm);
-            this._panContainer.setScale(1, scaleY);
-        }
+        // Removed: User requested the pan to stay visually still while the food slides.
+        // if (this._panContainer) {
+        //     this._panContainer.setAngle(this._currentTiltAngle);
+        //     const pitchNorm = Math.abs(this._currentPitchAngle) / settings.maxTiltAngle;
+        //     const scaleY = Phaser.Math.Linear(1.0, 0.5, pitchNorm);
+        //     this._panContainer.setScale(1, scaleY);
+        // }
 
         // -- Slide food along the pan surface (both axes) -------------------
         const maxOffset = settings.panRadius - 50;
