@@ -53,6 +53,15 @@ export default class StartMenuScene extends Phaser.Scene {
 
         // Listen for the start button press and transition to the gameplay scene
         const handleStartGame = () => {
+            // Attempt to enter fullscreen (requires user gesture, which this click is)
+            if (this.scale && !this.scale.isFullscreen) {
+                this.scale.startFullscreen();
+            }
+            // Attempt to lock orientation immediately while we have the gesture
+            if (screen.orientation && typeof screen.orientation.lock === 'function') {
+                screen.orientation.lock('portrait').catch(() => {});
+            }
+
             this.scene.start('fry-food-gameplay-scene');
         };
         EventBus.on('startmenu:start-game', handleStartGame);

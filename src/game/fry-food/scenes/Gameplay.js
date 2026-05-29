@@ -283,10 +283,18 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     /**
-     * Attempt to lock the screen orientation to portrait.
+     * Attempt to lock the screen orientation to portrait and enter fullscreen.
      * Note: This usually requires a user gesture or fullscreen mode on mobile browsers.
      */
     async _tryLockOrientation() {
+        if (this.scale && !this.scale.isFullscreen) {
+            try {
+                this.scale.startFullscreen();
+            } catch (e) {
+                // ignore
+            }
+        }
+        
         if (screen.orientation && typeof screen.orientation.lock === 'function') {
             try {
                 await screen.orientation.lock('portrait');
