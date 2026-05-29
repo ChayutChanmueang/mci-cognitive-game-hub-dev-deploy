@@ -58,8 +58,9 @@ export default class StartMenuScene extends Phaser.Scene {
                 this.scale.startFullscreen();
             }
             // Attempt to lock orientation immediately while we have the gesture
+            // 'portrait-primary' prevents 180-degree upside-down rotation
             if (screen.orientation && typeof screen.orientation.lock === 'function') {
-                screen.orientation.lock('portrait').catch(() => {});
+                screen.orientation.lock('portrait-primary').catch(() => {});
             }
 
             this.scene.start('fry-food-gameplay-scene');

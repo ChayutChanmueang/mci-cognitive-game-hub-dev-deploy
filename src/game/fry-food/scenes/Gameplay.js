@@ -295,10 +295,16 @@ export default class GameplayScene extends Phaser.Scene {
             }
         }
         
+        // Phaser's built-in scale manager orientation lock
+        if (this.scale) {
+            this.scale.lockOrientation('portrait-primary');
+        }
+
+        // Native Web API orientation lock ('portrait-primary' prevents 180° upside-down rotation)
         if (screen.orientation && typeof screen.orientation.lock === 'function') {
             try {
-                await screen.orientation.lock('portrait');
-                console.log('[FryFood] Screen orientation locked to portrait.');
+                await screen.orientation.lock('portrait-primary');
+                console.log('[FryFood] Screen orientation locked to portrait-primary.');
             } catch (error) {
                 console.warn('[FryFood] Could not lock screen orientation:', error);
             }
