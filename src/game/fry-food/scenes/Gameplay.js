@@ -23,8 +23,8 @@ export default class GameplayScene extends Phaser.Scene {
         this._foodOffsetX = 0;        // food X offset from pan centre
         this._foodOffsetY = 0;        // food Y offset from pan centre
 
-        // -- Show HUD -------------------------------------------------------
-        EventBus.emit('minigame:show-hud');
+        // -- Hide HUD (we don't need score/progress for this game) ----------
+        EventBus.emit('minigame:hide-hud');
 
         // -- Draw frying pan ------------------------------------------------
         this._createPan(cx, cy);
