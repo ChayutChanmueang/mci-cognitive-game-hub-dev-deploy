@@ -56,7 +56,12 @@ export default class StartMenuScene extends Phaser.Scene {
         const handleStartGame = () => {
             // Attempt to enter fullscreen (requires user gesture, which this click is)
             if (this.scale && !this.scale.isFullscreen) {
-                this.scale.startFullscreen();
+                try {
+                    const fsPromise = this.scale.startFullscreen();
+                    if (fsPromise && typeof fsPromise.catch === 'function') {
+                        fsPromise.catch(() => {});
+                    }
+                } catch (e) {}
             }
             // Attempt to lock orientation immediately while we have the gesture
             // 'portrait-primary' prevents 180-degree upside-down rotation
