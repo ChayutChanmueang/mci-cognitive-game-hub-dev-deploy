@@ -35,11 +35,6 @@ export const Config = Object.freeze({
         medium: 6,
         hard: 7,
     },
-    MaxRound: {
-        easy: 10,
-        medium: 10,
-        hard: 10,
-    },
     GridSize: {
         easy: 230,
         medium: 190,
@@ -69,7 +64,10 @@ export const AnimalIconAssets = Object.freeze({
     elephant: Object.freeze({ texture: "zoo-detective-animal-elephant", path: "assets/common/animal/icons/H_ele.png" }),
     fox: Object.freeze({ texture: "zoo-detective-animal-fox", path: "assets/common/animal/icons/H_Fox.png" }),
     lion: Object.freeze({ texture: "zoo-detective-animal-lion", path: "assets/common/animal/icons/H_Li.png" }),
-    panda: Object.freeze({ texture: "zoo-detective-animal-panda", path: "assets/common/animal/icons/H_Pan.png" })
+    panda: Object.freeze({ texture: "zoo-detective-animal-panda", path: "assets/common/animal/icons/H_Pan.png" }),
+    corn: Object.freeze({ texture: "zoo-detective-food-corn", path: "assets/zoo-feeder/food/Corn.png" }),
+    beef: Object.freeze({ texture: "zoo-detective-food-beef", path: "assets/zoo-feeder/food/Beef.png" }),
+    fish: Object.freeze({ texture: "zoo-detective-food-fish", path: "assets/zoo-feeder/food/Fish.png" })
 });
 
 export const DefaultAnimals = Object.freeze([
@@ -82,22 +80,29 @@ export const DefaultAnimals = Object.freeze([
     Object.freeze({ id: "panda", label: "แพนด้า", icon: "🐼", ...AnimalIconAssets.panda }),
 /*    Object.freeze({ id: "tiger", label: "เสือ", icon: "🐯" }),
     Object.freeze({ id: "hippo", label: "ฮิปโป", icon: "🦛" }),*/
-    Object.freeze({ id: "fox", label: "สุนัขจิ้งจอก", icon: "🦊", ...AnimalIconAssets.fox }),
+    Object.freeze({ id: "fox", label: "จิ้งจอก", icon: "🦊", ...AnimalIconAssets.fox }),
     //Object.freeze({ id: "koala", label: "โคอาลา", icon: "🐨" }),
     Object.freeze({ id: "cow", label: "วัว", icon: "🐮", ...AnimalIconAssets.cow }),
 /*    Object.freeze({ id: "pig", label: "หมู", icon: "🐷" }),
     Object.freeze({ id: "frog", label: "กบ", icon: "🐸" }),
     Object.freeze({ id: "chicken", label: "ไก่", icon: "🐔" }),
     Object.freeze({ id: "penguin", label: "เพนกวิน", icon: "🐧" })*/
-    Object.freeze({ id: "snake", label: "งู", icon: "🐻", ...AnimalIconAssets.bear }),
-    Object.freeze({ id: "dog", label: "หมา", icon: "🦁", ...AnimalIconAssets.lion }),
-    Object.freeze({ id: "cat", label: "แมว", icon: "🐘", ...AnimalIconAssets.elephant }),
+    Object.freeze({ id: "corn", label: "ข้าวโพด", icon: "🌽", ...AnimalIconAssets.corn }),
+    Object.freeze({ id: "beef", label: "เนื้อวัว", icon: "🥩", ...AnimalIconAssets.beef }),
+    Object.freeze({ id: "salmon", label: "เนื้อปลา", icon: "🐟", ...AnimalIconAssets.fish }),
 ]);
 
 export const GameplayConfig = Object.freeze({
     stageLabel: "เลเวล",
     promptJoiner: "\n",
-    defaultPromptFallback: "วางสัตว์ตามคำใบ้ลงไปในช่องด้านล่าง"
+    defaultPromptFallback: "วางสัตว์ตามคำใบ้ลงไปในช่องด้านล่าง",
+    hintDirection: {
+        up: "อยู่ด้านบน",
+        down: "อยู่ด้านล่าง",
+        left: "อยู่ด้านซ้าย",
+        right: "อยู่ด้านขวา"
+    },
+    hintGap: 6
 });
 
 export const LevelMap = Object.freeze({

@@ -82,7 +82,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI = new GameplayUI(this, 0, 0, {
             showTutorial: !skipTutorial
         });
-        this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
+        this.gameplayUI.setLevel(this.levelMap, this.level, 1, 1);
         this.gameplayUI.setScore(this.allScore);
         this.gameplayUI.setTimeLeft(Math.ceil(this.timeLimitMs / 1000));
 
@@ -92,7 +92,7 @@ export default class GameplayScene extends Phaser.Scene {
 
         // Initial state to HUD
         EventBus.emit('minigame:score', { score: 1 });
-        EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
+        EventBus.emit('minigame:level', { level: 'ด่าน 1' });
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
 
         this.gameStartedAt = new Date();
@@ -107,31 +107,25 @@ export default class GameplayScene extends Phaser.Scene {
             const addScore = Config.IncreaseScore[this.levelMap] + this.roundScore;
             this.allScore += (addScore >= 0 ? addScore : 0);
             this.roundScore = 0;
-            const maxRound = Config.MaxRound[this.levelMap];
-            const nextRoundDisplay = Math.min(this.round + 1, maxRound);
+            const nextRoundDisplay = this.round + 1;
 
             this.gameplayUI.setScore(this.allScore);
             EventBus.emit('minigame:score', { score: nextRoundDisplay });
-            this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
-            EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
+            this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, nextRoundDisplay);
+            EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
 
             console.log(`allScore : ${this.allScore}`);
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
 
-            if (this.round < maxRound) {
-                this.time.delayedCall(500, () => {
-                    if (this.isGameEnded) {
-                        return;
-                    }
+            this.time.delayedCall(500, () => {
+                if (this.isGameEnded) {
+                    return;
+                }
 
-                    this.gameplayUI.showNextQuizPanel(() => {
-                        // Create New Puzzle
-                        this.loadNextPuzzle();
-                    })
-                });
-            }else{
-                this.endGame("success");
-            }
+                this.gameplayUI.showNextQuizPanel(() => {
+                    this.loadNextPuzzle();
+                })
+            });
         };
 
         this.onPlacementEvaluated = (callback = {})=>{
@@ -710,7 +704,7 @@ export default class GameplayScene extends Phaser.Scene {
             width: bounds.width,
             height: bounds.height,
             padding: { left: 32, right: 32 },
-            gap: 12,
+            gap: GameplayConfig.hintGap,
             justify: "left",
             align: "center"
         });
@@ -721,7 +715,7 @@ export default class GameplayScene extends Phaser.Scene {
             return [{
                 text: hint ?? "",
                 style: {
-                    fontSize: "55px",
+                    fontSize: "48px",
                     color: Theme.toCssColor(Theme.colors.warmText)
                 }
             }];
@@ -732,13 +726,13 @@ export default class GameplayScene extends Phaser.Scene {
             {
                 text: hint.animal?.label ?? hint.animal?.id ?? "",
                 style: {
-                    fontSize: "55px",
+                    fontSize: "48px",
                     color: Theme.toCssColor(Theme.colors.warmText)
                 }
             },
             {
                 create: (scene) => new InlineContentLayout(scene, 0, 0, this.createPositionSegments(hint), {
-                    gap: 12,
+                    gap: GameplayConfig.hintGap,
                     justify: "center",
                     align: "center"
                 })
@@ -748,17 +742,12 @@ export default class GameplayScene extends Phaser.Scene {
 
     createPositionSegments(hint) {
         const relationText = hint.type === "relation"
-            ? {
-                up: "อยู่ด้านบนของ",
-                down: "อยู่ด้านล่างของ",
-                left: "อยู่ด้านซ้ายของ",
-                right: "อยู่ด้านขวาของ"
-            }[hint.direction] ?? "อยู่ใกล้"
+            ? GameplayConfig.hintDirection[hint.direction] ?? "อยู่ใกล้"
             : `อยู่${this.formatPositionLabel(hint.position)}`;
         const segments = [{
             text: relationText,
             style: {
-                fontSize: "55px",
+                fontSize: "48px",
                 color: Theme.toCssColor(Theme.colors.warmHighlight)
             }
         }];
@@ -767,7 +756,7 @@ export default class GameplayScene extends Phaser.Scene {
             segments.push({
                 text: hint.referenceAnimal.label ?? hint.referenceAnimal.id ?? "",
                 style: {
-                    fontSize: "55px",
+                    fontSize: "48px",
                     color: Theme.toCssColor(Theme.colors.warmText)
                 }
             });

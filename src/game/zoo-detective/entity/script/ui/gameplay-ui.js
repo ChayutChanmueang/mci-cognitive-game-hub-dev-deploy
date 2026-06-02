@@ -11,7 +11,7 @@ export default class GameplayUI extends Entity{
     constructor(scene,x,y, options = {}){
         super(scene,x,y);
 
-        this.maxRound = 10;
+        this.maxRound = Number.MAX_SAFE_INTEGER;
         this.levelNumber = scene.level ?? 1;
         this.levelName = "EASY";
         this.currentRound = 1;
@@ -34,7 +34,7 @@ export default class GameplayUI extends Entity{
             .strokeRoundedRect(barX, barY, barWidth, barHeight, 38)
             .setDepth(this.uiDepth - 1);
 
-        //this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1/10", ThaiTextPresets.hud, this.uiDepth);
+        //this.levelText = this.createTextBox(230, 130, 250, 75, "ด่าน 1", ThaiTextPresets.hud, this.uiDepth);
         //this.timerText = this.createTextBox(scene.scale.width - 230, 130, 250, 75, this.formatSeconds(0), ThaiTextPresets.hud, this.uiDepth);
 
         this.currentScore = createThaiText(
@@ -71,13 +71,13 @@ export default class GameplayUI extends Entity{
         this.setScore(0);
     }
     refreshLevelText() {
-        //this.levelText[0].setText(`ด่าน ${this.currentRound}/${this.maxRound}`);
+        //this.levelText[0].setText(`ด่าน ${this.currentRound}`);
     }
 
-    setLevel(levelMap = "easy", levelNumber = 1, currentRound = 1, maxRound = 10) {
+    setLevel(levelMap = "easy", levelNumber = 1, currentRound = 1, maxRound = Number.MAX_SAFE_INTEGER) {
         this.levelName = String(levelMap || "easy").toUpperCase();
         //this.levelNumber = levelNumber;
-        this.maxRound = Math.max(1, Number(maxRound) || 10);
+        this.maxRound = Math.max(1, Number(maxRound) || Number.MAX_SAFE_INTEGER);
         this.currentRound = Phaser.Math.Clamp(Number(currentRound) || 1, 1, this.maxRound);
 
         this.refreshLevelText();
