@@ -10,6 +10,7 @@ import { EventBus } from "../../../../../core/EventBus.js";
 export default class GameplayUI extends Entity{
     constructor(scene,x,y, options = {}){
         super(scene,x,y);
+        this.setVisible(false);
 
         this.maxRound = Number.MAX_SAFE_INTEGER;
         this.levelNumber = scene.level ?? 1;
