@@ -10,6 +10,7 @@ import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -160,32 +161,16 @@ export default class GameplayScene extends Phaser.Scene {
           if (this.progressStory < maxRound) {
               console.log(`All Score: (${this.allScore})`);
 
-              this.time.delayedCall(500, () => {
-                  if (this.isGameEnded) {
-                      return;
-                  }
-
-                  this.gameplayUI.showNextQuizPanel(() => {
-                      if (this.isGameEnded) {
-                          return;
-                      }
-
-                      // Create New Quiz
-                      this.getNewQuiz();
-                  })
+              this.showCorrectAnswerEffect(() => {
+                  this.getNewQuiz();
               });
           }else{
               this.randomQuiz = new RandomQuiz(this.levelMap);
               this.progressStory = 0;
 
-              this.gameplayUI.showNextQuizPanel(() => {
-                  if (this.isGameEnded) {
-                      return;
-                  }
-
-                  // Create New Quiz
+              this.showCorrectAnswerEffect(() => {
                   this.getNewQuiz();
-              })
+              });
           }
       }
       this.quizGame.onAnswerIncorrect = (answer) => {
@@ -204,6 +189,18 @@ export default class GameplayScene extends Phaser.Scene {
       this.quizGame.onCreateQuiz();
 
       return this.quizGame;
+  }
+
+  showCorrectAnswerEffect(onComplete) {
+      showLevelCompleteEffect();
+
+      this.time.delayedCall(1500, () => {
+          if (this.isGameEnded) {
+              return;
+          }
+
+          onComplete?.();
+      });
   }
 
     endGame(resultStatus = "success") {
