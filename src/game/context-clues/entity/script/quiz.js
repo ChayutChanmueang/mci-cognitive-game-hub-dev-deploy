@@ -19,6 +19,8 @@ export default class Quiz extends Entity{
     }){
         super(scene,x,y,null);
 
+        this.setVisible(false);
+
         this.id = id;
         this.scene = scene;
         this.options = options;

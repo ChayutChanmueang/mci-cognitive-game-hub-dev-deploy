@@ -243,13 +243,6 @@ export default class GameplayScene extends Phaser.Scene {
         background.setDisplaySize(width, height);
         background.setDepth(-20);
 
-        const overlay = this.add.graphics();
-
-        // Diagnostic highlight: divider between the question area and answer area.
-        overlay.lineStyle(6, 0x000000, 0.25);
-        overlay.lineBetween(0, height - 590, width, height - 590);
-
-        overlay.setDepth(-19);
     }
 
     drawRoundedPanel(x, y, width, height, {
