@@ -13,6 +13,7 @@ import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import {ZooDetectiveReplayEvent} from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -117,14 +118,14 @@ export default class GameplayScene extends Phaser.Scene {
             console.log(`allScore : ${this.allScore}`);
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
 
-            this.time.delayedCall(500, () => {
+            showLevelCompleteEffect();
+
+            this.time.delayedCall(1500, () => {
                 if (this.isGameEnded) {
                     return;
                 }
 
-                this.gameplayUI.showNextQuizPanel(() => {
-                    this.loadNextPuzzle();
-                })
+                this.loadNextPuzzle();
             });
         };
 
