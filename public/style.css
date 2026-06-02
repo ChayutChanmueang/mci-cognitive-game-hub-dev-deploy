@@ -1033,13 +1033,13 @@ body.hub-mode {
 }
 
 .hub-clean-current-card md-filled-button {
-    width: 185px;
+    width: 95%;
     min-width: 0;
     margin-top: 8px;
     --md-filled-button-container-height: 50px;
     --md-filled-button-container-shape: 50px;
-    --md-filled-button-label-text-size: 27px;
-    --md-filled-button-label-text-line-height: 1.15;
+    --md-filled-button-label-text-size: 24px;
+    --md-filled-button-label-text-line-height: 1.5;
     --md-filled-button-label-text-weight: 800;
     --md-filled-button-label-text-font: "Noto Sans Thai", "Baloo 2", sans-serif;
 }
