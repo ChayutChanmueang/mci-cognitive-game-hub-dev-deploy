@@ -6,18 +6,19 @@ import { StartMenuSetting } from '../constants.js';
 
 export default class StartMenuScene extends Phaser.Scene {
     constructor() {
-        super('symmetry-start-menu-scene');
+        super('fry-food-start-menu-scene');
     }
 
     preload() {
         // Preload start menu specific assets here
-        this.load.image('background', 'assets/symmetry-decor/etc/BG.png');
+        // this.load.image('background', 'assets/fry-food/etc/BG.png');
     }
 
     create(data) {
-        this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
-        this.background.setDisplaySize(this.scale.width, this.scale.height);
-        this.background.setDepth(-10);
+        // Add background (uncomment when asset is available)
+        // this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+        // this.background.setDisplaySize(this.scale.width, this.scale.height);
+        // this.background.setDepth(-10);
 
         // Hide the top bar HUD
         EventBus.emit('minigame:hide-hud');
@@ -53,7 +54,22 @@ export default class StartMenuScene extends Phaser.Scene {
 
         // Listen for the start button press and transition to the gameplay scene
         const handleStartGame = () => {
-            this.scene.start('gameplay-scene');
+            // Attempt to enter fullscreen (requires user gesture, which this click is)
+            if (this.scale && !this.scale.isFullscreen) {
+                try {
+                    const fsPromise = this.scale.startFullscreen();
+                    if (fsPromise && typeof fsPromise.catch === 'function') {
+                        fsPromise.catch(() => {});
+                    }
+                } catch (e) {}
+            }
+            // Attempt to lock orientation immediately while we have the gesture
+            // 'portrait-primary' prevents 180-degree upside-down rotation
+            if (screen.orientation && typeof screen.orientation.lock === 'function') {
+                screen.orientation.lock('portrait-primary').catch(() => {});
+            }
+
+            this.scene.start('fry-food-gameplay-scene');
         };
         EventBus.on('startmenu:start-game', handleStartGame);
 

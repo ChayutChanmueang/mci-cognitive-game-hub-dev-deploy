@@ -110,7 +110,7 @@ export class MinigameHUD {
             
             ${showTimer ? `
                 <div class="minigame-hud__timer-wrap">
-                    <div class="minigame-hud__timer-label" id="hud-timer-text">${timeLeft}s</div>
+                    <div class="minigame-hud__timer-label" id="hud-timer-text">${this.options.gameSlug === "postcard-reader" ? timeLeft + ' <span class="minigame-hud__timer-unit">วินาที</span>' : timeLeft + "s"}</div>
                     <md-linear-progress
                         id="hud-timer-progress"
                         class="minigame-hud__timer-bar"
@@ -210,7 +210,11 @@ export class MinigameHUD {
 
     onTickProgress({ timeLeft, maxTime }) {
         if (this.timeElement) {
-            this.timeElement.textContent = `${timeLeft}s`;
+            if (this.options.gameSlug === "postcard-reader") {
+                this.timeElement.innerHTML = `${timeLeft} <span class="minigame-hud__timer-unit">วินาที</span>`;
+            } else {
+                this.timeElement.textContent = `${timeLeft}s`;
+            }
         }
         if (this.progressBar) {
             const pct = maxTime > 0 ? timeLeft / maxTime : 0;

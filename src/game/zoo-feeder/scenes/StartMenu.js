@@ -11,9 +11,15 @@ export default class StartMenuScene extends Phaser.Scene {
 
     preload() {
         // Preload start menu specific assets here
+        this.load.image('background', 'assets/zoo-feeder/etc/BG.png');
     }
 
     create(data) {
+        // Add background
+        this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+        this.background.setDisplaySize(this.scale.width, this.scale.height);
+        this.background.setDepth(-10);
+
         // Hide the top bar HUD
         EventBus.emit('minigame:hide-hud');
 
@@ -32,6 +38,7 @@ export default class StartMenuScene extends Phaser.Scene {
         if (uiRoot) {
             this.startMenuPanel = new StartMenuPanel(uiRoot, {
                 title: StartMenuSetting.title,
+                titleFontSize: '80px',
                 description: StartMenuSetting.description,
                 instructions: StartMenuSetting.instructions,
                 level: level,
@@ -40,6 +47,7 @@ export default class StartMenuScene extends Phaser.Scene {
                 panelHeaderColor: StartMenuSetting.panelHeaderColor,
                 primaryFontColor: StartMenuSetting.primaryFontColor,
                 secondaryFontColor: StartMenuSetting.secondaryFontColor,
+                coverImage: StartMenuSetting.coverImage,
             });
             this.startMenuPanel.render();
         }

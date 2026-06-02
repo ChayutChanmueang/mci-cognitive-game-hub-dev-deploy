@@ -27,9 +27,15 @@ export default class GameplayScene extends Phaser.Scene {
   preload() {
     this.load.image("button-idle", "assets/button_rectangle_depth_flat.png");
     this.load.image("button-press", "assets/button_rectangle_flat.png");
+    this.load.image('background', 'assets/postcard-reader/etc/BG.png');
   }
 
   create(data) {
+    // Add background
+    this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+    this.background.setDisplaySize(this.scale.width, this.scale.height);
+    this.background.setDepth(-10);
+
     //Initialize Logging
     if (this.replayLogger == null) {
       this.replayLogger = new ReplayLogBuffer();
@@ -136,10 +142,11 @@ export default class GameplayScene extends Phaser.Scene {
         this.scale.height / 5 + 50,
         {
           size: { x: 900, y: 350 },
-          strokeEnable: true,
+          strokeEnable: false,
           overlayEnable: false,
         },
       );
+      this.questionPanel.panelBg.setVisible(false);
     }
 
     if (this.questionText == null) {
@@ -149,11 +156,13 @@ export default class GameplayScene extends Phaser.Scene {
         0,
         this.currentQuestionText,
         {
-          fontSize: "52px",
+          fontSize: "96px",
           fontStyle: "bold",
-          color: "#1e1b18"
+          color: "#743D14",
+          stroke: "#FFFFFF",
+          strokeThickness: 10
         },
-        { origin: 0.5, wrapWidth: 800 }
+        { origin: 0.5, wrapWidth: 1200 }
       );
       this.questionPanel.addElements(this.questionText);
     } else {
@@ -181,7 +190,10 @@ export default class GameplayScene extends Phaser.Scene {
           height: 220,
           labelText: choice.ChoiceText,
           useThaiText: true,
-          labelOffset: { x: -180, y: -45 },
+          labelOffset: { x: 0, y: 0 },
+          color: 0xFDF5E0,
+          hoverColor: 0xF5E6B8,
+          clickColor: 0xE8D5A5,
           onClick: () => {
             if (choice.isCorrect) {
               this.onCorrectAnswer(button);
@@ -191,15 +203,6 @@ export default class GameplayScene extends Phaser.Scene {
           },
         }
       );
-
-      const iconContainer = this.add.container(-320, 0);
-      const iconBackdrop = this.add.rectangle(0, 0, 120, 120, 0xffffff, 0.1).setOrigin(0.5);
-      iconBackdrop.setStrokeStyle(4, 0x356859);
-
-      const choiceIcon = this.add.text(0, 0, choice.Sprite, { fontSize: '84px' }).setOrigin(0.5);
-
-      iconContainer.add([iconBackdrop, choiceIcon]);
-      button.container.add([iconContainer]);
 
       this.buttonPool.Pool.push(button);
       if (choice.isCorrect) this.buttonPool.CorrectPool.push(button);
@@ -248,7 +251,7 @@ export default class GameplayScene extends Phaser.Scene {
       selectedButton.defaultColor = 0xd32f2f;
       selectedButton.hoverColor = 0xd32f2f;
       selectedButton.clickColor = 0xd32f2f;
-      selectedButton.uiBackground.setFillStyle(0xd32f2f);
+      selectedButton.drawBg(0xd32f2f);
     }
     this.wrongAnswer++;
     this.replayLogger.addEvent(ReplayEvent.PostcardReader.CHOICE_SELECTED, "WRONG");
@@ -352,6 +355,7 @@ export default class GameplayScene extends Phaser.Scene {
       level: getDifficultyLevelNumber(this.level),
       panelBorderColor: GameOverSetting.panelBorderColor,
       panelHeaderColor: GameOverSetting.panelHeaderColor,
+      resultImage: 'assets/common/result/result_postcard_reader.png',
     });
   }
 

@@ -2120,14 +2120,25 @@ body.hub-mode {
 
 .minigame-hud--postcard-reader .minigame-hud__timer-label {
     margin-top: 8px !important;
-    /* space between bar and label */
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #917445 !important;
+    font-size: 2rem !important;
+}
+
+.minigame-hud--postcard-reader .minigame-hud__timer-unit {
+    font-size: 1.25rem !important;
 }
 
 .minigame-hud--postcard-reader .minigame-hud__timer-bar {
-    height: 16px !important;
-    border-radius: 8px !important;
-    --md-linear-progress-track-height: 16px;
-    --md-linear-progress-active-indicator-height: 16px;
+    height: 30px !important;
+    border-radius: 15px !important;
+    border: 3px solid #FFFFFF !important;
+    box-sizing: border-box !important;
+    --md-linear-progress-track-height: 30px;
+    --md-linear-progress-active-indicator-height: 30px;
+    --md-linear-progress-active-indicator-color: #F67711 !important;
+    --md-linear-progress-track-color: #FDEEC4 !important;
 }
 
 /* Custom Green Score Box for Zoo Feeder */

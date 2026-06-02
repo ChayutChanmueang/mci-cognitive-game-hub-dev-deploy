@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { EventBus } from "../../../core/EventBus.js";
+import { createThaiText } from "../../../util/thai-text.js";
 
 export default class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -71,9 +72,9 @@ export default class MainMenuScene extends Phaser.Scene {
     this.lv3Btn = this.createButton(this.scale.width/2 ,(this.scale.height/2) + 100, "START LV3", () => {
             this.scene.start('gameplay-scene',{ level:3 })
         });
-    this.titleText = this.add.text(this.scale.width/2,this.scale.height/2 - 250,"Postcard Reader",{
+    this.titleText = createThaiText(this, this.scale.width/2, this.scale.height/2 - 250, "จดหมายจากหลานรัก", {
             fontSize: '96px', fontStyle: 'bold'
-        }).setOrigin(0.5);
+        }, { origin: 0.5 });
     this.titleText.setDepth(100);
 
   }

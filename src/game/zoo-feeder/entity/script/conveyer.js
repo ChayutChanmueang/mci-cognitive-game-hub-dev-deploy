@@ -1,6 +1,7 @@
 import Entity from "../entity";
 import Animal from "./animal";
 import Fruit from "./fruit";
+import { GameplaySetting } from "../../constants.js";
 
 export default class Conveyer extends Entity {
     constructor(scene, x, y, speed = 150, scale = 1) {
@@ -86,7 +87,9 @@ export default class Conveyer extends Entity {
         this.spawnCooldown = 0;
 
         if (this.spawnTimer != null) {
-            this.spawnTimer.delay = this.randomSpawnTime(9, 15) * 100;
+            const difficulty = this.scene.conveyerNums || 1;
+            const cooldowns = GameplaySetting.spawnCooldowns[difficulty] || GameplaySetting.spawnCooldowns[1];
+            this.spawnTimer.delay = this.randomSpawnTime(cooldowns.min, cooldowns.max) * 100;
         }
 
         _fruit.once('destroy', () => {

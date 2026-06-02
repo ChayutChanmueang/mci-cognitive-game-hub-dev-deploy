@@ -222,7 +222,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
         EventBus.emit('minigame:game-over', { 
             score: this.allScore,
-            level: this.level
+            level: this.level,
+            resultImage: 'assets/common/result/result_zoo_detective.png',
         });
 
         //Save game data to database

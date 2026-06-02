@@ -5,6 +5,7 @@ export const StartMenuSetting = Object.freeze({
     title: 'Postcard',
     description: 'เกมอ่านข้อความและตอบคำถาม',
     instructions: 'อ่านข้อความในโปสการ์ด แล้วตอบคำถามให้ถูกต้อง',
+    coverImage: 'assets/common/cover/cover_postcard_reader.png',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,
     /** Callback-style template for the level detail string; receives `level` at render time */
