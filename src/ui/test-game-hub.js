@@ -46,6 +46,8 @@ const CATEGORY_META = Object.freeze({
 const CATEGORY_ORDER = ["Memory", "Visuospatial", "Attention", "Language", "Executive"];
 const PAGE_SIZE = 10;
 const MINIO_VIDEO_BASE_URL = "https://minio-api-v4.kohtnas.com/mci-video-bucket";
+const TEST_GAME_HUB_STYLESHEET_ID = "test-game-hub-style";
+const TEST_GAME_HUB_STYLESHEET_HREF = "/test-game-hub-style.css";
 const LEVEL_OPTIONS = Object.freeze([
     {
         value: 3,
@@ -66,6 +68,23 @@ const LEVEL_OPTIONS = Object.freeze([
         description: "ระดับเริ่มต้น",
     },
 ]);
+
+function ensureTestGameHubStylesheet() {
+    if (typeof document === "undefined") {
+        return;
+    }
+
+    const existingLink = document.getElementById(TEST_GAME_HUB_STYLESHEET_ID);
+    if (existingLink) {
+        return;
+    }
+
+    const link = document.createElement("link");
+    link.id = TEST_GAME_HUB_STYLESHEET_ID;
+    link.rel = "stylesheet";
+    link.href = TEST_GAME_HUB_STYLESHEET_HREF;
+    document.head.appendChild(link);
+}
 
 function escapeHtml(value) {
     return String(value || "")
@@ -536,6 +555,8 @@ export async function renderTestGameHubScreen(root, options = {}) {
     if (!root) {
         return;
     }
+
+    ensureTestGameHubStylesheet();
 
     const {
         loadGamesByCategory,
