@@ -8,7 +8,7 @@ import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 import { EventBus } from "../../../../../core/EventBus.js";
 
 export default class GameplayUI extends Entity{
-    constructor(scene,x,y){
+    constructor(scene,x,y, options = {}){
         super(scene,x,y);
 
         this.maxRound = 10;
@@ -51,8 +51,11 @@ export default class GameplayUI extends Entity{
             { origin: [1, 0] }
         ).setDepth(this.uiDepth);
 
-        this.TutorialPanel = new TutorialPanel(scene, this.depth + 10);
-        this.TutorialPanel.show();
+        this.TutorialPanel = null;
+        if (options.showTutorial !== false) {
+            this.TutorialPanel = new TutorialPanel(scene, this.depth + 10);
+            this.TutorialPanel.show();
+        }
 
         this.gameoverPanel = new GameOverPanel(scene);
         this.NextQuizPanel = new NextQuizPanel(scene);

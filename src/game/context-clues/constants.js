@@ -1,3 +1,28 @@
+// ---------------------------------------------------------------------------
+// Start Menu Panel Settings
+// ---------------------------------------------------------------------------
+export const StartMenuSetting = Object.freeze({
+    title: 'Context Clues',
+    description: 'เกมฝึกอ่านบริบทและเลือกคำเติมประโยคให้ถูกต้อง',
+    instructions: 'อ่านประโยคให้เข้าใจ แล้วเลือกคำที่เหมาะสมที่สุดเพื่อเติมลงในช่องว่าง',
+    coverImage: 'assets/common/cover/cover_context_clue.png',
+    titleFontSize: '80px',
+    /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
+    defaultLevel: 1,
+    /** Callback-style template for the level detail string; receives `level` at render time */
+    levelDetailTemplate: (level) => {
+        if (level === 1) return 'ประโยคสั้น / ตัวเลือกพื้นฐาน';
+        if (level === 2) return 'ประโยคยาวขึ้น / ใช้บริบทมากขึ้น';
+        return 'โจทย์ซับซ้อน / ต้องตีความหลายส่วน';
+    },
+    // Panel colour tokens — override the shared CSS defaults for this game
+    panelBorderColor: '#C73969',
+    panelHeaderColor: '#E34F81',
+    // Font colour tokens
+    primaryFontColor: '#8F2448',
+    secondaryFontColor: '#C8577C',
+});
+
 export const TutorialText = Object.freeze({
     T1: "สวัสดีตอน [...] นะครับ\n \n[เช้า] [กลางวัน] [เย็น]"
 })

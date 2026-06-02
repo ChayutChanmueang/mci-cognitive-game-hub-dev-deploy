@@ -36,6 +36,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.randomQuiz = new RandomQuiz(this.levelMap);
     this.allScore = 0;
     this.round = 0;
+    this.progressStory = 0;
     this.quizData = [];
     this.timeLimitSeconds = data.timeLimitSeconds ?? Config.TimeLimitSeconds;
     this.timeLeftSeconds = this.timeLimitSeconds;
@@ -44,6 +45,8 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   create(data = {}) {
+    EventBus.emit('minigame:show-hud');
+
     this.createSceneBackdrop();
     this.quizBoxSize = this.resolveQuizBoxSize();
     this.gameplayUI = new GameplayUI(this, 0, 0);
@@ -52,7 +55,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.syncTimerUI();
 
     // Initial state to HUD
-    EventBus.emit('minigame:score', { score: this.allScore });
+    EventBus.emit('minigame:score', { score: 1 });
     EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
 
     // Create First Quiz
@@ -138,21 +141,23 @@ export default class GameplayScene extends Phaser.Scene {
               return;
           }
 
+          // Adding round count
           this.round++;
+          this.progressStory++;
+
           const maxRound = Config.MaxRound[this.levelMap];
-          const nextRoundDisplay = Math.min(this.round + 1, maxRound);
+          const nextRoundDisplay = this.round + 1;
 
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
           this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
               answer: answer,
               value: true
           });
-          this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
-          
-          EventBus.emit('minigame:score', { score: this.allScore });
-          EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
 
-          if (this.round < maxRound) {
+          EventBus.emit('minigame:score', { score: nextRoundDisplay });
+          EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
+
+          if (this.progressStory < maxRound) {
               console.log(`All Score: (${this.allScore})`);
 
               this.time.delayedCall(500, () => {
@@ -170,7 +175,17 @@ export default class GameplayScene extends Phaser.Scene {
                   })
               });
           }else{
-              this.endGame("success");
+              this.randomQuiz = new RandomQuiz(this.levelMap);
+              this.progressStory = 0;
+
+              this.gameplayUI.showNextQuizPanel(() => {
+                  if (this.isGameEnded) {
+                      return;
+                  }
+
+                  // Create New Quiz
+                  this.getNewQuiz();
+              })
           }
       }
       this.quizGame.onAnswerIncorrect = (answer) => {

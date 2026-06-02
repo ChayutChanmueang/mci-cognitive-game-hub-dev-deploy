@@ -1,3 +1,28 @@
+// ---------------------------------------------------------------------------
+// Start Menu Panel Settings
+// ---------------------------------------------------------------------------
+export const StartMenuSetting = Object.freeze({
+    title: 'Zoo Detective',
+    description: 'เกมสังเกตคำใบ้และจัดวางสัตว์ให้ถูกตำแหน่ง',
+    instructions: 'อ่านคำใบ้ทีละข้อ แล้วเลือกสัตว์ไปวางในช่องให้ตรงกับเงื่อนไขทั้งหมด',
+    coverImage: 'assets/common/cover/cover_zoo_detective.png',
+    titleFontSize: '80px',
+    /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
+    defaultLevel: 1,
+    /** Callback-style template for the level detail string; receives `level` at render time */
+    levelDetailTemplate: (level) => {
+        if (level === 1) return 'ตาราง 2x2 / คำใบ้พื้นฐาน';
+        if (level === 2) return 'ตาราง 2x3 / คำใบ้ซับซ้อนขึ้น';
+        return 'ตาราง 3x3 / ต้องวิเคราะห์หลายเงื่อนไข';
+    },
+    // Panel colour tokens — override the shared CSS defaults for this game
+    panelBorderColor: '#2D8FBA',
+    panelHeaderColor: '#45A9D4',
+    // Font colour tokens
+    primaryFontColor: '#235B75',
+    secondaryFontColor: '#3D86A8',
+});
+
 export const Config = Object.freeze({
     TimeLimitMs: 3 * 60 * 1000,
     IncreaseScore: {

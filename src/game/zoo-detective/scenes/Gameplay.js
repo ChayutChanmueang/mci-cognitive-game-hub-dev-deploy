@@ -72,7 +72,16 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.createSceneBackdrop();
 
-        this.gameplayUI = new GameplayUI(this, 0, 0);
+        this.resetGameTimer();
+        this.onCloseTutorial = () => {
+            this.startGameTimer();
+        };
+
+        const skipTutorial = this.sceneData.skipTutorial === true;
+
+        this.gameplayUI = new GameplayUI(this, 0, 0, {
+            showTutorial: !skipTutorial
+        });
         this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
         this.gameplayUI.setScore(this.allScore);
         this.gameplayUI.setTimeLeft(Math.ceil(this.timeLimitMs / 1000));
@@ -82,17 +91,12 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI.currentScore.setVisible(false);
 
         // Initial state to HUD
-        EventBus.emit('minigame:score', { score: this.allScore });
+        EventBus.emit('minigame:score', { score: 1 });
         EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
 
         this.gameStartedAt = new Date();
         this.gameEndedAt = new Date();
-
-        this.resetGameTimer();
-        this.onCloseTutorial = () => {
-            this.startGameTimer();
-        };
 
         this.onPuzzleCompleted = (result = {})=>{
             if (this.isGameEnded) {
@@ -107,7 +111,7 @@ export default class GameplayScene extends Phaser.Scene {
             const nextRoundDisplay = Math.min(this.round + 1, maxRound);
 
             this.gameplayUI.setScore(this.allScore);
-            EventBus.emit('minigame:score', { score: this.allScore });
+            EventBus.emit('minigame:score', { score: nextRoundDisplay });
             this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
             EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
 
@@ -147,6 +151,10 @@ export default class GameplayScene extends Phaser.Scene {
         };
 
         this.loadNextPuzzle();
+
+        if (skipTutorial) {
+            this.startGameTimer();
+        }
     }
 
     createPuzzleData(data) {
