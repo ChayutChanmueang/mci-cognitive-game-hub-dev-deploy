@@ -411,31 +411,60 @@ class Database {
                     gid,
                     minigame_name: game?.name || game?.th_name || gid,
                     mci_group: game?.mci_group || "",
-                    ingame_started_at: gameData?.started_at || "",
-                    ingame_ended_at: gameData?.ended_at || "",
-                    gamehub_start_at: history?.start_at || "",
-                    gamehub_end_at: history?.end_at || "",
+                    start_at: gameData?.started_at || "",
+                    end_at: gameData?.ended_at || "",
                     score: gameData?.score ?? "",
                     level: gameData?.level ?? "",
                     _patientOrder: patientOrderByHn.has(hn) ? patientOrderByHn.get(hn) : Number.POSITIVE_INFINITY,
                     _historyId: Number(history?.id) || 0,
+                    _sortAt: history?.start_at || gameData?.started_at || "",
                 };
             });
 
         matchedRows.sort((a, b) => (
             this.compareCsvSortValue(a._patientOrder, b._patientOrder)
-            || new Date(a.gamehub_start_at || 0) - new Date(b.gamehub_start_at || 0)
+            || new Date(a._sortAt || 0) - new Date(b._sortAt || 0)
             || a._historyId - b._historyId
         ));
+
+        const replayCountsByHistoryId = new Map();
+        const matchedHistoryIds = matchedRows.map((r) => r._historyId).filter((id) => id > 0);
+        if (matchedHistoryIds.length) {
+            try {
+                const { data: replayData } = await client
+                    .from(REPLAY_LOG_TABLE)
+                    .select("historyid, value")
+                    .in("historyid", matchedHistoryIds);
+
+                for (const log of replayData || []) {
+                    const historyId = Number(log?.historyid);
+                    if (!Number.isFinite(historyId) || historyId <= 0) continue;
+                    const answer = log?.value?.answer;
+                    if (answer !== true && answer !== false) continue;
+                    const entry = replayCountsByHistoryId.get(historyId) || { correct: 0, wrong: 0 };
+                    if (answer === true) entry.correct += 1;
+                    else entry.wrong += 1;
+                    replayCountsByHistoryId.set(historyId, entry);
+                }
+            } catch (replayError) {
+                console.warn("Unable to fetch replay log counts:", replayError);
+            }
+        }
 
         return matchedRows.map((row) => {
             const {
                 _patientOrder,
                 _historyId,
+                _sortAt,
                 ...exportRow
             } = row;
 
-            return exportRow;
+            const counts = replayCountsByHistoryId.get(_historyId) || null;
+            return {
+                ...exportRow,
+                total_correct: counts ? counts.correct : "",
+                total_wrong: counts ? counts.wrong : "",
+            };
         });
     }
 
@@ -486,7 +515,7 @@ class Database {
             ),
             this.getAllTableRows(
                 USER_GAME_HISTORY_TABLE,
-                "id, hn, gid, start_at, end_at, \"check-in\"",
+                "id, hn, gid, start_at, end_at, user_game_data_id, \"check-in\"",
                 [{ column: "start_at", ascending: true }],
             ),
         ]);
@@ -543,6 +572,7 @@ class Database {
                     "check-in": false,
                     last_stage: 0,
                     _historyCount: 0,
+                    _userGameDataIds: [],
                 });
             }
 
@@ -562,6 +592,10 @@ class Database {
 
                 if (gid !== "REST001") {
                     row.last_stage += 1;
+                    const userGameDataId = Number(history?.user_game_data_id);
+                    if (Number.isFinite(userGameDataId) && userGameDataId > 0) {
+                        row._userGameDataIds.push(userGameDataId);
+                    }
                 }
             } else if (isCheckIn) {
                 row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
@@ -569,6 +603,28 @@ class Database {
 
             if (Number.isFinite(startAt) && Number.isFinite(endAt)) {
                 row.lastgame_at = this.maxDateValue(row.lastgame_at, new Date(Math.max(startAt, endAt)).toISOString());
+            }
+        }
+
+        const allGameDataIds = [...new Set(
+            [...historyByHnDay.values()].flatMap((row) => row._userGameDataIds),
+        )];
+        const scoreByGameDataId = new Map();
+        if (allGameDataIds.length) {
+            try {
+                const { data: gameDataRows } = await client
+                    .from(USER_GAME_DATA_TABLE)
+                    .select("id, score")
+                    .in("id", allGameDataIds);
+                for (const gd of gameDataRows || []) {
+                    const id = Number(gd?.id);
+                    const score = Number(gd?.score);
+                    if (Number.isFinite(id) && id > 0 && Number.isFinite(score)) {
+                        scoreByGameDataId.set(id, score);
+                    }
+                }
+            } catch (scoreError) {
+                console.warn("Unable to fetch game data scores:", scoreError);
             }
         }
 
@@ -601,6 +657,10 @@ class Database {
                 const firstMs = this.parseDateMs(firstgameAt);
                 const lastMs = this.parseDateMs(lastgameAt);
 
+                const dayScores = (historyRow?._userGameDataIds || [])
+                    .map((id) => scoreByGameDataId.get(id))
+                    .filter((s) => Number.isFinite(s));
+
                 rows.push({
                     user_hn: patientHn,
                     firstgame_at: firstgameAt,
@@ -610,6 +670,7 @@ class Database {
                         : "",
                     "check-in": historyRow?.["check-in"] === true,
                     last_stage: historyRow?._historyCount > 0 ? historyRow.last_stage : null,
+                    total_score: dayScores.length > 0 ? dayScores.reduce((sum, s) => sum + s, 0) : null,
                     _day: localDay,
                     _patientOrder: patientOrderByHn.has(patientHn)
                         ? patientOrderByHn.get(patientHn)

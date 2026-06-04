@@ -35,11 +35,11 @@ export const GAME_CSV_COLUMNS = Object.freeze([
     "gid",
     "minigame_name",
     "mci_group",
-    "ingame_started_at",
-    "ingame_ended_at",
-    "gamehub_start_at",
-    "gamehub_end_at",
+    "start_at",
+    "end_at",
     "total_playtime",
+    "total_correct",
+    "total_wrong",
     "score",
     "level",
 ]);
@@ -51,6 +51,7 @@ export const GAME_HISTORY_CSV_COLUMNS = Object.freeze([
     "total_time",
     "check-in",
     "last_stage",
+    "total_score",
 ]);
 
 export function buildPlayerCsvRecord(player = {}, options = {}) {
@@ -98,23 +99,23 @@ export function buildPlayersCsv(players = []) {
 }
 
 export function buildGameCsvRecord(gameRecord = {}) {
-    const ingameStartedAt = gameRecord.ingame_started_at || gameRecord.ingameStartedAt || "";
-    const ingameEndedAt = gameRecord.ingame_ended_at || gameRecord.ingameEndedAt || "";
+    const startAt = gameRecord.start_at || gameRecord.ingame_started_at || gameRecord.ingameStartedAt || "";
+    const endAt = gameRecord.end_at || gameRecord.ingame_ended_at || gameRecord.ingameEndedAt || "";
 
     return {
         hn: gameRecord.hn || "",
         gid: gameRecord.gid || "",
         minigame_name: gameRecord.minigame_name || gameRecord.minigameName || "",
         mci_group: gameRecord.mci_group || gameRecord.mciGroup || "",
-        ingame_started_at: formatCsvDateTime(ingameStartedAt),
-        ingame_ended_at: formatCsvDateTime(ingameEndedAt),
-        gamehub_start_at: formatCsvDateTime(gameRecord.gamehub_start_at || gameRecord.gamehubStartAt || ""),
-        gamehub_end_at: formatCsvDateTime(gameRecord.gamehub_end_at || gameRecord.gamehubEndAt || ""),
+        start_at: formatCsvDateTime(startAt),
+        end_at: formatCsvDateTime(endAt),
         total_playtime: formatPlaytimeMinutes(
             gameRecord.total_playtime ?? gameRecord.totalPlaytime,
-            ingameStartedAt,
-            ingameEndedAt,
+            startAt,
+            endAt,
         ),
+        total_correct: gameRecord.total_correct ?? gameRecord.totalCorrect ?? "",
+        total_wrong: gameRecord.total_wrong ?? gameRecord.totalWrong ?? "",
         score: gameRecord.score ?? "",
         level: formatGameLevel(gameRecord.level),
     };
@@ -135,6 +136,7 @@ export function buildGameHistoryCsvRecord(historyRecord = {}) {
         total_time: formatPlaytimeMinutes(historyRecord.total_time ?? historyRecord.totalTime),
         "check-in": formatBoolean(historyRecord["check-in"] ?? historyRecord.check_in ?? historyRecord.checkIn),
         last_stage: historyRecord.last_stage ?? historyRecord.lastStage ?? "",
+        total_score: historyRecord.total_score ?? historyRecord.totalScore ?? "",
     };
 }
 

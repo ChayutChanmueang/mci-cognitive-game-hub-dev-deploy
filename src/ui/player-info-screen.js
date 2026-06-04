@@ -26,6 +26,11 @@ function formatDisplayDate(value) {
     return formatThaiProgramDate(value);
 }
 
+function formatGenderDisplay(gender) {
+    const map = { male: "ชาย", female: "หญิง", other: "อื่น ๆ", unknown: "ยังไม่ระบุ" };
+    return map[String(gender || "").toLowerCase()] || String(gender || "");
+}
+
 function normalizeTestGame(item, index = 0) {
     const gid = String(item?.gid || "").trim();
     const name = String(item?.name || `เกมที่ ${index + 1}`).trim();
@@ -258,7 +263,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
 
                     <label class="player-info-row">
                         <span>เพศ :</span>
-                        <div id="player-info-gender" class="player-info-value">${escapeHtml(player.gender || "")}</div>
+                        <div id="player-info-gender" class="player-info-value">${escapeHtml(formatGenderDisplay(player.gender))}</div>
                     </label>
 
                     <label class="player-info-row">
