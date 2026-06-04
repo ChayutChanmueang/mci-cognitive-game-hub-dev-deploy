@@ -26,14 +26,14 @@ export const StartMenuSetting = Object.freeze({
 export const Config = Object.freeze({
     TimeLimitMs: 3 * 60 * 1000,
     IncreaseScore: {
-        easy: 15,
-        medium: 16,
-        hard: 17,
+        easy: 20,
+        medium: 20,
+        hard: 20,
     },
     DecreaseScore: {
-        easy: 5,
-        medium: 6,
-        hard: 7,
+        easy: 2,
+        medium: 4,
+        hard: 6,
     },
     GridSize: {
         easy: 230,
