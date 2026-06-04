@@ -131,7 +131,8 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.onPlacementEvaluated = (callback = {})=>{
 
-            if (!callback.isCorrect) {
+            const isReplacingSameCell = callback.previousCellIndex >= 0 && callback.previousCellIndex === callback.cellIndex;
+            if (!callback.isCorrect && !isReplacingSameCell) {
                 this.roundScore -= Config.DecreaseScore[this.levelMap];
                 const cell = this.gridBoard?.getCell(callback.cellIndex);
                 const cellPosition = cell ? {
@@ -139,6 +140,9 @@ export default class GameplayScene extends Phaser.Scene {
                     y: this.gridBoard.y + cell.y + 32,
                 } : null;
                 this.showPenaltyEffect(Config.DecreaseScore[this.levelMap], cellPosition);
+                if (cell) {
+                    this.flashCellErrorBorder(cell);
+                }
             }
 
             this.replayLog.addEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
@@ -898,6 +902,25 @@ export default class GameplayScene extends Phaser.Scene {
             onComplete: () => {
                 scorePenaltyText.destroy();
             }
+        });
+    }
+
+    flashCellErrorBorder(cell) {
+        const x = this.gridBoard.x + cell.x;
+        const y = this.gridBoard.y + cell.y;
+        const flash = this.add.graphics();
+        flash.setDepth(10);
+        flash.lineStyle(8, 0xff0000, 1);
+        flash.strokeRoundedRect(x, y, cell.size, cell.size, 42);
+
+        this.tweens.add({
+            targets: flash,
+            alpha: { from: 1, to: 0 },
+            duration: 120,
+            yoyo: true,
+            repeat: 1,
+            ease: 'Linear',
+            onComplete: () => flash.destroy()
         });
     }
 
