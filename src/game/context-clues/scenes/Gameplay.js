@@ -56,7 +56,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.syncTimerUI();
 
     // Initial state to HUD
-    EventBus.emit('minigame:score', { score: 1 });
+    EventBus.emit('minigame:score', { score: this.allScore });
     EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
 
     // Create First Quiz
@@ -155,7 +155,7 @@ export default class GameplayScene extends Phaser.Scene {
               value: true
           });
 
-          EventBus.emit('minigame:score', { score: nextRoundDisplay });
+          EventBus.emit('minigame:score', { score: this.allScore });
           EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
 
           if (this.progressStory < maxRound) {
@@ -316,3 +316,5 @@ export default class GameplayScene extends Phaser.Scene {
         return [bg,label];
     }
 }
+
+
