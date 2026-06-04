@@ -92,7 +92,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI.currentScore.setVisible(false);
 
         // Initial state to HUD
-        EventBus.emit('minigame:score', { score: 1 });
+        EventBus.emit('minigame:score', { score: this.allScore });
         EventBus.emit('minigame:level', { level: 'ด่าน 1' });
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
 
@@ -111,7 +111,7 @@ export default class GameplayScene extends Phaser.Scene {
             const nextRoundDisplay = this.round + 1;
 
             this.gameplayUI.setScore(this.allScore);
-            EventBus.emit('minigame:score', { score: nextRoundDisplay });
+            EventBus.emit('minigame:score', { score: this.allScore });
             this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, nextRoundDisplay);
             EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
 
@@ -906,3 +906,5 @@ export default class GameplayScene extends Phaser.Scene {
         return [container, bg, label];
     }
 }
+
+
