@@ -133,6 +133,12 @@ export default class GameplayScene extends Phaser.Scene {
 
             if (!callback.isCorrect) {
                 this.roundScore -= Config.DecreaseScore[this.levelMap];
+                const cell = this.gridBoard?.getCell(callback.cellIndex);
+                const cellPosition = cell ? {
+                    x: this.gridBoard.x + cell.x + cell.size / 2,
+                    y: this.gridBoard.y + cell.y + 32,
+                } : null;
+                this.showPenaltyEffect(Config.DecreaseScore[this.levelMap], cellPosition);
             }
 
             this.replayLog.addEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
@@ -862,16 +868,22 @@ export default class GameplayScene extends Phaser.Scene {
 
     decreaseScore(score){
         this.allScore -= score;
+        this.showPenaltyEffect(score);
+    }
+
+    showPenaltyEffect(score, position = null) {
+        const x = position?.x ?? this.scale.width / 2;
+        const y = position?.y ?? this.scale.height / 2 - 250;
 
         const scorePenaltyText = createThaiText(
             this,
-            this.scale.width / 2,
-            this.scale.height / 2 - 250,
+            x,
+            y,
             `-${score}`,
             {
-                fontSize: "48px",
+                fontSize: "72px",
                 fontStyle: "bold",
-                color: "#ff4d4d"
+                color: "#fe0000"
             },
             { origin: 0.5 }
         );
@@ -879,9 +891,9 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.tweens.add({
             targets: scorePenaltyText,
-            y: scorePenaltyText.y - 40,
+            y: scorePenaltyText.y - 80,
             alpha: 0,
-            duration: 700,
+            duration: 1000,
             ease: "Sine.easeOut",
             onComplete: () => {
                 scorePenaltyText.destroy();
