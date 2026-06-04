@@ -515,7 +515,7 @@ class Database {
             ),
             this.getAllTableRows(
                 USER_GAME_HISTORY_TABLE,
-                "id, hn, gid, start_at, end_at, \"check-in\"",
+                "id, hn, gid, start_at, end_at, user_game_data_id, \"check-in\"",
                 [{ column: "start_at", ascending: true }],
             ),
         ]);
@@ -572,6 +572,7 @@ class Database {
                     "check-in": false,
                     last_stage: 0,
                     _historyCount: 0,
+                    _userGameDataIds: [],
                 });
             }
 
@@ -591,6 +592,10 @@ class Database {
 
                 if (gid !== "REST001") {
                     row.last_stage += 1;
+                    const userGameDataId = Number(history?.user_game_data_id);
+                    if (Number.isFinite(userGameDataId) && userGameDataId > 0) {
+                        row._userGameDataIds.push(userGameDataId);
+                    }
                 }
             } else if (isCheckIn) {
                 row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
@@ -598,6 +603,28 @@ class Database {
 
             if (Number.isFinite(startAt) && Number.isFinite(endAt)) {
                 row.lastgame_at = this.maxDateValue(row.lastgame_at, new Date(Math.max(startAt, endAt)).toISOString());
+            }
+        }
+
+        const allGameDataIds = [...new Set(
+            [...historyByHnDay.values()].flatMap((row) => row._userGameDataIds),
+        )];
+        const scoreByGameDataId = new Map();
+        if (allGameDataIds.length) {
+            try {
+                const { data: gameDataRows } = await client
+                    .from(USER_GAME_DATA_TABLE)
+                    .select("id, score")
+                    .in("id", allGameDataIds);
+                for (const gd of gameDataRows || []) {
+                    const id = Number(gd?.id);
+                    const score = Number(gd?.score);
+                    if (Number.isFinite(id) && id > 0 && Number.isFinite(score)) {
+                        scoreByGameDataId.set(id, score);
+                    }
+                }
+            } catch (scoreError) {
+                console.warn("Unable to fetch game data scores:", scoreError);
             }
         }
 
@@ -630,6 +657,10 @@ class Database {
                 const firstMs = this.parseDateMs(firstgameAt);
                 const lastMs = this.parseDateMs(lastgameAt);
 
+                const dayScores = (historyRow?._userGameDataIds || [])
+                    .map((id) => scoreByGameDataId.get(id))
+                    .filter((s) => Number.isFinite(s));
+
                 rows.push({
                     user_hn: patientHn,
                     firstgame_at: firstgameAt,
@@ -639,6 +670,7 @@ class Database {
                         : "",
                     "check-in": historyRow?.["check-in"] === true,
                     last_stage: historyRow?._historyCount > 0 ? historyRow.last_stage : null,
+                    total_score: dayScores.length > 0 ? dayScores.reduce((sum, s) => sum + s, 0) : null,
                     _day: localDay,
                     _patientOrder: patientOrderByHn.has(patientHn)
                         ? patientOrderByHn.get(patientHn)

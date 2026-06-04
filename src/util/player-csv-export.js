@@ -51,6 +51,7 @@ export const GAME_HISTORY_CSV_COLUMNS = Object.freeze([
     "total_time",
     "check-in",
     "last_stage",
+    "total_score",
 ]);
 
 export function buildPlayerCsvRecord(player = {}, options = {}) {
@@ -135,6 +136,7 @@ export function buildGameHistoryCsvRecord(historyRecord = {}) {
         total_time: formatPlaytimeMinutes(historyRecord.total_time ?? historyRecord.totalTime),
         "check-in": formatBoolean(historyRecord["check-in"] ?? historyRecord.check_in ?? historyRecord.checkIn),
         last_stage: historyRecord.last_stage ?? historyRecord.lastStage ?? "",
+        total_score: historyRecord.total_score ?? historyRecord.totalScore ?? "",
     };
 }
 
