@@ -30,3 +30,4 @@ public/js/material-web docs-components
 graphify-out/cache
 public/js/material-components material-web/*
 .obsidian
+.mcp.json

@@ -411,31 +411,60 @@ class Database {
                     gid,
                     minigame_name: game?.name || game?.th_name || gid,
                     mci_group: game?.mci_group || "",
-                    ingame_started_at: gameData?.started_at || "",
-                    ingame_ended_at: gameData?.ended_at || "",
-                    gamehub_start_at: history?.start_at || "",
-                    gamehub_end_at: history?.end_at || "",
+                    start_at: gameData?.started_at || "",
+                    end_at: gameData?.ended_at || "",
                     score: gameData?.score ?? "",
                     level: gameData?.level ?? "",
                     _patientOrder: patientOrderByHn.has(hn) ? patientOrderByHn.get(hn) : Number.POSITIVE_INFINITY,
                     _historyId: Number(history?.id) || 0,
+                    _sortAt: history?.start_at || gameData?.started_at || "",
                 };
             });
 
         matchedRows.sort((a, b) => (
             this.compareCsvSortValue(a._patientOrder, b._patientOrder)
-            || new Date(a.gamehub_start_at || 0) - new Date(b.gamehub_start_at || 0)
+            || new Date(a._sortAt || 0) - new Date(b._sortAt || 0)
             || a._historyId - b._historyId
         ));
+
+        const replayCountsByHistoryId = new Map();
+        const matchedHistoryIds = matchedRows.map((r) => r._historyId).filter((id) => id > 0);
+        if (matchedHistoryIds.length) {
+            try {
+                const { data: replayData } = await client
+                    .from(REPLAY_LOG_TABLE)
+                    .select("historyid, value")
+                    .in("historyid", matchedHistoryIds);
+
+                for (const log of replayData || []) {
+                    const historyId = Number(log?.historyid);
+                    if (!Number.isFinite(historyId) || historyId <= 0) continue;
+                    const answer = log?.value?.answer;
+                    if (answer !== true && answer !== false) continue;
+                    const entry = replayCountsByHistoryId.get(historyId) || { correct: 0, wrong: 0 };
+                    if (answer === true) entry.correct += 1;
+                    else entry.wrong += 1;
+                    replayCountsByHistoryId.set(historyId, entry);
+                }
+            } catch (replayError) {
+                console.warn("Unable to fetch replay log counts:", replayError);
+            }
+        }
 
         return matchedRows.map((row) => {
             const {
                 _patientOrder,
                 _historyId,
+                _sortAt,
                 ...exportRow
             } = row;
 
-            return exportRow;
+            const counts = replayCountsByHistoryId.get(_historyId) || null;
+            return {
+                ...exportRow,
+                total_correct: counts ? counts.correct : "",
+                total_wrong: counts ? counts.wrong : "",
+            };
         });
     }
 
