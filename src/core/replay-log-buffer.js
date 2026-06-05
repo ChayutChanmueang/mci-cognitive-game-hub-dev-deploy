@@ -1,7 +1,7 @@
 import db from "./database.js";
 import { GlobalReplayEvent } from "./replay-event.js";
 
-const REPLAY_LOG_TABLE = "replay_log";
+const REPLAY_LOG_TABLE = "game_replay_log";
 const DEFAULT_REPLAY_ID = GlobalReplayEvent.REPLAY_BATCH_PUSHED;
 const GAME_STORAGE = Object.freeze({
     gid: "selected_game_gid",
@@ -386,7 +386,8 @@ export class ReplayLogBuffer {
             : [{
                 hn: parsedHn,
                 gid: parsedGid,
-                replayid: parsedReplayId
+                replayid: parsedReplayId,
+                historyid: parsedHistoryId,
             }];
         const records = await this.pushRowsToDatabase(rows, parsedBatchSize);
 

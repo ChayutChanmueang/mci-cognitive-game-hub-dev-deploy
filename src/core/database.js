@@ -2219,6 +2219,8 @@ class Database {
         replayid = null,
         gid = null,
         value = null,
+        historyId = null,
+        historyid = null,
         userGameDataId = null,
         user_game_data_id = null,
     }) {
@@ -2228,6 +2230,8 @@ class Database {
             replayid,
             gid,
             value,
+            historyId,
+            historyid,
             userGameDataId,
             user_game_data_id,
         });
@@ -2239,7 +2243,7 @@ class Database {
             const { data, error } = await client
                 .from(REPLAY_LOG_TABLE)
                 .insert([payload])
-                .select("id, created_at, hn, replayid, gid, value, user_game_data_id")
+                .select("id, created_at, hn, replayid, gid, value, historyid")
                 .maybeSingle();
 
             if (error) {
@@ -2256,16 +2260,18 @@ class Database {
         replayid = null,
         gid = null,
         value = null,
+        historyId = null,
+        historyid = null,
         userGameDataId = null,
         user_game_data_id = null,
     }) {
         const parsedHn = String(hn || "").trim();
         const parsedReplayId = String(replayId || replayid || "").trim();
         const parsedGid = gid == null ? null : String(gid).trim() || null;
-        const parsedUserGameDataIdValue = userGameDataId ?? user_game_data_id;
-        const parsedUserGameDataId = parsedUserGameDataIdValue == null || parsedUserGameDataIdValue === ""
+        const parsedHistoryIdValue = historyId ?? historyid ?? userGameDataId ?? user_game_data_id;
+        const parsedHistoryId = parsedHistoryIdValue == null || parsedHistoryIdValue === ""
             ? null
-            : Number(parsedUserGameDataIdValue);
+            : Number(parsedHistoryIdValue);
         const parsedValue = this.normalizeJsonValue(value);
 
         if (!parsedHn) {
@@ -2277,10 +2283,10 @@ class Database {
         }
 
         if (
-            parsedUserGameDataId != null
-            && (!Number.isInteger(parsedUserGameDataId) || parsedUserGameDataId <= 0)
+            parsedHistoryId != null
+            && (!Number.isInteger(parsedHistoryId) || parsedHistoryId <= 0)
         ) {
-            throw new Error("Invalid userGameDataId");
+            throw new Error("Invalid historyId");
         }
 
         return {
@@ -2288,7 +2294,7 @@ class Database {
             replayid: parsedReplayId,
             gid: parsedGid,
             value: parsedValue,
-            user_game_data_id: parsedUserGameDataId,
+            historyid: parsedHistoryId,
         };
     }
 
@@ -2317,7 +2323,7 @@ class Database {
                 const { data, error } = await client
                     .from(REPLAY_LOG_TABLE)
                     .insert(batch)
-                    .select("id, created_at, hn, replayid, gid, value, user_game_data_id");
+                    .select("id, created_at, hn, replayid, gid, value, historyid");
 
                 if (error) {
                     throw error;
