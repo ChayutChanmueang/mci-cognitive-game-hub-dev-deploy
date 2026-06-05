@@ -4,6 +4,7 @@
 **Timeline:** 2026-03-15 → 2026-03-28
 
 ## 📅 Internal Timeline
+
 ```mermaid
 gantt
     title Sprint 02 Tasks
@@ -19,13 +20,14 @@ gantt
 ```
 
 ## 📋 Committed Stories & Tasks
-| ID | Story / Task | Owner | Estimate | Status |
-|----|--------------|-------|----------|--------|
-| [US-E1-02](../user-stories/archives/US-E1-02.md) | Zoo Detective UI & Feedback | UI Dev | - | ✅ Done |
-| [US-E1-04](../user-stories/archives/US-E1-04.md) | Zoo Feeder Interaction Logic | UI Dev | - | ✅ Done |
-| [US-E1-06](../user-stories/archives/US-E1-06.md) | UI สำหรับ Context Clues (Thai Support) | UI Dev | - | ✅ Done |
-| [US-E2-01](../user-stories/archives/US-E2-01.md) | Setup Supabase Tables | Core Dev | - | ✅ Done |
-| [US-E3-01](../user-stories/archives/US-E3-01.md) | ปรับขนาด Font/ปุ่ม (Accessibility Basics) | UI Dev | - | 🏗 In-Progress |
+
+| ID                                            | Story / Task                                          | Owner    | Estimate | Status  |
+| --------------------------------------------- | ----------------------------------------------------- | -------- | -------- | ------- |
+| [US-E1-02](../user-stories/archives/US-E1-02.md) | Zoo Detective UI & Feedback                           | UI Dev   | -        | ✅ Done |
+| [US-E1-04](../user-stories/archives/US-E1-04.md) | Zoo Feeder Interaction Logic                          | UI Dev   | -        | ✅ Done |
+| [US-E1-06](../user-stories/archives/US-E1-06.md) | UI สำหรับ Context Clues (Thai Support)          | UI Dev   | -        | ✅ Done |
+| [US-E2-01](../user-stories/archives/US-E2-01.md) | Setup Supabase Tables                                 | Core Dev | -        | ✅ Done |
+| [US-E3-01](../user-stories/archives/US-E3-01.md) | ปรับขนาด Font/ปุ่ม (Accessibility Basics) | UI Dev   | -        | ✅ Done |
 
 ---
 

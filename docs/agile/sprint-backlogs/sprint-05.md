@@ -27,11 +27,12 @@ gantt
 | [US-E2-04](../user-stories/archives/US-E2-04.md) | ระบบ Daily Streak Tracking | Med | ✅ Done |
 | [US-E2-05](../user-stories/archives/US-E2-05.md) | มินิเกมด่านจุดพัก (Rest Level) | Low | ✅ Done |
 | [US-E2-06](../user-stories/archives/US-E2-06.md) | ด่านเส้นชัยและระบบเช็คชื่อ (Finish Level) | High | ✅ Done |
+| [US-E5-04](../user-stories/archives/US-E5-04.md) | เครื่องมือจัดการตารางเล่นรายวัน (Daily Preset Editor) | Med | ✅ Done |
 
 ## 📊 Sprint Summary & Velocity
-- **งานที่วางแผนไว้ (Planned):** 7 Stories
-- **งานที่ทำเสร็จ (Completed):** 7 Stories (100% Completion)
-- **อัตราการทำงาน (Velocity):** 7 User Stories สำเร็จลุล่วง
+- **งานที่วางแผนไว้ (Planned):** 8 Stories
+- **งานที่ทำเสร็จ (Completed):** 8 Stories (100% Completion)
+- **อัตราการทำงาน (Velocity):** 8 User Stories สำเร็จลุล่วง
 - **การทดสอบระบบ:** ผ่านเกณฑ์ความเสถียรและเชื่อมโยงข้อมูลกับ Supabase Database 100%
 
 ## 🛠 Sprint Specifics

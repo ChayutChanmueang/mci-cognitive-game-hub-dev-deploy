@@ -35,6 +35,8 @@
 | [US-E3-04](./user-stories/US-E3-04.md) | เกม Symmetry Decor (มิติสัมพันธ์/Visuospatial)                 | Med      | ✅ Done  |
 | [US-E3-05](./user-stories/US-E3-05.md) | เกม Postcard Reader (ความจำระยะสั้น/Memory)                    | Med      | ✅ Done  |
 | [US-E3-06](./user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | Low      | 🏗 In-Progress |
+| [US-E3-07](./user-stories/archives/US-E3-07.md) | เกม Fry Food (ทอดไข่/ทอดอาหาร) และการควบคุมด้วย Accelerometer | Med      | ✅ Done  |
+| [US-E3-08](./user-stories/archives/US-E3-08.md) | ระบบติดตั้งแอปพลิเคชันแบบ Progressive Web App (PWA)            | Low      | ✅ Done  |
 | [UX-RESP-01](./user-stories/archives/UX-RESP-01.md) | กรอบระบบรองรับมือถือและการวิจัยความละเอียดหน้าจอ (Responsive)   | High     | ✅ Done  |
 
 ### E4: Data Tracking & Analytics (Supabase) (P1)
@@ -43,6 +45,7 @@
 | [US-E4-01](./user-stories/US-E4-01.md) | บันทึกข้อมูลส่วนตัวและเวลาการใช้งาน Gamehub                   | High     | ✅ Done   |
 | [US-E4-02](./user-stories/US-E4-02.md) | บันทึกผลการเล่นมินิเกม (Score, Time, Difficulty)              | High     | ✅ Done   |
 | [US-E4-03](./user-stories/archives/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med      | ✅ Done   |
+| [US-E4-04](./user-stories/archives/US-E4-04.md) | ระบบจัดเก็บบันทึกการเล่นซ้ำพฤติกรรม (Replay Event Logging)     | Med      | ✅ Done   |
 
 ### E5: Admin & Data Management (P2)
 | ID       | User Story                            | Priority | Status   |
@@ -50,6 +53,8 @@
 | [US-E5-01](./user-stories/archives/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | Med      | ✅ Done   |
 | [US-E5-02](./user-stories/archives/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV          | Low      | ✅ Done   |
 | [US-E5-03](./user-stories/US-E5-03.md) | ระบบลบบัญชีและลงชื่อออก               | Low      | 🏗 In-Progress |
+| [US-E5-04](./user-stories/archives/US-E5-04.md) | เครื่องมือจัดการตารางเล่นรายวัน (Daily Preset Editor)         | Med      | ✅ Done   |
+| [US-E5-05](./user-stories/archives/US-E5-05.md) | เครื่องมือทดสอบเกมสแตนด์อโลน (Test Game Hub & Video Player)    | Low      | ✅ Done   |
 
 ---
 
