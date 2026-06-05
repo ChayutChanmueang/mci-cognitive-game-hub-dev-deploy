@@ -150,10 +150,7 @@ export default class GameplayScene extends Phaser.Scene {
           const nextRoundDisplay = this.round + 1;
 
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
-          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
-              answer: answer,
-              value: true
-          });
+          this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, true);
 
           EventBus.emit('minigame:score', { score: nextRoundDisplay });
           EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
@@ -180,10 +177,7 @@ export default class GameplayScene extends Phaser.Scene {
 
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
 
-          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
-              answer: answer,
-              value: false
-          });
+          this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, false);
       }
       this.gameplayUI.setScore(this.allScore);
       this.quizGame.onCreateQuiz();

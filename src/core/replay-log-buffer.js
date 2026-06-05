@@ -32,8 +32,8 @@ function normalizeJsonValue(value) {
 
 /**
  * @typedef {Object} ReplayEventValue
- * @property {boolean} answer - Whether this event represents a correct answer/outcome.
- * @property {*} data - Additional event data to store with the answer result.
+ * @property {boolean} data - Whether this event answer is correct.
+ * @property {*} answer - Answer text or additional answer data for this event.
  */
 
 function normalizeReplayEventValue(value) {
@@ -41,17 +41,17 @@ function normalizeReplayEventValue(value) {
         throw new Error("Replay event value must be an object with answer and data");
     }
 
-    if (typeof value.answer !== "boolean") {
-        throw new Error("Replay event value.answer must be a boolean");
+    if (typeof value.data !== "boolean") {
+        throw new Error("Replay event value.data must be a boolean");
     }
 
-    if (!Object.prototype.hasOwnProperty.call(value, "data")) {
-        throw new Error("Replay event value.data is required");
+    if (!Object.prototype.hasOwnProperty.call(value, "answer")) {
+        throw new Error("Replay event value.answer is required");
     }
 
     return {
-        answer: value.answer,
-        data: normalizeJsonValue(value.data),
+        data: value.data,
+        answer: normalizeJsonValue(value.answer),
     };
 }
 
@@ -285,17 +285,18 @@ export class ReplayLogBuffer {
 
     /**
      * @param {string} replayId
-     * @param {boolean} answer
+     * @param {*} answer
+     * @param {boolean} data
      * @param {{ id?: string, createdAt?: string }} options
      */
-    addAnswerEvent(replayId, answer, options = {}) {
-        if (typeof answer !== "boolean") {
-            throw new Error("Replay answer must be a boolean");
+    addAnswerEvent(replayId, answer, data, options = {}) {
+        if (typeof data !== "boolean") {
+            throw new Error("Replay answer event data must be a boolean");
         }
 
         return this.addEvent(replayId, {
+            data,
             answer,
-            data: null,
         }, options);
     }
 
