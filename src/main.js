@@ -2029,7 +2029,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentHn = String(rememberedPatient?.patientCode || "").trim() || null;
         const onBack = () => navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login);
 
-        renderLeaderboardScreen(uiRoot, { patientLabel, players: [], onBack });
+        renderLeaderboardScreen(uiRoot, { patientLabel, players: [], loading: true, onBack });
 
         try {
             const players = await db.getLeaderboard({ currentHn });
