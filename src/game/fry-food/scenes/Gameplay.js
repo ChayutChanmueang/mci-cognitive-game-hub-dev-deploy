@@ -65,8 +65,13 @@ export default class GameplayScene extends Phaser.Scene {
         this._cookLevel = 0;         // Tracks how many times it was flipped
         this._flipThresholdBeta = AccelerometerSettings.flipThresholdBeta; // dynamic threshold for designer
 
-        // -- Hide HUD (we don't need score/progress for this game) ----------
-        EventBus.emit('minigame:hide-hud');
+        // -- Show DOM HUD (zoo-feeder top bar style) -------------------------
+        this.score = 0;
+        this.gameTime = 180;
+        EventBus.emit('minigame:show-hud');
+        EventBus.emit('minigame:score', { score: this.score });
+        EventBus.emit('minigame:tick', { timeLeft: this.gameTime, maxTime: this.gameTime });
+        this._startTimer(this.gameTime);
 
         // -- Draw frying pan ------------------------------------------------
         this._createPan(cx, cy);
@@ -76,6 +81,9 @@ export default class GameplayScene extends Phaser.Scene {
 
         // -- Create Smoke Visuals -------------------------------------------
         this._createSmoke(cx, cy);
+
+        // -- Create Flip Prompt ---------------------------------------------
+        this._createFlipPrompt(cx, height);
 
         // -- Debug text overlay ---------------------------------------------
         this._createDebugOverlay();
@@ -96,6 +104,12 @@ export default class GameplayScene extends Phaser.Scene {
             this._removeDesignerMenu();
             if (this._cookTimer) {
                 this._cookTimer.remove();
+            }
+            if (this.countdownTimer) {
+                this.countdownTimer.remove();
+            }
+            if (this._flipPromptContainer && typeof this._flipPromptContainer.destroy === 'function') {
+                this._flipPromptContainer.destroy();
             }
 
             // Exit fullscreen if running in a browser
@@ -152,6 +166,22 @@ export default class GameplayScene extends Phaser.Scene {
     // GAME LOGIC
     // =======================================================================
 
+    _startTimer(gameTime) {
+        if (this.countdownTimer) return;
+        this.countdownTimer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (this._gameState === 'GAME_OVER') return;
+                const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
+                EventBus.emit('minigame:tick', { timeLeft: remaining, maxTime: gameTime });
+                if (remaining <= 0) {
+                    this._endGame();
+                }
+            },
+            repeat: gameTime - 1,
+        });
+    }
+
     _startCooking() {
         this._gameState = 'COOKING';
         this._flipInitiated = false;
@@ -160,6 +190,10 @@ export default class GameplayScene extends Phaser.Scene {
         if (this._smokeGfx) {
             this._smokeGfx.setVisible(false);
             if (this._smokeTween) this._smokeTween.stop();
+        }
+
+        if (this._flipPromptContainer) {
+            this._flipPromptContainer.setVisible(false);
         }
 
         const settings = AccelerometerSettings;
@@ -180,6 +214,11 @@ export default class GameplayScene extends Phaser.Scene {
 
         // Capture the baseline device angle at the exact moment the egg is ready
         this._startBetaAngle = AccelerometerManager.getOrientation().beta;
+
+        // Show flip prompt
+        if (this._flipPromptContainer) {
+            this._flipPromptContainer.setVisible(true);
+        }
 
         // Show smoke to indicate it's ready
         if (this._smokeGfx) {
@@ -210,7 +249,13 @@ export default class GameplayScene extends Phaser.Scene {
             if (this._smokeTween) this._smokeTween.stop();
         }
 
+        if (this._flipPromptContainer) {
+            this._flipPromptContainer.setVisible(false);
+        }
+
         this._cookLevel++;
+        this.score = this._cookLevel * 100;
+        EventBus.emit('minigame:score', { score: this.score });
 
         // Visual change to egg
         const stage = Math.min(this._cookLevel + 1, 4);
@@ -247,6 +292,9 @@ export default class GameplayScene extends Phaser.Scene {
 
         if (this._cookTimer) {
             this._cookTimer.remove();
+        }
+        if (this.countdownTimer) {
+            this.countdownTimer.remove();
         }
         
         // Trigger the premium DOM effect
@@ -316,6 +364,74 @@ export default class GameplayScene extends Phaser.Scene {
             this._panContainer.add(this._smokeGfx);
         }
     }
+
+    _createFlipPrompt(cx, height) {
+        const uiRoot = document.getElementById('ui-root');
+        if (!uiRoot) return;
+
+        this._flipPromptDom = document.createElement('div');
+        Object.assign(this._flipPromptDom.style, {
+            position: 'absolute',
+            left: '50%',
+            bottom: '100px',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '20px',
+            pointerEvents: 'none',
+            zIndex: '2000',
+            visibility: 'hidden'
+        });
+
+        const textEl = document.createElement('div');
+        textEl.textContent = 'ได้เวลากลับอาหารแล้ว !';
+        Object.assign(textEl.style, {
+            fontFamily: 'sans-serif',
+            fontSize: '32px',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            whiteSpace: 'nowrap',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.8), -2px -2px 4px rgba(0,0,0,0.8), 2px -2px 4px rgba(0,0,0,0.8), -2px 2px 4px rgba(0,0,0,0.8)'
+        });
+
+        const iconEl = document.createElement('div');
+        Object.assign(iconEl.style, {
+            width: '64px',
+            height: '64px',
+            backgroundColor: '#888888',
+            border: '2px solid #ffffff',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontSize: '18px',
+            fontFamily: 'sans-serif',
+            fontWeight: 'bold'
+        });
+        iconEl.textContent = 'Flip';
+
+        this._flipPromptDom.appendChild(textEl);
+        this._flipPromptDom.appendChild(iconEl);
+
+        uiRoot.appendChild(this._flipPromptDom);
+
+        // Wrapper object to maintain the existing API for show/hide
+        this._flipPromptContainer = {
+            setVisible: (visible) => {
+                this._flipPromptDom.style.visibility = visible ? 'visible' : 'hidden';
+            },
+            destroy: () => {
+                if (this._flipPromptDom && this._flipPromptDom.parentNode) {
+                    this._flipPromptDom.parentNode.removeChild(this._flipPromptDom);
+                }
+            }
+        };
+    }
+
+
 
     /**
      * Create the debug text overlay at the top of the screen.
