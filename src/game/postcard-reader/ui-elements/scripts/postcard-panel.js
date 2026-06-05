@@ -9,12 +9,10 @@ export default class PostcardPanel extends UIPage {
     constructor(scene) {
         super(scene, scene.scale.width / 2, scene.scale.height / 2, {
             panelPosition: { x: 0, y: 100 },
-            overlayEnable: true,
-            size: { x: 850, y: 1400 },
+            overlayEnable: false,
+            size: { x: 920, y: 680 },
             strokeEnable: true
         });
-
-        this.panelBg.setScale(1.5);
 
         this.titleText = createThaiText(
             scene,
@@ -24,17 +22,17 @@ export default class PostcardPanel extends UIPage {
             {
                 fontSize: "52px",
                 fontStyle: "bold",
-                color: Theme.colors.onSurface
+                color: "#743D14"
             },
-            { origin: 0.5, wrapWidth: 700 }
+            { origin: 0.5, wrapWidth: 800 }
         );
 
         this.addElements([this.titleText]);
 
         this.startMemoryCountdown();
-        
+
         // Accessibility: Read text aloud
-        VoiceService.speak(scene.postcardText);
+        // VoiceService.speak(scene.postcardText);
     }
 
     startMemoryCountdown() {
@@ -44,10 +42,10 @@ export default class PostcardPanel extends UIPage {
             callback: () => {
                 this.forceHide();
                 this.scene.showGame();
-                VoiceService.stop();
+                // VoiceService.stop();
             }
         });
-        
+
         // Signal HUD about memory phase
         EventBus.emit("minigame:tick-progress", { timeLeft: Config.MemoryTimeS, maxTime: Config.MemoryTimeS });
     }
@@ -56,9 +54,9 @@ export default class PostcardPanel extends UIPage {
         this.forceShow();
         this.titleText.setText(this.scene.postcardText);
         this.startMemoryCountdown();
-        
+
         // Accessibility: Read text aloud
-        VoiceService.speak(this.scene.postcardText);
+        // VoiceService.speak(this.scene.postcardText);
     }
 
     update() {
@@ -66,6 +64,24 @@ export default class PostcardPanel extends UIPage {
             const timeLeft = Math.trunc(this.countdownTimer.getRemainingSeconds() + 1);
             EventBus.emit("minigame:tick-progress", { timeLeft, maxTime: Config.MemoryTimeS });
         }
+    }
+
+    drawPanel(width, height) {
+        this.panelBg.clear();
+        
+        // Shadow (Figma: X=0, Y=12, Blur=4, Spread=0, Color=#E49A2C)
+        // Simulate slight blur by drawing an outer layer with lower alpha
+        this.panelBg.fillStyle(0xE49A2C, 0.3);
+        this.panelBg.fillRoundedRect(-width / 2 - 2, -height / 2 + 10, width + 4, height + 4, 54);
+        this.panelBg.fillStyle(0xE49A2C, 0.6);
+        this.panelBg.fillRoundedRect(-width / 2 - 1, -height / 2 + 11, width + 2, height + 2, 53);
+        // Core shadow
+        this.panelBg.fillStyle(0xE49A2C, 1);
+        this.panelBg.fillRoundedRect(-width / 2, -height / 2 + 12, width, height, 52);
+
+        // Main Background
+        this.panelBg.fillStyle(0xFDF5E0, 1);
+        this.panelBg.fillRoundedRect(-width / 2, -height / 2, width, height, 52);
     }
 
     createButton(x, y, text, onClick) {

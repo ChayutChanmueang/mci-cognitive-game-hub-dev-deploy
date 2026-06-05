@@ -176,21 +176,18 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
 
         // --- Styling (Tweak these to match your aesthetic) ---
         const bgColor = 0xffffff;       // White background
-        const borderColor = 0xd5d0c8;   // Soft tan/grey for borders (from your image)
-        const outerBorderThickness = 6;
-        const innerBorderThickness = 2;
+        const borderColor = 0xDB4670;   // Outer border color
+        const innerBorderColor = 0xF2D0D9;
+        const outerBorderThickness = 12;
+        const innerBorderThickness = 6;
         const cornerRadius = 16;        // How round the outer corners are
 
-        // 1. Draw the main outer rounded rectangle
+        // 1. Draw the main outer rounded rectangle background
         graphics.fillStyle(bgColor, 1.0);
-        graphics.lineStyle(outerBorderThickness, borderColor, 1.0);
-
-        // fillRoundedRect and strokeRoundedRect are built right into Phaser 3!
         graphics.fillRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
-        graphics.strokeRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
 
         // 2. Draw the inner cell borders
-        graphics.lineStyle(innerBorderThickness, borderColor, 0.6);
+        graphics.lineStyle(innerBorderThickness, innerBorderColor, 1.0);
         graphics.beginPath();
 
         // Draw vertical inner lines
@@ -208,6 +205,10 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
         }
 
         graphics.strokePath();
+
+        // 3. Draw the outer border on top of everything else
+        graphics.lineStyle(outerBorderThickness, borderColor, 1.0);
+        graphics.strokeRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
 
         // Put it at a negative depth so it sits behind everything else in the container
         graphics.setDepth(-10);

@@ -82,7 +82,7 @@ export function renderSignupScreen(root, options = {}) {
         onSubmit = () => {},
     } = options;
 
-    const hnLabel = initialHn ? `HN${initialHn}` : "-";
+    const hnLabel = initialHn ? `ID${initialHn}` : "-";
     const educationOptionsMarkup = educationLevels
         .map((level) => `
                                 <md-select-option value="${escapeHtml(level?.eduid || "")}">
@@ -105,7 +105,7 @@ export function renderSignupScreen(root, options = {}) {
 
                 <form id="patient-signup-form" class="signup-form" novalidate>
                     <div class="signup-row signup-row--hn">
-                        <label>หมายเลข HN :</label>
+                        <label>หมายเลข ID :</label>
                         <div class="signup-hn-value">${hnLabel}</div>
                     </div>
 

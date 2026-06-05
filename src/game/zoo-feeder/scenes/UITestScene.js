@@ -10,8 +10,8 @@ import { ReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import DebugMenu from "./DebugMenu.js";
-import { GameOverSetting } from '../constants.js';
-
+import { GameOverSetting, StartMenuSetting, GameplaySetting } from '../constants.js';
+import { TutorialPanel } from '../../../ui/tutorial-panel.js';
 const GAME_ID = "ATTN001";
 
 export default class UITestScene extends Phaser.Scene {
@@ -30,12 +30,14 @@ export default class UITestScene extends Phaser.Scene {
     this.load.image('apple_sprite', 'assets/zoo-feeder/food/Apple.png')
     this.load.image('battery_sprite', 'assets/zoo-feeder/food/Battery.png')
     this.load.image('beef_sprite', 'assets/zoo-feeder/food/Beef.png')
+    this.load.image('boot_sprite', 'assets/zoo-feeder/food/Boot.png')
+    this.load.image('bottle_sprite', 'assets/zoo-feeder/food/Bottle.png')
     this.load.image('chicken_sprite', 'assets/zoo-feeder/food/Chick.png')
     this.load.image('corn_sprite', 'assets/zoo-feeder/food/Corn.png')
     this.load.image('fish_sprite', 'assets/zoo-feeder/food/Fish.png')
-    this.load.image('garbage_sprite', 'assets/zoo-feeder/food/Garbage.png')
+    // this.load.image('garbage_sprite', 'assets/zoo-feeder/food/Garbage.png')
     this.load.image('plant_sprite', 'assets/zoo-feeder/food/Plant.png')
-    this.load.image('soda_sprite', 'assets/zoo-feeder/food/Soda.png')
+    // this.load.image('soda_sprite', 'assets/zoo-feeder/food/Soda.png')
     //Animal Sprite
     this.load.image('bear_sprite', 'assets/zoo-feeder/animal/B_Bear.png')
     this.load.image('cow_sprite', 'assets/zoo-feeder/animal/B_Cow.png')
@@ -76,8 +78,8 @@ export default class UITestScene extends Phaser.Scene {
     // this.lava = this.add.rectangle(400,650,800,50,0xff0000,0);
     // this.physics.add.existing(this.lava,true);
     //this.animal = new Animal(this,this.scale.width/2,1200);
-    this.background = this.add.sprite(0, 0, 'background');
-    this.background.setScale(27);
+    this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+    this.background.setDisplaySize(this.scale.width, this.scale.height);
     this.background.setDepth(-10);
     this.score = 0;
     this.level = this.score / 100;
@@ -131,13 +133,27 @@ export default class UITestScene extends Phaser.Scene {
     }
 
     console.log(this.conveyers.length);
-    //this.spawnFruit();
-    this.physics.resume();
-
-    //const _fruit = new Fruit(this, this.scale.width/2, 50);
+    // Pause physics initially until tutorial is dismissed
+    this.physics.pause();
 
     // Debug menu
     this.debugMenu = new DebugMenu(this);
+
+    // Show DOM Tutorial Panel
+    const uiRoot = document.getElementById('ui-root');
+    this.tutorialPanel = new TutorialPanel(uiRoot, {
+      title: "คู่มือการเล่น",
+      description: StartMenuSetting.instructions,
+      panelBorderColor: StartMenuSetting.panelBorderColor,
+      panelHeaderColor: StartMenuSetting.panelHeaderColor,
+      primaryFontColor: StartMenuSetting.primaryFontColor,
+      onStart: () => {
+        this.physics.resume();
+        this.spawnFruit();
+        this.startTimer();
+      }
+    });
+    this.tutorialPanel.render();
   }
 
   startTimer() {
@@ -269,6 +285,7 @@ export default class UITestScene extends Phaser.Scene {
         level: this.level,
         panelBorderColor: GameOverSetting.panelBorderColor,
         panelHeaderColor: GameOverSetting.panelHeaderColor,
+        resultImage: 'assets/common/result/result_zoo_feeder.png',
       });
     });
   }
@@ -294,8 +311,9 @@ export default class UITestScene extends Phaser.Scene {
     this.randomSpawnFruit();
     console.log(this.spawnFruitTimer);
     if (this.spawnFruitTimer == null) {
+      const cooldowns = GameplaySetting.spawnCooldowns[this.conveyerNums] || GameplaySetting.spawnCooldowns[1];
       this.spawnFruitTimer = this.time.addEvent({
-        delay: this.randomChooseNum(9, 15) * 100, //ms
+        delay: this.randomChooseNum(cooldowns.min, cooldowns.max) * 100, //ms
         callback: this.randomSpawnFruit,
         callbackScope: this,
         loop: true
@@ -305,7 +323,8 @@ export default class UITestScene extends Phaser.Scene {
   randomSpawnFruit() {
     this.conveyers[this.randomChooseNum(0, this.conveyers.length - 1)].spawnFoods();
     if (this.spawnFruitTimer) {
-      this.spawnFruitTimer.delay = this.randomChooseNum(9, 15) * 100;
+      const cooldowns = GameplaySetting.spawnCooldowns[this.conveyerNums] || GameplaySetting.spawnCooldowns[1];
+      this.spawnFruitTimer.delay = this.randomChooseNum(cooldowns.min, cooldowns.max) * 100;
     }
   }
   randomChooseNum(min, max) {

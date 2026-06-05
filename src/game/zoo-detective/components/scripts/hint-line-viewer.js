@@ -38,6 +38,7 @@ export default class HintLineViewer extends Phaser.GameObjects.Container {
                 origin: [0, 0],
                 wrapWidth: 472
             },
+            contentFactory: null,
             onHintShown: null,
             onAllHintsShown: null,
             ...options,
@@ -65,14 +66,22 @@ export default class HintLineViewer extends Phaser.GameObjects.Container {
             wrapWidth
         };
 
-        this.textObject = createThaiText(
-            this.scene,
-            this.options.padding,
-            this.options.padding,
-            displayedText,
-            getThaiTextStyle(this.options.textStyle),
-            textOptions
-        );
+        if (typeof this.options.contentFactory === "function") {
+            this.textObject = this.options.contentFactory(this.scene, displayedText, {
+                width: wrapWidth,
+                height: Math.max(1, this.options.minHeight - (this.options.padding * 2))
+            });
+            this.textObject.setPosition(this.options.padding, this.options.padding);
+        } else {
+            this.textObject = createThaiText(
+                this.scene,
+                this.options.padding,
+                this.options.padding,
+                displayedText,
+                getThaiTextStyle(this.options.textStyle),
+                textOptions
+            );
+        }
 
         const contentHeight = this.textObject.height + (this.options.padding * 2);
         const panelHeight = Math.max(this.options.minHeight, contentHeight);

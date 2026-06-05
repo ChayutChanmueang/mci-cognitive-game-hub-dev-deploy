@@ -30,6 +30,31 @@ function normalizeJsonValue(value) {
     return JSON.parse(serializedValue);
 }
 
+/**
+ * @typedef {Object} ReplayEventValue
+ * @property {boolean} data - Whether this event answer is correct.
+ * @property {*} answer - Answer text or additional answer data for this event.
+ */
+
+function normalizeReplayEventValue(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+        throw new Error("Replay event value must be an object with answer and data");
+    }
+
+    if (typeof value.data !== "boolean") {
+        throw new Error("Replay event value.data must be a boolean");
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(value, "answer")) {
+        throw new Error("Replay event value.answer is required");
+    }
+
+    return {
+        data: value.data,
+        answer: normalizeJsonValue(value.answer),
+    };
+}
+
 function parseStorageJson(key, fallbackValue = null) {
     if (typeof sessionStorage === "undefined") {
         return fallbackValue;
@@ -234,7 +259,12 @@ export class ReplayLogBuffer {
         return this.events.map((event) => ({ ...event }));
     }
 
-    addEvent(replayId, value = null, options = {}) {
+    /**
+     * @param {string} replayId
+     * @param {ReplayEventValue} value
+     * @param {{ id?: string, createdAt?: string }} options
+     */
+    addEvent(replayId, value, options = {}) {
         const parsedReplayId = String(replayId || "").trim();
         if (!parsedReplayId) {
             throw new Error("Invalid replayId");
@@ -246,11 +276,28 @@ export class ReplayLogBuffer {
             sequence: this.events.length + 1,
             createdAt: options.createdAt || new Date().toISOString(),
             elapsedMs: Date.now() - new Date(this.startedAt).getTime(),
-            value: normalizeJsonValue(value),
+            value: normalizeReplayEventValue(value),
         };
 
         this.events.push(event);
         return event;
+    }
+
+    /**
+     * @param {string} replayId
+     * @param {*} answer
+     * @param {boolean} data
+     * @param {{ id?: string, createdAt?: string }} options
+     */
+    addAnswerEvent(replayId, answer, data, options = {}) {
+        if (typeof data !== "boolean") {
+            throw new Error("Replay answer event data must be a boolean");
+        }
+
+        return this.addEvent(replayId, {
+            data,
+            answer,
+        }, options);
     }
 
     clearEvents() {
@@ -269,9 +316,7 @@ export class ReplayLogBuffer {
             replayid: event.replayId,
             gid,
             historyid: parsedHistoryId,
-            value: {
-                data: event.value
-            },
+            value: event.value,
         }));
     }
 

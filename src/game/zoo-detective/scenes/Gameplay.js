@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 import GameplayUI from "../entity/script/ui/gameplay-ui";
 import { createThaiText, ThaiTextPresets } from "../../../util/thai-text.js";
-import { AnimalIconTray, SquareGridLayout } from "../../../util/layout/index.js";
+import { AnimalIconTray, InlineContentLayout, ShadowRoundedPanel, SquareGridLayout } from "../../../util/layout/index.js";
+import Theme from "../../../util/game-theme.js";
 import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
-import { DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
+import { AnimalIconAssets, DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
 import {Config} from "../../zoo-detective/constants.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
@@ -12,6 +13,7 @@ import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import {ZooDetectiveReplayEvent} from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -27,6 +29,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.hintViewer = null;
         this.animalTray = null;
         this.gridBoard = null;
+        this.gridShadowGraphics = null;
         this.answerButtonBounds = null;
         this.round = 0;
         this.selectedAnimal = null;
@@ -43,9 +46,13 @@ export default class GameplayScene extends Phaser.Scene {
 
     preload() {
         // rexUI is loaded via main.js global config
-
+        this.load.image('context-clues-bg','assets/zoo-detective/etc/BG.png')
         this.load.image("button-idle", "assets/button_rectangle_depth_flat.png");
         this.load.image("button-press", "assets/button_rectangle_flat.png");
+
+        for (const asset of Object.values(AnimalIconAssets)) {
+            this.load.image(asset.texture, asset.path);
+        }
     }
 
     init(data) {
@@ -64,8 +71,19 @@ export default class GameplayScene extends Phaser.Scene {
     create(data) {
         EventBus.emit('minigame:show-hud');
 
-        this.gameplayUI = new GameplayUI(this, 0, 0);
-        this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
+        this.createSceneBackdrop();
+
+        this.resetGameTimer();
+        this.onCloseTutorial = () => {
+            this.startGameTimer();
+        };
+
+        const skipTutorial = this.sceneData.skipTutorial === true;
+
+        this.gameplayUI = new GameplayUI(this, 0, 0, {
+            showTutorial: !skipTutorial
+        });
+        this.gameplayUI.setLevel(this.levelMap, this.level, 1, 1);
         this.gameplayUI.setScore(this.allScore);
         this.gameplayUI.setTimeLeft(Math.ceil(this.timeLimitMs / 1000));
 
@@ -75,16 +93,11 @@ export default class GameplayScene extends Phaser.Scene {
 
         // Initial state to HUD
         EventBus.emit('minigame:score', { score: this.allScore });
-        EventBus.emit('minigame:level', { level: `ด่าน 1/${Config.MaxRound[this.levelMap]}` });
+        EventBus.emit('minigame:level', { level: 'ด่าน 1' });
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
 
         this.gameStartedAt = new Date();
         this.gameEndedAt = new Date();
-
-        this.resetGameTimer();
-        this.onCloseTutorial = () => {
-            this.startGameTimer();
-        };
 
         this.onPuzzleCompleted = (result = {})=>{
             if (this.isGameEnded) {
@@ -95,37 +108,41 @@ export default class GameplayScene extends Phaser.Scene {
             const addScore = Config.IncreaseScore[this.levelMap] + this.roundScore;
             this.allScore += (addScore >= 0 ? addScore : 0);
             this.roundScore = 0;
-            const maxRound = Config.MaxRound[this.levelMap];
-            const nextRoundDisplay = Math.min(this.round + 1, maxRound);
+            const nextRoundDisplay = this.round + 1;
 
             this.gameplayUI.setScore(this.allScore);
             EventBus.emit('minigame:score', { score: this.allScore });
-            this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
-            EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
+            this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, nextRoundDisplay);
+            EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
 
             console.log(`allScore : ${this.allScore}`);
             console.log(`elapsedTimeMs : ${result.elapsedTimeMs ?? 0}`);
 
-            if (this.round < maxRound) {
-                this.time.delayedCall(500, () => {
-                    if (this.isGameEnded) {
-                        return;
-                    }
+            showLevelCompleteEffect();
 
-                    this.gameplayUI.showNextQuizPanel(() => {
-                        // Create New Puzzle
-                        this.loadNextPuzzle();
-                    })
-                });
-            }else{
-                this.endGame("success");
-            }
+            this.time.delayedCall(1500, () => {
+                if (this.isGameEnded) {
+                    return;
+                }
+
+                this.loadNextPuzzle();
+            });
         };
 
         this.onPlacementEvaluated = (callback = {})=>{
 
-            if (!callback.isCorrect) {
+            const isReplacingSameCell = callback.previousCellIndex >= 0 && callback.previousCellIndex === callback.cellIndex;
+            if (!callback.isCorrect && !isReplacingSameCell) {
                 this.roundScore -= Config.DecreaseScore[this.levelMap];
+                const cell = this.gridBoard?.getCell(callback.cellIndex);
+                const cellPosition = cell ? {
+                    x: this.gridBoard.x + cell.x + cell.size / 2,
+                    y: this.gridBoard.y + cell.y + 32,
+                } : null;
+                this.showPenaltyEffect(Config.DecreaseScore[this.levelMap], cellPosition);
+                if (cell) {
+                    this.flashCellErrorBorder(cell);
+                }
             }
 
             this.replayLog.addEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
@@ -139,6 +156,10 @@ export default class GameplayScene extends Phaser.Scene {
         };
 
         this.loadNextPuzzle();
+
+        if (skipTutorial) {
+            this.startGameTimer();
+        }
     }
 
     createPuzzleData(data) {
@@ -214,7 +235,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
         EventBus.emit('minigame:game-over', { 
             score: this.allScore,
-            level: this.level
+            level: this.level,
+            resultImage: 'assets/common/result/result_zoo_detective.png',
         });
 
         //Save game data to database
@@ -246,17 +268,19 @@ export default class GameplayScene extends Phaser.Scene {
         this.hintViewer = null;
         this.animalTray?.destroy();
         this.gridBoard?.destroy();
+        this.gridShadowGraphics?.destroy();
+        this.gridShadowGraphics = null;
 
         this.frameGraphics = this.createFrame(sceneWidth, sceneHeight - 102);
         const headerMetrics = this.createHeader(layoutConfig, this.sceneData);
         const answerItemsPerRow = this.sceneData.maxAnimalsPerRow ?? 5;
-        const answerItemGap = 22;
-        const answerTrayPadding = { top: 40, right: 36, bottom: 32, left: 36 };
-        const answerTrayWidth = sceneWidth - 96;
+        const answerItemGap = Config.ItemGapSize[this.levelMap];
+        const answerTrayPadding = { top: 36, right: 25, bottom: 25, left: 25 };
+        const answerTrayWidth = sceneWidth;
         const answerItemSize = Math.max(
-            156,
+            Config.GridSize[this.levelMap],
             Math.min(
-                196,
+                100,
                 Math.floor(
                     (
                         answerTrayWidth
@@ -268,14 +292,14 @@ export default class GameplayScene extends Phaser.Scene {
             )
         );
 
-        this.animalTray = new AnimalIconTray(this, 48, 0,
+        this.animalTray = new AnimalIconTray(this, 0, -15,
             (data) => {
                 console.log(`selected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
                 if (this.lockedAnimalIds.has(data.id)) {
                     return;
                 }
 
-                this.selectedAnimal = data;
+                this.selectedAnimal = animals.find((animal) => animal.id === data.id) ?? data;
             },
             (data) => {
                 console.log(`unselected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
@@ -295,17 +319,33 @@ export default class GameplayScene extends Phaser.Scene {
                     fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
                     fontSize: `${Math.floor(answerItemSize * 0.72)}px`
                 },
-                trayRadius: 42,
+                createItemContent: (scene, animal, index, bounds) => this.createAnimalVisual(
+                    animal,
+                    Math.floor(Math.min(bounds.width, bounds.height) * 0.9)
+                ),
+                trayRadius: 32,
+                trayFillColor: Theme.colors.surfaceContainer,
+                trayFillAlpha: 0.96,
+                trayStrokeAlpha: 0,
+                trayStrokeWidth: 0,
+                itemRadius: 32,
+                itemSelectedFillColor: Theme.colors.warmSurfaceContainer,
+                itemUnSelectedFillColor: Theme.colors.warmTrayItem,
+                itemStrokeAlpha: 0,
+                itemStrokeWidth: 0,
                 footerReservedHeight: this.sceneData.answerButtonHeight ?? 0,
                 footerOffset: this.sceneData.answerButtonOffset ?? 12,
                 items: animals
             });
-        this.animalTray.setPosition(48, sceneHeight - this.animalTray.height - 42);
+        this.animalTray.setPosition(0, sceneHeight - this.animalTray.height);
+        this.animalTray.setDepth(5);
 
-        const boardTop = headerMetrics.bottom + 100;
-        const boardBottom = this.animalTray.y - 56;
-        const boardWidth = Math.min(sceneWidth - 140, 930);
-        const boardHeight = Math.max(800, boardBottom - boardTop);
+        const boardTop = headerMetrics.bottom + 42;
+        const boardBottom = this.animalTray.y - 52;
+        const boardWidth = Math.min(sceneWidth - 156, 944);
+        const availableBoardHeight = Math.max(1, boardBottom - boardTop);
+        const proportionalBoardHeight = Math.ceil(boardWidth * (layoutConfig.rows / layoutConfig.columns));
+        const boardHeight = Math.min(availableBoardHeight, proportionalBoardHeight);
         const boardX = (sceneWidth - boardWidth) / 2;
 
         this.gridBoard = new SquareGridLayout(this, boardX, boardTop, {
@@ -313,13 +353,15 @@ export default class GameplayScene extends Phaser.Scene {
             columns: layoutConfig.columns,
             width: boardWidth,
             height: boardHeight,
-            gap: 26,
-            padding: 50,
-            cellRadius: 28,
-            cellFillColor: 0xe4ebf3,
-            cellStrokeColor: 0x5b6c81,
-            cellStrokeWidth: 4
+            gap: Config.SlotGapSize[this.levelMap],
+            padding: 4,
+            cellRadius: 42,
+            cellFillColor: Theme.colors.warmSurface,
+            cellStrokeColor: Theme.colors.warmAccent,
+            cellStrokeWidth: 7
         });
+        this.createGridCellShadows();
+        this.gridBoard.setDepth(3);
         this.setupGridInteractions();
 
         this.answerButtonBounds = this.animalTray.getFooterBounds(true);
@@ -399,30 +441,27 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     renderAnimalInCell(cell, animal) {
-        const emojiText = this.add.text(0, 0, animal.icon ?? animal.label ?? "?", {
-            fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
-            fontSize: `${Math.floor(cell.size * 0.58)}px`
-        }).setOrigin(0.5);
+        const animalVisual = this.createAnimalVisual(animal, Math.floor(cell.size * 0.7));
 
         this.gridBoard.clearCell(cell.index, true);
-        this.gridBoard.addToCell(cell.index, emojiText);
+        this.gridBoard.addToCell(cell.index, animalVisual);
     }
 
     setCellState(cell, state = "default") {
         const strokeColorMap = {
-            default: 0x5b6c81,
-            locked: 0x2aa84a
+            default: Theme.colors.warmAccent,
+            locked: Theme.colors.primary
         };
         const fillColorMap = {
-            default: 0xe4ebf3,
-            locked: 0xd9f4df
+            default: Theme.colors.warmSurface,
+            locked: Theme.colors.primaryContainer
         };
 
         cell.background.clear();
         cell.background.fillStyle(fillColorMap[state] ?? fillColorMap.default, 1);
-        cell.background.lineStyle(4, strokeColorMap[state] ?? strokeColorMap.default, 1);
-        cell.background.fillRoundedRect(0, 0, cell.size, cell.size, 28);
-        cell.background.strokeRoundedRect(0, 0, cell.size, cell.size, 28);
+        cell.background.lineStyle(7, strokeColorMap[state] ?? strokeColorMap.default, 1);
+        cell.background.fillRoundedRect(0, 0, cell.size, cell.size, 42);
+        cell.background.strokeRoundedRect(0, 0, cell.size, cell.size, 42);
     }
 
     resetGridStates() {
@@ -468,6 +507,15 @@ export default class GameplayScene extends Phaser.Scene {
             this.selectedAnimal = null;
             this.animalTray?.setSelectedItem(null);
         }
+    }
+
+    createSceneBackdrop() {
+        const { width, height } = this.scale;
+
+        // Main background image — assets/context-clues/etc/BG.png, depth -20 (bottommost layer)
+        const background = this.add.image(width / 2, height / 2, 'context-clues-bg');
+        background.setDisplaySize(width, height);
+        background.setDepth(-20);
     }
 
     evaluateHintProgression() {
@@ -560,74 +608,209 @@ export default class GameplayScene extends Phaser.Scene {
     }
 
     createFrame(sceneWidth, sceneHeight) {
-        const outer = this.add.graphics();
-
-        outer.fillStyle(0xf7f2e6, 1);
-        outer.lineStyle(10, 0x475466, 1);
-        outer.fillRoundedRect(12, 216, sceneWidth - 24, sceneHeight - 120, 42);
-        outer.strokeRoundedRect(12, 216, sceneWidth - 24, sceneHeight - 120, 42);
-
-        return outer;
+        return this.add.graphics();
     }
 
     createHeader(layoutConfig, data) {
-        const left = 52;
-        const top = 255;
-        const chipHeight = 112;
-        const right = 52;
+        const left = 78;
+        const top = 268;
+        const chipHeight = 174;
+        const right = 78;
         const cardWidth = this.scale.width - left - right;
         const promptX = left;
         const promptHints = this.getPromptHints(data);
-        const promptStyle = {
-            fontSize: "52px",
-            fontStyle: "bold",
-            color: "#7d7790",
-            align: "left"
-        };
-        const promptWrapWidth = cardWidth - 60;
-        const hintViewerMinHeight = this.measureHintViewerHeight(promptHints, promptStyle, promptWrapWidth);
+        const promptWrapWidth = cardWidth - 92;
+        const hintViewerMinHeight = chipHeight;
+        const hintPanel = new ShadowRoundedPanel(this, promptX, top, cardWidth, hintViewerMinHeight, {
+            origin: [0, 0],
+            fillColor: Theme.colors.warmSurfaceContainer,
+            strokeWidth: 0,
+            radius: 48,
+            depth: 2,
+            shadows: [
+                {
+                    offsetY: 15,
+                    spread: 2,
+                    color: Theme.colors.coolShadow,
+                    alpha: 0.2
+                },
+                {
+                    offsetY: 8,
+                    color: Theme.colors.warmAccent,
+                    alpha: 0.75
+                }
+            ]
+        });
 
         const hintViewerOptions = {
             width: cardWidth,
             minHeight: hintViewerMinHeight,
-            padding: 24,
-            radius: 24,
-            fillColor: 0xffffff,
-            strokeColor: 0x1fd11a,
-            strokeWidth: 8,
+            padding: 0,
+            radius: 48,
+            fillColor: Theme.colors.warmSurfaceContainer,
+            fillAlpha: 0,
+            strokeColor: Theme.colors.warmSurfaceContainer,
+            strokeAlpha: 0,
+            strokeWidth: 0,
             emptyText: "",
-            textStyle: promptStyle,
             textOptions: {
                 origin: [0, 0],
                 wrapWidth: promptWrapWidth
-            }
+            },
+            contentFactory: (scene, hint, bounds) => this.createHintContent(hint, bounds)
         };
 
-        this.hintViewer = new HintLineViewer(this, promptX, top, promptHints, hintViewerOptions);
-        this.hintViewer.setDepth(2);
+        this.hintViewer = new HintLineViewer(this, promptX, top - 6, promptHints, hintViewerOptions);
+        this.hintViewer.setDepth(3);
+
+        const instructionY = top + hintViewerMinHeight + 86;
 
         const promptText = createThaiText(
             this,
             this.scale.width / 2,
-            top + chipHeight + 80,
+            instructionY,
             `${GameplayConfig.defaultPromptFallback}`,
             {
-                fontSize: "55px",
+                fontSize: "36px",
                 fontStyle: "bold",
-                color: "#3f5165"
+                color: Theme.toCssColor(Theme.colors.warmText)
             },
             { origin: [0.5, 0.5] }
         );
+        promptText.setDepth(3);
 
-        this.headerElements = [promptText];
+        this.headerElements = [hintPanel, promptText];
 
         return {
-            bottom: top + Math.max(chipHeight, this.hintViewer.height)
+            bottom: instructionY + (promptText.height / 2)
         };
     }
 
+    createGridCellShadows() {
+        this.gridShadowGraphics = this.add.graphics();
+        this.gridShadowGraphics.setDepth(2);
+        this.gridShadowGraphics.fillStyle(Theme.colors.coolShadow, 0.2);
+
+        for (const cell of this.gridBoard.getCells()) {
+            this.gridShadowGraphics.fillRoundedRect(
+                this.gridBoard.x + cell.x,
+                this.gridBoard.y + cell.y + 18,
+                cell.size,
+                cell.size,
+                42
+            );
+        }
+    }
+
     getPromptHints(data) {
-        return [...(data.questionHints ?? this.puzzleData?.hintTexts ?? [])];
+        if (Array.isArray(data.questionHints)) {
+            return [...data.questionHints];
+        }
+
+        return [...(this.puzzleData?.hints ?? [])];
+    }
+
+    createHintContent(hint, bounds) {
+        return new InlineContentLayout(this, 0, 0, this.createHintSegments(hint), {
+            width: bounds.width,
+            height: bounds.height,
+            padding: { left: 32, right: 32 },
+            gap: GameplayConfig.hintGap,
+            justify: "left",
+            align: "center"
+        });
+    }
+
+    createHintSegments(hint) {
+        if (!hint || typeof hint === "string") {
+            return [{
+                text: hint ?? "",
+                style: {
+                    fontSize: "48px",
+                    color: Theme.toCssColor(Theme.colors.warmText)
+                }
+            }];
+        }
+
+        return [
+            this.createHintVisualItem(hint.animal, 190),
+            {
+                text: hint.animal?.label ?? hint.animal?.id ?? "",
+                style: {
+                    fontSize: "48px",
+                    color: Theme.toCssColor(Theme.colors.warmText)
+                }
+            },
+            {
+                create: (scene) => new InlineContentLayout(scene, 0, 0, this.createPositionSegments(hint), {
+                    gap: GameplayConfig.hintGap,
+                    justify: "center",
+                    align: "center"
+                })
+            }
+        ];
+    }
+
+    createPositionSegments(hint) {
+        const relationText = hint.type === "relation"
+            ? GameplayConfig.hintDirection[hint.direction] ?? "อยู่ใกล้"
+            : `อยู่${this.formatPositionLabel(hint.position)}`;
+        const segments = [{
+            text: relationText,
+            style: {
+                fontSize: "48px",
+                color: Theme.toCssColor(Theme.colors.warmHighlight)
+            }
+        }];
+
+        if (hint.type === "relation" && hint.referenceAnimal) {
+            segments.push({
+                text: hint.referenceAnimal.label ?? hint.referenceAnimal.id ?? "",
+                style: {
+                    fontSize: "48px",
+                    color: Theme.toCssColor(Theme.colors.warmText)
+                }
+            });
+        }
+
+        return segments;
+    }
+
+    createHintVisualItem(animal, size) {
+        if (animal?.texture) {
+            return {
+                texture: animal.texture,
+                frame: animal.frame,
+                displayWidth: animal.displayWidth ?? size,
+                displayHeight: animal.displayHeight ?? size
+            };
+        }
+
+        return {
+            text: animal?.icon ?? "",
+            style: {
+                fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
+                fontSize: `${size}px`
+            }
+        };
+    }
+
+    createAnimalVisual(animal, size) {
+        if (animal?.texture && this.textures.exists(animal.texture)) {
+            return this.add.image(0, 0, animal.texture)
+                .setDisplaySize(size, size)
+                .setOrigin(0.5);
+        }
+
+        return this.add.text(0, 0, animal?.icon ?? animal?.label ?? "?", {
+            fontFamily: '"Noto Color Emoji", "Segoe UI Emoji", sans-serif',
+            fontSize: `${size}px`
+        }).setOrigin(0.5);
+    }
+
+    formatPositionLabel(position = "") {
+        const label = String(position);
+        return label.startsWith("ด้าน") ? label : `ด้าน${label}`;
     }
 
     measureHintViewerHeight(hints, textStyle, wrapWidth) {
@@ -689,16 +872,22 @@ export default class GameplayScene extends Phaser.Scene {
 
     decreaseScore(score){
         this.allScore -= score;
+        this.showPenaltyEffect(score);
+    }
+
+    showPenaltyEffect(score, position = null) {
+        const x = position?.x ?? this.scale.width / 2;
+        const y = position?.y ?? this.scale.height / 2 - 250;
 
         const scorePenaltyText = createThaiText(
             this,
-            this.scale.width / 2,
-            this.scale.height / 2 - 250,
+            x,
+            y,
             `-${score}`,
             {
-                fontSize: "48px",
+                fontSize: "72px",
                 fontStyle: "bold",
-                color: "#ff4d4d"
+                color: "#fe0000"
             },
             { origin: 0.5 }
         );
@@ -706,13 +895,32 @@ export default class GameplayScene extends Phaser.Scene {
 
         this.tweens.add({
             targets: scorePenaltyText,
-            y: scorePenaltyText.y - 40,
+            y: scorePenaltyText.y - 80,
             alpha: 0,
-            duration: 700,
+            duration: 1000,
             ease: "Sine.easeOut",
             onComplete: () => {
                 scorePenaltyText.destroy();
             }
+        });
+    }
+
+    flashCellErrorBorder(cell) {
+        const x = this.gridBoard.x + cell.x;
+        const y = this.gridBoard.y + cell.y;
+        const flash = this.add.graphics();
+        flash.setDepth(10);
+        flash.lineStyle(8, 0xff0000, 1);
+        flash.strokeRoundedRect(x, y, cell.size, cell.size, 42);
+
+        this.tweens.add({
+            targets: flash,
+            alpha: { from: 1, to: 0 },
+            duration: 120,
+            yoyo: true,
+            repeat: 1,
+            ease: 'Linear',
+            onComplete: () => flash.destroy()
         });
     }
 
@@ -733,3 +941,5 @@ export default class GameplayScene extends Phaser.Scene {
         return [container, bg, label];
     }
 }
+
+
