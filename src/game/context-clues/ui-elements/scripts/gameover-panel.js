@@ -24,7 +24,7 @@ export default class GameOverPanel extends UIPanel{
         this.highscoreText.setScale(1.5);
 
         this.homeBtn = this.createButton(0,225, "RETURN", () => {
-            this.scene.scene.start('main-menu-scene')
+            this.scene.scene.start('context-clues-start-menu-scene')
         });
 
         this.addElements([this.titleText, this.scoreText, this.highscoreText,...this.homeBtn]);

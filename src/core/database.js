@@ -8,8 +8,7 @@ import { getProgramDayStatus } from "../util/program-date-util.js";
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
 const USER_GAME_HISTORY_TABLE = "user_game_history";
-const USER_EVENT_LOG_TABLE = "user_event_log";
-const REPLAY_LOG_TABLE = "replay_log";
+const REPLAY_LOG_TABLE = "game_replay_log";
 const USER_PATIENT_DATA_TABLE = "user_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
@@ -18,11 +17,6 @@ const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
 const GAME_LEVEL_PRESET_DATA_TABLE = "game_level_preset_data";
 const DEFAULT_GAME_PAGE_SIZE = 10;
 const DEFAULT_GAME_PROFILE_PROGRAM_ID = 5;
-const EVENT_IDS = Object.freeze({
-    OPEN_APP: "OPAPP",
-    START_PLAY_GAME: "SPG",
-});
-
 class Database {
     constructor() {
         const env = import.meta.env || {};
@@ -170,11 +164,6 @@ class Database {
         return data.session;
     }
 
-    async getCurrentUser() {
-        const session = await this.getCurrentSession();
-        return session?.user || null;
-    }
-
     async _withRetry(operation, { attempts = 3, delayMs = 500 } = {}) {
         let lastError = null;
 
@@ -222,30 +211,8 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
+            .select("id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .eq("hn", parsedHn)
-            .maybeSingle();
-
-        if (error) {
-            throw error;
-        }
-
-        return data || null;
-    }
-
-    async getPatientByUid(uid) {
-        const parsedUid = String(uid || "").trim();
-        if (!parsedUid) {
-            throw new Error("Invalid uid");
-        }
-
-        await this.initAuth();
-
-        const client = this.getClient();
-        const { data, error } = await client
-            .from(USER_PATIENT_DATA_TABLE)
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
-            .eq("uid", parsedUid)
             .maybeSingle();
 
         if (error) {
@@ -289,7 +256,7 @@ class Database {
         ] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date",
+                "id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date",
                 [{ column: "hn", ascending: true }],
             ),
             this.getAllTableRows(
@@ -395,7 +362,7 @@ class Database {
         ] = await Promise.all([
             this.getAllTableRows(
                 USER_PATIENT_DATA_TABLE,
-                "id, hn, uid",
+                "id, hn",
                 [{ column: "id", ascending: true }],
             ),
             this.getAllTableRows(
@@ -444,31 +411,60 @@ class Database {
                     gid,
                     minigame_name: game?.name || game?.th_name || gid,
                     mci_group: game?.mci_group || "",
-                    ingame_started_at: gameData?.started_at || "",
-                    ingame_ended_at: gameData?.ended_at || "",
-                    gamehub_start_at: history?.start_at || "",
-                    gamehub_end_at: history?.end_at || "",
+                    start_at: gameData?.started_at || "",
+                    end_at: gameData?.ended_at || "",
                     score: gameData?.score ?? "",
                     level: gameData?.level ?? "",
                     _patientOrder: patientOrderByHn.has(hn) ? patientOrderByHn.get(hn) : Number.POSITIVE_INFINITY,
                     _historyId: Number(history?.id) || 0,
+                    _sortAt: history?.start_at || gameData?.started_at || "",
                 };
             });
 
         matchedRows.sort((a, b) => (
             this.compareCsvSortValue(a._patientOrder, b._patientOrder)
-            || new Date(a.gamehub_start_at || 0) - new Date(b.gamehub_start_at || 0)
+            || new Date(a._sortAt || 0) - new Date(b._sortAt || 0)
             || a._historyId - b._historyId
         ));
+
+        const replayCountsByHistoryId = new Map();
+        const matchedHistoryIds = matchedRows.map((r) => r._historyId).filter((id) => id > 0);
+        if (matchedHistoryIds.length) {
+            try {
+                const { data: replayData } = await client
+                    .from(REPLAY_LOG_TABLE)
+                    .select("historyid, value")
+                    .in("historyid", matchedHistoryIds);
+
+                for (const log of replayData || []) {
+                    const historyId = Number(log?.historyid);
+                    if (!Number.isFinite(historyId) || historyId <= 0) continue;
+                    const answerResult = this.resolveReplayAnswerResult(log?.value);
+                    if (answerResult !== true && answerResult !== false) continue;
+                    const entry = replayCountsByHistoryId.get(historyId) || { correct: 0, wrong: 0 };
+                    if (answerResult === true) entry.correct += 1;
+                    else entry.wrong += 1;
+                    replayCountsByHistoryId.set(historyId, entry);
+                }
+            } catch (replayError) {
+                console.warn("Unable to fetch replay log counts:", replayError);
+            }
+        }
 
         return matchedRows.map((row) => {
             const {
                 _patientOrder,
                 _historyId,
+                _sortAt,
                 ...exportRow
             } = row;
 
-            return exportRow;
+            const counts = replayCountsByHistoryId.get(_historyId) || null;
+            return {
+                ...exportRow,
+                total_correct: counts ? counts.correct : "",
+                total_wrong: counts ? counts.wrong : "",
+            };
         });
     }
 
@@ -477,6 +473,18 @@ class Database {
         const bValue = Number.isFinite(b) ? b : Number.MAX_SAFE_INTEGER;
 
         return aValue - bValue;
+    }
+
+    resolveReplayAnswerResult(value) {
+        if (value?.data === true || value?.data === false) {
+            return value.data;
+        }
+
+        if (value?.answer === true || value?.answer === false) {
+            return value.answer;
+        }
+
+        return null;
     }
 
     async getGameHistoryCsvExportRows({ hn = null } = {}) {
@@ -519,7 +527,7 @@ class Database {
             ),
             this.getAllTableRows(
                 USER_GAME_HISTORY_TABLE,
-                "id, hn, gid, start_at, end_at, \"check-in\"",
+                "id, hn, gid, start_at, end_at, user_game_data_id, \"check-in\"",
                 [{ column: "start_at", ascending: true }],
             ),
         ]);
@@ -576,6 +584,7 @@ class Database {
                     "check-in": false,
                     last_stage: 0,
                     _historyCount: 0,
+                    _userGameDataIds: [],
                 });
             }
 
@@ -595,6 +604,10 @@ class Database {
 
                 if (gid !== "REST001") {
                     row.last_stage += 1;
+                    const userGameDataId = Number(history?.user_game_data_id);
+                    if (Number.isFinite(userGameDataId) && userGameDataId > 0) {
+                        row._userGameDataIds.push(userGameDataId);
+                    }
                 }
             } else if (isCheckIn) {
                 row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
@@ -602,6 +615,28 @@ class Database {
 
             if (Number.isFinite(startAt) && Number.isFinite(endAt)) {
                 row.lastgame_at = this.maxDateValue(row.lastgame_at, new Date(Math.max(startAt, endAt)).toISOString());
+            }
+        }
+
+        const allGameDataIds = [...new Set(
+            [...historyByHnDay.values()].flatMap((row) => row._userGameDataIds),
+        )];
+        const scoreByGameDataId = new Map();
+        if (allGameDataIds.length) {
+            try {
+                const { data: gameDataRows } = await client
+                    .from(USER_GAME_DATA_TABLE)
+                    .select("id, score")
+                    .in("id", allGameDataIds);
+                for (const gd of gameDataRows || []) {
+                    const id = Number(gd?.id);
+                    const score = Number(gd?.score);
+                    if (Number.isFinite(id) && id > 0 && Number.isFinite(score)) {
+                        scoreByGameDataId.set(id, score);
+                    }
+                }
+            } catch (scoreError) {
+                console.warn("Unable to fetch game data scores:", scoreError);
             }
         }
 
@@ -634,6 +669,10 @@ class Database {
                 const firstMs = this.parseDateMs(firstgameAt);
                 const lastMs = this.parseDateMs(lastgameAt);
 
+                const dayScores = (historyRow?._userGameDataIds || [])
+                    .map((id) => scoreByGameDataId.get(id))
+                    .filter((s) => Number.isFinite(s));
+
                 rows.push({
                     user_hn: patientHn,
                     firstgame_at: firstgameAt,
@@ -643,6 +682,7 @@ class Database {
                         : "",
                     "check-in": historyRow?.["check-in"] === true,
                     last_stage: historyRow?._historyCount > 0 ? historyRow.last_stage : null,
+                    total_score: dayScores.length > 0 ? dayScores.reduce((sum, s) => sum + s, 0) : null,
                     _day: localDay,
                     _patientOrder: patientOrderByHn.has(patientHn)
                         ? patientOrderByHn.get(patientHn)
@@ -775,8 +815,7 @@ class Database {
         educationLevel,
         startedProgram,
     }) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
+        await this.initAuth();
         const parsedHn = String(hn || "").trim();
         const parsedFirstname = String(firstname || "").trim();
         const parsedLastname = String(lastname || "").trim();
@@ -827,12 +866,7 @@ class Database {
             throw new Error("กรุณาเลือกวันที่เริ่มโปรแกรม");
         }
 
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
-        }
-
         const payload = {
-            uid: user.id,
             hn: parsedHn,
             firstname: parsedFirstname,
             lastname: parsedLastname,
@@ -840,14 +874,14 @@ class Database {
             gender: parsedGender,
             education_level: parsedEducation,
             started_program: normalizedStartedProgram.toISOString(),
-            date: parsedBirthDate,
+            birth_date: parsedBirthDate,
         };
 
         const client = this.getClient();
         const { data, error } = await client
             .from(USER_PATIENT_DATA_TABLE)
             .insert([payload])
-            .select("id, uid, hn, firstname, lastname, phone, gender, education_level, started_program, date")
+            .select("id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date")
             .maybeSingle();
 
         if (error) {
@@ -1383,8 +1417,7 @@ class Database {
     }
 
     async submitGameData({ gid, score = null, level = null, startedAt, endedAt }) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
+        await this.initAuth();
         const parsedGid = String(gid || "").trim();
         const parsedScore = score == null ? null : Number(score);
         const parsedLevel = level == null ? null : Number(level);
@@ -1413,10 +1446,6 @@ class Database {
 
         if (normalizedEndedAt < normalizedStartedAt) {
             throw new Error("endedAt must be greater than or equal to startedAt");
-        }
-
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
         }
 
         const payload = {
@@ -2182,45 +2211,6 @@ class Database {
         if (error) {
             throw error;
         }
-    }
-
-    async logUserEvent(eventId, gid = null) {
-        const session = await this.initAuth();
-        const user = session?.user || (await this.getCurrentUser());
-        const parsedEventId = String(eventId || "").trim().toUpperCase();
-        const parsedGid = gid == null ? null : String(gid).trim();
-
-        if (!parsedEventId) {
-            throw new Error("Invalid eventId");
-        }
-
-        if (!Object.values(EVENT_IDS).includes(parsedEventId)) {
-            throw new Error(`Unsupported eventId: ${parsedEventId}`);
-        }
-
-        if (parsedGid === "") {
-            throw new Error("Invalid gid");
-        }
-
-        if (!user?.id) {
-            throw new Error("Missing authenticated user");
-        }
-
-        const payload = {
-            eventid: parsedEventId,
-            gid: parsedGid,
-        };
-
-        const client = this.getClient();
-        const { error } = await client
-            .from(USER_EVENT_LOG_TABLE)
-            .insert([payload]);
-
-        if (error) {
-            throw error;
-        }
-
-        return payload;
     }
 
     async writeReplayLog({

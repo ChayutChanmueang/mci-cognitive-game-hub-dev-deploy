@@ -1,0 +1,253 @@
+/**
+ * AccelerometerManager
+ * ---------------------------------------------------------------------------
+ * A reusable singleton utility that wraps BOTH the DeviceOrientation and
+ * DeviceMotion Web APIs for cross-platform tilt & motion input
+ * (Android, iOS 13+, PWA, Chrome DevTools emulation).
+ *
+ * - **Orientation** (DeviceOrientationEvent): gives absolute tilt angles
+ *   (beta = front/back, gamma = left/right). Best for tilt-based mechanics.
+ *   This is what Chrome DevTools Sensors emulates.
+ *
+ * - **Motion** (DeviceMotionEvent): gives acceleration/gravity vectors.
+ *   Best for shake detection. Kept as a secondary data source.
+ *
+ * Usage:
+ *   import AccelerometerManager from '../core/accelerometer-manager.js';
+ *
+ *   // In scene create():
+ *   await AccelerometerManager.start();
+ *
+ *   // In scene update():
+ *   const { beta, gamma } = AccelerometerManager.getOrientation();
+ *   const { x, y, z }     = AccelerometerManager.getAcceleration();
+ *
+ *   // In scene shutdown:
+ *   AccelerometerManager.stop();
+ */
+
+class _AccelerometerManager {
+    constructor() {
+        /** @type {{ x: number, y: number, z: number }} Raw acceleration incl. gravity */
+        this._acceleration = { x: 0, y: 0, z: 0 };
+
+        /** @type {{ x: number, y: number, z: number }} Linear acceleration (no gravity) */
+        this._linearAcceleration = { x: 0, y: 0, z: 0 };
+
+        /**
+         * Device orientation angles (degrees).
+         * - alpha: compass direction (0–360)
+         * - beta:  front/back tilt   (-180 to 180, 0 = flat)
+         * - gamma: left/right tilt   (-90 to 90,   0 = flat)
+         * @type {{ alpha: number, beta: number, gamma: number }}
+         */
+        this._orientation = { alpha: 0, beta: 0, gamma: 0 };
+
+        /** @type {boolean} */
+        this._listening = false;
+
+        /** @type {boolean} */
+        this._permissionGranted = false;
+
+        /** @type {'idle'|'requesting'|'granted'|'denied'|'unsupported'} */
+        this._status = 'idle';
+
+        // Bound handlers so we can add/remove the same reference
+        this._onDeviceMotion = this._handleDeviceMotion.bind(this);
+        this._onDeviceOrientation = this._handleDeviceOrientation.bind(this);
+    }
+
+    // -----------------------------------------------------------------------
+    // Public API
+    // -----------------------------------------------------------------------
+
+    /**
+     * Returns true if the browser exposes at least one of the device sensor APIs.
+     */
+    isSupported() {
+        return (
+            typeof DeviceMotionEvent !== 'undefined' ||
+            typeof DeviceOrientationEvent !== 'undefined'
+        );
+    }
+
+    /**
+     * Returns true if iOS 13+ permission-gated flow is required.
+     * Checks both DeviceMotionEvent and DeviceOrientationEvent.
+     */
+    requiresPermissionRequest() {
+        const motionNeedsPermission =
+            typeof DeviceMotionEvent !== 'undefined' &&
+            typeof DeviceMotionEvent.requestPermission === 'function';
+        const orientationNeedsPermission =
+            typeof DeviceOrientationEvent !== 'undefined' &&
+            typeof DeviceOrientationEvent.requestPermission === 'function';
+        return motionNeedsPermission || orientationNeedsPermission;
+    }
+
+    /**
+     * Start listening for device orientation + motion events.
+     * On iOS 13+ this will request permission (must be called from a user gesture).
+     *
+     * @returns {Promise<'granted'|'denied'|'unsupported'>}
+     */
+    async start() {
+        if (this._listening) return this._status;
+
+        if (!this.isSupported()) {
+            this._status = 'unsupported';
+            console.warn('[AccelerometerManager] Device sensor APIs not supported.');
+            return this._status;
+        }
+
+        // iOS 13+ permission flow — request for both APIs
+        if (this.requiresPermissionRequest()) {
+            this._status = 'requesting';
+            try {
+                // Request orientation permission (iOS)
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const result = await DeviceOrientationEvent.requestPermission();
+                    if (result !== 'granted') {
+                        this._status = 'denied';
+                        console.warn('[AccelerometerManager] Orientation permission denied.');
+                        return this._status;
+                    }
+                }
+                // Request motion permission (iOS)
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    const result = await DeviceMotionEvent.requestPermission();
+                    if (result !== 'granted') {
+                        this._status = 'denied';
+                        console.warn('[AccelerometerManager] Motion permission denied.');
+                        return this._status;
+                    }
+                }
+                this._permissionGranted = true;
+                this._status = 'granted';
+            } catch (err) {
+                this._status = 'denied';
+                console.error('[AccelerometerManager] Permission request failed:', err);
+                return this._status;
+            }
+        } else {
+            // Android / non-permission browsers
+            this._permissionGranted = true;
+            this._status = 'granted';
+        }
+
+        // Listen to BOTH events — orientation for tilt, motion for acceleration
+        window.addEventListener('deviceorientation', this._onDeviceOrientation, true);
+        window.addEventListener('devicemotion', this._onDeviceMotion, true);
+        this._listening = true;
+        console.log('[AccelerometerManager] Started listening (orientation + motion).');
+        return this._status;
+    }
+
+    /**
+     * Stop listening and reset values.
+     */
+    stop() {
+        if (this._listening) {
+            window.removeEventListener('deviceorientation', this._onDeviceOrientation, true);
+            window.removeEventListener('devicemotion', this._onDeviceMotion, true);
+            this._listening = false;
+            console.log('[AccelerometerManager] Stopped listening.');
+        }
+        this._acceleration = { x: 0, y: 0, z: 0 };
+        this._linearAcceleration = { x: 0, y: 0, z: 0 };
+        this._orientation = { alpha: 0, beta: 0, gamma: 0 };
+    }
+
+    /**
+     * Get the latest device orientation (tilt angles in degrees).
+     * This is the PRIMARY data source for tilt-based mechanics.
+     *
+     * - gamma: left/right tilt (-90 to 90). Negative = tilt left, Positive = tilt right.
+     * - beta:  front/back tilt (-180 to 180). 0 = flat, positive = tilted toward user.
+     * - alpha: compass heading (0 to 360).
+     *
+     * Works with Chrome DevTools → Sensors → Orientation emulation.
+     *
+     * @returns {{ alpha: number, beta: number, gamma: number }}
+     */
+    getOrientation() {
+        return { ...this._orientation };
+    }
+
+    /**
+     * Get the latest acceleration values (includes gravity).
+     * Secondary data source — useful for shake detection or as fallback.
+     *
+     * @returns {{ x: number, y: number, z: number }}
+     */
+    getAcceleration() {
+        return { ...this._acceleration };
+    }
+
+    /**
+     * Get the latest acceleration values WITHOUT gravity.
+     * Useful for detecting shakes / sudden movements.
+     *
+     * @returns {{ x: number, y: number, z: number }}
+     */
+    getLinearAcceleration() {
+        return { ...this._linearAcceleration };
+    }
+
+    /**
+     * Get current status string.
+     * @returns {'idle'|'requesting'|'granted'|'denied'|'unsupported'}
+     */
+    getStatus() {
+        return this._status;
+    }
+
+    /**
+     * Whether we are actively receiving data.
+     */
+    isActive() {
+        return this._listening && this._status === 'granted';
+    }
+
+    // -----------------------------------------------------------------------
+    // Internal
+    // -----------------------------------------------------------------------
+
+    /**
+     * @param {DeviceOrientationEvent} event
+     */
+    _handleDeviceOrientation(event) {
+        this._orientation = {
+            alpha: event.alpha ?? 0,
+            beta: event.beta ?? 0,
+            gamma: event.gamma ?? 0,
+        };
+    }
+
+    /**
+     * @param {DeviceMotionEvent} event
+     */
+    _handleDeviceMotion(event) {
+        const accel = event.accelerationIncludingGravity;
+        if (accel) {
+            this._acceleration = {
+                x: accel.x ?? 0,
+                y: accel.y ?? 0,
+                z: accel.z ?? 0,
+            };
+        }
+
+        const linear = event.acceleration;
+        if (linear) {
+            this._linearAcceleration = {
+                x: linear.x ?? 0,
+                y: linear.y ?? 0,
+                z: linear.z ?? 0,
+            };
+        }
+    }
+}
+
+// Export as singleton
+const AccelerometerManager = new _AccelerometerManager();
+export default AccelerometerManager;

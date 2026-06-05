@@ -1,5 +1,4 @@
 import StorageManager from "/src/core/storage-manager.js";
-import TutorialPanel from "../../../ui-elements/scripts/tutorial-panel.js";
 import Entity from "../../entity";
 import { createThaiText, getThaiFontFamily, ThaiTextPresets } from "../../../../../util/thai-text.js";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
@@ -14,9 +13,6 @@ export default class GameplayUI extends Entity{
         this.currentScoreValue = 0;
         this.levelMap = "easy";
         this.levelNumber = scene.level ?? 1;
-
-        this.TutorialPanel = new TutorialPanel(scene);
-        this.TutorialPanel.show();
 
         this.NextQuizPanel = new NextQuizPanel(scene);
 

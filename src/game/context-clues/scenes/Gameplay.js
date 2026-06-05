@@ -10,6 +10,7 @@ import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
+import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -27,7 +28,7 @@ export default class GameplayScene extends Phaser.Scene {
   preload() {
     this.load.image('button-idle','assets/button_rectangle_depth_flat.png')
     this.load.image('button-press','assets/button_rectangle_flat.png')
-    this.load.image('context-clues-bg','assets/bg.png')
+    this.load.image('context-clues-bg','assets/context-clues/etc/BG.png')
   }
 
   init(data = {}) {
@@ -36,6 +37,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.randomQuiz = new RandomQuiz(this.levelMap);
     this.allScore = 0;
     this.round = 0;
+    this.progressStory = 0;
     this.quizData = [];
     this.timeLimitSeconds = data.timeLimitSeconds ?? Config.TimeLimitSeconds;
     this.timeLeftSeconds = this.timeLimitSeconds;
@@ -44,6 +46,8 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   create(data = {}) {
+    EventBus.emit('minigame:show-hud');
+
     this.createSceneBackdrop();
     this.quizBoxSize = this.resolveQuizBoxSize();
     this.gameplayUI = new GameplayUI(this, 0, 0);
@@ -138,39 +142,32 @@ export default class GameplayScene extends Phaser.Scene {
               return;
           }
 
+          // Adding round count
           this.round++;
+          this.progressStory++;
+
           const maxRound = Config.MaxRound[this.levelMap];
-          const nextRoundDisplay = Math.min(this.round + 1, maxRound);
+          const nextRoundDisplay = this.round + 1;
 
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
-          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
-              answer: answer,
-              value: true
-          });
-          this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, maxRound);
-          
-          EventBus.emit('minigame:score', { score: this.allScore });
-          EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}/${maxRound}` });
+          this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, true);
 
-          if (this.round < maxRound) {
+          EventBus.emit('minigame:score', { score: this.allScore });
+          EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
+
+          if (this.progressStory < maxRound) {
               console.log(`All Score: (${this.allScore})`);
 
-              this.time.delayedCall(500, () => {
-                  if (this.isGameEnded) {
-                      return;
-                  }
-
-                  this.gameplayUI.showNextQuizPanel(() => {
-                      if (this.isGameEnded) {
-                          return;
-                      }
-
-                      // Create New Quiz
-                      this.getNewQuiz();
-                  })
+              this.showCorrectAnswerEffect(() => {
+                  this.getNewQuiz();
               });
           }else{
-              this.endGame("success");
+              this.randomQuiz = new RandomQuiz(this.levelMap);
+              this.progressStory = 0;
+
+              this.showCorrectAnswerEffect(() => {
+                  this.getNewQuiz();
+              });
           }
       }
       this.quizGame.onAnswerIncorrect = (answer) => {
@@ -180,15 +177,24 @@ export default class GameplayScene extends Phaser.Scene {
 
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
 
-          this.replayLog.addEvent(GlobalReplayEvent.ROUND_COMPLETED, {
-              answer: answer,
-              value: false
-          });
+          this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, false);
       }
       this.gameplayUI.setScore(this.allScore);
       this.quizGame.onCreateQuiz();
 
       return this.quizGame;
+  }
+
+  showCorrectAnswerEffect(onComplete) {
+      showLevelCompleteEffect();
+
+      this.time.delayedCall(1500, () => {
+          if (this.isGameEnded) {
+              return;
+          }
+
+          onComplete?.();
+      });
   }
 
     endGame(resultStatus = "success") {
@@ -206,7 +212,8 @@ export default class GameplayScene extends Phaser.Scene {
         EventBus.emit('minigame:game-over', {
             score: this.allScore,
             level: this.level,
-            resultStatus
+            resultStatus,
+            resultImage: 'assets/common/result/result_context_clue.png',
         });
 
         //Save game data to database
@@ -225,22 +232,11 @@ export default class GameplayScene extends Phaser.Scene {
     createSceneBackdrop() {
         const { width, height } = this.scale;
 
+        // Main background image — assets/context-clues/etc/BG.png, depth -20 (bottommost layer)
         const background = this.add.image(width / 2, height / 2, 'context-clues-bg');
         background.setDisplaySize(width, height);
-        background.setTint(0xf36baa);
-        background.setAlpha(0.26);
         background.setDepth(-20);
 
-        const overlay = this.add.graphics();
-        overlay.fillStyle(0xf45ca1, 0.86);
-        overlay.fillRect(0, 0, width, height);
-        overlay.fillStyle(0xff9ccc, 0.26);
-        overlay.fillRect(0, 0, width, 240);
-        overlay.fillStyle(0xd83d73, 0.36);
-        overlay.fillRect(0, height - 520, width, 520);
-        overlay.lineStyle(4, 0x9d375c, 0.3);
-        overlay.lineBetween(0, height - 520, width, height - 520);
-        overlay.setDepth(-19);
     }
 
     drawRoundedPanel(x, y, width, height, {
@@ -314,3 +310,5 @@ export default class GameplayScene extends Phaser.Scene {
         return [bg,label];
     }
 }
+
+

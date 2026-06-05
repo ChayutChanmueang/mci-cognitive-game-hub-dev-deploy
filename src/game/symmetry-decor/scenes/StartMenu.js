@@ -11,9 +11,14 @@ export default class StartMenuScene extends Phaser.Scene {
 
     preload() {
         // Preload start menu specific assets here
+        this.load.image('background', 'assets/symmetry-decor/etc/BG.png');
     }
 
     create(data) {
+        this.background = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+        this.background.setDisplaySize(this.scale.width, this.scale.height);
+        this.background.setDepth(-10);
+
         // Hide the top bar HUD
         EventBus.emit('minigame:hide-hud');
 
@@ -40,6 +45,8 @@ export default class StartMenuScene extends Phaser.Scene {
                 panelHeaderColor: StartMenuSetting.panelHeaderColor,
                 primaryFontColor: StartMenuSetting.primaryFontColor,
                 secondaryFontColor: StartMenuSetting.secondaryFontColor,
+                titleFontSize: StartMenuSetting.titleFontSize,
+                coverImage: StartMenuSetting.coverImage,
             });
             this.startMenuPanel.render();
         }

@@ -46,6 +46,8 @@ const CATEGORY_META = Object.freeze({
 const CATEGORY_ORDER = ["Memory", "Visuospatial", "Attention", "Language", "Executive"];
 const PAGE_SIZE = 10;
 const MINIO_VIDEO_BASE_URL = "https://minio-api-v4.kohtnas.com/mci-video-bucket";
+const TEST_GAME_HUB_STYLESHEET_ID = "test-game-hub-style";
+const TEST_GAME_HUB_STYLESHEET_HREF = "/test-game-hub-style.css";
 const LEVEL_OPTIONS = Object.freeze([
     {
         value: 3,
@@ -66,6 +68,23 @@ const LEVEL_OPTIONS = Object.freeze([
         description: "ระดับเริ่มต้น",
     },
 ]);
+
+function ensureTestGameHubStylesheet() {
+    if (typeof document === "undefined") {
+        return;
+    }
+
+    const existingLink = document.getElementById(TEST_GAME_HUB_STYLESHEET_ID);
+    if (existingLink) {
+        return;
+    }
+
+    const link = document.createElement("link");
+    link.id = TEST_GAME_HUB_STYLESHEET_ID;
+    link.rel = "stylesheet";
+    link.href = TEST_GAME_HUB_STYLESHEET_HREF;
+    document.head.appendChild(link);
+}
 
 function escapeHtml(value) {
     return String(value || "")
@@ -249,7 +268,14 @@ function buildLevelDialogMarkup(game) {
 
 function getMinioVideoUrl(videoNumber) {
     const paddedVideoNumber = String(videoNumber).padStart(2, "0");
+
+    //Test *******************************************************
+    /*const videoURL = [];
+    videoURL.push("https://rr1---sn-0opoxuui5pa5oq-c336.googlevideo.com/videoplayback?expire=1779788522&ei=ihYVauWdB4HCssUP5sSHsQo&ip=192.203.247.10&id=o-ANAczfUsiKeTPxCQioR_KzDiGGQGutVPtiltiOhT1PsG&itag=136&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&cps=300&met=1779766922%2C&mh=Pl&mm=31%2C29&mn=sn-0opoxuui5pa5oq-c336%2Csn-uvu-c33lk&ms=au%2Crdu&mv=m&mvi=1&pl=24&rms=au%2Cau&initcwndbps=3060000&bui=AbKmrwozwirnpUVpG6YW8EzNjo3GprhBvVExEb8zmu5Ath5NKj80_-X8M5QH6DKX-Dv0td_Q6fgjOsZY&spc=96Xrvxa5rkzZFJ2M5BaZXl0BVnDTXAvFN1KuzuZ7tqyr&vprv=1&svpuc=1&mime=video%2Fmp4&rqh=1&gir=yes&clen=5798684&dur=35.624&lmt=1779766901178534&mt=1779766386&fvip=3&keepalive=yes&fexp=51565115%2C51565682&c=ANDROID_VR&txp=630A224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AHEqNM4wRQIgJSTnQzCI5FxG7sX5FP0gmeD5-OHC28zX9x0A0ad72-sCIQDahgdFYCexBbj0lh5rt5tz-may2BKeqwKobkfk8eBa9Q%3D%3D&lsparams=cps%2Cmet%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Cinitcwndbps&lsig=APaTxxMwRAIgdMzYmI3hRP8r-C9iCfKTuSU6zDGaPj_OS6gx8CL9y84CIBTrf8n6DB1aaoiF3PLIydY25gdbwpP2rw31ZesBss4k&cpn=2Hey-OCUjZ7v5SG5")
+    videoURL.push("https://rr5---sn-npoe7ndk.c.youtube.com/videoplayback?expire=1779788330&ei=yhUVaoWIKsS09fwP782tuAM&ip=192.203.247.10&cp=X19WamZ5dmQtOU1EU05WTUg6dlVXTmd1Y3NxdFUyYk05X0c5TWJ6cUc2eWJuRG15QWJwekhnVkxkcjJGdA&id=o-AOZqdE9q0brl2BwQDDuku2Ck3VNW8nGoKkdk3B9ZKk7H&itag=18&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&met=1779766730%2C&mh=Kb&mm=32%2C26&mn=sn-npoe7ndk%2Csn-30a7yner&ms=su%2Conr&mv=m&mvi=5&pl=24&rms=su%2Csu&sc=yes&ctier=A&pfa=5&gcr=th&initcwndbps=375000&hightc=yes&siu=1&bui=AbKmrwpIgx5siRKFh1m6rvnrTRGWpxgn20g_W1dLa7x_3g79uWDYbCdWyilSxIjA33SqSTuqLg&spc=96Xrv-II-SvVkh1VGkH7UUaRnsUmK65FXTOOZliMl1vk8x_ME8L1P5c&vprv=1&svpuc=1&mime=video%2Fmp4&ns=EKJ6506nfGsivgKxzFyQq9EV&rqh=1&gir=yes&clen=4952457&ratebypass=yes&dur=71.842&lmt=1779766570605605&mt=1779766369&fvip=5&fexp=51565116%2C51565682&c=WEB&sefc=1&txp=6300224&n=QcKe2mNaGTLE3g&sparams=expire%2Cei%2Cip%2Ccp%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cctier%2Cpfa%2Cgcr%2Chightc%2Csiu%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cratebypass%2Cdur%2Clmt&lsparams=met%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Csc%2Cinitcwndbps&lsig=APaTxxMwRQIhAOW1AuIXCuI7fXuFm4xqNPm_eDavlsgt_evss_lorZMyAiAjp_9zvesiiu3w3EE6B2jJEhkxERlO9FjLf1MGRPBj6g%3D%3D&sig=AHEqNM4wRQIhAKwQqAUdHH7GSE_wefFSP4prOcZgu9ge4I_2NNqZOZJnAiBSQ-wW9FAZ2JHZJyIjlHeoY5e_GvzzXIQSojr_f_gyQA%3D%3D&cver=2.20260206.01.00&cpn=s_8l5DK7z4CzWxcn");
+*/
     return `${MINIO_VIDEO_BASE_URL}/mci-test-${paddedVideoNumber}.mp4`;
+    //return videoURL[videoNumber];
 }
 
 function buildVideoPickerDialogMarkup(context) {
@@ -529,6 +555,8 @@ export async function renderTestGameHubScreen(root, options = {}) {
     if (!root) {
         return;
     }
+
+    ensureTestGameHubStylesheet();
 
     const {
         loadGamesByCategory,

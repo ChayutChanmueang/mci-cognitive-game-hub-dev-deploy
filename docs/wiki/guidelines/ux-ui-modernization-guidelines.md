@@ -30,7 +30,7 @@
 ### ใน DOM Overlay (HUD/Menu)
 - **Material UI (MUI):** ใช้ MUI Components สำหรับหน้าจอที่ต้องการความซับซ้อน เช่น ระบบสมาชิก, สถิติผู้เล่น
 - **Glassmorphic Panels:** ใช้ CSS class `.glass-panel` ที่กำหนดไว้ใน `style.css`
-- **Responsiveness:** UI ต้องรองรับทั้งแนวตั้งและแนวนอน โดยเฉพาะส่วนของ HUD ที่ต้องหลบ "Safe Areas" ของมือถือ
+- **Responsiveness:** UI ต้องรองรับทั้งแนวตั้งและแนวนอน โดยเฉพาะส่วนของ HUD ที่ต้องหลบ "Safe Areas" ของมือถือ (ดูรายละเอียดเชิงลึกและแผนการทดสอบที่ [คู่มือการปรับปรุงและแผนทดสอบ Mobile Responsiveness](ux-ui-mobile-responsiveness-guidelines.md))
 
 ## 5. การสื่อสารและการควบคุม (Interaction & EventBus)
 - **Separation of Concerns:** แยก Logic ของเกมออกจาก UI Overlay

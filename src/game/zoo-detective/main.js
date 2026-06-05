@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 
 import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 
+import StartMenuScene from './scenes/StartMenu';
 import MainMenuScene from './scenes/MainMenu';
 import GameplayScene from './scenes/Gameplay';
 import { Boot } from './scenes/Boot';
@@ -13,7 +14,7 @@ import { AUTO, Game } from 'phaser';
 const config = {
     type: AUTO,
     parent: 'game-container',
-    backgroundColor: '#028af8',
+    backgroundColor: '#5eaed6',
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -24,10 +25,11 @@ const config = {
         default: 'arcade', 
         arcade: {
             gravity: { y: 0 }, // 0 for top-down, 300 for platformers
-            debug: true       // Keep this true while debugging!
+            debug: false
         }
     },
     scene: [
+        StartMenuScene,
         //MainMenuScene,
         GameplayScene,
         Boot,

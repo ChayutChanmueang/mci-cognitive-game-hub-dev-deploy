@@ -2,9 +2,10 @@
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'Zoo Feeder',
+    title: 'สายพานอาหาร',
     description: 'เกมคัดเลือกอาหารให้ถูกต้อง',
     instructions: 'แตะอาหารที่สัตว์ชนิดนั้นไม่สามารถกินได้ออกจากสายพาน',
+    coverImage: 'assets/common/cover/cover_zoo_feeder.png',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,
     /** Callback-style template for the level detail string; receives `level` at render time */
@@ -40,7 +41,7 @@ export const FoodTypes = Object.freeze({
 export const FoodSpriteLibrary = {
     [FoodTypes.VEGETABLE]: ['apple_sprite', 'corn_sprite', 'plant_sprite'],
     [FoodTypes.MEAT]: ['beef_sprite', 'chicken_sprite', 'fish_sprite'],
-    [FoodTypes.JUNK]: ['battery_sprite', 'garbage_sprite', 'soda_sprite']
+    [FoodTypes.JUNK]: ['battery_sprite', 'boot_sprite', 'bottle_sprite']
 }
 export const AnimalSetting = Object.freeze({
     BEAR: {
@@ -73,4 +74,15 @@ export const AnimalSetting = Object.freeze({
         Sprite: 'panda_sprite',
         Icon: 'panda_icon'
     }
-})
+});
+
+// ---------------------------------------------------------------------------
+// Gameplay Settings
+// ---------------------------------------------------------------------------
+export const GameplaySetting = Object.freeze({
+    spawnCooldowns: {
+        1: { min: 21, max: 27 }, // Easy
+        2: { min: 15, max: 21 },  // Normal
+        3: { min: 9, max: 15 }   // Hard
+    }
+});
