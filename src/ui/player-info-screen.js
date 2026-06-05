@@ -205,6 +205,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
         player = {},
         programEndedAt = "",
         programDayCount = null,
+        onBack = () => {},
         onEndProgram = () => {},
         onLogout = () => {},
         onExport = () => {},
@@ -238,7 +239,13 @@ export function renderPlayerInfoScreen(root, options = {}) {
     root.innerHTML = `
         <section class="player-info-screen" aria-labelledby="player-info-title">
             <div class="player-info-card">
-                <h1 id="player-info-title">ข้อมูลผู้เล่น</h1>
+                <header class="player-info-card__header">
+                    <md-filled-tonal-icon-button id="player-info-back" class="player-info-back" aria-label="กลับไปหน้าเกม" type="button">
+                        <md-icon class="material-symbols-rounded">arrow_back</md-icon>
+                    </md-filled-tonal-icon-button>
+                    <h1 id="player-info-title">ข้อมูลผู้เล่น</h1>
+                    <span aria-hidden="true"></span>
+                </header>
 
                 <form id="player-info-form" class="player-info-form" novalidate>
                     <label class="player-info-row">
@@ -294,17 +301,13 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     <p id="player-info-feedback" class="player-info-feedback" aria-live="polite"></p>
 
                     <div class="player-info-actions">
-                        <md-filled-button id="player-info-end-program" type="button">
-                            จบโปรแกรม
+                        <md-filled-button id="player-info-export" type="button">
+                            ส่งออกข้อมูล
                         </md-filled-button>
                         <md-filled-button id="player-info-logout" type="button">
                             ลงชื่อออก
                         </md-filled-button>
                     </div>
-
-                    <md-filled-button id="player-info-export" class="player-info-export-button" type="submit">
-                        ส่งออกข้อมูล
-                    </md-filled-button>
                 </form>
             </div>
         </section>
@@ -355,7 +358,8 @@ export function renderPlayerInfoScreen(root, options = {}) {
     `;
 
     const form = root.querySelector("#player-info-form");
-    const endProgramButton = root.querySelector("#player-info-end-program");
+    const backButton = root.querySelector("#player-info-back");
+    const exportButton = root.querySelector("#player-info-export");
     const logoutButton = root.querySelector("#player-info-logout");
     const feedback = root.querySelector("#player-info-feedback");
     const bindTestControls = () => {
@@ -437,22 +441,28 @@ export function renderPlayerInfoScreen(root, options = {}) {
         });
     };
 
-    if (!form || !endProgramButton || !logoutButton || !feedback) {
+    if (!form || !backButton || !exportButton || !logoutButton || !feedback) {
         return;
     }
 
     bindTestControls();
 
-    endProgramButton.addEventListener("click", async () => {
-        await onEndProgram(player);
+    backButton.addEventListener("click", async () => {
+        await onBack(player);
+    });
+    backButton.addEventListener("keydown", async (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+            return;
+        }
+        event.preventDefault();
+        await onBack(player);
     });
 
     logoutButton.addEventListener("click", async () => {
         await onLogout(player);
     });
 
-    form.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    const handleExport = async () => {
         const exportSelection = await showExportOptionsPopup();
 
         if (!exportSelection?.exportTypes?.length) {
@@ -475,5 +485,11 @@ export function renderPlayerInfoScreen(root, options = {}) {
         }
 
         feedback.textContent = "";
+    };
+
+    exportButton.addEventListener("click", handleExport);
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
     });
 }

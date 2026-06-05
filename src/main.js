@@ -1603,21 +1603,13 @@ document.addEventListener("DOMContentLoaded", () => {
             testGames,
             testProgramPresets,
             activeProgramId: playerProgram?.programId ?? null,
-            onEndProgram: async () => {
-                await showPopup({
-                    title: "จบโปรแกรม",
-                    message: "ฟังก์ชันจบโปรแกรมจะถูกเชื่อมต่อในขั้นตอนถัดไป",
-                    confirmText: "รับทราบ",
-                    icon: "flag",
-                });
-            },
-            onLogout: async () => {
+            onBack: async () => {
                 const hasConfirmed = await showPopup({
-                    title: "ยืนยันการออกจากระบบ",
-                    message: "ต้องการออกจากระบบและกลับไปยังหน้าเข้าสู่ระบบใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    title: "กลับไปหน้าเกม",
+                    message: "ต้องการออกจากระบบผู้ดูแลและกลับไปหน้าเกมของผู้เล่นใช่หรือไม่",
+                    confirmText: "ออกจากระบบผู้ดูแล",
                     cancelText: "ยกเลิก",
-                    icon: "logout",
+                    icon: "arrow_back",
                     tone: "error",
                 });
 
@@ -1641,6 +1633,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.hub);
+            },
+            onEndProgram: async () => {
+                await showPopup({
+                    title: "จบโปรแกรม",
+                    message: "ฟังก์ชันจบโปรแกรมจะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    confirmText: "รับทราบ",
+                    icon: "flag",
+                });
+            },
+            onLogout: async () => {
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการออกจากระบบ",
+                    message: "ต้องการออกจากระบบผู้ดูแลและผู้เล่น แล้วกลับไปหน้าเข้าสู่ระบบใช่หรือไม่",
+                    confirmText: "ออกจากระบบ",
+                    cancelText: "ยกเลิก",
+                    icon: "logout",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                try {
+                    await db.signOut();
+                } catch (error) {
+                    console.warn("Unable to sign out admin session:", error);
+                    await showPopup({
+                        title: "ออกจากระบบไม่สำเร็จ",
+                        message: "ระบบยังไม่สามารถออกจากระบบผู้ดูแลได้ กรุณาลองใหม่อีกครั้ง",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return;
+                }
+
+                clearPatientClientState();
+                navigateTo(ROUTES.login);
             },
             onTestQuickLaunchGame: async (selectedGame) => {
                 const selectedGid = String(selectedGame?.gid || "").trim();
