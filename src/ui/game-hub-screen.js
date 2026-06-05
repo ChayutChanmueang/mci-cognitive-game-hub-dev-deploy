@@ -4,6 +4,7 @@ import {
     getLocalDayStart,
     getProgramDateRange,
     getProgramDayDate,
+    getProgramDayStatus,
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import db from "../core/database.js";
@@ -424,6 +425,7 @@ export async function renderGameHubScreen(root, options = {}) {
         const currentHistory = getDisplayHistoryForProgramDay(currentDay);
         const currentCompletion = getDayCompletion(currentSection, currentHistory);
         const activeDay = getActiveDay();
+        const { programEnded: isProgramEnded } = getProgramDayStatus(getStartedProgram(), getProgramDayCount());
         const progress = currentCompletion.nodeTarget > 0
             ? Math.min(1, currentCompletion.completedCount / currentCompletion.nodeTarget)
             : 0;
@@ -456,7 +458,7 @@ export async function renderGameHubScreen(root, options = {}) {
                         <div class="hub-clean-scroll" data-hub-scroll>
                             <div class="hub-clean-content">
                                 ${state.error ? `<div class="hub-clean-empty"><p>${escapeHtml(state.error)}</p></div>` : ""}
-                                ${sections.map((section) => renderDaySection(section, activeDay)).join("")}
+                                ${sections.map((section) => renderDaySection(section, activeDay, isProgramEnded)).join("")}
                                 ${state.loading || state.historyLoading ? `
                                     <div class="hub-clean-empty">
                                         <md-circular-progress indeterminate aria-label="กำลังโหลดรายการเกม"></md-circular-progress>
@@ -479,7 +481,7 @@ export async function renderGameHubScreen(root, options = {}) {
         bind(sections, activeDay);
     };
 
-    const renderDaySection = (section, activeDay) => {
+    const renderDaySection = (section, activeDay, isProgramEnded) => {
         const day = Number(section.day);
         const dayHistory = getDisplayHistoryForProgramDay(day);
         const completion = getDayCompletion(section, dayHistory);
@@ -495,13 +497,13 @@ export async function renderGameHubScreen(root, options = {}) {
                     <span></span>
                 </div>
                 <div class="hub-clean-levels">
-                    ${section.nodes.map((node, index) => renderNode(node, index, index < completion.completedCount, index === currentNodeIndex)).join("")}
+                    ${section.nodes.map((node, index) => renderNode(node, index, index < completion.completedCount, index === currentNodeIndex, isProgramEnded)).join("")}
                 </div>
             </section>
         `;
     };
 
-    const renderNode = (node, index, isDone, isCurrent) => {
+    const renderNode = (node, index, isDone, isCurrent, isProgramEnded) => {
         const classes = ["hub-clean-level", isDone ? "is-done" : "", isCurrent ? "is-current" : ""]
             .filter(Boolean)
             .join(" ");
@@ -516,7 +518,7 @@ export async function renderGameHubScreen(root, options = {}) {
                 ? "รอเช็คชื่อ"
                 : node.title || `เกมที่ ${index + 1}`;
         const side = isCurrent
-            ? renderCurrentCard(node)
+            ? renderCurrentCard(node, isProgramEnded)
             : `<div class="hub-clean-game-pill">${escapeHtml(sideLabel)}</div>`;
 
         return `
@@ -529,7 +531,7 @@ export async function renderGameHubScreen(root, options = {}) {
         `;
     };
 
-    const renderCurrentCard = (node) => {
+    const renderCurrentCard = (node, isProgramEnded = false) => {
         if (node.type === "checkin") {
             return `
                 <article class="hub-clean-current-card">
@@ -558,7 +560,7 @@ export async function renderGameHubScreen(root, options = {}) {
                 <p>${escapeHtml(getCategoryLabel(categoryId))}</p>
                 <h2>${escapeHtml(node.title || game.displayName || game.name || "เกมฝึกสมอง")}</h2>
                 <span>${escapeHtml(getCategoryDescription(categoryId))}</span>
-                <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">เริ่มเกม</md-filled-button>
+                <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button"${isProgramEnded ? " disabled" : ""}>เริ่มเกม</md-filled-button>
             </article>
         `;
     };
