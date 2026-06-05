@@ -30,11 +30,11 @@ gantt
 | ID | Story / Task / Tech Debt | Priority | Status |
 |----|--------------------------|----------|--------|
 | [US-E3-06](../user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | High | 🏗 In-Progress |
-| [US-E4-03](../user-stories/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med | ✅ Done |
-| [US-E5-01](../user-stories/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | High | ✅ Done |
-| [US-E5-02](../user-stories/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV | Med | ✅ Done |
+| [US-E4-03](../user-stories/archives/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med | ✅ Done |
+| [US-E5-01](../user-stories/archives/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | High | ✅ Done |
+| [US-E5-02](../user-stories/archives/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV | Med | ✅ Done |
 | [US-E5-03](../user-stories/US-E5-03.md) | ระบบลบบัญชีและลงชื่อออก | Med | 🏗 In-Progress |
-| [UX-RESP-01](../user-stories/UX-RESP-01.md) | **Research & Design**: ค้นคว้าความละเอียดหน้าจอมือถือ และแนวทางการพัฒนา UX/UI ให้ Responsive (Phaser + DOM) พร้อมแผนทดสอบ | High | ✅ Done |
+| [UX-RESP-01](../user-stories/archives/UX-RESP-01.md) | **Research & Design**: ค้นคว้าความละเอียดหน้าจอมือถือ และแนวทางการพัฒนา UX/UI ให้ Responsive (Phaser + DOM) พร้อมแผนทดสอบ | High | ✅ Done |
 | **TD-DB-01** | **Technical Debt**: ปรับแต่ง Database Naming (kebab-case `"check-in"` ⮕ snake_case `check_in` และเปลี่ยนชื่อคอลัมน์ `date` ⮕ `birth_date` ใน `user_patient_data` พร้อมปรับ SQL / API JS ในระบบให้สอดคล้องกัน) | High | 🏗 In-Progress |
 
 ---

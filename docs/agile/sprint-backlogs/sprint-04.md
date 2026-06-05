@@ -20,8 +20,8 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID           | Story / Task                                | Owner    | Estimate | Status         |
 | ------------ | ------------------------------------------- | -------- | -------- | -------------- |
-| [US-E1-08](../user-stories/US-E1-08.md) | Postcard Reader (Final Polish & Animation)  | UI Dev   | 40h      | ✅ Done         |
-| [US-E3-02](../user-stories/US-E3-02.md) | ระบบ Voice Over คำแนะนำการเล่น (Web Speech) | Core Dev | 24h      | 🏗 In-Progress |
+| [US-E1-08](../user-stories/archives/US-E1-08.md) | Postcard Reader (Final Polish & Animation)  | UI Dev   | 40h      | ✅ Done         |
+| [US-E3-02](../user-stories/archives/US-E3-02.md) | ระบบ Voice Over คำแนะนำการเล่น (Web Speech) | Core Dev | 24h      | 🏗 In-Progress |
 | [QA-001](../user-stories/QA-001.md)   | Final End-to-End System Testing             | QA Team  | 16h      | ✅ Done         |
 | [POL-001](../user-stories/POL-001.md)  | UI Consistency & Animation Polish           | UI Dev   | 16h      | ✅ Done         |
 

@@ -20,13 +20,13 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E1-02](../user-stories/US-E1-02.md) | ระบบลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, เพศ, การศึกษา) | High | ✅ Done |
-| [US-E1-03](../user-stories/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน) | Med | ✅ Done |
-| [US-E2-02](../user-stories/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression Map) | High | ✅ Done |
-| [US-E2-03](../user-stories/US-E2-03.md) | ระบบ Daily Goal Progress Bar | High | ✅ Done |
-| [US-E2-04](../user-stories/US-E2-04.md) | ระบบ Daily Streak Tracking | Med | ✅ Done |
-| [US-E2-05](../user-stories/US-E2-05.md) | มินิเกมด่านจุดพัก (Rest Level) | Low | ✅ Done |
-| [US-E2-06](../user-stories/US-E2-06.md) | ด่านเส้นชัยและระบบเช็คชื่อ (Finish Level) | High | ✅ Done |
+| [US-E1-02](../user-stories/archives/US-E1-02.md) | ระบบลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, เพศ, การศึกษา) | High | ✅ Done |
+| [US-E1-03](../user-stories/archives/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน) | Med | ✅ Done |
+| [US-E2-02](../user-stories/archives/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression Map) | High | ✅ Done |
+| [US-E2-03](../user-stories/archives/US-E2-03.md) | ระบบ Daily Goal Progress Bar | High | ✅ Done |
+| [US-E2-04](../user-stories/archives/US-E2-04.md) | ระบบ Daily Streak Tracking | Med | ✅ Done |
+| [US-E2-05](../user-stories/archives/US-E2-05.md) | มินิเกมด่านจุดพัก (Rest Level) | Low | ✅ Done |
+| [US-E2-06](../user-stories/archives/US-E2-06.md) | ด่านเส้นชัยและระบบเช็คชื่อ (Finish Level) | High | ✅ Done |
 
 ## 📊 Sprint Summary & Velocity
 - **งานที่วางแผนไว้ (Planned):** 7 Stories
