@@ -88,7 +88,7 @@ export default class UITestScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isRestarting = false;
     this.gameStartedAt = new Date();
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_START, this.gameStartedAt);
+    this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.ROUND_START, true);
     this.gameEndedAt = new Date();
     this.spawnFruitTimer = null;
 
@@ -180,23 +180,23 @@ export default class UITestScene extends Phaser.Scene {
   onGetEatableFood() {
     this.addScore(20);
     this.correctDeliver++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, "CORRECT");
+    this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, true);
   }
   onGetUneatableFood() {
     this.addScore(-50);
     this.wrongDeliver++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, "WRONG");
+    this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, false);
 
   }
   onRemoveEatableFood() {
     this.addScore(-25);
     this.wrongDrop++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, "WRONG");
+    this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, false);
   }
   onRemoveUneatableFood() {
     this.addScore(10);
     this.correctDrop++;
-    this.replayLogger.addEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, "CORRECT");
+    this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, true);
   }
   addScore(addedScore) {
     this.score += addedScore;
@@ -275,7 +275,7 @@ export default class UITestScene extends Phaser.Scene {
         console.error("Failed to save game data:", error);
       });
 
-      this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED, this.gameEndedAt);
+      this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED, true);
 
       this.replayLogger.pushToDatabase();
 

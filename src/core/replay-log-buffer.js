@@ -33,7 +33,7 @@ function normalizeJsonValue(value) {
 /**
  * @typedef {Object} ReplayEventValue
  * @property {boolean} data - Whether this event answer is correct.
- * @property {*} answer - Answer text or additional answer data for this event.
+ * @property {*} [answer] - Answer text or additional answer data for this event.
  */
 
 function normalizeReplayEventValue(value) {
@@ -45,14 +45,15 @@ function normalizeReplayEventValue(value) {
         throw new Error("Replay event value.data must be a boolean");
     }
 
-    if (!Object.prototype.hasOwnProperty.call(value, "answer")) {
-        throw new Error("Replay event value.answer is required");
+    const replayValue = {
+        data: value.data,
+    };
+
+    if (Object.prototype.hasOwnProperty.call(value, "answer")) {
+        replayValue.answer = normalizeJsonValue(value.answer);
     }
 
-    return {
-        data: value.data,
-        answer: normalizeJsonValue(value.answer),
-    };
+    return replayValue;
 }
 
 function parseStorageJson(key, fallbackValue = null) {
@@ -297,6 +298,21 @@ export class ReplayLogBuffer {
         return this.addEvent(replayId, {
             data,
             answer,
+        }, options);
+    }
+
+    /**
+     * @param {string} replayId
+     * @param {boolean} data
+     * @param {{ id?: string, createdAt?: string }} options
+     */
+    addCorrectEvent(replayId, data, options = {}) {
+        if (typeof data !== "boolean") {
+            throw new Error("Replay answer event data must be a boolean");
+        }
+
+        return this.addEvent(replayId, {
+            data,
         }, options);
     }
 
