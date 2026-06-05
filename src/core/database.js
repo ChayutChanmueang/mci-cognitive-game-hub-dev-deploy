@@ -439,10 +439,10 @@ class Database {
                 for (const log of replayData || []) {
                     const historyId = Number(log?.historyid);
                     if (!Number.isFinite(historyId) || historyId <= 0) continue;
-                    const answer = log?.value?.answer;
-                    if (answer !== true && answer !== false) continue;
+                    const answerResult = this.resolveReplayAnswerResult(log?.value);
+                    if (answerResult !== true && answerResult !== false) continue;
                     const entry = replayCountsByHistoryId.get(historyId) || { correct: 0, wrong: 0 };
-                    if (answer === true) entry.correct += 1;
+                    if (answerResult === true) entry.correct += 1;
                     else entry.wrong += 1;
                     replayCountsByHistoryId.set(historyId, entry);
                 }
@@ -473,6 +473,18 @@ class Database {
         const bValue = Number.isFinite(b) ? b : Number.MAX_SAFE_INTEGER;
 
         return aValue - bValue;
+    }
+
+    resolveReplayAnswerResult(value) {
+        if (value?.data === true || value?.data === false) {
+            return value.data;
+        }
+
+        if (value?.answer === true || value?.answer === false) {
+            return value.answer;
+        }
+
+        return null;
     }
 
     async getGameHistoryCsvExportRows({ hn = null } = {}) {
