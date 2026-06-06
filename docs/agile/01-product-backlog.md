@@ -12,44 +12,49 @@
 ### E1: User Management & Authentication (P0)
 | ID                                     | User Story                                                    | Priority | Status   |
 | -------------------------------------- | ------------------------------------------------------------- | -------- | -------- |
-| [US-E1-01](./user-stories/US-E1-01.md) | เข้าใช้งานระบบด้วยรหัส HN (Hospital Number)                   | High     | ✅ Done   |
-| [US-E1-02](./user-stories/US-E1-02.md) | ลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, อายุ, เพศ, ระดับการศึกษา) | High     | ✅ Done  |
-| [US-E1-03](./user-stories/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน)               | Med      | ✅ Done  |
+| [US-E1-01](./user-stories/archives/US-E1-01.md) | เข้าใช้งานระบบด้วยรหัส HN (Hospital Number)                   | High     | ✅ Done   |
+| [US-E1-02](./user-stories/archives/US-E1-02.md) | ลงทะเบียนผู้ใช้ใหม่ (ชื่อ, วันเกิด, อายุ, เพศ, ระดับการศึกษา) | High     | ✅ Done  |
+| [US-E1-03](./user-stories/archives/US-E1-03.md) | ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ (14 วัน)               | Med      | ✅ Done  |
 
 ### E2: Core Gamehub & Progression System (P0)
 | ID       | User Story                                                         | Priority | Status   |
 | -------- | ------------------------------------------------------------------ | -------- | -------- |
-| [US-E2-01](./user-stories/US-E2-01.md) | หน้า Gamehub รวมฟีเจอร์หลัก (ข้อมูลผู้เล่น, เป้าหมาย, ความคืบหน้า) | High     | ✅ Done   |
-| [US-E2-02](./user-stories/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression) แบบล็อคด่านตามวันที่            | High     | ✅ Done  |
-| [US-E2-03](./user-stories/US-E2-03.md) | ระบบ Daily Goal (ความคืบหน้า 10 ด่านในแต่ละวัน)                    | High     | ✅ Done  |
-| [US-E2-04](./user-stories/US-E2-04.md) | ระบบ Daily Streak (ติดตามการเล่นติดต่อกัน 14 วัน)                  | Med      | ✅ Done  |
-| [US-E2-05](./user-stories/US-E2-05.md) | ด่านจุดพัก (Rest Level) มินิเกมยืดเส้นยืดสาย                       | Low      | ✅ Done  |
-| [US-E2-06](./user-stories/US-E2-06.md) | ด่านเส้นชัย (Finish Level) เช็คชื่อและแสดงความยินดี                | High     | ✅ Done  |
+| [US-E2-01](./user-stories/archives/US-E2-01.md) | หน้า Gamehub รวมฟีเจอร์หลัก (ข้อมูลผู้เล่น, เป้าหมาย, ความคืบหน้า) | High     | ✅ Done   |
+| [US-E2-02](./user-stories/archives/US-E2-02.md) | ระบบแผนที่ด่าน (Level Progression) แบบล็อคด่านตามวันที่            | High     | ✅ Done  |
+| [US-E2-03](./user-stories/archives/US-E2-03.md) | ระบบ Daily Goal (ความคืบหน้า 10 ด่านในแต่ละวัน)                    | High     | ✅ Done  |
+| [US-E2-04](./user-stories/archives/US-E2-04.md) | ระบบ Daily Streak (ติดตามการเล่นติดต่อกัน 14 วัน)                  | Med      | ✅ Done  |
+| [US-E2-05](./user-stories/archives/US-E2-05.md) | ด่านจุดพัก (Rest Level) มินิเกมยืดเส้นยืดสาย                       | Low      | ✅ Done  |
+| [US-E2-06](./user-stories/archives/US-E2-06.md) | ด่านเส้นชัย (Finish Level) เช็คชื่อและแสดงความยินดี                | High     | ✅ Done  |
 
 ### E3: Cognitive Games Implementation (P1)
 | ID       | User Story                                                     | Priority | Status  |
 | -------- | -------------------------------------------------------------- | -------- | ------- |
-| [US-E3-01](./user-stories/US-E3-01.md) | เกม Zoo Detective (การคิดวิเคราะห์/Executive)                  | High     | ✅ Done  |
-| [US-E3-02](./user-stories/US-E3-02.md) | เกม Zoo Feeder (ความจดจ่อ/Attention)                           | High     | ✅ Done  |
-| [US-E3-03](./user-stories/US-E3-03.md) | เกม Context Clues (คำศัพท์/Language)                           | High     | ✅ Done  |
+| [US-E3-01](./user-stories/archives/US-E3-01.md) | เกม Zoo Detective (การคิดวิเคราะห์/Executive)                  | High     | ✅ Done  |
+| [US-E3-02](./user-stories/archives/US-E3-02.md) | เกม Zoo Feeder (ความจดจ่อ/Attention)                           | High     | ✅ Done  |
+| [US-E3-03](./user-stories/archives/US-E3-03.md) | เกม Context Clues (คำศัพท์/Language)                           | High     | ✅ Done  |
 | [US-E3-04](./user-stories/US-E3-04.md) | เกม Symmetry Decor (มิติสัมพันธ์/Visuospatial)                 | Med      | ✅ Done  |
 | [US-E3-05](./user-stories/US-E3-05.md) | เกม Postcard Reader (ความจำระยะสั้น/Memory)                    | Med      | ✅ Done  |
 | [US-E3-06](./user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | Low      | 🏗 In-Progress |
-| [UX-RESP-01](./user-stories/UX-RESP-01.md) | กรอบระบบรองรับมือถือและการวิจัยความละเอียดหน้าจอ (Responsive)   | High     | ✅ Done  |
+| [US-E3-07](./user-stories/archives/US-E3-07.md) | เกม Fry Food (ทอดไข่/ทอดอาหาร) และการควบคุมด้วย Accelerometer | Med      | ✅ Done  |
+| [US-E3-08](./user-stories/archives/US-E3-08.md) | ระบบติดตั้งแอปพลิเคชันแบบ Progressive Web App (PWA)            | Low      | ✅ Done  |
+| [UX-RESP-01](./user-stories/archives/UX-RESP-01.md) | กรอบระบบรองรับมือถือและการวิจัยความละเอียดหน้าจอ (Responsive)   | High     | ✅ Done  |
 
 ### E4: Data Tracking & Analytics (Supabase) (P1)
 | ID       | User Story                                                    | Priority | Status   |
 | -------- | ------------------------------------------------------------- | -------- | -------- |
 | [US-E4-01](./user-stories/US-E4-01.md) | บันทึกข้อมูลส่วนตัวและเวลาการใช้งาน Gamehub                   | High     | ✅ Done   |
 | [US-E4-02](./user-stories/US-E4-02.md) | บันทึกผลการเล่นมินิเกม (Score, Time, Difficulty)              | High     | ✅ Done   |
-| [US-E4-03](./user-stories/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med      | ✅ Done   |
+| [US-E4-03](./user-stories/archives/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med      | ✅ Done   |
+| [US-E4-04](./user-stories/archives/US-E4-04.md) | ระบบจัดเก็บบันทึกการเล่นซ้ำพฤติกรรม (Replay Event Logging)     | Med      | ✅ Done   |
 
 ### E5: Admin & Data Management (P2)
 | ID       | User Story                            | Priority | Status   |
 | -------- | ------------------------------------- | -------- | -------- |
-| [US-E5-01](./user-stories/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | Med      | ✅ Done   |
-| [US-E5-02](./user-stories/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV          | Low      | ✅ Done   |
+| [US-E5-01](./user-stories/archives/US-E5-01.md) | ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย | Med      | ✅ Done   |
+| [US-E5-02](./user-stories/archives/US-E5-02.md) | ระบบส่งออกข้อมูลเป็นไฟล์ CSV          | Low      | ✅ Done   |
 | [US-E5-03](./user-stories/US-E5-03.md) | ระบบลบบัญชีและลงชื่อออก               | Low      | 🏗 In-Progress |
+| [US-E5-04](./user-stories/archives/US-E5-04.md) | เครื่องมือจัดการตารางเล่นรายวัน (Daily Preset Editor)         | Med      | ✅ Done   |
+| [US-E5-05](./user-stories/archives/US-E5-05.md) | เครื่องมือทดสอบเกมสแตนด์อโลน (Test Game Hub & Video Player)    | Low      | ✅ Done   |
 
 ---
 

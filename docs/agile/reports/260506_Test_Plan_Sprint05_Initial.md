@@ -13,8 +13,8 @@
 
 ### 1. User Management: Registration Flow
 **Related User Stories:** 
-- [US-E1-02: ลงทะเบียนผู้ใช้ใหม่](../user-stories/US-E1-02.md)
-- [US-E1-03: ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ](../user-stories/US-E1-03.md)
+- [US-E1-02: ลงทะเบียนผู้ใช้ใหม่](../user-stories/archives/US-E1-02.md)
+- [US-E1-03: ระบบคำนวณวันที่สิ้นสุดโปรแกรมอัตโนมัติ](../user-stories/archives/US-E1-03.md)
 
 | ID | Test Scenario | Expected Result | Status |
 |----|---------------|-----------------|--------|
@@ -25,8 +25,8 @@
 
 ### 2. Game Hub: Level Progression Map (New UI)
 **Related User Stories:** 
-- [US-E2-02: ระบบแผนที่ด่าน (Level Progression Map)](../user-stories/US-E2-02.md)
-- [US-E2-03: ระบบ Daily Goal Progress Bar](../user-stories/US-E2-03.md)
+- [US-E2-02: ระบบแผนที่ด่าน (Level Progression Map)](../user-stories/archives/US-E2-02.md)
+- [US-E2-03: ระบบ Daily Goal Progress Bar](../user-stories/archives/US-E2-03.md)
 
 | ID | Test Scenario | Expected Result | Status |
 |----|---------------|-----------------|--------|
@@ -37,7 +37,7 @@
 
 ### 3. Minigame: Resting Point (Rest Level)
 **Related User Stories:** 
-- [US-E2-05: มินิเกมด่านจุดพัก (Rest Level)](../user-stories/US-E2-05.md)
+- [US-E2-05: มินิเกมด่านจุดพัก (Rest Level)](../user-stories/archives/US-E2-05.md)
 
 | ID | Test Scenario | Expected Result | Status |
 |----|---------------|-----------------|--------|

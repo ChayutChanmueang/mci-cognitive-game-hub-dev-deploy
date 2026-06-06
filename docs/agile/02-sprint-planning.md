@@ -44,6 +44,7 @@ gantt
 - **[sprint-03](sprint-backlogs/sprint-03.md)**: Logic Games & Data Integration
 - **[sprint-04](sprint-backlogs/sprint-04.md)**: Final Polish & Alternative Games
 - **[sprint-05](sprint-backlogs/sprint-05.md)**: User Management & Progression Overhaul
+- **[sprint-06](sprint-backlogs/sprint-06.md)**: Integration, Analytics & Admin Dashboard
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
