@@ -7,6 +7,7 @@ import {
     getProgramDayStatus,
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
+import { showRestingPointPopup } from "./resting-point-popup.js";
 import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
 import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
@@ -605,11 +606,19 @@ export async function renderGameHubScreen(root, options = {}) {
             }
 
             if (node.type === "rest") {
-                const result = await options.onRestNode?.(node);
-                if (result?.redirected || result?.cancelled) {
-                    return;
+                const startAt = new Date().toISOString();
+                await showRestingPointPopup({ durationSeconds: 60 });
+                if (patientHn) {
+                    await db.addUserGameHistory({
+                        hn: patientHn,
+                        gid: "REST001",
+                        startAt,
+                        endAt: new Date().toISOString(),
+                        rest: true,
+                        checkIn: false,
+                    });
                 }
-                await loadHistory(true);
+                await loadHistory();
             }
         } catch (error) {
             console.error("Unable to handle game hub node action:", error);

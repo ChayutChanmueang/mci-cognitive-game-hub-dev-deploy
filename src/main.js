@@ -822,41 +822,6 @@ document.addEventListener("DOMContentLoaded", () => {
             onTestDailyDataTools: async () => {
                 navigateTo(ROUTES.dailyPresetTool);
             },
-            onRestNode: async () => {
-                const restGame = await db.getGameByGid("REST001");
-
-                if (!restGame?.gid) {
-                    throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
-                }
-
-                const hasConfirmed = await showPopup({
-                    title: "ยืนยันการเข้าเกม",
-                    message: `ต้องการเปิดเกม ${restGame?.name || "พัก"} ใช่หรือไม่`,
-                    confirmText: "เริ่มเกม",
-                    cancelText: "ยกเลิก",
-                    icon: "play_circle",
-                });
-
-                if (!hasConfirmed) {
-                    return { cancelled: true };
-                }
-
-                await db.addUserGameHistory({
-                    hn: patientCode,
-                    gid: restGame.gid,
-                    startAt: new Date().toISOString(),
-                    userGameDataId: null,
-                    rest: true,
-                    checkIn: false,
-                });
-
-                persistSelectedGame(restGame);
-                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
-                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
-                removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
-                navigateTo(getGameRouteHash(restGame));
-                return { redirected: true };
-            },
             onCheckInNode: async () => {
                 await db.addUserGameHistory({
                     hn: patientCode,
