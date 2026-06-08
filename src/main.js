@@ -2003,7 +2003,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    const showLeaderboard = () => {
+    const showLeaderboard = async () => {
         if (!uiRoot || !gameContainer) {
             return;
         }
@@ -2022,11 +2022,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rememberedPatient = getPatientSessionCookie();
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : "ผู้เล่น";
+        const currentHn = String(rememberedPatient?.patientCode || "").trim() || null;
+        const onBack = () => navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login);
 
-        renderLeaderboardScreen(uiRoot, {
-            patientLabel,
-            onBack: () => navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login),
-        });
+        renderLeaderboardScreen(uiRoot, { patientLabel, players: [], loading: true, onBack });
+
+        try {
+            const players = await db.getLeaderboard({ currentHn });
+            renderLeaderboardScreen(uiRoot, { patientLabel, players, onBack });
+        } catch (error) {
+            console.error("Failed to load leaderboard:", error);
+        }
     };
 
     const renderCurrentRoute = async () => {
@@ -2107,7 +2113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "leaderboard") {
-            showLeaderboard();
+            await showLeaderboard();
             return;
         }
 
