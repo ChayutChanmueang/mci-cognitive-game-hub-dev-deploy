@@ -779,15 +779,6 @@ body.hub-mode {
     --md-checkbox-state-layer-size: 40px;
 }
 
-.app-popup__dialog--resting {
-    width: min(100%, 360px);
-    min-height: min(560px, calc(100svh - 48px));
-    grid-template-rows: 1fr auto;
-    align-content: stretch;
-    text-align: center;
-    padding: 24px 24px 28px;
-}
-
 .resting-popup-layout {
     display: grid;
     align-content: center;
@@ -845,19 +836,6 @@ body.hub-mode {
     color: var(--md-sys-color-on-surface-variant);
     line-height: 1;
     padding-bottom: 4px;
-}
-
-.resting-popup-actions {
-    align-self: end;
-    justify-content: center;
-    padding-bottom: 0;
-}
-
-.resting-popup-actions md-outlined-button {
-    --md-outlined-button-container-height: 56px;
-    --md-outlined-button-label-text-size: 22px;
-    --md-outlined-button-label-text-weight: 600;
-    --md-outlined-button-label-text-font: "Noto Sans Thai", "Baloo 2", sans-serif;
 }
 
 .hub-clean-screen {

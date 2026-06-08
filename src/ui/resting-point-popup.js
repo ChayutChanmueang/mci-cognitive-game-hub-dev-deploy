@@ -43,7 +43,7 @@ export function showRestingPointPopup(options = {}) {
         overlay.innerHTML = `
             <div class="app-popup__backdrop"></div>
             <div
-                class="app-popup__dialog app-popup__dialog--resting"
+                class="app-popup__dialog app-popup__dialog--success app-popup__dialog--resting"
                 role="dialog"
                 aria-modal="true"
                 aria-label="เวลาพัก"
@@ -64,8 +64,8 @@ export function showRestingPointPopup(options = {}) {
                         <span class="resting-popup-timer__unit">วินาที</span>
                     </div>
                 </div>
-                <div class="app-popup__actions resting-popup-actions">
-                    <md-outlined-button type="button" data-resting-skip style="width: 100%;">ข้าม</md-outlined-button>
+                <div class="app-popup__actions checkin-popup-success-actions">
+                    <md-filled-button type="button" data-resting-skip style="width: 100%;">ข้าม</md-filled-button>
                 </div>
             </div>
         `;
