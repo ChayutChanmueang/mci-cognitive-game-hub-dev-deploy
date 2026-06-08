@@ -38,9 +38,6 @@ export default class DraggableComponent extends Component {
 
         this.entity.on('drag', (pointer, dragX, dragY) => {
             this.entity.setPosition(dragX, dragY);
-            /*if (this.scene.replayLogger) {
-                this.scene.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_DRAGGED, this.entity.getComponent(DraggableDataComponent).animal);
-            }*/
         });
 
         this.entity.on('drop', (pointer, dropZoneEntity) => {
@@ -94,7 +91,11 @@ export default class DraggableComponent extends Component {
                     this.snapBack();
                 }
                 if (this.scene.replayLogger) {
-                    this.scene.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_DROPPED, this.entity.getComponent(DraggableDataComponent).animal);
+                    this.scene.replayLogger.addAnswerEvent(
+                        ReplayEvent.SymmetryDecor.PIECE_DROPPED,
+                        this.entity.getComponent(DraggableDataComponent).animal,
+                        true,
+                    );
                 }
             }
         });

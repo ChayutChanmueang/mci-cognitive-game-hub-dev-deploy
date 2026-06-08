@@ -42,6 +42,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.puzzleTimer = new DateTimeTimer();
         this.timeLimitMs = Config.TimeLimitMs;
         this.isGameEnded = false;
+        this.timeExpired = false;
     }
 
     preload() {
@@ -64,6 +65,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.allScore = 0;
         this.timeLimitMs = data.timeLimitMs ?? Config.TimeLimitMs;
         this.isGameEnded = false;
+        this.timeExpired = false;
         this.onPlacementEvaluated = data.onPlacementEvaluated ?? null;
         this.replayLog = new ReplayLogBuffer();
     }
@@ -125,7 +127,11 @@ export default class GameplayScene extends Phaser.Scene {
                     return;
                 }
 
-                this.loadNextPuzzle();
+                if (this.timeExpired) {
+                    this.endGame("failure");
+                } else {
+                    this.loadNextPuzzle();
+                }
             });
         };
 
@@ -145,14 +151,13 @@ export default class GameplayScene extends Phaser.Scene {
                 }
             }
 
-            this.replayLog.addEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
+            this.replayLog.addAnswerEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
                 cellIndex: callback.cellIndex,
                 animal: callback.animal,
                 previousCellIndex: callback.previousCellIndex,
                 currentHintIndex: callback.currentHintIndex,
                 currentHint: callback.currentHint,
-                value: callback.isCorrect
-            });
+            }, Boolean(callback.isCorrect));
         };
 
         this.loadNextPuzzle();
@@ -199,8 +204,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI.setTimeLeft(Math.max(0, timeLeftS));
         EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS) });
 
-        if (!this.isGameEnded && elapsedMs >= this.timeLimitMs) {
-            this.endGame("failure");
+        if (!this.isGameEnded && !this.timeExpired && elapsedMs >= this.timeLimitMs) {
+            this.timeExpired = true;
         }
 
     }

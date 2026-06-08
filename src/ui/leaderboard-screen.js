@@ -70,6 +70,7 @@ export function renderLeaderboardScreen(root, options = {}) {
     const {
         players = MOCK_LEADERBOARD_PLAYERS,
         patientLabel = "ผู้เล่น",
+        loading = false,
         onBack = () => {},
     } = options;
     const state = { scrollTop: 0 };
@@ -107,7 +108,10 @@ export function renderLeaderboardScreen(root, options = {}) {
                         <p>อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
                         <div class="leaderboard-summary">
                             <span>อันดับของคุณ</span>
-                            <strong>${escapeHtml(currentPlayer?.rank || "-")}/${escapeHtml(totalPlayers || "-")}</strong>
+                            ${loading
+                                ? `<md-circular-progress indeterminate aria-label="กำลังโหลด"></md-circular-progress>`
+                                : `<strong>${escapeHtml(currentPlayer?.rank || "-")}/${escapeHtml(totalPlayers || "-")}</strong>`
+                            }
                         </div>
                     </div>
                 </header>
@@ -119,16 +123,23 @@ export function renderLeaderboardScreen(root, options = {}) {
                                 <span>ชื่อ</span>
                                 <span>คะแนน</span>
                             </div>
-                            <div class="leaderboard-list">
-                                ${sortedPlayers.map(renderLeaderboardRow).join("")}
-                            </div>
+                            ${loading ? `
+                                <div class="hub-clean-empty">
+                                    <md-circular-progress indeterminate aria-label="กำลังโหลดคะแนน"></md-circular-progress>
+                                    <p>กำลังโหลดคะแนน</p>
+                                </div>
+                            ` : `
+                                <div class="leaderboard-list">
+                                    ${sortedPlayers.map(renderLeaderboardRow).join("")}
+                                </div>
+                            `}
                         </div>
                     </div>
                     <md-fab class="hub-clean-fab leaderboard-fab" aria-label="เลื่อนไปยังอันดับของคุณ" data-scroll-top>
                         <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                     </md-fab>
                 </section>
-                ${currentPlayer ? `
+                ${!loading && currentPlayer ? `
                     <aside class="leaderboard-bottom-bar" aria-label="อันดับของผู้เล่นคนนี้">
                         ${renderLeaderboardRow({ ...currentPlayer, current: false })}
                     </aside>

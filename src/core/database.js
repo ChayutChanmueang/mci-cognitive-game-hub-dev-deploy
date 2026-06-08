@@ -2219,6 +2219,8 @@ class Database {
         replayid = null,
         gid = null,
         value = null,
+        historyId = null,
+        historyid = null,
         userGameDataId = null,
         user_game_data_id = null,
     }) {
@@ -2228,6 +2230,8 @@ class Database {
             replayid,
             gid,
             value,
+            historyId,
+            historyid,
             userGameDataId,
             user_game_data_id,
         });
@@ -2239,7 +2243,7 @@ class Database {
             const { data, error } = await client
                 .from(REPLAY_LOG_TABLE)
                 .insert([payload])
-                .select("id, created_at, hn, replayid, gid, value, user_game_data_id")
+                .select("id, created_at, hn, replayid, gid, value, historyid")
                 .maybeSingle();
 
             if (error) {
@@ -2256,16 +2260,18 @@ class Database {
         replayid = null,
         gid = null,
         value = null,
+        historyId = null,
+        historyid = null,
         userGameDataId = null,
         user_game_data_id = null,
     }) {
         const parsedHn = String(hn || "").trim();
         const parsedReplayId = String(replayId || replayid || "").trim();
         const parsedGid = gid == null ? null : String(gid).trim() || null;
-        const parsedUserGameDataIdValue = userGameDataId ?? user_game_data_id;
-        const parsedUserGameDataId = parsedUserGameDataIdValue == null || parsedUserGameDataIdValue === ""
+        const parsedHistoryIdValue = historyId ?? historyid ?? userGameDataId ?? user_game_data_id;
+        const parsedHistoryId = parsedHistoryIdValue == null || parsedHistoryIdValue === ""
             ? null
-            : Number(parsedUserGameDataIdValue);
+            : Number(parsedHistoryIdValue);
         const parsedValue = this.normalizeJsonValue(value);
 
         if (!parsedHn) {
@@ -2277,10 +2283,10 @@ class Database {
         }
 
         if (
-            parsedUserGameDataId != null
-            && (!Number.isInteger(parsedUserGameDataId) || parsedUserGameDataId <= 0)
+            parsedHistoryId != null
+            && (!Number.isInteger(parsedHistoryId) || parsedHistoryId <= 0)
         ) {
-            throw new Error("Invalid userGameDataId");
+            throw new Error("Invalid historyId");
         }
 
         return {
@@ -2288,7 +2294,7 @@ class Database {
             replayid: parsedReplayId,
             gid: parsedGid,
             value: parsedValue,
-            user_game_data_id: parsedUserGameDataId,
+            historyid: parsedHistoryId,
         };
     }
 
@@ -2317,7 +2323,7 @@ class Database {
                 const { data, error } = await client
                     .from(REPLAY_LOG_TABLE)
                     .insert(batch)
-                    .select("id, created_at, hn, replayid, gid, value, user_game_data_id");
+                    .select("id, created_at, hn, replayid, gid, value, historyid");
 
                 if (error) {
                     throw error;
@@ -2334,6 +2340,105 @@ class Database {
 
     async logReplayEvent(params) {
         return this.writeReplayLog(params);
+    }
+
+    _buildLeaderboardPlayers(rows, currentHn) {
+        return rows.map((row, index) => {
+            const hn = String(row?.hn || "").trim();
+            const firstname = String(row?.firstname || "").trim();
+            const lastname = String(row?.lastname || "").trim();
+            const name = [firstname, lastname].filter(Boolean).join(" ") || hn;
+            return {
+                rank: index + 1,
+                name,
+                score: Number(row?.total_score) || 0,
+                current: currentHn ? hn === currentHn : false,
+            };
+        });
+    }
+
+    async getLeaderboard({ currentHn = null } = {}) {
+        await this.initAuth();
+
+        const client = this.getClient();
+        const parsedCurrentHn = String(currentHn || "").trim();
+
+        const { data: rpcRows, error: rpcError } = await client.rpc("get_leaderboard");
+        if (!rpcError) {
+            return this._buildLeaderboardPlayers(rpcRows || [], parsedCurrentHn);
+        }
+
+        console.warn("Leaderboard RPC unavailable, using client query:", rpcError);
+
+        const [patients, histories] = await Promise.all([
+            this.getAllTableRows(
+                USER_PATIENT_DATA_TABLE,
+                "hn, firstname, lastname",
+                [{ column: "hn", ascending: true }],
+            ),
+            this.getAllTableRows(
+                USER_GAME_HISTORY_TABLE,
+                'hn, user_game_data_id, "check-in"',
+                [],
+            ),
+        ]);
+
+        const validHistories = histories.filter(
+            (h) => h?.user_game_data_id != null && h?.["check-in"] !== true,
+        );
+        const gameDataIds = [
+            ...new Set(
+                validHistories
+                    .map((h) => Number(h.user_game_data_id))
+                    .filter((id) => Number.isFinite(id) && id > 0),
+            ),
+        ];
+
+        const scoreById = new Map();
+        const batchSize = 500;
+        for (let i = 0; i < gameDataIds.length; i += batchSize) {
+            const batch = gameDataIds.slice(i, i + batchSize);
+            // eslint-disable-next-line no-await-in-loop
+            const { data: gameDataRows } = await client
+                .from(USER_GAME_DATA_TABLE)
+                .select("id, score")
+                .in("id", batch);
+            for (const row of gameDataRows || []) {
+                const id = Number(row?.id);
+                const score = Number(row?.score);
+                if (Number.isFinite(id) && id > 0 && Number.isFinite(score)) {
+                    scoreById.set(id, score);
+                }
+            }
+        }
+
+        const scoreByHn = new Map();
+        for (const history of validHistories) {
+            const hn = String(history?.hn || "").trim();
+            const gameDataId = Number(history?.user_game_data_id);
+            const score = scoreById.get(gameDataId);
+            if (hn && Number.isFinite(score)) {
+                scoreByHn.set(hn, (scoreByHn.get(hn) || 0) + score);
+            }
+        }
+
+        const patientByHn = new Map(
+            patients.map((p) => [String(p?.hn || "").trim(), p]),
+        );
+
+        const rows = [...scoreByHn.entries()]
+            .map(([hn, totalScore]) => {
+                const patient = patientByHn.get(hn) || {};
+                return {
+                    hn,
+                    firstname: String(patient?.firstname || "").trim(),
+                    lastname: String(patient?.lastname || "").trim(),
+                    total_score: totalScore,
+                };
+            })
+            .sort((a, b) => b.total_score - a.total_score);
+
+        return this._buildLeaderboardPlayers(rows, parsedCurrentHn);
     }
 }
 

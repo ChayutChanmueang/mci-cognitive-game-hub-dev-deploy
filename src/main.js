@@ -822,41 +822,6 @@ document.addEventListener("DOMContentLoaded", () => {
             onTestDailyDataTools: async () => {
                 navigateTo(ROUTES.dailyPresetTool);
             },
-            onRestNode: async () => {
-                const restGame = await db.getGameByGid("REST001");
-
-                if (!restGame?.gid) {
-                    throw new Error("ไม่พบข้อมูลเกมพัก (REST001) ในฐานข้อมูล");
-                }
-
-                const hasConfirmed = await showPopup({
-                    title: "ยืนยันการเข้าเกม",
-                    message: `ต้องการเปิดเกม ${restGame?.name || "พัก"} ใช่หรือไม่`,
-                    confirmText: "เริ่มเกม",
-                    cancelText: "ยกเลิก",
-                    icon: "play_circle",
-                });
-
-                if (!hasConfirmed) {
-                    return { cancelled: true };
-                }
-
-                await db.addUserGameHistory({
-                    hn: patientCode,
-                    gid: restGame.gid,
-                    startAt: new Date().toISOString(),
-                    userGameDataId: null,
-                    rest: true,
-                    checkIn: false,
-                });
-
-                persistSelectedGame(restGame);
-                SessionStorageManager.delete(TEST_GAME_HUB_LAUNCH_GID_KEY);
-                SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
-                removePendingGameHistoryByKey(getGameHistoryNodeKey(restGame));
-                navigateTo(getGameRouteHash(restGame));
-                return { redirected: true };
-            },
             onCheckInNode: async () => {
                 await db.addUserGameHistory({
                     hn: patientCode,
@@ -1603,21 +1568,13 @@ document.addEventListener("DOMContentLoaded", () => {
             testGames,
             testProgramPresets,
             activeProgramId: playerProgram?.programId ?? null,
-            onEndProgram: async () => {
-                await showPopup({
-                    title: "จบโปรแกรม",
-                    message: "ฟังก์ชันจบโปรแกรมจะถูกเชื่อมต่อในขั้นตอนถัดไป",
-                    confirmText: "รับทราบ",
-                    icon: "flag",
-                });
-            },
-            onLogout: async () => {
+            onBack: async () => {
                 const hasConfirmed = await showPopup({
-                    title: "ยืนยันการออกจากระบบ",
-                    message: "ต้องการออกจากระบบและกลับไปยังหน้าเข้าสู่ระบบใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    title: "กลับไปหน้าเกม",
+                    message: "ต้องการออกจากระบบผู้ดูแลและกลับไปหน้าเกมของผู้เล่นใช่หรือไม่",
+                    confirmText: "ออกจากระบบผู้ดูแล",
                     cancelText: "ยกเลิก",
-                    icon: "logout",
+                    icon: "arrow_back",
                     tone: "error",
                 });
 
@@ -1641,6 +1598,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 navigateTo(ROUTES.hub);
+            },
+            onEndProgram: async () => {
+                await showPopup({
+                    title: "จบโปรแกรม",
+                    message: "ฟังก์ชันจบโปรแกรมจะถูกเชื่อมต่อในขั้นตอนถัดไป",
+                    confirmText: "รับทราบ",
+                    icon: "flag",
+                });
+            },
+            onLogout: async () => {
+                const hasConfirmed = await showPopup({
+                    title: "ยืนยันการออกจากระบบ",
+                    message: "ต้องการออกจากระบบผู้ดูแลและผู้เล่น แล้วกลับไปหน้าเข้าสู่ระบบใช่หรือไม่",
+                    confirmText: "ออกจากระบบ",
+                    cancelText: "ยกเลิก",
+                    icon: "logout",
+                    tone: "error",
+                });
+
+                if (!hasConfirmed) {
+                    return;
+                }
+
+                try {
+                    await db.signOut();
+                } catch (error) {
+                    console.warn("Unable to sign out admin session:", error);
+                    await showPopup({
+                        title: "ออกจากระบบไม่สำเร็จ",
+                        message: "ระบบยังไม่สามารถออกจากระบบผู้ดูแลได้ กรุณาลองใหม่อีกครั้ง",
+                        confirmText: "รับทราบ",
+                        icon: "error",
+                        tone: "error",
+                    });
+                    return;
+                }
+
+                clearPatientClientState();
+                navigateTo(ROUTES.login);
             },
             onTestQuickLaunchGame: async (selectedGame) => {
                 const selectedGid = String(selectedGame?.gid || "").trim();
@@ -2007,7 +2003,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    const showLeaderboard = () => {
+    const showLeaderboard = async () => {
         if (!uiRoot || !gameContainer) {
             return;
         }
@@ -2026,11 +2022,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rememberedPatient = getPatientSessionCookie();
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : "ผู้เล่น";
+        const currentHn = String(rememberedPatient?.patientCode || "").trim() || null;
+        const onBack = () => navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login);
 
-        renderLeaderboardScreen(uiRoot, {
-            patientLabel,
-            onBack: () => navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login),
-        });
+        renderLeaderboardScreen(uiRoot, { patientLabel, players: [], loading: true, onBack });
+
+        try {
+            const players = await db.getLeaderboard({ currentHn });
+            renderLeaderboardScreen(uiRoot, { patientLabel, players, onBack });
+        } catch (error) {
+            console.error("Failed to load leaderboard:", error);
+        }
     };
 
     const renderCurrentRoute = async () => {
@@ -2111,7 +2113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "leaderboard") {
-            showLeaderboard();
+            await showLeaderboard();
             return;
         }
 

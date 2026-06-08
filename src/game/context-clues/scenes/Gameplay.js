@@ -23,6 +23,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.timeLimitSeconds = 180;
     this.countdownTimer = null;
     this.isGameEnded = false;
+    this.timeExpired = false;
   }
 
   preload() {
@@ -43,6 +44,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.timeLeftSeconds = this.timeLimitSeconds;
     this.countdownTimer = null;
     this.isGameEnded = false;
+    this.timeExpired = false;
   }
 
   create(data = {}) {
@@ -82,7 +84,9 @@ export default class GameplayScene extends Phaser.Scene {
               this.syncTimerUI();
 
               if (this.timeLeftSeconds <= 0) {
-                  this.endGame("failure");
+                  this.timeExpired = true;
+                  this.countdownTimer?.remove(false);
+                  this.countdownTimer = null;
               }
           }
       });
@@ -159,14 +163,22 @@ export default class GameplayScene extends Phaser.Scene {
               console.log(`All Score: (${this.allScore})`);
 
               this.showCorrectAnswerEffect(() => {
-                  this.getNewQuiz();
+                  if (this.timeExpired) {
+                      this.endGame("failure");
+                  } else {
+                      this.getNewQuiz();
+                  }
               });
-          }else{
+          } else {
               this.randomQuiz = new RandomQuiz(this.levelMap);
               this.progressStory = 0;
 
               this.showCorrectAnswerEffect(() => {
-                  this.getNewQuiz();
+                  if (this.timeExpired) {
+                      this.endGame("failure");
+                  } else {
+                      this.getNewQuiz();
+                  }
               });
           }
       }
