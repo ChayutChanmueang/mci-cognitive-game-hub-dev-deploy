@@ -4,6 +4,48 @@ import AccelerometerManager from '../../../core/accelerometer-manager.js';
 import { AccelerometerSettings, GameOverSetting } from '../constants.js';
 import { showLevelCompleteEffect } from '../../common/ui-elements/scripts/level-complete-effect.js';
 
+/**
+ * Food configuration for the fry-food minigame.
+ * Each entry defines a food type with its sprite frames and level mapping.
+ *
+ * - `name`: display / identifier name
+ * - `frameCount`: how many sprite frames exist on disk
+ * - `folder`: sub-path under `assets/fry-food/`
+ * - `prefix`: filename prefix (e.g. `egg` → `egg_1.png`)
+ * - `levelToFrame(level)`: returns the 1-based frame index for a given cook level (1-4).
+ *   Foods with 4 frames map 1:1.  Foods with 2 frames double up (2 levels per frame).
+ */
+const FOOD_CONFIGS = [
+    {
+        name: 'egg',
+        frameCount: 4,
+        folder: 'egg',
+        prefix: 'egg',
+        levelToFrame: (level) => Math.min(level, 4),
+    },
+    {
+        name: 'fried_rice',
+        frameCount: 2,
+        folder: 'fried_rice',
+        prefix: 'fried_rice',
+        levelToFrame: (level) => (level <= 2 ? 1 : 2),
+    },
+    {
+        name: 'pancake',
+        frameCount: 4,
+        folder: 'pancake',
+        prefix: 'pancake',
+        levelToFrame: (level) => Math.min(level, 4),
+    },
+    {
+        name: 'okonomiyaki',
+        frameCount: 2,
+        folder: 'okonomiyaki',
+        prefix: 'okonomiyaki',
+        levelToFrame: (level) => (level <= 2 ? 1 : 2),
+    },
+];
+
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
         super('fry-food-gameplay-scene');
@@ -13,16 +55,24 @@ export default class GameplayScene extends Phaser.Scene {
         // Preload gameplay assets here
         this.load.image('fry-food-bg', 'assets/fry-food/background.png');
         this.load.image('fry-food-pan', 'assets/fry-food/pan.png');
-        this.load.image('egg-1', 'assets/fry-food/egg/egg_1.png');
-        this.load.image('egg-2', 'assets/fry-food/egg/egg_2.png');
-        this.load.image('egg-3', 'assets/fry-food/egg/egg_3.png');
-        this.load.image('egg-4', 'assets/fry-food/egg/egg_4.png');
         this.load.image('fry-food-mortar', 'assets/fry-food/mortar.png');
         this.load.image('bottle-4', 'assets/fry-food/bottle_4.png');
         this.load.image('bottle-5', 'assets/fry-food/bottle_5.png');
         this.load.image('bottle-6', 'assets/fry-food/bottle_6.png');
         this.load.image('fry-food-plant', 'assets/fry-food/plant.png');
         this.load.image('fry-food-tray', 'assets/fry-food/tray.png');
+
+        // Pick a random food for this session
+        this._foodConfig = Phaser.Utils.Array.GetRandom(FOOD_CONFIGS);
+
+        // Load only the sprites for the chosen food
+        const cfg = this._foodConfig;
+        for (let i = 1; i <= cfg.frameCount; i++) {
+            this.load.image(
+                `${cfg.name}-${i}`,
+                `assets/fry-food/${cfg.folder}/${cfg.prefix}_${i}.png`
+            );
+        }
     }
 
     create(data) {
@@ -86,10 +136,10 @@ export default class GameplayScene extends Phaser.Scene {
         this._createFlipPrompt(cx, height);
 
         // -- Debug text overlay ---------------------------------------------
-        this._createDebugOverlay();
+        // this._createDebugOverlay();
 
         // -- Designer Menu --------------------------------------------------
-        this._createDesignerMenu();
+        // this._createDesignerMenu();
 
         // -- Start accelerometer --------------------------------------------
         this._initAccelerometer();
@@ -110,6 +160,9 @@ export default class GameplayScene extends Phaser.Scene {
             }
             if (this._flipPromptContainer && typeof this._flipPromptContainer.destroy === 'function') {
                 this._flipPromptContainer.destroy();
+            }
+            if (this._smokeDom && typeof this._smokeDom.destroy === 'function') {
+                this._smokeDom.destroy();
             }
 
             // Exit fullscreen if running in a browser
@@ -187,9 +240,8 @@ export default class GameplayScene extends Phaser.Scene {
         this._flipInitiated = false;
 
         // Hide smoke if it was active
-        if (this._smokeGfx) {
-            this._smokeGfx.setVisible(false);
-            if (this._smokeTween) this._smokeTween.stop();
+        if (this._smokeDom) {
+            this._smokeDom.setVisible(false);
         }
 
         if (this._flipPromptContainer) {
@@ -221,20 +273,8 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         // Show smoke to indicate it's ready
-        if (this._smokeGfx) {
-            this._smokeGfx.setVisible(true);
-            this._smokeGfx.y = -450; // Start slightly above the egg
-            this._smokeGfx.alpha = 0;
-
-            this._smokeTween = this.tweens.add({
-                targets: this._smokeGfx,
-                alpha: { from: 0.4, to: 0.9 },
-                y: '-=60', // Drift up 60px from current position
-                duration: 1500,
-                yoyo: true,
-                repeat: -1,
-                ease: 'Sine.easeInOut'
-            });
+        if (this._smokeDom) {
+            this._smokeDom.setVisible(true);
         }
     }
 
@@ -244,9 +284,8 @@ export default class GameplayScene extends Phaser.Scene {
         // Temporarily disable mechanics while animating
         this._gameState = 'FLIPPING';
 
-        if (this._smokeGfx) {
-            this._smokeGfx.setVisible(false);
-            if (this._smokeTween) this._smokeTween.stop();
+        if (this._smokeDom) {
+            this._smokeDom.setVisible(false);
         }
 
         if (this._flipPromptContainer) {
@@ -257,9 +296,10 @@ export default class GameplayScene extends Phaser.Scene {
         this.score = this._cookLevel * 100;
         EventBus.emit('minigame:score', { score: this.score });
 
-        // Visual change to egg
-        const stage = Math.min(this._cookLevel + 1, 4);
-        const newTexture = `egg-${stage}`;
+        // Visual change to food
+        const cfg = this._foodConfig;
+        const frame = cfg.levelToFrame(this._cookLevel + 1);
+        const newTexture = `${cfg.name}-${frame}`;
 
         // Tween to jump up, change scale, and fall down
         this.tweens.add({
@@ -338,7 +378,9 @@ export default class GameplayScene extends Phaser.Scene {
         // Container for food so we can tween it easily (moved up 400px)
         this._food = this.add.container(0, -400);
 
-        this._foodSprite = this.add.sprite(0, 0, 'egg-1');
+        const cfg = this._foodConfig;
+        const initialFrame = cfg.levelToFrame(1);
+        this._foodSprite = this.add.sprite(0, 0, `${cfg.name}-${initialFrame}`);
         this._foodSprite.setScale(1.5);
         
         this._food.add(this._foodSprite);
@@ -348,21 +390,126 @@ export default class GameplayScene extends Phaser.Scene {
         }
     }
 
+    /**
+     * Create a DOM-canvas-based smoke particle effect.
+     * Renders animated smoke wisps that rise, drift, expand, and fade.
+     */
     _createSmoke(cx, cy) {
-        this._smokeGfx = this.add.graphics();
-        // Made smoke whiter and larger to match the 3x scaled egg
-        this._smokeGfx.fillStyle(0xeeeeee, 1);
-        this._smokeGfx.fillEllipse(0, 0, 360, 120);
-        this._smokeGfx.fillEllipse(-60, -90, 240, 150);
-        this._smokeGfx.fillEllipse(90, -60, 270, 180);
+        const uiRoot = document.getElementById('ui-root');
+        if (!uiRoot) return;
 
-        // Initial state is hidden
-        this._smokeGfx.setVisible(false);
+        const CANVAS_W = 480;
+        const CANVAS_H = 400;
 
-        // Add to pan so it's above the food
-        if (this._panContainer) {
-            this._panContainer.add(this._smokeGfx);
+        const canvas = document.createElement('canvas');
+        canvas.width = CANVAS_W;
+        canvas.height = CANVAS_H;
+        Object.assign(canvas.style, {
+            position: 'absolute',
+            left: '50%',
+            bottom: 'calc(38% - 15px)',
+            transform: 'translateX(-50%)',
+            pointerEvents: 'none',
+            zIndex: '800',
+            visibility: 'hidden',
+        });
+
+        uiRoot.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d');
+        const particles = [];
+        const MAX_PARTICLES = 35;
+        let animId = null;
+
+        // Spawn a new smoke particle at the bottom-center of the canvas
+        function spawnParticle() {
+            particles.push({
+                x: CANVAS_W / 2 + (Math.random() - 0.5) * 140,
+                y: CANVAS_H / 2 + (Math.random() - 0.5) * 40,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: (Math.random() - 0.5) * 1.2,
+                radius: 20 + Math.random() * 20,
+                growRate: 0.25 + Math.random() * 0.35,
+                alpha: 0.0,
+                maxAlpha: 0.4 + Math.random() * 0.15,
+                life: 0,
+                maxLife: 110 + Math.random() * 70,
+                wobbleSpeed: 0.02 + Math.random() * 0.03,
+                wobbleAmp: 0.4 + Math.random() * 0.6,
+                phase: Math.random() * Math.PI * 2,
+            });
         }
+
+        function render() {
+            ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+            // Spawn particles to maintain count
+            while (particles.length < MAX_PARTICLES) {
+                spawnParticle();
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.life++;
+                const t = p.life / p.maxLife; // 0→1 progress
+
+                // Fade in for the first 20%, then fade out
+                if (t < 0.2) {
+                    p.alpha = p.maxAlpha * (t / 0.2);
+                } else {
+                    p.alpha = p.maxAlpha * (1 - (t - 0.2) / 0.8);
+                }
+
+                // Grow over time
+                p.radius += p.growRate;
+
+                // Drift with wobble
+                p.x += p.vx + Math.sin(p.life * p.wobbleSpeed + p.phase) * p.wobbleAmp;
+                p.y += p.vy;
+
+                // Remove dead particles
+                if (p.life >= p.maxLife) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                // Draw soft radial gradient circle
+                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+                grad.addColorStop(0, `rgba(220, 220, 220, ${p.alpha})`);
+                grad.addColorStop(0.5, `rgba(200, 200, 200, ${p.alpha * 0.6})`);
+                grad.addColorStop(1, `rgba(180, 180, 180, 0)`);
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+            }
+
+            animId = requestAnimationFrame(render);
+        }
+
+        // Public API object (matches the existing show/hide/destroy pattern)
+        this._smokeDom = {
+            setVisible: (visible) => {
+                canvas.style.visibility = visible ? 'visible' : 'hidden';
+                if (visible && !animId) {
+                    // Reset particles when showing
+                    particles.length = 0;
+                    render();
+                } else if (!visible && animId) {
+                    cancelAnimationFrame(animId);
+                    animId = null;
+                }
+            },
+            destroy: () => {
+                if (animId) {
+                    cancelAnimationFrame(animId);
+                    animId = null;
+                }
+                if (canvas.parentNode) {
+                    canvas.parentNode.removeChild(canvas);
+                }
+            },
+        };
     }
 
     _createFlipPrompt(cx, height) {
@@ -380,7 +527,7 @@ export default class GameplayScene extends Phaser.Scene {
             alignItems: 'center',
             gap: '20px',
             pointerEvents: 'none',
-            zIndex: '2000',
+            zIndex: '900',
             visibility: 'hidden'
         });
 
@@ -396,22 +543,36 @@ export default class GameplayScene extends Phaser.Scene {
             textShadow: '2px 2px 4px rgba(0,0,0,0.8), -2px -2px 4px rgba(0,0,0,0.8), 2px -2px 4px rgba(0,0,0,0.8), -2px 2px 4px rgba(0,0,0,0.8)'
         });
 
-        const iconEl = document.createElement('div');
+        // Animated phone-tilt icon using sprite frames
+        const iconEl = document.createElement('img');
+        const tillingFrames = [
+            'assets/fry-food/tilling/phone_tile_1.png',
+            'assets/fry-food/tilling/phone_tile_2.png',
+            'assets/fry-food/tilling/phone_tile_3.png',
+            'assets/fry-food/tilling/phone_tile_4.png',
+        ];
+        iconEl.src = tillingFrames[0];
+        iconEl.alt = 'Tilt phone to flip';
         Object.assign(iconEl.style, {
-            width: '64px',
-            height: '64px',
-            backgroundColor: '#888888',
-            border: '2px solid #ffffff',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-            fontSize: '18px',
-            fontFamily: 'sans-serif',
-            fontWeight: 'bold'
+            width: '96px',
+            height: '96px',
+            objectFit: 'contain',
+            imageRendering: 'auto',
+            filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))',
         });
-        iconEl.textContent = 'Flip';
+
+        // Cycle through frames in a ping-pong pattern (1→2→3→4→3→2→1→…)
+        let tillingFrameIndex = 0;
+        let tillingDirection = 1;
+        this._tillingAnimInterval = setInterval(() => {
+            tillingFrameIndex += tillingDirection;
+            if (tillingFrameIndex >= tillingFrames.length - 1) {
+                tillingDirection = -1;
+            } else if (tillingFrameIndex <= 0) {
+                tillingDirection = 1;
+            }
+            iconEl.src = tillingFrames[tillingFrameIndex];
+        }, 300);
 
         this._flipPromptDom.appendChild(textEl);
         this._flipPromptDom.appendChild(iconEl);
@@ -424,6 +585,10 @@ export default class GameplayScene extends Phaser.Scene {
                 this._flipPromptDom.style.visibility = visible ? 'visible' : 'hidden';
             },
             destroy: () => {
+                if (this._tillingAnimInterval) {
+                    clearInterval(this._tillingAnimInterval);
+                    this._tillingAnimInterval = null;
+                }
                 if (this._flipPromptDom && this._flipPromptDom.parentNode) {
                     this._flipPromptDom.parentNode.removeChild(this._flipPromptDom);
                 }
