@@ -59,6 +59,7 @@ export class MinigameHUD {
             "context-clues",
             "symmetry-decor",
             "postcard-reader",
+            "fry-food",
         ];
         if (topbarStyleGames.includes(this.options.gameSlug)) {
             container.classList.add("minigame-hud--zoo-feeder");

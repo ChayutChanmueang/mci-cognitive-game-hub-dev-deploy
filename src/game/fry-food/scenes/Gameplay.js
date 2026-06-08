@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { EventBus } from '../../../core/EventBus.js';
 import AccelerometerManager from '../../../core/accelerometer-manager.js';
-import { AccelerometerSettings } from '../constants.js';
+import { AccelerometerSettings, GameOverSetting } from '../constants.js';
+import { showLevelCompleteEffect } from '../../common/ui-elements/scripts/level-complete-effect.js';
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -10,12 +11,51 @@ export default class GameplayScene extends Phaser.Scene {
 
     preload() {
         // Preload gameplay assets here
+        this.load.image('fry-food-bg', 'assets/fry-food/background.png');
+        this.load.image('fry-food-pan', 'assets/fry-food/pan.png');
+        this.load.image('egg-1', 'assets/fry-food/egg/egg_1.png');
+        this.load.image('egg-2', 'assets/fry-food/egg/egg_2.png');
+        this.load.image('egg-3', 'assets/fry-food/egg/egg_3.png');
+        this.load.image('egg-4', 'assets/fry-food/egg/egg_4.png');
+        this.load.image('fry-food-mortar', 'assets/fry-food/mortar.png');
+        this.load.image('bottle-4', 'assets/fry-food/bottle_4.png');
+        this.load.image('bottle-5', 'assets/fry-food/bottle_5.png');
+        this.load.image('bottle-6', 'assets/fry-food/bottle_6.png');
+        this.load.image('fry-food-plant', 'assets/fry-food/plant.png');
+        this.load.image('fry-food-tray', 'assets/fry-food/tray.png');
     }
 
     create(data) {
         const { width, height } = this.scale;
         const cx = width / 2;
         const cy = height / 2;
+
+        // -- Background -----------------------------------------------------
+        const bg = this.add.image(cx, cy, 'fry-food-bg');
+        const scaleX = width / bg.width;
+        const scaleY = height / bg.height;
+        const scale = Math.max(scaleX, scaleY);
+        bg.setScale(scale);
+
+        // -- Environment ----------------------------------------------------
+        const mortar = this.add.image(-180, -180, 'fry-food-mortar').setOrigin(0, 0);
+        mortar.setScale(3.25);
+        
+        const plant = this.add.image(width + 205, -220, 'fry-food-plant').setOrigin(1, 0);
+        plant.setScale(3);
+
+        const tray = this.add.image(width + 150, 220, 'fry-food-tray').setOrigin(1, 0);
+        tray.setScale(2.15);
+        tray.setAngle(15);
+
+        // -- Bottles --------------------------------------------------------
+        // The user requested bottle 6, 4, 5 order
+        const b6 = this.add.image(cx - 200, 100, 'bottle-6').setOrigin(0.5, 0);
+        b6.setScale(1.25);
+        const b4 = this.add.image(cx - 125, -80, 'bottle-4').setOrigin(0.5, 0);
+        b4.setScale(2.5);
+        const b5 = this.add.image(cx + 50, -20, 'bottle-5').setOrigin(0.5, 0);
+        b5.setScale(2.5);
 
         // -- State ----------------------------------------------------------
         this._gameState = 'COOKING'; // 'COOKING', 'READY', 'FLIPPING'
@@ -24,9 +64,14 @@ export default class GameplayScene extends Phaser.Scene {
         this._startBetaAngle = 0;    // Baseline angle captured when smoke appears
         this._cookLevel = 0;         // Tracks how many times it was flipped
         this._flipThresholdBeta = AccelerometerSettings.flipThresholdBeta; // dynamic threshold for designer
-        
-        // -- Hide HUD (we don't need score/progress for this game) ----------
-        EventBus.emit('minigame:hide-hud');
+
+        // -- Show DOM HUD (zoo-feeder top bar style) -------------------------
+        this.score = 0;
+        this.gameTime = 180;
+        EventBus.emit('minigame:show-hud');
+        EventBus.emit('minigame:score', { score: this.score });
+        EventBus.emit('minigame:tick', { timeLeft: this.gameTime, maxTime: this.gameTime });
+        this._startTimer(this.gameTime);
 
         // -- Draw frying pan ------------------------------------------------
         this._createPan(cx, cy);
@@ -36,6 +81,9 @@ export default class GameplayScene extends Phaser.Scene {
 
         // -- Create Smoke Visuals -------------------------------------------
         this._createSmoke(cx, cy);
+
+        // -- Create Flip Prompt ---------------------------------------------
+        this._createFlipPrompt(cx, height);
 
         // -- Debug text overlay ---------------------------------------------
         this._createDebugOverlay();
@@ -56,6 +104,26 @@ export default class GameplayScene extends Phaser.Scene {
             this._removeDesignerMenu();
             if (this._cookTimer) {
                 this._cookTimer.remove();
+            }
+            if (this.countdownTimer) {
+                this.countdownTimer.remove();
+            }
+            if (this._flipPromptContainer && typeof this._flipPromptContainer.destroy === 'function') {
+                this._flipPromptContainer.destroy();
+            }
+
+            // Exit fullscreen if running in a browser
+            const isBrowser = !window.matchMedia('(display-mode: standalone)').matches;
+            if (isBrowser) {
+                if (this.scale && this.scale.isFullscreen) {
+                    this.scale.stopFullscreen();
+                }
+                if (document.fullscreenElement && document.exitFullscreen) {
+                    document.exitFullscreen().catch(() => {});
+                }
+                if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+                    screen.orientation.unlock();
+                }
             }
         });
     }
@@ -80,9 +148,9 @@ export default class GameplayScene extends Phaser.Scene {
             // Player tilts phone up/forward past the relative threshold
             if (rawBeta > targetBeta) {
                 this._flipInitiated = true;
-            } 
+            }
             // Player brings phone back down after tilting up past the threshold
-            else if (this._flipInitiated && rawBeta < targetBeta) { 
+            else if (this._flipInitiated && rawBeta < targetBeta) {
                 this._executeFlip();
             }
         } else {
@@ -98,14 +166,34 @@ export default class GameplayScene extends Phaser.Scene {
     // GAME LOGIC
     // =======================================================================
 
+    _startTimer(gameTime) {
+        if (this.countdownTimer) return;
+        this.countdownTimer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (this._gameState === 'GAME_OVER') return;
+                const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
+                EventBus.emit('minigame:tick', { timeLeft: remaining, maxTime: gameTime });
+                if (remaining <= 0) {
+                    this._endGame();
+                }
+            },
+            repeat: gameTime - 1,
+        });
+    }
+
     _startCooking() {
         this._gameState = 'COOKING';
         this._flipInitiated = false;
-        
+
         // Hide smoke if it was active
         if (this._smokeGfx) {
             this._smokeGfx.setVisible(false);
             if (this._smokeTween) this._smokeTween.stop();
+        }
+
+        if (this._flipPromptContainer) {
+            this._flipPromptContainer.setVisible(false);
         }
 
         const settings = AccelerometerSettings;
@@ -115,7 +203,7 @@ export default class GameplayScene extends Phaser.Scene {
         if (this._cookTimer) {
             this._cookTimer.remove();
         }
-        
+
         this._cookTimer = this.time.delayedCall(cookTime, () => {
             this._readyToFlip();
         });
@@ -123,14 +211,19 @@ export default class GameplayScene extends Phaser.Scene {
 
     _readyToFlip() {
         this._gameState = 'READY';
-        
+
         // Capture the baseline device angle at the exact moment the egg is ready
         this._startBetaAngle = AccelerometerManager.getOrientation().beta;
-        
+
+        // Show flip prompt
+        if (this._flipPromptContainer) {
+            this._flipPromptContainer.setVisible(true);
+        }
+
         // Show smoke to indicate it's ready
         if (this._smokeGfx) {
             this._smokeGfx.setVisible(true);
-            this._smokeGfx.y = -50; // Start slightly above the egg
+            this._smokeGfx.y = -450; // Start slightly above the egg
             this._smokeGfx.alpha = 0;
 
             this._smokeTween = this.tweens.add({
@@ -147,42 +240,75 @@ export default class GameplayScene extends Phaser.Scene {
 
     _executeFlip() {
         this._flipInitiated = false;
-        
+
         // Temporarily disable mechanics while animating
         this._gameState = 'FLIPPING';
-        
+
         if (this._smokeGfx) {
             this._smokeGfx.setVisible(false);
             if (this._smokeTween) this._smokeTween.stop();
         }
 
-        this._cookLevel++;
+        if (this._flipPromptContainer) {
+            this._flipPromptContainer.setVisible(false);
+        }
 
-        // Visual change to egg (darker color as it cooks)
-        const cookColors = [0xffffff, 0xffddaa, 0xffbb77, 0xdd8844, 0xaa5522];
-        const newColor = cookColors[Math.min(this._cookLevel, cookColors.length - 1)];
+        this._cookLevel++;
+        this.score = this._cookLevel * 100;
+        EventBus.emit('minigame:score', { score: this.score });
+
+        // Visual change to egg
+        const stage = Math.min(this._cookLevel + 1, 4);
+        const newTexture = `egg-${stage}`;
 
         // Tween to jump up, change scale, and fall down
         this.tweens.add({
             targets: this._food,
             scaleX: 1.2,
             scaleY: 1.2,
-            y: -200, // Jump up (in container coordinates relative to pan)
+            y: '-=200', // Jump up relative to its current position
             duration: 300,
             yoyo: true,
             ease: 'Quad.easeOut',
             onYoyo: () => {
-                // Change color halfway through the jump (when it's "flipped")
-                if (this._foodWhite) {
-                    this._foodWhite.clear();
-                    this._foodWhite.fillStyle(newColor, 1);
-                    this._foodWhite.fillEllipse(0, 0, 300, 240); // 3x scaled
+                // Change texture halfway through the jump (when it's "flipped")
+                if (this._foodSprite) {
+                    this._foodSprite.setTexture(newTexture);
                 }
             },
             onComplete: () => {
-                // Done flipping, restart cook cycle
-                this._startCooking();
+                if (this._cookLevel >= 4) {
+                    this._endGame();
+                } else {
+                    // Done flipping, restart cook cycle
+                    this._startCooking();
+                }
             }
+        });
+    }
+
+    _endGame() {
+        this._gameState = 'GAME_OVER';
+
+        if (this._cookTimer) {
+            this._cookTimer.remove();
+        }
+        if (this.countdownTimer) {
+            this.countdownTimer.remove();
+        }
+        
+        // Trigger the premium DOM effect
+        showLevelCompleteEffect();
+
+        // Wait for the effect to finish before showing the game over panel
+        this.time.delayedCall(1500, () => {
+            EventBus.emit('minigame:game-over', {
+                score: this._cookLevel * 100,
+                level: this._cookLevel,
+                panelBorderColor: GameOverSetting.panelBorderColor,
+                panelHeaderColor: GameOverSetting.panelHeaderColor,
+                resultImage: 'assets/fry-food/tray.png',
+            });
         });
     }
 
@@ -191,45 +317,17 @@ export default class GameplayScene extends Phaser.Scene {
     // =======================================================================
 
     /**
-     * Draw a simple frying pan using Phaser Graphics, grouped in a Container
+     * Draw the frying pan using the image asset, grouped in a Container
      * so we can rotate the whole thing as one unit.
      */
     _createPan(cx, cy) {
-        const r = AccelerometerSettings.panRadius;
+        const panImage = this.add.image(0, 0, 'fry-food-pan');
+        panImage.setAngle(90);
+        panImage.setScale(2.15);
 
-        // Pan base (dark circle)
-        const panBase = this.add.graphics();
-        panBase.fillStyle(0x3a3a3a, 1);
-        panBase.fillCircle(0, 0, r);
-
-        // Inner cooking surface (slightly lighter)
-        const panSurface = this.add.graphics();
-        panSurface.fillStyle(0x4a4a4a, 1);
-        panSurface.fillCircle(0, 0, r - 20);
-
-        // Oil sheen (subtle semi-transparent ellipse)
-        const oilSheen = this.add.graphics();
-        oilSheen.fillStyle(0xffcc00, 0.08);
-        oilSheen.fillEllipse(0, -20, r * 1.2, r * 0.7);
-
-        // Pan rim highlight (top arc for 3D feel)
-        const rimHighlight = this.add.graphics();
-        rimHighlight.lineStyle(4, 0x666666, 0.6);
-        rimHighlight.beginPath();
-        rimHighlight.arc(0, 0, r - 2, Phaser.Math.DegToRad(-160), Phaser.Math.DegToRad(-20), false);
-        rimHighlight.strokePath();
-
-        // Handle
-        const handle = this.add.graphics();
-        handle.fillStyle(0x5a3a1a, 1);
-        handle.fillRoundedRect(-30, r - 10, 60, 200, 12);
-        // Handle rivet
-        handle.fillStyle(0x888888, 1);
-        handle.fillCircle(0, r + 20, 8);
-
-        // Assemble into container
-        this._panContainer = this.add.container(cx, cy, [
-            panBase, panSurface, oilSheen, rimHighlight, handle,
+        // Assemble into container, move down 250px
+        this._panContainer = this.add.container(cx, cy + 250, [
+            panImage
         ]);
     }
 
@@ -237,21 +335,13 @@ export default class GameplayScene extends Phaser.Scene {
      * Create a simple test food item (an "egg" for now) placed on the pan.
      */
     _createFood(cx, cy) {
-        // Container for food so we can tween it easily
-        this._food = this.add.container(0, 0);
+        // Container for food so we can tween it easily (moved up 400px)
+        this._food = this.add.container(0, -400);
+
+        this._foodSprite = this.add.sprite(0, 0, 'egg-1');
+        this._foodSprite.setScale(1.5);
         
-        // We separate the white so we can change its color
-        this._foodWhite = this.add.graphics();
-        this._foodWhite.fillStyle(0xffffff, 0.9); // Initial white
-        this._foodWhite.fillEllipse(0, 0, 300, 240); // 3x scaled
-
-        const foodYolk = this.add.graphics();
-        foodYolk.fillStyle(0xffaa00, 1);
-        foodYolk.fillCircle(15, -6, 75); // 3x scaled
-        foodYolk.fillStyle(0xffdd44, 0.7); // Yolk highlight
-        foodYolk.fillCircle(30, -21, 30); // 3x scaled
-
-        this._food.add([this._foodWhite, foodYolk]);
+        this._food.add(this._foodSprite);
 
         if (this._panContainer) {
             this._panContainer.add(this._food);
@@ -265,15 +355,83 @@ export default class GameplayScene extends Phaser.Scene {
         this._smokeGfx.fillEllipse(0, 0, 360, 120);
         this._smokeGfx.fillEllipse(-60, -90, 240, 150);
         this._smokeGfx.fillEllipse(90, -60, 270, 180);
-        
+
         // Initial state is hidden
         this._smokeGfx.setVisible(false);
-        
+
         // Add to pan so it's above the food
         if (this._panContainer) {
             this._panContainer.add(this._smokeGfx);
         }
     }
+
+    _createFlipPrompt(cx, height) {
+        const uiRoot = document.getElementById('ui-root');
+        if (!uiRoot) return;
+
+        this._flipPromptDom = document.createElement('div');
+        Object.assign(this._flipPromptDom.style, {
+            position: 'absolute',
+            left: '50%',
+            bottom: '100px',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '20px',
+            pointerEvents: 'none',
+            zIndex: '2000',
+            visibility: 'hidden'
+        });
+
+        const textEl = document.createElement('div');
+        textEl.textContent = 'ได้เวลากลับอาหารแล้ว !';
+        Object.assign(textEl.style, {
+            fontFamily: 'sans-serif',
+            fontSize: '32px',
+            color: '#ffffff',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            whiteSpace: 'nowrap',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.8), -2px -2px 4px rgba(0,0,0,0.8), 2px -2px 4px rgba(0,0,0,0.8), -2px 2px 4px rgba(0,0,0,0.8)'
+        });
+
+        const iconEl = document.createElement('div');
+        Object.assign(iconEl.style, {
+            width: '64px',
+            height: '64px',
+            backgroundColor: '#888888',
+            border: '2px solid #ffffff',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontSize: '18px',
+            fontFamily: 'sans-serif',
+            fontWeight: 'bold'
+        });
+        iconEl.textContent = 'Flip';
+
+        this._flipPromptDom.appendChild(textEl);
+        this._flipPromptDom.appendChild(iconEl);
+
+        uiRoot.appendChild(this._flipPromptDom);
+
+        // Wrapper object to maintain the existing API for show/hide
+        this._flipPromptContainer = {
+            setVisible: (visible) => {
+                this._flipPromptDom.style.visibility = visible ? 'visible' : 'hidden';
+            },
+            destroy: () => {
+                if (this._flipPromptDom && this._flipPromptDom.parentNode) {
+                    this._flipPromptDom.parentNode.removeChild(this._flipPromptDom);
+                }
+            }
+        };
+    }
+
+
 
     /**
      * Create the debug text overlay at the top of the screen.
@@ -360,13 +518,13 @@ export default class GameplayScene extends Phaser.Scene {
             try {
                 const fsPromise = this.scale.startFullscreen();
                 if (fsPromise && typeof fsPromise.catch === 'function') {
-                    fsPromise.catch(() => {});
+                    fsPromise.catch(() => { });
                 }
             } catch (e) {
                 // ignore
             }
         }
-        
+
         // Phaser's built-in scale manager orientation lock
         if (this.scale) {
             this.scale.lockOrientation('portrait-primary');
@@ -448,7 +606,7 @@ export default class GameplayScene extends Phaser.Scene {
         title.textContent = '🛠️ Designer Tools';
         title.style.fontWeight = 'bold';
         title.style.marginBottom = '5px';
-        
+
         // Slider container
         const sliderContainer = document.createElement('div');
         sliderContainer.style.display = 'flex';
@@ -457,7 +615,7 @@ export default class GameplayScene extends Phaser.Scene {
         const label = document.createElement('label');
         label.textContent = `Flip Angle: ${this._flipThresholdBeta}°`;
         label.style.fontSize = '14px';
-        
+
         const slider = document.createElement('input');
         slider.type = 'range';
         slider.min = '0';
@@ -480,7 +638,7 @@ export default class GameplayScene extends Phaser.Scene {
 
         sliderContainer.appendChild(label);
         sliderContainer.appendChild(slider);
-        
+
         this._designerMenu.appendChild(title);
         this._designerMenu.appendChild(sliderContainer);
         uiRoot.appendChild(this._designerMenu);
