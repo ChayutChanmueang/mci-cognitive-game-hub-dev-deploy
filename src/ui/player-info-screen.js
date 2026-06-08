@@ -8,6 +8,7 @@ import {
     CsvExportScope,
     CsvExportType,
 } from "../util/player-csv-export.js";
+import { showRestingPointPopup } from "./resting-point-popup.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -348,6 +349,10 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     <md-icon class="material-symbols-rounded" slot="start">database</md-icon>
                     <div slot="headline">เครื่องมือจัดการข้อมูลรายวันเกม</div>
                 </md-menu-item>
+                <md-menu-item data-test-resting-popup>
+                    <md-icon class="material-symbols-rounded" slot="start">bedtime</md-icon>
+                    <div slot="headline">ทดสอบ Resting Popup</div>
+                </md-menu-item>
                 <md-divider role="separator" tabindex="-1"></md-divider>
                 <md-menu-item data-test-logout>
                     <md-icon class="material-symbols-rounded" slot="start">logout</md-icon>
@@ -433,6 +438,11 @@ export function renderPlayerInfoScreen(root, options = {}) {
         root.querySelector("[data-test-daily-data-tools]")?.addEventListener("click", async () => {
             await onTestDailyDataTools();
             closeTestMenus();
+        });
+
+        root.querySelector("[data-test-resting-popup]")?.addEventListener("click", async () => {
+            closeTestMenus();
+            await showRestingPointPopup({ durationSeconds: 10 });
         });
 
         root.querySelector("[data-test-logout]")?.addEventListener("click", () => {
