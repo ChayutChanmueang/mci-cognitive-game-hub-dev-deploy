@@ -90,7 +90,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.constructGrid(true);
 
     this.gameStartedAt = new Date();
-    this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.ROUND_START, this.gameStartedAt);
+    this.replayLogger.addCorrectEvent(ReplayEvent.SymmetryDecor.ROUND_START, true);
     this.gameEndedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
@@ -119,7 +119,11 @@ export default class GameplayScene extends Phaser.Scene {
         if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
           console.log("Correct Socket");
           this.correctSlotMove++;
-          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "CORRECT");
+          this.replayLogger.addAnswerEvent(
+            ReplayEvent.SymmetryDecor.PIECE_PLACED,
+            entity.getComponent(DraggableDataComponent).animal,
+            true,
+          );
           if (this.checkIfAllSocketIsFilledCorrectly()) {
             console.log("Game Complete");
             this.handleRoundComplete();
@@ -127,7 +131,11 @@ export default class GameplayScene extends Phaser.Scene {
         }
         else {
           this.wrongSlotMove++;
-          this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.PIECE_PLACED, "WRONG");
+          this.replayLogger.addAnswerEvent(
+            ReplayEvent.SymmetryDecor.PIECE_PLACED,
+            entity.getComponent(DraggableDataComponent).animal,
+            false,
+          );
         }
       }
     });
@@ -173,7 +181,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
-    this.replayLogger.addEvent(ReplayEvent.SymmetryDecor.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.addCorrectEvent(ReplayEvent.SymmetryDecor.ROUND_COMPLETED, true);
     this.replayLogger.pushToDatabase();
 
     //Save game data to database

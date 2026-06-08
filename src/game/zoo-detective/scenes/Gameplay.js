@@ -145,14 +145,13 @@ export default class GameplayScene extends Phaser.Scene {
                 }
             }
 
-            this.replayLog.addEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
+            this.replayLog.addAnswerEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
                 cellIndex: callback.cellIndex,
                 animal: callback.animal,
                 previousCellIndex: callback.previousCellIndex,
                 currentHintIndex: callback.currentHintIndex,
                 currentHint: callback.currentHint,
-                value: callback.isCorrect
-            });
+            }, Boolean(callback.isCorrect));
         };
 
         this.loadNextPuzzle();

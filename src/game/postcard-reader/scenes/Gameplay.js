@@ -59,7 +59,6 @@ export default class GameplayScene extends Phaser.Scene {
     this.questionText = null;
 
     this.gameStartedAt = new Date();
-    //this.replayLogger.addEvent(ReplayEvent.ZooFeeder.ROUND_START,this.gameStartedAt);
     this.gameEndedAt = new Date();
 
     this.buttonPool = {
@@ -74,7 +73,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.choosePostcard();
     this.chooseQuestion();
     this.intializeGamePage();
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
+    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
 
@@ -220,7 +219,7 @@ export default class GameplayScene extends Phaser.Scene {
     for (const button of this.buttonPool.Pool) {
       button.forceShow();
     }
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.QUESTION_SHOWN, true);
+    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.QUESTION_SHOWN, true);
 
     // Hide timer during quiz
     EventBus.emit("minigame:hide-timer");
@@ -229,7 +228,11 @@ export default class GameplayScene extends Phaser.Scene {
   onCorrectAnswer(selectedButton) {
     this.allScore += Config.ScorePerCorrect;
     this.correctAnswer++;
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.CHOICE_SELECTED, "CORRECT");
+    this.replayLogger.addAnswerEvent(
+      ReplayEvent.PostcardReader.CHOICE_SELECTED,
+      selectedButton?.labelText ?? null,
+      true,
+    );
     EventBus.emit("minigame:score", { score: this.allScore });
 
     // Trigger the premium DOM effect
@@ -254,7 +257,11 @@ export default class GameplayScene extends Phaser.Scene {
       selectedButton.drawBg(0xd32f2f);
     }
     this.wrongAnswer++;
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.CHOICE_SELECTED, "WRONG");
+    this.replayLogger.addAnswerEvent(
+      ReplayEvent.PostcardReader.CHOICE_SELECTED,
+      selectedButton?.labelText ?? null,
+      false,
+    );
 
     // Disable all buttons to prevent multiple clicks during transition
     for (const button of this.buttonPool.Pool) {
@@ -322,7 +329,7 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit("minigame:show-timer");
 
     this.gameplayUI.postcard.reinitializedPanel();
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
+    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
   }
 
   onGameOver() {
@@ -345,7 +352,7 @@ export default class GameplayScene extends Phaser.Scene {
       console.error("Failed to save game data:", error);
     });
 
-    this.replayLogger.addEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, this.gameEndedAt);
+    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, true);
     this.replayLogger.pushToDatabase();
     // this.gameplayUI.showGameOverPanel(this.allScore);
 
