@@ -203,19 +203,36 @@ export default class GameplayScene extends Phaser.Scene {
 
         // -- Gesture Recognition: Flip --------------------------------------
         if (this._gameState === 'READY') {
-            const targetBeta = this._startBetaAngle + this._flipThresholdBeta;
+            let currentBeta = orientation.beta || 0;
+            const inGap = currentBeta >= 40 && currentBeta <= 50;
 
-            // Player tilts phone up/forward past the relative threshold
-            if (rawBeta > targetBeta) {
-                this._flipInitiated = true;
-            }
-            // Player brings phone back down after tilting up past the threshold
-            else if (this._flipInitiated && rawBeta < targetBeta) {
-                this._executeFlip();
+            if (inGap) {
+                // Phone is resting in the sweet spot (40-50 degrees)
+                // We prime the flip and lock the starting angle.
+                this._flipPrimed = true;
+                this._flipTimer = 0;
+                this._flipBaseBeta = currentBeta;
+            } else if (this._flipPrimed) {
+                // Phone left the gap, start measuring speed and distance
+                this._flipTimer += delta;
+
+                // How far did they tilt away from the gap?
+                const distanceTilted = Math.abs(currentBeta - this._flipBaseBeta);
+                const tiltedFarEnough = distanceTilted >= this._flipThresholdBeta;
+                
+                // Did they do the motion fast enough? (e.g. within 400ms)
+                const fastEnough = this._flipTimer <= 400;
+
+                if (tiltedFarEnough && fastEnough) {
+                    this._executeFlip();
+                    this._flipPrimed = false; // Successfully flipped
+                } else if (!fastEnough) {
+                    // Too slow. They must return the phone to the 40-50 gap to try again.
+                    this._flipPrimed = false;
+                }
             }
         } else {
-            // Reset if they aren't ready
-            this._flipInitiated = false;
+            this._flipPrimed = false;
         }
 
         // -- Update debug overlay -------------------------------------------
@@ -267,20 +284,22 @@ export default class GameplayScene extends Phaser.Scene {
             }
 
             if (this._gameState === 'COOKING') {
-                if (this._slideBaseGamma === undefined) {
-                    this._slideBaseGamma = orientation.gamma || 0;
-                    this._slideBaseBeta = orientation.beta || 0;
-                }
+                let rawGamma = Phaser.Math.Clamp(orientation.gamma || 0, -35, 35);
+                let rawBeta = Phaser.Math.Clamp(orientation.beta || 0, 0, 90);
 
-                let deltaGamma = (orientation.gamma || 0) - this._slideBaseGamma;
-                let deltaBeta = (orientation.beta || 0) - this._slideBaseBeta;
+                let deltaGamma = rawGamma - 0;   // 0 is the center for gamma
+                let deltaBeta = rawBeta - 45;    // 45 is the center for beta
 
-                if (Math.abs(deltaGamma) < settings.deadZone) deltaGamma = 0;
-                if (Math.abs(deltaBeta) < settings.deadZone) deltaBeta = 0;
+                let absGamma = Math.abs(deltaGamma);
+                let absBeta = Math.abs(deltaBeta);
+
+                // Small slide if within +/- 5 degrees, normal slide outside
+                let gammaMultiplier = absGamma <= 5 ? ACCEL_SCALE * 0.2 : ACCEL_SCALE;
+                let betaMultiplier = absBeta <= 5 ? ACCEL_SCALE * 0.2 : ACCEL_SCALE;
 
                 // Tilt angle → acceleration
-                this._foodVelX += deltaGamma * ACCEL_SCALE;
-                this._foodVelY += deltaBeta * ACCEL_SCALE;
+                this._foodVelX += deltaGamma * gammaMultiplier;
+                this._foodVelY += deltaBeta * betaMultiplier;
 
                 // Apply friction so food slows down when phone is level
                 this._foodVelX *= FRICTION;
@@ -348,8 +367,6 @@ export default class GameplayScene extends Phaser.Scene {
     _startCooking() {
         this._gameState = 'COOKING';
         this._flipInitiated = false;
-        this._slideBaseGamma = undefined;
-        this._slideBaseBeta = undefined;
 
         // Hide smoke if it was active
         if (this._smokeDom) {
