@@ -139,7 +139,7 @@ export default class GameplayScene extends Phaser.Scene {
         this._createProgressBarIcon();
 
         // -- Debug text overlay ---------------------------------------------
-        // this._createDebugOverlay();
+        this._createDebugOverlay();
 
         // -- Designer Menu --------------------------------------------------
         // this._createDesignerMenu();
@@ -835,7 +835,7 @@ export default class GameplayScene extends Phaser.Scene {
      * Create the debug text overlay at the top of the screen.
      */
     _createDebugOverlay() {
-        this._debugText = this.add.text(30, 30, 'Accelerometer: initializing...', {
+        this._debugText = this.add.text(30, 230, 'Accelerometer: initializing...', {
             fontFamily: 'monospace',
             fontSize: '28px',
             color: '#ffffff',
@@ -959,11 +959,13 @@ export default class GameplayScene extends Phaser.Scene {
             `  State: ${this._gameState}`,
             `  Cook Level: ${this._cookLevel}`,
             `  Timer: ${this._gameState === 'COOKING' ? timeLeft + 's' : '---'}`,
-            `  Flip Initiated: ${this._flipInitiated}`,
+            `── Flip Logic ──`,
+            `  Flip State: ${this._flipState || '---'}`,
             `  Flip Threshold: +${this._flipThresholdBeta}°`,
+            `  Base β: ${this._flipBaseBeta !== undefined ? this._flipBaseBeta.toFixed(1) + '°' : '---'}`,
             `── Sensor Data ──`,
-            `  β (Pitch): ${orientation.beta.toFixed(1)}°`,
-            `  Baseline β: ${this._gameState === 'READY' ? this._startBetaAngle.toFixed(1) + '°' : '---'}`,
+            `  β (Pitch): ${(orientation.beta || 0).toFixed(1)}°`,
+            `  γ (Roll): ${(orientation.gamma || 0).toFixed(1)}°`,
         ];
 
         if (!AccelerometerManager.isSupported()) {
@@ -984,7 +986,7 @@ export default class GameplayScene extends Phaser.Scene {
         this._designerMenu = document.createElement('div');
         Object.assign(this._designerMenu.style, {
             position: 'absolute',
-            top: '20px',
+            top: '220px',
             right: '20px',
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
             padding: '15px',
