@@ -334,6 +334,7 @@ function createGameHubInitialState() {
         loading: false,
         historyLoading: false,
         autoCheckInLoading: false,
+        restPopupActive: false,
         scrollTop: 0,
         error: "",
     };
@@ -550,7 +551,6 @@ export async function renderGameHubScreen(root, options = {}) {
                     <p>พักยืดเส้น</p>
                     <h2>${escapeHtml(node.title || "พักยืดเส้นยืดสาย")}</h2>
                     <span>พักสายตา ยืดเส้น และผ่อนคลายก่อนเล่นต่อ</span>
-                    <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">บันทึกการพัก</md-filled-button>
                 </article>
             `;
         }
@@ -611,23 +611,6 @@ export async function renderGameHubScreen(root, options = {}) {
         try {
             if (node.type === "game") {
                 await options.onLaunchGame?.(node.gameData);
-                return;
-            }
-
-            if (node.type === "rest") {
-                const startAt = new Date().toISOString();
-                await showRestingPointPopup({ durationSeconds: 60 });
-                if (patientHn) {
-                    await db.addUserGameHistory({
-                        hn: patientHn,
-                        gid: "REST001",
-                        startAt,
-                        endAt: new Date().toISOString(),
-                        rest: true,
-                        checkIn: false,
-                    });
-                }
-                await loadHistory();
             }
         } catch (error) {
             console.error("Unable to handle game hub node action:", error);
@@ -740,6 +723,7 @@ export async function renderGameHubScreen(root, options = {}) {
             state.historyLoading = false;
             render();
             await ensureNextDayVisible();
+            await checkAndAutoShowRestingPopup();
         } catch (error) {
             console.warn("Unable to load game hub history:", error);
             state.historyRecords = [];
@@ -874,6 +858,42 @@ export async function renderGameHubScreen(root, options = {}) {
             console.error("Unable to sync game hub check-in records:", error);
         } finally {
             state.autoCheckInLoading = false;
+        }
+    };
+
+    const checkAndAutoShowRestingPopup = async () => {
+        if (!patientHn || state.restPopupActive) {
+            return;
+        }
+
+        const sections = buildDaySections(state.programDays, state.restGame);
+        const currentDay = getCurrentProgramDay();
+        const currentSection = getCurrentDaySection(sections);
+        const currentHistory = getDisplayHistoryForProgramDay(currentDay);
+        const { completedCount } = getDayCompletion(currentSection, currentHistory);
+        const currentNode = currentSection.nodes[completedCount];
+
+        if (currentNode?.type !== "rest") {
+            return;
+        }
+
+        state.restPopupActive = true;
+        try {
+            const startAt = new Date().toISOString();
+            await showRestingPointPopup({ durationSeconds: 60 });
+            await db.addUserGameHistory({
+                hn: patientHn,
+                gid: "REST001",
+                startAt,
+                endAt: new Date().toISOString(),
+                rest: true,
+                checkIn: false,
+            });
+            await loadHistory();
+        } catch (error) {
+            console.error("Unable to auto-show resting point popup:", error);
+        } finally {
+            state.restPopupActive = false;
         }
     };
 
