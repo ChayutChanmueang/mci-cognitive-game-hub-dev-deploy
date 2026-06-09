@@ -254,7 +254,7 @@ export default class GameplayScene extends Phaser.Scene {
         // phone applies friction but the food stays where it slid to.
         // When READY or FLIPPING the food smoothly returns to center.
         if (this._food) {
-            const TILT_MAX_PX = 40;       // max offset from center
+            const TILT_MAX_PX = 120;      // max offset from center
             const ACCEL_SCALE = 0.012;    // tilt-to-acceleration factor
             const FRICTION    = 0.92;     // velocity damping per frame
             const RETURN_LERP = 0.08;     // speed of return-to-center
@@ -267,25 +267,54 @@ export default class GameplayScene extends Phaser.Scene {
             }
 
             if (this._gameState === 'COOKING') {
-                let rawGamma = orientation.gamma || 0;
-                if (Math.abs(rawGamma) < settings.deadZone) rawGamma = 0;
+                if (this._slideBaseGamma === undefined) {
+                    this._slideBaseGamma = orientation.gamma || 0;
+                    this._slideBaseBeta = orientation.beta || 0;
+                }
+
+                let deltaGamma = (orientation.gamma || 0) - this._slideBaseGamma;
+                let deltaBeta = (orientation.beta || 0) - this._slideBaseBeta;
+
+                if (Math.abs(deltaGamma) < settings.deadZone) deltaGamma = 0;
+                if (Math.abs(deltaBeta) < settings.deadZone) deltaBeta = 0;
 
                 // Tilt angle → acceleration
-                this._foodVelX += rawGamma * ACCEL_SCALE;
-                this._foodVelY += rawBeta  * ACCEL_SCALE;
+                this._foodVelX += deltaGamma * ACCEL_SCALE;
+                this._foodVelY += deltaBeta * ACCEL_SCALE;
 
                 // Apply friction so food slows down when phone is level
                 this._foodVelX *= FRICTION;
                 this._foodVelY *= FRICTION;
 
-                // Update position, clamped within the pan
+                // Update position, clamped to a circular area like the pan
                 let offsetX = (this._food.x - this._foodBaseX) + this._foodVelX;
                 let offsetY = (this._food.y - this._foodBaseY) + this._foodVelY;
-                offsetX = Phaser.Math.Clamp(offsetX, -TILT_MAX_PX, TILT_MAX_PX);
-                offsetY = Phaser.Math.Clamp(offsetY, -TILT_MAX_PX, TILT_MAX_PX);
+                const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+                if (dist > TILT_MAX_PX) {
+                    const scale = TILT_MAX_PX / dist;
+                    offsetX *= scale;
+                    offsetY *= scale;
+                    // Kill velocity along the edge so the food doesn't "push" against the rim
+                    this._foodVelX *= 0.3;
+                    this._foodVelY *= 0.3;
+                }
 
                 this._food.x = this._foodBaseX + offsetX;
                 this._food.y = this._foodBaseY + offsetY;
+
+                // Sliding the food around adds a tiny bit of cook progress
+                const prevX = this._foodPrevX ?? this._food.x;
+                const prevY = this._foodPrevY ?? this._food.y;
+                const dx = this._food.x - prevX;
+                const dy = this._food.y - prevY;
+                const moved = Math.sqrt(dx * dx + dy * dy);
+                this._foodPrevX = this._food.x;
+                this._foodPrevY = this._food.y;
+
+                if (moved > 0.5 && this._cookTimer) {
+                    const SLIDE_BOOST = 0.002;
+                    this._cookTimer.elapsed += this._cookTimer.delay * SLIDE_BOOST * Math.min(moved / 3, 1);
+                }
             } else {
                 // Smoothly slide food back to center before flipping
                 this._foodVelX = 0;
@@ -319,6 +348,8 @@ export default class GameplayScene extends Phaser.Scene {
     _startCooking() {
         this._gameState = 'COOKING';
         this._flipInitiated = false;
+        this._slideBaseGamma = undefined;
+        this._slideBaseBeta = undefined;
 
         // Hide smoke if it was active
         if (this._smokeDom) {
