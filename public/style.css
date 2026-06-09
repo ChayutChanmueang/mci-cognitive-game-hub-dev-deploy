@@ -2178,12 +2178,13 @@ body.hub-mode {
 }
 
 /* Remove the green progress bar and second indicator for Zoo Feeder and Symmetry */
-.minigame-hud--zoo-feeder:not(.minigame-hud--postcard-reader) .minigame-hud__timer-wrap {
+.minigame-hud--zoo-feeder:not(.minigame-hud--postcard-reader):not(.minigame-hud--fry-food) .minigame-hud__timer-wrap {
     display: none !important;
 }
 
 /* Custom Postcard Reader Timer Bar Positioning */
-.minigame-hud--postcard-reader .minigame-hud__timer-wrap {
+.minigame-hud--postcard-reader .minigame-hud__timer-wrap,
+.minigame-hud--fry-food .minigame-hud__timer-wrap {
     position: absolute !important;
     top: 105px !important;
     left: 50% !important;
@@ -2204,11 +2205,16 @@ body.hub-mode {
     font-size: 2rem !important;
 }
 
+.minigame-hud--fry-food .minigame-hud__timer-label {
+    display: none !important;
+}
+
 .minigame-hud--postcard-reader .minigame-hud__timer-unit {
     font-size: 1.25rem !important;
 }
 
-.minigame-hud--postcard-reader .minigame-hud__timer-bar {
+.minigame-hud--postcard-reader .minigame-hud__timer-bar,
+.minigame-hud--fry-food .minigame-hud__timer-bar {
     height: 30px !important;
     border-radius: 15px !important;
     border: 3px solid #FFFFFF !important;
@@ -2217,6 +2223,15 @@ body.hub-mode {
     --md-linear-progress-active-indicator-height: 30px;
     --md-linear-progress-active-indicator-color: #F67711 !important;
     --md-linear-progress-track-color: #FDEEC4 !important;
+}
+
+md-linear-progress.no-transition,
+md-linear-progress.no-transition::part(active-indicator),
+md-linear-progress.no-transition::part(indicator),
+md-linear-progress.no-transition::part(progress),
+md-linear-progress.no-transition::part(bar) {
+    transition: none !important;
+    animation: none !important;
 }
 
 /* Custom Green Score Box for Zoo Feeder */

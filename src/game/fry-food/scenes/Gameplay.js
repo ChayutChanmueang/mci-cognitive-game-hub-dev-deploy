@@ -120,7 +120,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameTime = 180;
         EventBus.emit('minigame:show-hud');
         EventBus.emit('minigame:score', { score: this.score });
-        EventBus.emit('minigame:tick', { timeLeft: this.gameTime, maxTime: this.gameTime });
+        EventBus.emit('minigame:tick', { timeLeft: this.gameTime, maxTime: this.gameTime, updateProgress: false });
         this._startTimer(this.gameTime);
 
         // -- Draw frying pan ------------------------------------------------
@@ -134,6 +134,9 @@ export default class GameplayScene extends Phaser.Scene {
 
         // -- Create Flip Prompt ---------------------------------------------
         this._createFlipPrompt(cx, height);
+
+        // -- Create Progress Bar Icon ---------------------------------------
+        this._createProgressBarIcon();
 
         // -- Debug text overlay ---------------------------------------------
         // this._createDebugOverlay();
@@ -163,6 +166,10 @@ export default class GameplayScene extends Phaser.Scene {
             }
             if (this._smokeDom && typeof this._smokeDom.destroy === 'function') {
                 this._smokeDom.destroy();
+            }
+            if (this._progressBarIcon && this._progressBarIcon.parentNode) {
+                this._progressBarIcon.parentNode.removeChild(this._progressBarIcon);
+                this._progressBarIcon = null;
             }
 
             // Exit fullscreen if running in a browser
@@ -213,6 +220,80 @@ export default class GameplayScene extends Phaser.Scene {
 
         // -- Update debug overlay -------------------------------------------
         this._updateDebugText(orientation, accel);
+
+        // -- Update progress bar --------------------------------------------
+        if (this._gameState === 'COOKING' && this._cookTimer) {
+            if (time - (this._lastProgressUpdate || 0) > 100) {
+                this._lastProgressUpdate = time;
+                const elapsed = this._cookTimer.getElapsed();
+                const total = this._cookTimer.delay;
+                let pct = elapsed / total;
+                pct = Phaser.Math.Clamp(pct, 0, 1);
+                EventBus.emit('minigame:tick-progress', { timeLeft: elapsed, maxTime: total });
+                this._updateProgressBarIcon(pct);
+            }
+        } else if (this._gameState === 'READY') {
+            if (this._lastProgressUpdate !== -1) {
+                this._lastProgressUpdate = -1;
+                EventBus.emit('minigame:tick-progress', { timeLeft: 1, maxTime: 1 });
+                this._updateProgressBarIcon(1);
+            }
+        } else if (this._gameState === 'FLIPPING') {
+            if (this._lastProgressUpdate !== -2) {
+                this._lastProgressUpdate = -2;
+                // Don't emit minigame:tick-progress here — it would set
+                // progressBar.value via the HUD handler and trigger the
+                // shadow-DOM transition before our instant-reset can act.
+                this._updateProgressBarIcon(0, true);
+            }
+        }
+
+        // -- Tilt food on pan -----------------------------------------------
+        // During COOKING, tilt acts as a force that accelerates the food
+        // across the pan (like a ball on a tilted surface). Leveling the
+        // phone applies friction but the food stays where it slid to.
+        // When READY or FLIPPING the food smoothly returns to center.
+        if (this._food) {
+            const TILT_MAX_PX = 40;       // max offset from center
+            const ACCEL_SCALE = 0.012;    // tilt-to-acceleration factor
+            const FRICTION    = 0.92;     // velocity damping per frame
+            const RETURN_LERP = 0.08;     // speed of return-to-center
+
+            if (this._foodBaseX === undefined) {
+                this._foodBaseX = this._food.x;
+                this._foodBaseY = this._food.y;
+                this._foodVelX  = 0;
+                this._foodVelY  = 0;
+            }
+
+            if (this._gameState === 'COOKING') {
+                let rawGamma = orientation.gamma || 0;
+                if (Math.abs(rawGamma) < settings.deadZone) rawGamma = 0;
+
+                // Tilt angle → acceleration
+                this._foodVelX += rawGamma * ACCEL_SCALE;
+                this._foodVelY += rawBeta  * ACCEL_SCALE;
+
+                // Apply friction so food slows down when phone is level
+                this._foodVelX *= FRICTION;
+                this._foodVelY *= FRICTION;
+
+                // Update position, clamped within the pan
+                let offsetX = (this._food.x - this._foodBaseX) + this._foodVelX;
+                let offsetY = (this._food.y - this._foodBaseY) + this._foodVelY;
+                offsetX = Phaser.Math.Clamp(offsetX, -TILT_MAX_PX, TILT_MAX_PX);
+                offsetY = Phaser.Math.Clamp(offsetY, -TILT_MAX_PX, TILT_MAX_PX);
+
+                this._food.x = this._foodBaseX + offsetX;
+                this._food.y = this._foodBaseY + offsetY;
+            } else {
+                // Smoothly slide food back to center before flipping
+                this._foodVelX = 0;
+                this._foodVelY = 0;
+                this._food.x = Phaser.Math.Linear(this._food.x, this._foodBaseX, RETURN_LERP);
+                this._food.y = Phaser.Math.Linear(this._food.y, this._foodBaseY, RETURN_LERP);
+            }
+        }
     }
 
     // =======================================================================
@@ -226,7 +307,7 @@ export default class GameplayScene extends Phaser.Scene {
             callback: () => {
                 if (this._gameState === 'GAME_OVER') return;
                 const remaining = Math.ceil(this.countdownTimer.getOverallRemainingSeconds());
-                EventBus.emit('minigame:tick', { timeLeft: remaining, maxTime: gameTime });
+                EventBus.emit('minigame:tick', { timeLeft: remaining, maxTime: gameTime, updateProgress: false });
                 if (remaining <= 0) {
                     this._endGame();
                 }
@@ -300,6 +381,11 @@ export default class GameplayScene extends Phaser.Scene {
         const cfg = this._foodConfig;
         const frame = cfg.levelToFrame(this._cookLevel + 1);
         const newTexture = `${cfg.name}-${frame}`;
+        const newIconSrc = `assets/fry-food/${cfg.folder}/${cfg.prefix}_${frame}.png`;
+
+        if (this._progressBarIcon) {
+            this._progressBarIcon.src = newIconSrc;
+        }
 
         // Tween to jump up, change scale, and fall down
         this.tweens.add({
@@ -426,8 +512,8 @@ export default class GameplayScene extends Phaser.Scene {
             particles.push({
                 x: CANVAS_W / 2 + (Math.random() - 0.5) * 140,
                 y: CANVAS_H / 2 + (Math.random() - 0.5) * 40,
-                vx: (Math.random() - 0.5) * 0.8,
-                vy: (Math.random() - 0.5) * 1.2,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: -(Math.random() * 1.0 + 0.5),
                 radius: 20 + Math.random() * 20,
                 growRate: 0.25 + Math.random() * 0.35,
                 alpha: 0.0,
@@ -596,7 +682,60 @@ export default class GameplayScene extends Phaser.Scene {
         };
     }
 
+    _createProgressBarIcon() {
+        const wrap = document.querySelector('.minigame-hud__timer-wrap');
+        if (!wrap) return;
 
+        const cfg = this._foodConfig;
+        const initialFrame = cfg.levelToFrame(1);
+        const src = `assets/fry-food/${cfg.folder}/${cfg.prefix}_${initialFrame}.png`;
+
+        this._progressBarIcon = document.createElement('img');
+        this._progressBarIcon.src = src;
+        Object.assign(this._progressBarIcon.style, {
+            position: 'absolute',
+            bottom: '15px',
+            left: '0%',
+            transform: 'translate(-50%, 50%)',
+            width: '56px', 
+            height: '56px',
+            objectFit: 'contain',
+            pointerEvents: 'none',
+            zIndex: '10',
+            visibility: 'hidden',
+            transition: 'left 150ms linear'
+        });
+
+        wrap.appendChild(this._progressBarIcon);
+    }
+
+    _updateProgressBarIcon(pct, instant = false) {
+        if (!this._progressBarIcon) return;
+        this._progressBarIcon.style.visibility = pct >= 0 ? 'visible' : 'hidden';
+
+        const pb = document.getElementById('hud-timer-progress');
+
+        if (instant && pb) {
+            // Remove from DOM, set value, re-insert.
+            // This is the only reliable way to cancel md-linear-progress's
+            // internal shadow-DOM CSS transition — it kills all running
+            // transitions when the element leaves the document.
+            const parent = pb.parentNode;
+            const nextSibling = pb.nextSibling;
+            parent.removeChild(pb);
+            pb.value = 0;
+            if (nextSibling) {
+                parent.insertBefore(pb, nextSibling);
+            } else {
+                parent.appendChild(pb);
+            }
+            this._progressBarIcon.style.transition = 'none';
+            this._progressBarIcon.style.left = '0%';
+        } else {
+            this._progressBarIcon.style.transition = 'left 150ms linear';
+            this._progressBarIcon.style.left = `${pct * 100}%`;
+        }
+    }
 
     /**
      * Create the debug text overlay at the top of the screen.
