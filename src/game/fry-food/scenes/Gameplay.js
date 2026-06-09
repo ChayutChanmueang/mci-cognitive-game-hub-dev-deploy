@@ -206,37 +206,69 @@ export default class GameplayScene extends Phaser.Scene {
             let currentBeta = orientation.beta || 0;
             const inGap = currentBeta >= 40 && currentBeta <= 50;
 
-            if (inGap) {
-                // Phone is resting in the sweet spot (40-50 degrees)
-                // We prime the flip and lock the starting angle.
-                this._flipPrimed = true;
-                this._flipTimer = 0;
-                this._flipBaseBeta = currentBeta;
-            } else if (this._flipPrimed) {
-                // Phone left the gap, start measuring speed and distance
-                this._flipTimer += delta;
+            if (!this._flipState) {
+                this._flipState = 'UNPRIMED';
+            }
 
-                // How far did they tilt away from the gap?
-                const distanceTilted = Math.abs(currentBeta - this._flipBaseBeta);
-                const tiltedFarEnough = distanceTilted >= this._flipThresholdBeta;
-                
-                // Did they do the motion fast enough? (e.g. within 400ms)
-                const fastEnough = this._flipTimer <= 400;
+            if (this._flipState === 'UNPRIMED') {
+                if (inGap) {
+                    this._flipState = 'PRIMING';
+                    this._primingTimer = 0;
+                }
+            } else if (this._flipState === 'PRIMING') {
+                if (inGap) {
+                    this._primingTimer += delta;
+                    // Require the player to hold it steadily in the gap for 500ms
+                    if (this._primingTimer >= 500) {
+                        this._flipState = 'PRIMED';
+                        this._flipTimer = 0;
+                        this._flipBaseBeta = currentBeta;
+                    }
+                } else {
+                    // Left the gap before stabilizing, reset
+                    this._flipState = 'UNPRIMED';
+                }
+            } else if (this._flipState === 'PRIMED') {
+                if (inGap) {
+                    // Still resting in the gap, keep updating base angle
+                    this._flipTimer = 0;
+                    this._flipBaseBeta = currentBeta;
+                } else {
+                    // Phone left the gap, start measuring speed and distance
+                    this._flipTimer += delta;
 
-                if (tiltedFarEnough && fastEnough) {
-                    this._executeFlip();
-                    this._flipPrimed = false; // Successfully flipped
-                } else if (!fastEnough) {
-                    // Too slow. They must return the phone to the 40-50 gap to try again.
-                    this._flipPrimed = false;
+                    const distanceTilted = Math.abs(currentBeta - this._flipBaseBeta);
+                    const tiltedFarEnough = distanceTilted >= this._flipThresholdBeta;
+                    const fastEnough = this._flipTimer <= 400;
+
+                    if (tiltedFarEnough && fastEnough) {
+                        this._executeFlip();
+                        this._flipState = 'UNPRIMED'; // Successfully flipped
+                    } else if (!fastEnough) {
+                        // Too slow. Must stabilize in the gap again.
+                        this._flipState = 'UNPRIMED';
+                    }
                 }
             }
         } else {
-            this._flipPrimed = false;
+            this._flipState = 'UNPRIMED';
         }
 
         // -- Update debug overlay -------------------------------------------
         this._updateDebugText(orientation, accel);
+
+        if (this._debugGraphics && this._food && this._foodBaseX !== undefined && this._foodSprite) {
+            this._debugGraphics.clear();
+            
+            // Draw sliding boundary (radius 600)
+            this._debugGraphics.lineStyle(2, 0x00ff00, 0.8); // Green
+            this._debugGraphics.strokeCircle(this._foodBaseX, this._foodBaseY - 20, 600);
+
+            // Draw food hitbox (red circle based on sprite bounds)
+            const radius = Math.min(this._foodSprite.displayWidth, this._foodSprite.displayHeight) / 2;
+            this._debugGraphics.lineStyle(2, 0xff0000, 0.8);
+            this._debugGraphics.strokeCircle(this._food.x, this._food.y, radius);
+        }
 
         // -- Update progress bar --------------------------------------------
         if (this._gameState === 'COOKING' && this._cookTimer) {
@@ -271,7 +303,7 @@ export default class GameplayScene extends Phaser.Scene {
         // phone applies friction but the food stays where it slid to.
         // When READY or FLIPPING the food smoothly returns to center.
         if (this._food) {
-            const TILT_MAX_PX = 120;      // max offset from center
+            const TILT_MAX_PX = 600;      // max offset from center
             const ACCEL_SCALE = 0.012;    // tilt-to-acceleration factor
             const FRICTION    = 0.92;     // velocity damping per frame
             const RETURN_LERP = 0.08;     // speed of return-to-center
@@ -306,11 +338,21 @@ export default class GameplayScene extends Phaser.Scene {
                 this._foodVelY *= FRICTION;
 
                 // Update position, clamped to a circular area like the pan
-                let offsetX = (this._food.x - this._foodBaseX) + this._foodVelX;
-                let offsetY = (this._food.y - this._foodBaseY) + this._foodVelY;
+                let foodRadius = 0;
+                if (this._foodSprite) {
+                    foodRadius = Math.min(this._foodSprite.displayWidth, this._foodSprite.displayHeight) / 2;
+                }
+                const effectiveMaxRadius = Math.max(0, TILT_MAX_PX - foodRadius);
+
+                const limitCenterX = this._foodBaseX;
+                const limitCenterY = this._foodBaseY - 20;
+
+                let offsetX = (this._food.x - limitCenterX) + this._foodVelX;
+                let offsetY = (this._food.y - limitCenterY) + this._foodVelY;
                 const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-                if (dist > TILT_MAX_PX) {
-                    const scale = TILT_MAX_PX / dist;
+                
+                if (dist > effectiveMaxRadius) {
+                    const scale = effectiveMaxRadius / dist;
                     offsetX *= scale;
                     offsetY *= scale;
                     // Kill velocity along the edge so the food doesn't "push" against the rim
@@ -318,8 +360,8 @@ export default class GameplayScene extends Phaser.Scene {
                     this._foodVelY *= 0.3;
                 }
 
-                this._food.x = this._foodBaseX + offsetX;
-                this._food.y = this._foodBaseY + offsetY;
+                this._food.x = limitCenterX + offsetX;
+                this._food.y = limitCenterY + offsetY;
 
                 // Sliding the food around adds a tiny bit of cook progress
                 const prevX = this._foodPrevX ?? this._food.x;
@@ -521,6 +563,10 @@ export default class GameplayScene extends Phaser.Scene {
 
         if (this._panContainer) {
             this._panContainer.add(this._food);
+
+            // Create debug graphics to show slide radius and food hitbox
+            this._debugGraphics = this.add.graphics();
+            this._panContainer.add(this._debugGraphics);
         }
     }
 
