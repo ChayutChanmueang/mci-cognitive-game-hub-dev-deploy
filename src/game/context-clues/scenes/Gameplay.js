@@ -170,7 +170,7 @@ export default class GameplayScene extends Phaser.Scene {
                   }
               });
           } else {
-              this.randomQuiz = new RandomQuiz(this.levelMap);
+              this.randomQuiz.nextStory();
               this.progressStory = 0;
 
               this.showCorrectAnswerEffect(() => {
