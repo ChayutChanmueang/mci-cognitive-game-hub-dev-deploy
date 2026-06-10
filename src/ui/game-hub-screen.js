@@ -387,6 +387,9 @@ export async function renderGameHubScreen(root, options = {}) {
         activeCleanup.push(() => target.removeEventListener(eventName, handler, listenerOptions));
     };
 
+    history.pushState(null, "", location.href);
+    on(window, "popstate", () => history.pushState(null, "", location.href));
+
     const getCurrentProgramDay = () => Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
     const getProgramDayCount = () => Number(state.dailyProgram?.programDayCount || state.programDays[state.programDays.length - 1]?.day || 1);
     const getStartedProgram = () => state.dailyProgram?.startedProgram || options.programDate || new Date().toISOString();
