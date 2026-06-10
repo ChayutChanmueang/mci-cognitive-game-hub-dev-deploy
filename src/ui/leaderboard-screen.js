@@ -135,8 +135,7 @@ export async function renderLeaderboardScreen(root, options = {}) {
                         <p>อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
                         <div class="leaderboard-summary">
                             <span>อันดับของคุณ</span>
-                            <md-circular-progress indeterminate aria-label="กำลังโหลด" data-summary-loading></md-circular-progress>
-                            <strong data-summary-value style="display: none;">-/-</strong>
+                            <strong data-summary-value>-/-</strong>
                         </div>
                     </div>
                 </header>
@@ -195,16 +194,11 @@ export async function renderLeaderboardScreen(root, options = {}) {
 
     const updateSummary = () => {
         const currentPlayer = state.players.find((player) => player.current);
-        const loadingEl = root.querySelector("[data-summary-loading]");
         const valueEl = root.querySelector("[data-summary-value]");
         if (!valueEl) {
             return;
         }
         valueEl.textContent = `${currentPlayer?.rank || "-"}/${state.total || "-"}`;
-        if (loadingEl) {
-            loadingEl.style.display = "none";
-        }
-        valueEl.style.display = "";
     };
 
     const updateBottomBar = () => {
