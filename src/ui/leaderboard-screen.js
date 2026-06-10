@@ -23,6 +23,8 @@ const MOCK_LEADERBOARD_PLAYERS = Object.freeze([
     { rank: 20, name: "ภาคิน ฝึกฝน", score: 980 },
 ]);
 
+const DEFAULT_PAGE_SIZE = 20;
+
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -62,27 +64,52 @@ function renderLeaderboardRow(player) {
     `;
 }
 
-export function renderLeaderboardScreen(root, options = {}) {
+function createDefaultLoadPlayers(staticPlayers) {
+    const sorted = [...staticPlayers].sort((a, b) => Number(a.rank) - Number(b.rank));
+    return ({ offset, limit }) => Promise.resolve({
+        players: sorted.slice(offset, offset + limit),
+        hasMore: offset + limit < sorted.length,
+        total: sorted.length,
+    });
+}
+
+export async function renderLeaderboardScreen(root, options = {}) {
     if (!root) {
         return;
     }
 
     const {
-        players = MOCK_LEADERBOARD_PLAYERS,
+        loadPlayers: loadPlayersFn,
+        players: staticPlayers,
         patientLabel = "ผู้เล่น",
-        loading = false,
         onBack = () => {},
+        pageSize = DEFAULT_PAGE_SIZE,
     } = options;
-    const state = { scrollTop: 0 };
+
+    const loadPlayers = loadPlayersFn
+        || createDefaultLoadPlayers(staticPlayers || MOCK_LEADERBOARD_PLAYERS);
+
+    const state = {
+        scrollTop: 0,
+        players: [],
+        offset: 0,
+        hasMore: true,
+        loadingMore: false,
+        total: null,
+    };
+
     let activeCleanup = [];
-    const sortedPlayers = [...players].sort((first, second) => Number(first.rank) - Number(second.rank));
-    const currentPlayer = sortedPlayers.find((player) => player.current) || sortedPlayers[0] || null;
-    const totalPlayers = sortedPlayers.length;
+    let observer = null;
 
     const cleanup = () => {
         activeCleanup.forEach((handler) => handler());
         activeCleanup = [];
+        if (observer) {
+            observer.disconnect();
+            observer = null;
+        }
     };
+
     const on = (target, eventName, handler, listenerOptions) => {
         if (!target) {
             return;
@@ -108,10 +135,8 @@ export function renderLeaderboardScreen(root, options = {}) {
                         <p>อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
                         <div class="leaderboard-summary">
                             <span>อันดับของคุณ</span>
-                            ${loading
-                                ? `<md-circular-progress indeterminate aria-label="กำลังโหลด"></md-circular-progress>`
-                                : `<strong>${escapeHtml(currentPlayer?.rank || "-")}/${escapeHtml(totalPlayers || "-")}</strong>`
-                            }
+                            <md-circular-progress indeterminate aria-label="กำลังโหลด" data-summary-loading></md-circular-progress>
+                            <strong data-summary-value style="display: none;">-/-</strong>
                         </div>
                     </div>
                 </header>
@@ -123,27 +148,22 @@ export function renderLeaderboardScreen(root, options = {}) {
                                 <span>ชื่อ</span>
                                 <span>คะแนน</span>
                             </div>
-                            ${loading ? `
-                                <div class="hub-clean-empty">
-                                    <md-circular-progress indeterminate aria-label="กำลังโหลดคะแนน"></md-circular-progress>
-                                    <p>กำลังโหลดคะแนน</p>
-                                </div>
-                            ` : `
-                                <div class="leaderboard-list">
-                                    ${sortedPlayers.map(renderLeaderboardRow).join("")}
-                                </div>
-                            `}
+                            <div class="leaderboard-list" data-leaderboard-list></div>
+                            <div class="hub-clean-empty" data-leaderboard-load-more style="display: none;" aria-live="polite">
+                                <md-circular-progress indeterminate aria-label="กำลังโหลดเพิ่มเติม"></md-circular-progress>
+                            </div>
+                            <div class="hub-clean-empty" data-leaderboard-initial-loading>
+                                <md-circular-progress indeterminate aria-label="กำลังโหลดคะแนน"></md-circular-progress>
+                                <p>กำลังโหลดคะแนน</p>
+                            </div>
+                            <div data-scroll-sentinel style="height: 1px;"></div>
                         </div>
                     </div>
                     <md-fab class="hub-clean-fab leaderboard-fab" aria-label="เลื่อนไปยังอันดับของคุณ" data-scroll-top>
                         <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                     </md-fab>
                 </section>
-                ${!loading && currentPlayer ? `
-                    <aside class="leaderboard-bottom-bar" aria-label="อันดับของผู้เล่นคนนี้">
-                        ${renderLeaderboardRow({ ...currentPlayer, current: false })}
-                    </aside>
-                ` : ""}
+                <aside class="leaderboard-bottom-bar" aria-label="อันดับของผู้เล่นคนนี้" data-leaderboard-bottom-bar style="display: none;"></aside>
             </div>
         </section>
     `;
@@ -169,4 +189,125 @@ export function renderLeaderboardScreen(root, options = {}) {
         event.preventDefault();
         onBack();
     });
+
+    const getListEl = () => root.querySelector("[data-leaderboard-list]");
+    const getSentinelEl = () => root.querySelector("[data-scroll-sentinel]");
+
+    const updateSummary = () => {
+        const currentPlayer = state.players.find((player) => player.current);
+        const loadingEl = root.querySelector("[data-summary-loading]");
+        const valueEl = root.querySelector("[data-summary-value]");
+        if (!valueEl) {
+            return;
+        }
+        valueEl.textContent = `${currentPlayer?.rank || "-"}/${state.total || "-"}`;
+        if (loadingEl) {
+            loadingEl.style.display = "none";
+        }
+        valueEl.style.display = "";
+    };
+
+    const updateBottomBar = () => {
+        const currentPlayer = state.players.find((player) => player.current);
+        const bottomBarEl = root.querySelector("[data-leaderboard-bottom-bar]");
+        if (!bottomBarEl || !currentPlayer) {
+            return;
+        }
+        bottomBarEl.innerHTML = renderLeaderboardRow({ ...currentPlayer, current: false });
+        bottomBarEl.style.display = "";
+    };
+
+    const appendRows = (newPlayers) => {
+        const listEl = getListEl();
+        if (!listEl) {
+            return;
+        }
+        const fragment = document.createDocumentFragment();
+        newPlayers.forEach((player) => {
+            const wrapper = document.createElement("div");
+            wrapper.innerHTML = renderLeaderboardRow(player);
+            const el = wrapper.firstElementChild;
+            if (el) {
+                fragment.appendChild(el);
+            }
+        });
+        listEl.appendChild(fragment);
+    };
+
+    const setLoadingMore = (show) => {
+        const loadMoreEl = root.querySelector("[data-leaderboard-load-more]");
+        if (loadMoreEl) {
+            loadMoreEl.style.display = show ? "" : "none";
+        }
+    };
+
+    const loadNextPage = async () => {
+        if (state.loadingMore || !state.hasMore) {
+            return;
+        }
+
+        state.loadingMore = true;
+        setLoadingMore(true);
+
+        try {
+            const result = await loadPlayers({ offset: state.offset, limit: pageSize });
+            const newPlayers = Array.isArray(result?.players) ? result.players : [];
+            const isFirstPage = state.offset === 0;
+
+            state.players = [...state.players, ...newPlayers];
+            state.offset += newPlayers.length;
+            state.hasMore = result?.hasMore ?? (newPlayers.length >= pageSize);
+            if (result?.total != null) {
+                state.total = result.total;
+            }
+
+            if (isFirstPage) {
+                const initialLoadingEl = root.querySelector("[data-leaderboard-initial-loading]");
+                if (initialLoadingEl) {
+                    initialLoadingEl.remove();
+                }
+            }
+
+            appendRows(newPlayers);
+            updateSummary();
+            updateBottomBar();
+
+            if (!state.hasMore) {
+                if (observer) {
+                    observer.disconnect();
+                    observer = null;
+                }
+                const sentinelEl = getSentinelEl();
+                if (sentinelEl) {
+                    sentinelEl.remove();
+                }
+            }
+        } catch (error) {
+            console.warn("Unable to load leaderboard players:", error);
+        } finally {
+            state.loadingMore = false;
+            setLoadingMore(false);
+        }
+    };
+
+    const sentinelEl = getSentinelEl();
+    if (sentinelEl && typeof IntersectionObserver !== "undefined") {
+        observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    loadNextPage();
+                }
+            },
+            { rootMargin: "200px" },
+        );
+        observer.observe(sentinelEl);
+        activeCleanup.push(() => {
+            if (observer) {
+                observer.disconnect();
+                observer = null;
+            }
+        });
+    }
+
+    await loadNextPage();
 }
