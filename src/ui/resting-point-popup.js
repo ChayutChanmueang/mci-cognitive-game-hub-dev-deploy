@@ -73,12 +73,17 @@ export function showRestingPointPopup(options = {}) {
         const timerEl = overlay.querySelector("[data-resting-timer]");
         const catImg = overlay.querySelector(".resting-popup-cat");
 
+        const skipBtn = overlay.querySelector("[data-resting-skip]");
+
         const onTimeUp = () => {
             if (timeUp) return;
             timeUp = true;
             if (catImg) {
                 catImg.src = catStandingGif;
                 catImg.alt = "แมวลุกขึ้นพร้อมเล่นแล้ว";
+            }
+            if (skipBtn) {
+                skipBtn.textContent = "ปิด";
             }
         };
 
@@ -98,7 +103,21 @@ export function showRestingPointPopup(options = {}) {
             }, 1000);
         }
 
-        overlay.querySelector("[data-resting-skip]")?.addEventListener("click", () => cleanup(true));
+        skipBtn?.addEventListener("click", () => {
+            if (!timeUp) {
+                if (intervalId !== null) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                timeLeft = 0;
+                if (timerEl) {
+                    timerEl.textContent = "0";
+                }
+                onTimeUp();
+                return;
+            }
+            cleanup(true);
+        });
 
         if (dismissible) {
             overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(false));
