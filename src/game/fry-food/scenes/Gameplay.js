@@ -204,7 +204,7 @@ export default class GameplayScene extends Phaser.Scene {
         // -- Gesture Recognition: Flip --------------------------------------
         if (this._gameState === 'READY') {
             let currentBeta = orientation.beta || 0;
-            const inGap = currentBeta >= 40 && currentBeta <= 50;
+            const inGap = currentBeta >= 30 && currentBeta <= 50;
 
             if (!this._flipState) {
                 this._flipState = 'UNPRIMED';

@@ -41,9 +41,9 @@ export const AccelerometerSettings = Object.freeze({
 
     // -- Flip Mechanic Settings --
     /** Minimum time to wait before egg is ready to flip (ms) */
-    minCookTime: 5000,
+    minCookTime: 15000,
     /** Maximum time to wait before egg is ready to flip (ms) */
-    maxCookTime: 10000,
+    maxCookTime: 15000,
     /** How far forward (in degrees) the player must tilt the device to trigger a flip */
     flipThresholdBeta: 15,
 });
