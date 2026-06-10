@@ -204,7 +204,7 @@ export default class GameplayScene extends Phaser.Scene {
         // -- Gesture Recognition: Flip --------------------------------------
         if (this._gameState === 'READY') {
             let currentBeta = orientation.beta || 0;
-            const inGap = currentBeta >= 30 && currentBeta <= 50;
+            const inGap = currentBeta >= 15 && currentBeta <= 35;
 
             if (!this._flipState) {
                 this._flipState = 'UNPRIMED';
@@ -317,15 +317,15 @@ export default class GameplayScene extends Phaser.Scene {
 
             if (this._gameState === 'COOKING') {
                 let rawGamma = Phaser.Math.Clamp(orientation.gamma || 0, -35, 35);
-                let rawBeta = Phaser.Math.Clamp(orientation.beta || 0, 0, 90);
+                let rawBeta = Phaser.Math.Clamp(orientation.beta || 0, 0, 50);
 
                 let deltaGamma = rawGamma - 0;   // 0 is the center for gamma
-                let deltaBeta = rawBeta - 45;    // 45 is the center for beta
+                let deltaBeta = rawBeta - 25;    // 25 is the center for beta
 
                 let absGamma = Math.abs(deltaGamma);
                 let absBeta = Math.abs(deltaBeta);
 
-                // Small slide if within +/- 5 degrees, normal slide outside
+                // Small slide if within +/- 5 degrees (20-30 range), normal slide outside
                 let gammaMultiplier = absGamma <= 5 ? ACCEL_SCALE * 0.2 : ACCEL_SCALE;
                 let betaMultiplier = absBeta <= 5 ? ACCEL_SCALE * 0.2 : ACCEL_SCALE;
 
