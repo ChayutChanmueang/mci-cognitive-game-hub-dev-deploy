@@ -510,7 +510,7 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const renderNode = (node, index, isDone, isCurrent, isProgramEnded) => {
-        const classes = ["hub-clean-level", isDone ? "is-done" : "", isCurrent ? "is-current" : ""]
+        const classes = ["hub-clean-level", isDone ? "is-done" : "", (isCurrent && !isProgramEnded) ? "is-current" : ""]
             .filter(Boolean)
             .join(" ");
         const nodeText = isDone
@@ -523,7 +523,7 @@ export async function renderGameHubScreen(root, options = {}) {
             : node.type === "checkin"
                 ? "รอเช็คชื่อ"
                 : node.title || `เกมที่ ${index + 1}`;
-        const side = isCurrent
+        const side = isCurrent && !isProgramEnded
             ? renderCurrentCard(node, isProgramEnded)
             : `<div class="hub-clean-game-pill">${escapeHtml(sideLabel)}</div>`;
 
