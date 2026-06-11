@@ -1366,10 +1366,10 @@ document.addEventListener("DOMContentLoaded", () => {
             educationLevelsError,
             onBack: () => navigateTo(ROUTES.login),
             onSubmit: async (formData) => {
-                const patientCodeLabel = `HN${String(formData?.hn || "").trim()}`;
+                const patientCodeLabel = `ID ${String(formData?.hn || "").trim()}`;
                 const shouldCreatePatient = await showPopup({
                     title: "ยืนยันการลงทะเบียน",
-                    message: `ต้องการสร้างข้อมูลผู้เล่นรหัส ${patientCodeLabel} ใช่หรือไม่`,
+                    message: `ต้องการสร้างข้อมูลผู้เล่นเลข ${patientCodeLabel} ใช่หรือไม่`,
                     confirmText: "ยืนยัน",
                     cancelText: "ยกเลิก",
                     icon: "how_to_reg",
@@ -1424,10 +1424,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                const patientCodeLabel = `HN${acceptedId}`;
+                const patientCodeLabel = `ID ${acceptedId}`;
                 const shouldCreatePatient = await showPopup({
-                    title: "ไม่พบรหัส HN",
-                    message: `ไม่พบข้อมูลผู้เล่นรหัส ${patientCodeLabel} ต้องการลงทะเบียนผู้เล่นใหม่หรือไม่`,
+                    title: "ไม่พบเลข ID",
+                    message: `ไม่พบข้อมูลผู้เล่นเลข ${patientCodeLabel} ต้องการลงทะเบียนผู้เล่นใหม่หรือไม่`,
                     confirmText: "สร้างผู้เล่นใหม่",
                     cancelText: "ยกเลิก",
                     icon: "person_add",
