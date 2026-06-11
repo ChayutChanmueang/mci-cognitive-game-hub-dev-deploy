@@ -66,7 +66,7 @@ class EdgeFunction {
     }
 
     async getUserRank(hn) {
-        const response = await this._post("leaderboard/getUserRank", { hn });
+        const response = await this._post("read-database/getUserRank", { hn });
         if (!response.ok) {
             const body = await response.json().catch(() => ({}));
             throw new Error(body?.error || `Edge function error: ${response.status}`);
@@ -75,7 +75,7 @@ class EdgeFunction {
     }
 
     async getLeaderboard({ offset = 0, limit = 20 } = {}) {
-        const response = await this._post("leaderboard/getLeaderboard", { offset, limit });
+        const response = await this._post("read-database/getLeaderboard", { offset, limit });
         if (!response.ok) {
             const body = await response.json().catch(() => ({}));
             throw new Error(body?.error || `Edge function error: ${response.status}`);
