@@ -100,7 +100,6 @@ export async function renderLeaderboardScreen(root, options = {}) {
         loadingTop: false,
         loadingBottom: false,
         total: null,
-        currentRank: null,
     };
 
     let activeCleanup = [];
@@ -135,10 +134,6 @@ export async function renderLeaderboardScreen(root, options = {}) {
                         <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
                         <h1 id="leaderboard-title">ชุมชนพัฒนาสมอง</h1>
                         <p>อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
-                        <div class="leaderboard-summary">
-                            <span>อันดับของคุณ</span>
-                            <strong data-summary-value>-/-</strong>
-                        </div>
                     </div>
                 </header>
                 <section class="hub-clean-stage leaderboard-stage">
@@ -194,14 +189,6 @@ export async function renderLeaderboardScreen(root, options = {}) {
 
     const getListEl = () => root.querySelector("[data-leaderboard-list]");
     const getScrollAreaEl = () => root.querySelector("[data-leaderboard-scroll]");
-
-    const updateSummary = () => {
-        const currentPlayer = state.players.find((p) => p.current);
-        const rank = currentPlayer?.rank ?? state.currentRank ?? null;
-        const valueEl = root.querySelector("[data-summary-value]");
-        if (!valueEl) return;
-        valueEl.textContent = `${rank ?? "-"}/${state.total ?? "-"}`;
-    };
 
     const updateBottomBar = (externalPlayer = null) => {
         const currentPlayer = state.players.find((p) => p.current) ?? externalPlayer;
@@ -263,7 +250,6 @@ export async function renderLeaderboardScreen(root, options = {}) {
             state.players = [...newPlayers, ...state.players];
             if (result?.total != null) state.total = result.total;
             prependRows(newPlayers);
-            updateSummary();
             if (!state.hasMoreTop) {
                 topObserver?.disconnect();
                 topObserver = null;
@@ -293,7 +279,6 @@ export async function renderLeaderboardScreen(root, options = {}) {
                 root.querySelector("[data-leaderboard-initial-loading]")?.remove();
             }
             appendRows(newPlayers);
-            updateSummary();
             updateBottomBar();
             if (!state.hasMoreBottom) {
                 bottomObserver?.disconnect();
@@ -317,8 +302,6 @@ export async function renderLeaderboardScreen(root, options = {}) {
     if (typeof getUserRankFn === "function") {
         getUserRankFn().then((rankResult) => {
             if (rankResult?.total != null) state.total = rankResult.total;
-            if (rankResult?.rank != null) state.currentRank = rankResult.rank;
-            updateSummary();
             updateBottomBar({
                 rank: rankResult?.rank,
                 name: rankResult?.name,
