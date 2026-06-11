@@ -36,6 +36,29 @@ class EdgeFunction {
         }).catch(() => {});
     }
 
+    async getLeaderboard({ offset = 0, limit = 20 } = {}) {
+        if (!this.supabaseUrl || !this.supabaseAnonKey) {
+            throw new Error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY");
+        }
+
+        const url = `${this.supabaseUrl}/functions/v1/mci_functions_leaderboard/getLeaderboard`;
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${this.supabaseAnonKey}`,
+            },
+            body: JSON.stringify({ offset, limit }),
+        });
+
+        if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body?.error || `Edge function error: ${response.status}`);
+        }
+
+        return response.json();
+    }
+
     async logUserEvent(hn, actionId, value = {}) {
         const parsedHn = String(hn || "").trim();
         const parsedActionId = String(actionId || "").trim();

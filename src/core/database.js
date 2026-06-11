@@ -3,6 +3,7 @@ import {
     isCompleteThaiPhoneNumber,
     normalizeThaiPhoneNumber,
 } from "../util/phone-number-util.js";
+import edgeFunction from "./edge-function.js";
 import { getProgramDayStatus } from "../util/program-date-util.js";
 
 const GAME_LIST_TABLE = "game_list_data";
@@ -2342,14 +2343,14 @@ class Database {
         return this.writeReplayLog(params);
     }
 
-    _buildLeaderboardPlayers(rows, currentHn) {
+    _buildLeaderboardPlayers(rows, currentHn, offset = 0) {
         return rows.map((row, index) => {
             const hn = String(row?.hn || "").trim();
             const firstname = String(row?.firstname || "").trim();
             const lastname = String(row?.lastname || "").trim();
             const name = [firstname, lastname].filter(Boolean).join(" ") || hn;
             return {
-                rank: index + 1,
+                rank: offset + index + 1,
                 name,
                 score: Number(row?.total_score) || 0,
                 current: currentHn ? hn === currentHn : false,
@@ -2357,15 +2358,40 @@ class Database {
         });
     }
 
-    async getLeaderboard({ currentHn = null } = {}) {
+    async getLeaderboard({ currentHn = null, offset = 0, limit = 20 } = {}) {
         await this.initAuth();
 
-        const client = this.getClient();
         const parsedCurrentHn = String(currentHn || "").trim();
+        const parsedOffset = Math.max(0, Number(offset) || 0);
+        const parsedLimit = Math.max(1, Number(limit) || 20);
 
-        const { data: rpcRows, error: rpcError } = await client.rpc("get_leaderboard");
+        try {
+            const result = await edgeFunction.getLeaderboard({ offset: parsedOffset, limit: parsedLimit });
+            const rows = result?.rows || [];
+            const total = Number(result?.total) || 0;
+            return {
+                players: this._buildLeaderboardPlayers(rows, parsedCurrentHn, parsedOffset),
+                hasMore: parsedOffset + rows.length < total,
+                total,
+            };
+        } catch (edgeError) {
+            console.warn("Leaderboard edge function unavailable, using RPC:", edgeError);
+        }
+
+        const client = this.getClient();
+        const { data: rpcRows, error: rpcError } = await client.rpc("get_leaderboard_page", {
+            p_offset: parsedOffset,
+            p_limit: parsedLimit,
+        });
+
         if (!rpcError) {
-            return this._buildLeaderboardPlayers(rpcRows || [], parsedCurrentHn);
+            const rows = rpcRows || [];
+            const total = rows.length > 0 ? Number(rows[0].total_players) : 0;
+            return {
+                players: this._buildLeaderboardPlayers(rows, parsedCurrentHn, parsedOffset),
+                hasMore: parsedOffset + rows.length < total,
+                total,
+            };
         }
 
         console.warn("Leaderboard RPC unavailable, using client query:", rpcError);
@@ -2426,7 +2452,7 @@ class Database {
             patients.map((p) => [String(p?.hn || "").trim(), p]),
         );
 
-        const rows = [...scoreByHn.entries()]
+        const allRows = [...scoreByHn.entries()]
             .map(([hn, totalScore]) => {
                 const patient = patientByHn.get(hn) || {};
                 return {
@@ -2438,7 +2464,12 @@ class Database {
             })
             .sort((a, b) => b.total_score - a.total_score);
 
-        return this._buildLeaderboardPlayers(rows, parsedCurrentHn);
+        const page = allRows.slice(parsedOffset, parsedOffset + parsedLimit);
+        return {
+            players: this._buildLeaderboardPlayers(page, parsedCurrentHn, parsedOffset),
+            hasMore: parsedOffset + page.length < allRows.length,
+            total: allRows.length,
+        };
     }
 }
 

@@ -285,6 +285,7 @@ export async function renderLeaderboardScreen(root, options = {}) {
     };
 
     const sentinelEl = getSentinelEl();
+    const scrollAreaEl = root.querySelector("[data-leaderboard-scroll]");
     if (sentinelEl && typeof IntersectionObserver !== "undefined") {
         observer = new IntersectionObserver(
             (entries) => {
@@ -292,7 +293,7 @@ export async function renderLeaderboardScreen(root, options = {}) {
                     loadNextPage();
                 }
             },
-            { rootMargin: "200px" },
+            { root: scrollAreaEl, rootMargin: "200px" },
         );
         observer.observe(sentinelEl);
         activeCleanup.push(() => {

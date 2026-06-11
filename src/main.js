@@ -2036,14 +2036,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentHn = String(rememberedPatient?.patientCode || "").trim() || null;
         const onBack = () => navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login);
 
-        renderLeaderboardScreen(uiRoot, { patientLabel, players: [], loading: true, onBack });
-
-        try {
-            const players = await db.getLeaderboard({ currentHn });
-            renderLeaderboardScreen(uiRoot, { patientLabel, players, onBack });
-        } catch (error) {
-            console.error("Failed to load leaderboard:", error);
-        }
+        renderLeaderboardScreen(uiRoot, {
+            patientLabel,
+            onBack,
+            loadPlayers: ({ offset, limit }) => db.getLeaderboard({ currentHn, offset, limit }),
+        });
     };
 
     const renderCurrentRoute = async () => {
