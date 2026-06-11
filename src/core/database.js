@@ -2366,9 +2366,18 @@ class Database {
             return { rank: null, total: 0 };
         }
 
+        const buildResult = (row) => ({
+            rank: row?.rank != null ? Number(row.rank) : null,
+            total: Number(row?.total) || 0,
+            name: [row?.firstname, row?.lastname].filter(Boolean).join(" ") || null,
+            score: row?.score != null ? Number(row.score) : (row?.total_score != null ? Number(row.total_score) : null),
+        });
+
         try {
             const result = await edgeFunction.getUserRank(parsedHn);
-            return { rank: result?.rank ?? null, total: Number(result?.total) || 0 };
+            const built = buildResult(result);
+            if (built.name != null) return built;
+            // edge function returned incomplete data — fall through to RPC
         } catch {
             // fallback to direct RPC
         }
@@ -2376,10 +2385,10 @@ class Database {
         const client = this.getClient();
         const { data, error } = await client.rpc("get_user_rank", { p_hn: parsedHn });
         if (!error && Array.isArray(data) && data[0]) {
-            return { rank: Number(data[0].rank), total: Number(data[0].total) };
+            return buildResult(data[0]);
         }
 
-        return { rank: null, total: 0 };
+        return { rank: null, total: 0, name: null, score: null };
     }
 
     async getLeaderboard({ currentHn = null, offset = 0, limit = 20 } = {}) {

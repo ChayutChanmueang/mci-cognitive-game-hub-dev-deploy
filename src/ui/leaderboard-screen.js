@@ -100,6 +100,7 @@ export async function renderLeaderboardScreen(root, options = {}) {
         loadingTop: false,
         loadingBottom: false,
         total: null,
+        currentRank: null,
     };
 
     let activeCleanup = [];
@@ -196,15 +197,16 @@ export async function renderLeaderboardScreen(root, options = {}) {
 
     const updateSummary = () => {
         const currentPlayer = state.players.find((p) => p.current);
+        const rank = currentPlayer?.rank ?? state.currentRank ?? null;
         const valueEl = root.querySelector("[data-summary-value]");
         if (!valueEl) return;
-        valueEl.textContent = `${currentPlayer?.rank ?? "-"}/${state.total ?? "-"}`;
+        valueEl.textContent = `${rank ?? "-"}/${state.total ?? "-"}`;
     };
 
-    const updateBottomBar = () => {
-        const currentPlayer = state.players.find((p) => p.current);
+    const updateBottomBar = (externalPlayer = null) => {
+        const currentPlayer = state.players.find((p) => p.current) ?? externalPlayer;
         const bottomBarEl = root.querySelector("[data-leaderboard-bottom-bar]");
-        if (!bottomBarEl || !currentPlayer) return;
+        if (!bottomBarEl || !currentPlayer?.rank) return;
         bottomBarEl.innerHTML = renderLeaderboardRow({ ...currentPlayer, current: false });
         bottomBarEl.style.display = "";
     };
@@ -306,27 +308,24 @@ export async function renderLeaderboardScreen(root, options = {}) {
         }
     };
 
-    // Determine starting offset from user's rank
-    let startOffset = 0;
+    // Always start from top (rank 1)
+    state.topOffset = 0;
+    state.bottomOffset = 0;
+    state.hasMoreTop = false;
+
+    // Fetch user's rank immediately for summary + bottom bar (non-blocking)
     if (typeof getUserRankFn === "function") {
-        try {
-            const rankResult = await getUserRankFn();
-            const rank = rankResult?.rank;
-            if (rank != null && rank > 0) {
-                startOffset = Math.floor((rank - 1) / pageSize) * pageSize;
-                if (rankResult?.total != null) state.total = rankResult.total;
-            }
-        } catch {
-            // no rank, start from top
-        }
+        getUserRankFn().then((rankResult) => {
+            if (rankResult?.total != null) state.total = rankResult.total;
+            if (rankResult?.rank != null) state.currentRank = rankResult.rank;
+            updateSummary();
+            updateBottomBar({
+                rank: rankResult?.rank,
+                name: rankResult?.name,
+                score: rankResult?.score ?? 0,
+            });
+        }).catch(() => {});
     }
-
-    state.topOffset = startOffset;
-    state.bottomOffset = startOffset;
-    state.hasMoreTop = startOffset > 0;
-
-    // Update summary immediately if we already know total + rank
-    updateSummary();
 
     // Set up bottom observer
     const scrollAreaEl = getScrollAreaEl();
@@ -343,7 +342,7 @@ export async function renderLeaderboardScreen(root, options = {}) {
     // Load initial page (at startOffset)
     await loadNextPage();
 
-    // After initial load, set up top observer if user is not on first page
+    // Set up top observer only if there are pages above (when starting from a non-zero offset)
     if (state.hasMoreTop) {
         const listEl = getListEl();
         const topSentinel = document.createElement("div");
@@ -357,8 +356,5 @@ export async function renderLeaderboardScreen(root, options = {}) {
         );
         topObserver.observe(topSentinel);
         activeCleanup.push(() => { topObserver?.disconnect(); topObserver = null; });
-
-        // Scroll to the current user's row
-        requestAnimationFrame(() => controller.restoreScrollPosition());
     }
 }
