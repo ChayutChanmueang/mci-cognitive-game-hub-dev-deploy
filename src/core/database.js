@@ -2358,6 +2358,30 @@ class Database {
         });
     }
 
+    async getUserRank(hn) {
+        await this.initAuth();
+
+        const parsedHn = String(hn || "").trim();
+        if (!parsedHn) {
+            return { rank: null, total: 0 };
+        }
+
+        try {
+            const result = await edgeFunction.getUserRank(parsedHn);
+            return { rank: result?.rank ?? null, total: Number(result?.total) || 0 };
+        } catch {
+            // fallback to direct RPC
+        }
+
+        const client = this.getClient();
+        const { data, error } = await client.rpc("get_user_rank", { p_hn: parsedHn });
+        if (!error && Array.isArray(data) && data[0]) {
+            return { rank: Number(data[0].rank), total: Number(data[0].total) };
+        }
+
+        return { rank: null, total: 0 };
+    }
+
     async getLeaderboard({ currentHn = null, offset = 0, limit = 20 } = {}) {
         await this.initAuth();
 

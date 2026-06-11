@@ -80,6 +80,7 @@ export async function renderLeaderboardScreen(root, options = {}) {
 
     const {
         loadPlayers: loadPlayersFn,
+        getUserRank: getUserRankFn,
         players: staticPlayers,
         patientLabel = "ผู้เล่น",
         onBack = () => {},
@@ -92,28 +93,28 @@ export async function renderLeaderboardScreen(root, options = {}) {
     const state = {
         scrollTop: 0,
         players: [],
-        offset: 0,
-        hasMore: true,
-        loadingMore: false,
+        topOffset: 0,
+        bottomOffset: 0,
+        hasMoreTop: false,
+        hasMoreBottom: true,
+        loadingTop: false,
+        loadingBottom: false,
         total: null,
     };
 
     let activeCleanup = [];
-    let observer = null;
+    let topObserver = null;
+    let bottomObserver = null;
 
     const cleanup = () => {
         activeCleanup.forEach((handler) => handler());
         activeCleanup = [];
-        if (observer) {
-            observer.disconnect();
-            observer = null;
-        }
+        if (topObserver) { topObserver.disconnect(); topObserver = null; }
+        if (bottomObserver) { bottomObserver.disconnect(); bottomObserver = null; }
     };
 
     const on = (target, eventName, handler, listenerOptions) => {
-        if (!target) {
-            return;
-        }
+        if (!target) return;
         target.addEventListener(eventName, handler, listenerOptions);
         activeCleanup.push(() => target.removeEventListener(eventName, handler, listenerOptions));
     };
@@ -147,6 +148,9 @@ export async function renderLeaderboardScreen(root, options = {}) {
                                 <span>ชื่อ</span>
                                 <span>คะแนน</span>
                             </div>
+                            <div class="hub-clean-empty" data-leaderboard-load-top style="display: none;" aria-live="polite">
+                                <md-circular-progress indeterminate aria-label="กำลังโหลดเพิ่มเติม"></md-circular-progress>
+                            </div>
                             <div class="leaderboard-list" data-leaderboard-list></div>
                             <div class="hub-clean-empty" data-leaderboard-load-more style="display: none;" aria-live="polite">
                                 <md-circular-progress indeterminate aria-label="กำลังโหลดเพิ่มเติม"></md-circular-progress>
@@ -155,10 +159,10 @@ export async function renderLeaderboardScreen(root, options = {}) {
                                 <md-circular-progress indeterminate aria-label="กำลังโหลดคะแนน"></md-circular-progress>
                                 <p>กำลังโหลดคะแนน</p>
                             </div>
-                            <div data-scroll-sentinel style="height: 1px;"></div>
+                            <div data-scroll-sentinel-bottom style="height: 1px;"></div>
                         </div>
                     </div>
-                    <md-fab class="hub-clean-fab leaderboard-fab" aria-label="เลื่อนไปยังอันดับของคุณ" data-scroll-top>
+                    <md-fab class="hub-clean-fab leaderboard-fab" aria-label="เลื่อนไปยังด้านบน" data-scroll-top>
                         <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
                     </md-fab>
                 </section>
@@ -167,7 +171,7 @@ export async function renderLeaderboardScreen(root, options = {}) {
         </section>
     `;
 
-    bindCurrentNodeScrollController({
+    const controller = bindCurrentNodeScrollController({
         root,
         state,
         activeSectionSelector: "[data-leaderboard-section]",
@@ -182,127 +186,179 @@ export async function renderLeaderboardScreen(root, options = {}) {
 
     on(root.querySelector(".leaderboard-back"), "click", () => onBack());
     on(root.querySelector(".leaderboard-back"), "keydown", (event) => {
-        if (event.key !== "Enter" && event.key !== " ") {
-            return;
-        }
+        if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
         onBack();
     });
 
     const getListEl = () => root.querySelector("[data-leaderboard-list]");
-    const getSentinelEl = () => root.querySelector("[data-scroll-sentinel]");
+    const getScrollAreaEl = () => root.querySelector("[data-leaderboard-scroll]");
 
     const updateSummary = () => {
-        const currentPlayer = state.players.find((player) => player.current);
+        const currentPlayer = state.players.find((p) => p.current);
         const valueEl = root.querySelector("[data-summary-value]");
-        if (!valueEl) {
-            return;
-        }
-        valueEl.textContent = `${currentPlayer?.rank || "-"}/${state.total || "-"}`;
+        if (!valueEl) return;
+        valueEl.textContent = `${currentPlayer?.rank ?? "-"}/${state.total ?? "-"}`;
     };
 
     const updateBottomBar = () => {
-        const currentPlayer = state.players.find((player) => player.current);
+        const currentPlayer = state.players.find((p) => p.current);
         const bottomBarEl = root.querySelector("[data-leaderboard-bottom-bar]");
-        if (!bottomBarEl || !currentPlayer) {
-            return;
-        }
+        if (!bottomBarEl || !currentPlayer) return;
         bottomBarEl.innerHTML = renderLeaderboardRow({ ...currentPlayer, current: false });
         bottomBarEl.style.display = "";
     };
 
     const appendRows = (newPlayers) => {
         const listEl = getListEl();
-        if (!listEl) {
-            return;
-        }
+        if (!listEl) return;
         const fragment = document.createDocumentFragment();
         newPlayers.forEach((player) => {
             const wrapper = document.createElement("div");
             wrapper.innerHTML = renderLeaderboardRow(player);
             const el = wrapper.firstElementChild;
-            if (el) {
-                fragment.appendChild(el);
-            }
+            if (el) fragment.appendChild(el);
         });
         listEl.appendChild(fragment);
     };
 
-    const setLoadingMore = (show) => {
-        const loadMoreEl = root.querySelector("[data-leaderboard-load-more]");
-        if (loadMoreEl) {
-            loadMoreEl.style.display = show ? "" : "none";
+    const prependRows = (newPlayers) => {
+        const listEl = getListEl();
+        const scrollAreaEl = getScrollAreaEl();
+        if (!listEl || !scrollAreaEl) return;
+        const fragment = document.createDocumentFragment();
+        newPlayers.forEach((player) => {
+            const wrapper = document.createElement("div");
+            wrapper.innerHTML = renderLeaderboardRow(player);
+            const el = wrapper.firstElementChild;
+            if (el) fragment.appendChild(el);
+        });
+        const prevHeight = scrollAreaEl.scrollHeight;
+        listEl.prepend(fragment);
+        scrollAreaEl.scrollTop += scrollAreaEl.scrollHeight - prevHeight;
+    };
+
+    const setLoadingBottom = (show) => {
+        const el = root.querySelector("[data-leaderboard-load-more]");
+        if (el) el.style.display = show ? "" : "none";
+    };
+
+    const setLoadingTop = (show) => {
+        const el = root.querySelector("[data-leaderboard-load-top]");
+        if (el) el.style.display = show ? "" : "none";
+    };
+
+    const loadPrevPage = async () => {
+        if (state.loadingTop || !state.hasMoreTop) return;
+        state.loadingTop = true;
+        setLoadingTop(true);
+        try {
+            const newOffset = Math.max(0, state.topOffset - pageSize);
+            const result = await loadPlayers({ offset: newOffset, limit: pageSize });
+            const newPlayers = Array.isArray(result?.players) ? result.players : [];
+            state.topOffset = newOffset;
+            state.hasMoreTop = newOffset > 0;
+            state.players = [...newPlayers, ...state.players];
+            if (result?.total != null) state.total = result.total;
+            prependRows(newPlayers);
+            updateSummary();
+            if (!state.hasMoreTop) {
+                topObserver?.disconnect();
+                topObserver = null;
+                root.querySelector("[data-scroll-sentinel-top]")?.remove();
+            }
+        } catch (error) {
+            console.warn("Unable to load prev leaderboard page:", error);
+        } finally {
+            state.loadingTop = false;
+            setLoadingTop(false);
         }
     };
 
     const loadNextPage = async () => {
-        if (state.loadingMore || !state.hasMore) {
-            return;
-        }
-
-        state.loadingMore = true;
-        setLoadingMore(true);
-
+        if (state.loadingBottom || !state.hasMoreBottom) return;
+        state.loadingBottom = true;
+        setLoadingBottom(true);
         try {
-            const result = await loadPlayers({ offset: state.offset, limit: pageSize });
+            const result = await loadPlayers({ offset: state.bottomOffset, limit: pageSize });
             const newPlayers = Array.isArray(result?.players) ? result.players : [];
-            const isFirstPage = state.offset === 0;
-
+            const isFirstLoad = state.players.length === 0;
             state.players = [...state.players, ...newPlayers];
-            state.offset += newPlayers.length;
-            state.hasMore = result?.hasMore ?? (newPlayers.length >= pageSize);
-            if (result?.total != null) {
-                state.total = result.total;
+            state.bottomOffset += newPlayers.length;
+            state.hasMoreBottom = result?.hasMore ?? (newPlayers.length >= pageSize);
+            if (result?.total != null) state.total = result.total;
+            if (isFirstLoad) {
+                root.querySelector("[data-leaderboard-initial-loading]")?.remove();
             }
-
-            if (isFirstPage) {
-                const initialLoadingEl = root.querySelector("[data-leaderboard-initial-loading]");
-                if (initialLoadingEl) {
-                    initialLoadingEl.remove();
-                }
-            }
-
             appendRows(newPlayers);
             updateSummary();
             updateBottomBar();
-
-            if (!state.hasMore) {
-                if (observer) {
-                    observer.disconnect();
-                    observer = null;
-                }
-                const sentinelEl = getSentinelEl();
-                if (sentinelEl) {
-                    sentinelEl.remove();
-                }
+            if (!state.hasMoreBottom) {
+                bottomObserver?.disconnect();
+                bottomObserver = null;
+                root.querySelector("[data-scroll-sentinel-bottom]")?.remove();
             }
         } catch (error) {
             console.warn("Unable to load leaderboard players:", error);
         } finally {
-            state.loadingMore = false;
-            setLoadingMore(false);
+            state.loadingBottom = false;
+            setLoadingBottom(false);
         }
     };
 
-    const sentinelEl = getSentinelEl();
-    const scrollAreaEl = root.querySelector("[data-leaderboard-scroll]");
-    if (sentinelEl && typeof IntersectionObserver !== "undefined") {
-        observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0]?.isIntersecting) {
-                    loadNextPage();
-                }
-            },
-            { root: scrollAreaEl, rootMargin: "200px" },
-        );
-        observer.observe(sentinelEl);
-        activeCleanup.push(() => {
-            if (observer) {
-                observer.disconnect();
-                observer = null;
+    // Determine starting offset from user's rank
+    let startOffset = 0;
+    if (typeof getUserRankFn === "function") {
+        try {
+            const rankResult = await getUserRankFn();
+            const rank = rankResult?.rank;
+            if (rank != null && rank > 0) {
+                startOffset = Math.floor((rank - 1) / pageSize) * pageSize;
+                if (rankResult?.total != null) state.total = rankResult.total;
             }
-        });
+        } catch {
+            // no rank, start from top
+        }
     }
 
+    state.topOffset = startOffset;
+    state.bottomOffset = startOffset;
+    state.hasMoreTop = startOffset > 0;
+
+    // Update summary immediately if we already know total + rank
+    updateSummary();
+
+    // Set up bottom observer
+    const scrollAreaEl = getScrollAreaEl();
+    const bottomSentinelEl = root.querySelector("[data-scroll-sentinel-bottom]");
+    if (bottomSentinelEl && typeof IntersectionObserver !== "undefined") {
+        bottomObserver = new IntersectionObserver(
+            (entries) => { if (entries[0]?.isIntersecting) loadNextPage(); },
+            { root: scrollAreaEl, rootMargin: "200px" },
+        );
+        bottomObserver.observe(bottomSentinelEl);
+        activeCleanup.push(() => { bottomObserver?.disconnect(); bottomObserver = null; });
+    }
+
+    // Load initial page (at startOffset)
     await loadNextPage();
+
+    // After initial load, set up top observer if user is not on first page
+    if (state.hasMoreTop) {
+        const listEl = getListEl();
+        const topSentinel = document.createElement("div");
+        topSentinel.setAttribute("data-scroll-sentinel-top", "");
+        topSentinel.style.height = "1px";
+        listEl?.before(topSentinel);
+
+        topObserver = new IntersectionObserver(
+            (entries) => { if (entries[0]?.isIntersecting) loadPrevPage(); },
+            { root: scrollAreaEl, rootMargin: "200px" },
+        );
+        topObserver.observe(topSentinel);
+        activeCleanup.push(() => { topObserver?.disconnect(); topObserver = null; });
+
+        // Scroll to the current user's row
+        requestAnimationFrame(() => controller.restoreScrollPosition());
+    }
 }

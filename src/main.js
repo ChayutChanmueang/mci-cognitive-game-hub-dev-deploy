@@ -2039,6 +2039,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderLeaderboardScreen(uiRoot, {
             patientLabel,
             onBack,
+            getUserRank: () => db.getUserRank(currentHn),
             loadPlayers: ({ offset, limit }) => db.getLeaderboard({ currentHn, offset, limit }),
         });
     };

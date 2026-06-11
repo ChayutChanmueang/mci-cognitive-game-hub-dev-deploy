@@ -36,6 +36,29 @@ class EdgeFunction {
         }).catch(() => {});
     }
 
+    async getUserRank(hn) {
+        if (!this.supabaseUrl || !this.supabaseAnonKey) {
+            throw new Error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY");
+        }
+
+        const url = `${this.supabaseUrl}/functions/v1/mci_functions_leaderboard/getUserRank`;
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${this.supabaseAnonKey}`,
+            },
+            body: JSON.stringify({ hn }),
+        });
+
+        if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body?.error || `Edge function error: ${response.status}`);
+        }
+
+        return response.json();
+    }
+
     async getLeaderboard({ offset = 0, limit = 20 } = {}) {
         if (!this.supabaseUrl || !this.supabaseAnonKey) {
             throw new Error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY");
