@@ -1,5 +1,5 @@
 import { createThaiText } from "../../../../util/thai-text";
-import { EventBus } from "../../../../../core/EventBus.js";
+import { EventBus } from "../../../../core/EventBus.js";
 
 export default class Button {
   constructor(scene, x, y, settings = {}) {

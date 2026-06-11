@@ -1,7 +1,7 @@
 import CircleHitbox from "../../components/scripts/circleHitbox";
 import Entity from "../entity";
 import Theme from "../../../../util/game-theme.js";
-import { EventBus } from "../../../../../core/EventBus.js";
+import { EventBus } from "../../../../core/EventBus.js";
 
 export default class CircleButton extends Entity{
     constructor(scene,x,y,radius = "50", callback = () => {
