@@ -83,7 +83,7 @@ export function showRestingPointPopup(options = {}) {
                 catImg.alt = "แมวลุกขึ้นพร้อมเล่นแล้ว";
             }
             if (skipBtn) {
-                skipBtn.textContent = "ปิด";
+                skipBtn.textContent = "กลับสู่หน้าหลัก";
             }
         };
 
