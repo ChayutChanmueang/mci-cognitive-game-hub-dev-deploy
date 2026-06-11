@@ -129,6 +129,7 @@ export class MinigameHUD {
         this.timerWrap = container.querySelector(".minigame-hud__timer-wrap");
 
         container.querySelector("#hud-exit-button")?.addEventListener("click", () => {
+            EventBus.emit('audio:play', 'ui:click');
             EventBus.emit("minigame:exit-request");
         });
 

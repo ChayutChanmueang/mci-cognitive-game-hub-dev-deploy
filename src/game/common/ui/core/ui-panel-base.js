@@ -1,4 +1,5 @@
 import Theme from "../../../../util/game-theme.js";
+import { EventBus } from "../../../../core/EventBus.js";
 
 export default class UIPanel {
     constructor(scene, x, y, sizeXOrSetting, sizeY) {
@@ -141,6 +142,7 @@ export default class UIPanel {
         }).setOrigin(0.5);
 
         bg.on('pointerdown', () => {
+            EventBus.emit('audio:play', 'ui:click');
             this.scene.tweens.add({
                 targets: [bg, label],
                 scaleX: 0.95,

@@ -1,3 +1,5 @@
+import { EventBus } from './EventBus.js';
+
 /**
  * VoiceService - Handles Text-to-Speech (TTS) for game instructions.
  * Uses the native Web Speech API (SpeechSynthesis).
@@ -34,11 +36,22 @@ class VoiceService {
         // Cancel any ongoing speech
         this.synth.cancel();
 
+        // Tell AudioManager to lower BGM while we speak
+        EventBus.emit('audio:duck');
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.voice = options.voice || this.defaultVoice;
         utterance.rate = options.rate || 0.9; // Slightly slower for elderly
         utterance.pitch = options.pitch || 1.0;
         utterance.volume = options.volume || 1.0;
+
+        utterance.onend = () => {
+            EventBus.emit('audio:unduck');
+        };
+
+        utterance.onerror = () => {
+            EventBus.emit('audio:unduck');
+        };
 
         this.synth.speak(utterance);
     }

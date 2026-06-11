@@ -44,6 +44,7 @@ import {
 import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
 import { EventBus } from "./core/EventBus.js";
+import AudioManager from "./core/audio-manager.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
 import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
@@ -97,9 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const hubUiState = createGameHubState();
     const testGameHubUiState = createTestGameHubState();
     let activeGameInstance = null;
+    let currentGameSlug = null;
     let routeRenderVersion = 0;
     let exitLogHn = "";
     let gameOpenedLogged = false;
+
+    // Initialize the global audio system
+    AudioManager.init();
 
     const handleBeforeUnload = () => {
         if (exitLogHn) {
@@ -126,12 +131,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         activeGameInstance = null;
+        currentGameSlug = null;
 
         if (gameContainer) {
             gameContainer.innerHTML = "";
         }
 
         document.documentElement.style.removeProperty("--game-mode-background");
+
+        // Unregister any game-specific sounds to free memory
+        EventBus.emit('audio:unregister', currentGameSlug);
     };
 
     const showUiRoot = () => {
@@ -519,6 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         EventBus.emit("minigame:hide-hud");
+        EventBus.emit('audio:bgm', 'hub');
 
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
@@ -1151,6 +1161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const { parsedName, slug, loader } = resolveGameModuleLoader(selectedGame?.name);
+        currentGameSlug = slug || null;
 
         if (!parsedName) {
             await showPopup({

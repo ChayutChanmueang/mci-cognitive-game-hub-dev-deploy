@@ -1,5 +1,7 @@
 import CircleHitbox from "../../components/scripts/circleHitbox";
 import Entity from "../entity";
+import Theme from "../../../../util/game-theme.js";
+import { EventBus } from "../../../../../core/EventBus.js";
 
 export default class CircleButton extends Entity{
     constructor(scene,x,y,radius = "50", callback = () => {
@@ -19,6 +21,9 @@ export default class CircleButton extends Entity{
 
         _button.setInteractive(this.hitbox.hitArea, Phaser.Geom.Circle.Contains);
 
-        _button.on('pointerdown', callback);
+        _button.on('pointerdown', () => {
+            EventBus.emit('audio:play', 'ui:click');
+            callback();
+        });
     }
 }

@@ -10,6 +10,7 @@ import { showCheckInPopup } from "./checkin-summary-screen.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
 import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
+import AudioManager from "../core/audio-manager.js";
 import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
 
 const REST_GAME_GID = "REST001";
@@ -574,19 +575,27 @@ export async function renderGameHubScreen(root, options = {}) {
             on,
         });
 
-        on(root.querySelector(".hub-clean-profile"), "click", () => options.onProfile?.());
+        on(root.querySelector(".hub-clean-profile"), "click", () => {
+            AudioManager.play('ui:click');
+            options.onProfile?.();
+        });
         on(root.querySelector(".hub-clean-profile"), "keydown", (event) => {
             if (event.key !== "Enter" && event.key !== " ") {
                 return;
             }
             event.preventDefault();
+            AudioManager.play('ui:click');
             options.onProfile?.();
         });
-        on(root.querySelector("[data-leaderboard-action]"), "click", () => options.onLeaderboard?.());
+        on(root.querySelector("[data-leaderboard-action]"), "click", () => {
+            AudioManager.play('ui:click');
+            options.onLeaderboard?.();
+        });
 
         const nodeMap = new Map(sections.flatMap((section) => section.nodes.map((node) => [node.id, node])));
         root.querySelectorAll("[data-node-action]").forEach((button) => {
             on(button, "click", async () => {
+                AudioManager.play('ui:click');
                 const node = nodeMap.get(button.getAttribute("data-node-id"));
                 await handleNodeAction(node);
             });

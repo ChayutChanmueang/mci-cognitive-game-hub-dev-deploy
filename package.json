@@ -31,12 +31,13 @@
         "@mui/icons-material": "^7.3.5",
         "@mui/material": "^7.3.4",
         "@supabase/supabase-js": "^2.99.1",
-        "bootstrap": "^5.3.8",
-        "phaser": "^3.90.0",
-        "phaser3-rex-plugins": "^1.1.81",
         "ag-grid-community": "^35.2.1",
+        "bootstrap": "^5.3.8",
         "csv-parse": "^6.2.1",
         "csv-stringify": "^6.7.0",
-        "material-design-lite": "^1.3.0"
+        "howler": "^2.2.4",
+        "material-design-lite": "^1.3.0",
+        "phaser": "^3.90.0",
+        "phaser3-rex-plugins": "^1.1.81"
     }
 }

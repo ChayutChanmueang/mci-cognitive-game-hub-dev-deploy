@@ -1,4 +1,5 @@
 import { createThaiText } from "../../../../util/thai-text";
+import { EventBus } from "../../../../../core/EventBus.js";
 
 export default class Button {
   constructor(scene, x, y, settings = {}) {
@@ -71,6 +72,7 @@ export default class Button {
 
     if (settings.onClick != null) {
       this.uiBackground.on("pointerdown", () => {
+        EventBus.emit('audio:play', 'ui:click');
         settings.onClick();
         this.drawBg(this.clickColor);
       });

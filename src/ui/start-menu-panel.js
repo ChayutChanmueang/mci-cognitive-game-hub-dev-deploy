@@ -88,6 +88,7 @@ export class StartMenuPanel {
             const handleExit = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                EventBus.emit('audio:play', 'ui:click');
                 this.destroy();
                 EventBus.emit("startmenu:start-game");
             };

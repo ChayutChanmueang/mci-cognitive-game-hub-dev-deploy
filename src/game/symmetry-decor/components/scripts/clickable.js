@@ -1,5 +1,6 @@
 import Component from "../component";
 import Phaser from "phaser";
+import { EventBus } from "../../../../core/EventBus.js";
 
 export default class Clickable extends Component{
     constructor(entity, settings){
@@ -31,6 +32,7 @@ export default class Clickable extends Component{
 
         this.entity.on('pointerdown', () => {
             //console.log("Pointer down detected");
+            EventBus.emit('audio:play', 'ui:click');
 
             if(this.onClickAction){
                 //console.log("Executing action...");
