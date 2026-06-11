@@ -148,36 +148,44 @@ export function buildGameHistoryCsv(historyRecords = []) {
 }
 
 export function getPlayerCsvFilename(player = {}) {
-    const hn = String(player.hn || player.patientCode || "").trim();
-    const dateKey = new Date().toISOString().slice(0, 10);
-    return `${hn || "player"}-${dateKey}.csv`;
+    const id = getPlayerFileId(player);
+    const dateKey = getCsvFilenameDateKey();
+    return `${id}-Profile-${dateKey}.csv`;
 }
 
 export function getGameCsvFilename(player = {}) {
-    const hn = String(player.hn || player.patientCode || "").trim();
-    const dateKey = new Date().toISOString().slice(0, 10);
-    return `${hn || "player"}-game-${dateKey}.csv`;
+    const id = getPlayerFileId(player);
+    const dateKey = getCsvFilenameDateKey();
+    return `${id}-Minigame-${dateKey}.csv`;
 }
 
 export function getGameHistoryCsvFilename(player = {}) {
-    const hn = String(player.hn || player.patientCode || "").trim();
-    const dateKey = new Date().toISOString().slice(0, 10);
-    return `${hn || "player"}-game-history-${dateKey}.csv`;
+    const id = getPlayerFileId(player);
+    const dateKey = getCsvFilenameDateKey();
+    return `${id}-History-${dateKey}.csv`;
 }
 
 export function getPlayersCsvFilename() {
-    const dateKey = new Date().toISOString().slice(0, 10);
-    return `players-${dateKey}.csv`;
+    const dateKey = getCsvFilenameDateKey();
+    return `All-Player-${dateKey}.csv`;
 }
 
 export function getGamesCsvFilename() {
-    const dateKey = new Date().toISOString().slice(0, 10);
-    return `games-${dateKey}.csv`;
+    const dateKey = getCsvFilenameDateKey();
+    return `All-Player-Minigame-${dateKey}.csv`;
 }
 
 export function getGameHistoriesCsvFilename() {
-    const dateKey = new Date().toISOString().slice(0, 10);
-    return `game-history-${dateKey}.csv`;
+    const dateKey = getCsvFilenameDateKey();
+    return `All-Player-History-${dateKey}.csv`;
+}
+
+function getPlayerFileId(player = {}) {
+    return String(player.hn || player.patientCode || "ID").trim() || "ID";
+}
+
+function getCsvFilenameDateKey() {
+    return new Date().toISOString().slice(0, 10);
 }
 
 export function downloadCsv(filename, csvContent) {
