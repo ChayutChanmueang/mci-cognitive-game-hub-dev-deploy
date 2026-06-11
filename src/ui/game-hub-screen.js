@@ -8,6 +8,7 @@ import {
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
+import { showDayCompletionPopup, showProgramCompletionPopup } from "./day-completion-popup.js";
 import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
 import AudioManager from "../core/audio-manager.js";
@@ -335,6 +336,7 @@ function createGameHubInitialState() {
         historyLoading: false,
         autoCheckInLoading: false,
         restPopupActive: false,
+        completionPopupShown: false,
         scrollTop: 0,
         error: "",
     };
@@ -727,6 +729,7 @@ export async function renderGameHubScreen(root, options = {}) {
             render();
             await ensureNextDayVisible();
             await checkAndAutoShowRestingPopup();
+            await checkAndShowCompletionPopup();
         } catch (error) {
             console.warn("Unable to load game hub history:", error);
             state.historyRecords = [];
@@ -897,6 +900,29 @@ export async function renderGameHubScreen(root, options = {}) {
             console.error("Unable to auto-show resting point popup:", error);
         } finally {
             state.restPopupActive = false;
+        }
+    };
+
+    const checkAndShowCompletionPopup = async () => {
+        if (state.completionPopupShown) return;
+
+        const { programEnded: isProgramEnded } = getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+
+        if (isProgramEnded) {
+            state.completionPopupShown = true;
+            await showProgramCompletionPopup({ programDayCount: getProgramDayCount() });
+            return;
+        }
+
+        const sections = buildDaySections(state.programDays, state.restGame);
+        const currentDay = getCurrentProgramDay();
+        const currentSection = getCurrentDaySection(sections);
+        const currentHistory = getDisplayHistoryForProgramDay(currentDay);
+        const { isComplete } = getDayCompletion(currentSection, currentHistory);
+
+        if (isComplete) {
+            state.completionPopupShown = true;
+            await showDayCompletionPopup({ programDay: currentDay, programDayCount: getProgramDayCount() });
         }
     };
 
