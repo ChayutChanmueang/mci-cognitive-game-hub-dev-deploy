@@ -81,6 +81,9 @@ const AudioManager = {
         // Handle mobile autoplay policy
         this._setupAutoplayResume();
 
+        // Handle page visibility (mute audio when minimized)
+        this._setupVisibilityHandling();
+
         console.log('[AudioManager] Initialized');
     },
 
@@ -153,6 +156,30 @@ const AudioManager = {
 
         document.addEventListener('touchstart', resumeContext, { once: true });
         document.addEventListener('click', resumeContext, { once: true });
+    },
+
+    // ─── Visibility Handling ──────────────────────────────
+
+    /**
+     * Mute audio when the page is minimized or backgrounded.
+     */
+    _setupVisibilityHandling() {
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Mute globally when hidden so audio stops playing in background
+                Howler.mute(true);
+                // Also suspend context to save battery and stop time progression if possible
+                if (Howler.ctx && typeof Howler.ctx.suspend === 'function') {
+                    Howler.ctx.suspend().catch(() => {});
+                }
+            } else {
+                // Restore user's actual mute state when visible again
+                Howler.mute(this._muted);
+                if (Howler.ctx && typeof Howler.ctx.resume === 'function') {
+                    Howler.ctx.resume().catch(() => {});
+                }
+            }
+        });
     },
 
     // ─── Sound Loading ────────────────────────────────────
