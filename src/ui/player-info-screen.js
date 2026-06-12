@@ -9,6 +9,7 @@ import {
     CsvExportType,
 } from "../util/player-csv-export.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
+import { showCheckInPopup } from "./checkin-summary-screen.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -353,6 +354,10 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     <md-icon class="material-symbols-rounded" slot="start">bedtime</md-icon>
                     <div slot="headline">ทดสอบ Resting Popup</div>
                 </md-menu-item>
+                <md-menu-item data-test-checkin-popup>
+                    <md-icon class="material-symbols-rounded" slot="start">park</md-icon>
+                    <div slot="headline">ทดสอบ Check-in Popup</div>
+                </md-menu-item>
                 <md-divider role="separator" tabindex="-1"></md-divider>
                 <md-menu-item data-test-logout>
                     <md-icon class="material-symbols-rounded" slot="start">logout</md-icon>
@@ -443,6 +448,24 @@ export function renderPlayerInfoScreen(root, options = {}) {
         root.querySelector("[data-test-resting-popup]")?.addEventListener("click", async () => {
             closeTestMenus();
             await showRestingPointPopup({ durationSeconds: 10 });
+        });
+
+        root.querySelector("[data-test-checkin-popup]")?.addEventListener("click", async () => {
+            closeTestMenus();
+            const totalDays = 14;
+            const completedCount = Math.floor(Math.random() * totalDays) + 1;
+            const programStart = new Date();
+            programStart.setDate(programStart.getDate() - totalDays + 1);
+            const checkInDates = Array.from({ length: completedCount }, (_, i) => {
+                const date = new Date(programStart);
+                date.setDate(date.getDate() + i);
+                return date.toISOString();
+            });
+            await showCheckInPopup({
+                checkInDates,
+                programStartedAt: programStart.toISOString(),
+                defaultDayCount: totalDays,
+            });
         });
 
         root.querySelector("[data-test-logout]")?.addEventListener("click", () => {
