@@ -22,6 +22,34 @@ function clampDayCount(value, fallback = 14) {
     return Math.max(1, Math.min(365, Math.floor(parsed)));
 }
 
+const TREE_STAGES = 14;
+const TREE_LABELS = [
+    "เพิ่งเริ่มปลูก",
+    "ต้นคิดดีกำลังงอก",
+    "ต้นคิดดีกำลังเติบโต",
+    "ต้นคิดดีกำลังเติบโต",
+    "กำลังแตกกิ่งใบ",
+    "กำลังแตกกิ่งใบ",
+    "ต้นไม้กำลังสูงขึ้น",
+    "ต้นไม้กำลังสูงขึ้น",
+    "กำลังเติบโตแข็งแรง",
+    "กำลังเติบโตแข็งแรง",
+    "ต้นไม้ใกล้สมบูรณ์",
+    "ต้นไม้ใกล้สมบูรณ์",
+    "เกือบถึงเป้าหมายแล้ว",
+    "ต้นคิดดีเติบโตสมบูรณ์!",
+];
+
+function getTreeStage(completedDays, totalDays) {
+    if (totalDays <= 0) return 1;
+    const ratio = Math.min(1, completedDays / totalDays);
+    return Math.max(1, Math.min(TREE_STAGES, Math.round(ratio * (TREE_STAGES - 1)) + 1));
+}
+
+function getTreeImagePath(stage) {
+    return `/assets/checkin-popup/tree_0${stage}.png`;
+}
+
 function buildDayItems(dayCount, checkInDates, programStartedAt = new Date()) {
     const safeDayCount = clampDayCount(dayCount);
     const completedProgramDays = new Set((checkInDates || [])
@@ -120,34 +148,44 @@ export function showCheckInPopup(options = {}) {
                 });
             } else {
                 const dayItems = buildDayItems(state.dayCount, checkInDates, programStartedAt);
-                const dayCellsHtml = dayItems.map((item) => `
-                    <div class="checkin-program-day">
-                        <span class="checkin-program-day__number">${escapeHtml(String(item.id))}</span>
-                        <div class="checkin-program-day__box">
-                            <md-checkbox
-                                class="checkin-program-day__checkbox"
-                                aria-label="วันที่ ${escapeHtml(String(item.id))}"
-                                ${item.done ? "checked" : ""}
-                            ></md-checkbox>
-                        </div>
-                    </div>
-                `).join("");
+                const completedDays = dayItems.filter((item) => item.done).length;
+                const stage = getTreeStage(completedDays, state.dayCount);
+                const label = TREE_LABELS[stage - 1] || TREE_LABELS[0];
+                const percent = state.dayCount > 0
+                    ? Math.round((completedDays / state.dayCount) * 100)
+                    : 0;
+                const fillPercent = Math.max(12, percent);
+                const displayDone = String(completedDays).padStart(2, "0");
 
                 overlay.innerHTML = `
                     <div class="app-popup__backdrop"></div>
                     <div
-                        class="app-popup__dialog app-popup__dialog--checkin-calendar"
+                        class="app-popup__dialog app-popup__dialog--tree-progress"
                         role="dialog"
                         aria-modal="true"
                     >
-                        <div class="app-popup__header checkin-popup-calendar-header">
-                            <div class="app-popup__copy checkin-popup-calendar-copy">
-                                <h2>เป้าหมายของฉัน</h2>
-                                <p>เล่นเกมติดต่อกัน ${state.dayCount} วัน</p>
-                                <div class="checkin-popup-calendar-divider"></div>
-                                <div class="checkin-program-grid" role="list" aria-label="ความคืบหน้าการฝึกสมอง">
-                                    ${dayCellsHtml}
-                                </div>
+                        <div class="tree-progress-header">
+                            <h2 class="tree-progress-title">เป้าหมายของฉัน</h2>
+                            <p class="tree-progress-subtitle">เล่นเกมติดต่อกัน ${escapeHtml(String(state.dayCount))} วัน</p>
+                            <div class="tree-progress-divider"></div>
+                        </div>
+                        <div class="tree-progress-body">
+                            <img
+                                class="tree-progress-plant"
+                                src="${getTreeImagePath(stage)}"
+                                alt="ต้นไม้ระดับที่ ${escapeHtml(String(stage))}"
+                            >
+                            <p class="tree-progress-plant-label">${escapeHtml(label)}</p>
+                            <div
+                                class="tree-progress-bar"
+                                role="progressbar"
+                                aria-valuenow="${completedDays}"
+                                aria-valuemin="0"
+                                aria-valuemax="${state.dayCount}"
+                                aria-label="ความคืบหน้า ${completedDays} จาก ${state.dayCount} วัน"
+                            >
+                                <div class="tree-progress-bar__fill" style="width: ${fillPercent}%;"></div>
+                                <span class="tree-progress-bar__text">${displayDone}/${escapeHtml(String(state.dayCount))}</span>
                             </div>
                         </div>
                         <div class="app-popup__actions checkin-popup-success-actions">
