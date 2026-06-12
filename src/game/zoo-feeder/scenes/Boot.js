@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { EventBus } from '../../../../core/EventBus.js';
 
 export class Boot extends Scene
 {
@@ -17,6 +18,14 @@ export class Boot extends Scene
 
     create ()
     {
+        const sounds = {
+            'popup': { src: ['assets/audio/zoo-feeder/Panel_PopUp.mp3'] },
+            'correct': { src: ['assets/audio/zoo-feeder/Correct.mp3'] },
+            'wrong': { src: ['assets/audio/zoo-feeder/Wrong.wav'] },
+            'endgame': { src: ['assets/audio/zoo-feeder/EndGame.mp3'] }
+        };
+        EventBus.emit('audio:register', 'zoo-feeder', sounds);
+
         this.scene.start('Preloader');
     }
 }

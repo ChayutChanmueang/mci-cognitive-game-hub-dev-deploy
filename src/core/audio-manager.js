@@ -18,6 +18,10 @@ const GLOBAL_SOUND_DEFS = {
 // BGM tracks keyed by category or context.
 const BGM_DEFS = {
     hub:           { src: ['assets/audio/gamehub/bgm/GameHub_BGM.mp3'], loop: true },
+    'zoo-feeder':  { src: ['assets/audio/zoo-feeder/Zoo Feeder_BGM.mp3'], loop: true },
+    'context-clues':{ src: ['assets/audio/context-clue/Context Clue_BGM.mp3'], loop: true },
+    'zoo-detective':{ src: ['assets/audio/zoo-detective/Zoo Detective_BGM.mp3'], loop: true },
+    'symmetry-decor':{ src: ['assets/audio/symmetry-decor/Symmetry_BGM.mp3'], loop: true },
 };
 
 // ─── AudioManager ─────────────────────────────────────────
