@@ -62,7 +62,7 @@ export const Config = Object.freeze({
         [Difficulty.NORMAL]: 5,
         [Difficulty.HARD]: 5
     },
-    ScorePerCorrect: 20,
+    ScorePerCorrect: 6,
     MemoryTimeS: 15, // 15 seconds to memorize
     QuizTimeLimitMs: 180000 // 3 minutes for total quiz session
 });
