@@ -178,27 +178,25 @@ export default class UITestScene extends Phaser.Scene {
     }
   }
   onGetEatableFood() {
-    this.addScore(20);
+    this.addScore(1);
     this.correctDeliver++;
     this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, true);
     EventBus.emit('audio:play', 'zoo-feeder:eating');
     EventBus.emit('audio:play', 'zoo-feeder:correct');
   }
   onGetUneatableFood() {
-    this.addScore(-50);
     this.wrongDeliver++;
     this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, false);
     EventBus.emit('audio:play', 'zoo-feeder:eating');
     EventBus.emit('audio:play', 'zoo-feeder:wrong');
   }
   onRemoveEatableFood() {
-    this.addScore(-25);
     this.wrongDrop++;
     this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, false);
     EventBus.emit('audio:play', 'zoo-feeder:wrong');
   }
   onRemoveUneatableFood() {
-    this.addScore(10);
+    this.addScore(1);
     this.correctDrop++;
     this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, true);
     EventBus.emit('audio:play', 'zoo-feeder:correct');
