@@ -156,6 +156,7 @@ export default class GameplayScene extends Phaser.Scene {
           this.increaseScore(Config.IncreaseScore[this.levelMap]);
           this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, true);
 
+          EventBus.emit('audio:play', 'context-clues:correct');
           EventBus.emit('minigame:score', { score: this.allScore });
           EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
 
@@ -188,6 +189,7 @@ export default class GameplayScene extends Phaser.Scene {
           }
 
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
+          EventBus.emit('audio:play', 'context-clues:wrong');
 
           this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, false);
       }
@@ -221,6 +223,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.syncTimerUI();
         this.gameplayUI.setScore(this.allScore);
         this.gameplayUI.showGameOverPanel(this.allScore, resultStatus);
+        
+        EventBus.emit('audio:play', 'context-clues:endgame');
         EventBus.emit('minigame:game-over', {
             score: this.allScore,
             level: this.level,

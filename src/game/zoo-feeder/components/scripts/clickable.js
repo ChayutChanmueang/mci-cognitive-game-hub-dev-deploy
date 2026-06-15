@@ -36,7 +36,6 @@ export default class Clickable extends Component {
         //this.entity.scene.input.enableDebug(this.entity);
 
         this.entity.on('pointerdown', () => {
-            EventBus.emit('audio:play', 'ui:click');
             if (this.onClickAction) {
                 this.onClickAction(this.entity);
             } else {

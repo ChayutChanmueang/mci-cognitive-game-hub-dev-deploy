@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { EventBus } from '../../../../core/EventBus.js';
+import { EventBus } from '../../../core/EventBus.js';
 
 export class Boot extends Scene
 {
@@ -19,10 +19,9 @@ export class Boot extends Scene
     create ()
     {
         const sounds = {
-            'popup': { src: ['assets/audio/postcard-reader/Panel_PopUp.mp3'] },
-            'correct': { src: ['assets/audio/postcard-reader/Correct.mp3'] },
-            'wrong': { src: ['assets/audio/postcard-reader/Wrong.wav'] },
-            'endgame': { src: ['assets/audio/postcard-reader/EndGame.mp3'] }
+            'correct': { src: ['assets/audio/common/sfx/Correct.mp3'] },
+            'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
+            'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
         };
         EventBus.emit('audio:register', 'postcard-reader', sounds);
 

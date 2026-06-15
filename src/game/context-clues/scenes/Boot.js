@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { EventBus } from '../../../../core/EventBus.js';
+import { EventBus } from '../../../core/EventBus.js';
 
 export class Boot extends Scene
 {
@@ -19,10 +19,9 @@ export class Boot extends Scene
     create ()
     {
         const sounds = {
-            'popup': { src: ['assets/audio/context-clue/Panel_PopUp.mp3'] },
-            'correct': { src: ['assets/audio/context-clue/Correct.mp3'] },
-            'wrong': { src: ['assets/audio/context-clue/Wrong.wav'] },
-            'endgame': { src: ['assets/audio/context-clue/EndGame.mp3'] }
+            'correct': { src: ['assets/audio/common/sfx/Correct.mp3'] },
+            'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
+            'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
         };
         EventBus.emit('audio:register', 'context-clues', sounds);
 

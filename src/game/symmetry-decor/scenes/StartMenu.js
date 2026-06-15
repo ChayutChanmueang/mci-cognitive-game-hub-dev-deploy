@@ -19,6 +19,17 @@ export default class StartMenuScene extends Phaser.Scene {
         this.background.setDisplaySize(this.scale.width, this.scale.height);
         this.background.setDepth(-10);
 
+        // Register Audio
+        const sounds = {
+            'correct': { src: ['assets/audio/common/sfx/Correct.mp3'] },
+            'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
+            'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
+        };
+        EventBus.emit('audio:register', 'symmetry-decor', sounds);
+
+        // Play BGM
+        EventBus.emit('audio:bgm', 'symmetry-decor');
+
         // Hide the top bar HUD
         EventBus.emit('minigame:hide-hud');
 

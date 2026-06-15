@@ -20,6 +20,18 @@ export default class StartMenuScene extends Phaser.Scene {
         this.background.setDisplaySize(this.scale.width, this.scale.height);
         this.background.setDepth(-10);
 
+        // Register Audio
+        const sounds = {
+            'eating': { src: ['assets/audio/zoo-feeder/Eating.mp3'] },
+            'correct': { src: ['assets/audio/common/sfx/Correct.mp3'] },
+            'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
+            'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
+        };
+        EventBus.emit('audio:register', 'zoo-feeder', sounds);
+
+        // Play BGM
+        EventBus.emit('audio:bgm', 'zoo-feeder');
+
         // Hide the top bar HUD
         EventBus.emit('minigame:hide-hud');
 

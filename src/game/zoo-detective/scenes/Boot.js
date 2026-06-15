@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { EventBus } from '../../../../core/EventBus.js';
+import { EventBus } from '../../../core/EventBus.js';
 
 export class Boot extends Scene
 {
@@ -19,10 +19,9 @@ export class Boot extends Scene
     create ()
     {
         const sounds = {
-            'popup': { src: ['assets/audio/zoo-detective/Panel_PopUp.mp3'] },
-            'correct': { src: ['assets/audio/zoo-detective/Correct.mp3'] },
-            'wrong': { src: ['assets/audio/zoo-detective/Wrong.wav'] },
-            'endgame': { src: ['assets/audio/zoo-detective/EndGame.mp3'] }
+            'correct': { src: ['assets/audio/common/sfx/Correct.mp3'] },
+            'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
+            'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
         };
         EventBus.emit('audio:register', 'zoo-detective', sounds);
 

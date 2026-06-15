@@ -124,6 +124,7 @@ export default class GameplayScene extends Phaser.Scene {
             entity.getComponent(DraggableDataComponent).animal,
             true,
           );
+          EventBus.emit('audio:play', 'symmetry-decor:correct');
           if (this.checkIfAllSocketIsFilledCorrectly()) {
             console.log("Game Complete");
             this.handleRoundComplete();
@@ -136,6 +137,7 @@ export default class GameplayScene extends Phaser.Scene {
             entity.getComponent(DraggableDataComponent).animal,
             false,
           );
+          EventBus.emit('audio:play', 'symmetry-decor:wrong');
         }
       }
     });
@@ -198,6 +200,7 @@ export default class GameplayScene extends Phaser.Scene {
     const completedStages = this.completedStages || 0;
 
     // this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
+    EventBus.emit('audio:play', 'symmetry-decor:endgame');
     EventBus.emit('minigame:game-over', {
       score: this.allScore,
       level: this.level,

@@ -140,6 +140,7 @@ export default class GameplayScene extends Phaser.Scene {
             const isReplacingSameCell = callback.previousCellIndex >= 0 && callback.previousCellIndex === callback.cellIndex;
             if (!callback.isCorrect && !isReplacingSameCell) {
                 this.roundScore -= Config.DecreaseScore[this.levelMap];
+                EventBus.emit('audio:play', 'zoo-detective:wrong');
                 const cell = this.gridBoard?.getCell(callback.cellIndex);
                 const cellPosition = cell ? {
                     x: this.gridBoard.x + cell.x + cell.size / 2,
@@ -149,6 +150,8 @@ export default class GameplayScene extends Phaser.Scene {
                 if (cell) {
                     this.flashCellErrorBorder(cell);
                 }
+            } else if (callback.isCorrect) {
+                EventBus.emit('audio:play', 'zoo-detective:correct');
             }
 
             this.replayLog.addAnswerEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
@@ -238,6 +241,8 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI?.setTimeLeft(Math.max(0, timeLeftS));
         this.gameplayUI?.setScore(this.allScore);
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
+        
+        EventBus.emit('audio:play', 'zoo-detective:endgame');
         EventBus.emit('minigame:game-over', { 
             score: this.allScore,
             level: this.level,

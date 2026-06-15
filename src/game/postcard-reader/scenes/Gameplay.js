@@ -233,6 +233,7 @@ export default class GameplayScene extends Phaser.Scene {
       selectedButton?.labelText ?? null,
       true,
     );
+    EventBus.emit('audio:play', 'postcard-reader:correct');
     EventBus.emit("minigame:score", { score: this.allScore });
 
     // Trigger the premium DOM effect
@@ -262,6 +263,7 @@ export default class GameplayScene extends Phaser.Scene {
       selectedButton?.labelText ?? null,
       false,
     );
+    EventBus.emit('audio:play', 'postcard-reader:wrong');
 
     // Disable all buttons to prevent multiple clicks during transition
     for (const button of this.buttonPool.Pool) {
@@ -357,6 +359,7 @@ export default class GameplayScene extends Phaser.Scene {
     // this.gameplayUI.showGameOverPanel(this.allScore);
 
     // Disable DOM-based gameover panel for now
+    EventBus.emit('audio:play', 'postcard-reader:endgame');
     EventBus.emit('minigame:game-over', {
       score: this.allScore,
       level: getDifficultyLevelNumber(this.level),

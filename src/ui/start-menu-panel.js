@@ -98,7 +98,10 @@ export class StartMenuPanel {
 
         window.addEventListener("resize", this.resizeHandler);
         // Delay slightly to ensure DOM is ready and window size is accurate
-        requestAnimationFrame(() => this.resizePanel());
+        requestAnimationFrame(() => {
+            this.resizePanel();
+            EventBus.emit('audio:play', 'ui:popup');
+        });
     }
 
     resizePanel() {

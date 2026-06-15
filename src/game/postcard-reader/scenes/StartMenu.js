@@ -56,6 +56,16 @@ export default class StartMenuScene extends Phaser.Scene {
         const handleStartGame = () => {
             this.scene.start('gameplay-scene');
         };
+        // Register Audio
+        const sounds = {
+            'correct': { src: ['assets/audio/common/sfx/Correct.mp3'] },
+            'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
+            'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
+        };
+        EventBus.emit('audio:register', 'postcard-reader', sounds);
+
+        // Play BGM
+        EventBus.emit('audio:bgm', 'postcard-reader');
         EventBus.on('startmenu:start-game', handleStartGame);
 
         // Clean up DOM elements and listeners when transitioning away
