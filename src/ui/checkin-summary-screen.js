@@ -3,6 +3,7 @@ import {
     getLocalDayStart,
     getProgramDayDate,
 } from "../util/program-date-util.js";
+import { VideoPlayer } from "../util/video-player/index.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -82,6 +83,8 @@ export function showCheckInPopup(options = {}) {
         checkInDates = [],
         programStartedAt = new Date(),
         defaultDayCount = 14,
+        videoSrc = "",
+        videoTitle = "ละครสั้นประจำวัน",
         dismissible = false,
     } = options;
 
@@ -93,6 +96,7 @@ export function showCheckInPopup(options = {}) {
         const state = {
             step: "success",
             dayCount: clampDayCount(defaultDayCount),
+            videoPlayerInstance: null,
         };
 
         overlay.className = "app-popup";
@@ -105,6 +109,8 @@ export function showCheckInPopup(options = {}) {
             }
 
             settled = true;
+            state.videoPlayerInstance?.destroy();
+            state.videoPlayerInstance = null;
             overlay.remove();
             document.removeEventListener("keydown", onKeyDown);
             resolve(result);
@@ -146,7 +152,7 @@ export function showCheckInPopup(options = {}) {
                     state.step = "calendar";
                     render();
                 });
-            } else {
+            } else if (state.step === "calendar") {
                 const dayItems = buildDayItems(state.dayCount, checkInDates, programStartedAt);
                 const completedDays = dayItems.filter((item) => item.done).length;
                 const stage = getTreeStage(completedDays, state.dayCount);
@@ -197,6 +203,46 @@ export function showCheckInPopup(options = {}) {
                 `;
 
                 overlay.querySelector("[data-back-home]")?.addEventListener("click", () => {
+                    if (videoSrc) {
+                        state.step = "video";
+                        render();
+                    } else {
+                        cleanup(true);
+                    }
+                });
+            } else if (state.step === "video") {
+                overlay.innerHTML = `
+                    <div class="app-popup__backdrop"></div>
+                    <div
+                        class="app-popup__dialog app-popup__dialog--video"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="${escapeHtml(videoTitle)}"
+                    >
+                        <h2 class="video-popup-title">${escapeHtml(videoTitle)}</h2>
+                        <div class="video-popup-player" data-video-container></div>
+                        <div class="app-popup__actions checkin-popup-success-actions" data-video-actions style="display: none;">
+                            <md-filled-button type="button" data-video-close style="width: 100%;">
+                                กลับสู่หน้าหลัก
+                            </md-filled-button>
+                        </div>
+                    </div>
+                `;
+
+                const videoContainer = overlay.querySelector("[data-video-container]");
+                const videoActions = overlay.querySelector("[data-video-actions]");
+                if (videoContainer) {
+                    state.videoPlayerInstance?.destroy();
+                    state.videoPlayerInstance = VideoPlayer.mount(videoContainer, {
+                        src: videoSrc,
+                        label: escapeHtml(videoTitle),
+                    });
+                    state.videoPlayerInstance.on("ended", () => {
+                        if (videoActions) videoActions.style.display = "";
+                    });
+                }
+
+                overlay.querySelector("[data-video-close]")?.addEventListener("click", () => {
                     cleanup(true);
                 });
             }

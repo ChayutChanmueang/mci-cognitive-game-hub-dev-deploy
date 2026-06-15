@@ -929,6 +929,34 @@ body.hub-mode {
     letter-spacing: 0.03em;
 }
 
+.app-popup__dialog--video {
+    width: min(100%, 400px);
+    min-height: min(680px, calc(100svh - 48px));
+    grid-template-rows: auto 1fr auto;
+    align-content: stretch;
+    padding: 20px 16px 24px;
+    gap: 12px;
+    background: #5d9e30;
+    border-color: #4a8226;
+    text-align: center;
+}
+
+.video-popup-title {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.video-popup-player {
+    min-height: 0;
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+}
+
 .completion-popup-layout {
     min-height: 0;
     display: grid;
