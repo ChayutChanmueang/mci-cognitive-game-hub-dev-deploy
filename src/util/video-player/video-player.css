@@ -116,3 +116,21 @@
     height: 100%;
     font-size: 5.8em;
 }
+
+/* ── Volume bar (top-right corner, always visible) ────────────────────── */
+
+.vp-root .vp-volume-bar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    display: flex;
+    gap: 4px;
+}
+
+.vp-root .vp-volume-bar md-filled-tonal-icon-button {
+    --md-filled-tonal-icon-button-container-width:  40px;
+    --md-filled-tonal-icon-button-container-height: 40px;
+    --md-sys-color-secondary-container:             rgba(0, 0, 0, 0.65);
+    --md-sys-color-on-secondary-container:          #fff;
+}

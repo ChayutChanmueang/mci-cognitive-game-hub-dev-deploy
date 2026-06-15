@@ -4,6 +4,7 @@ import {
     getProgramDayDate,
 } from "../util/program-date-util.js";
 import { VideoPlayer } from "../util/video-player/index.js";
+import VideoManager from "../core/video-manager.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -249,6 +250,7 @@ export function showCheckInPopup(options = {}) {
                         src: state.videoSrc,
                         label: escapeHtml(videoTitle),
                     });
+                    VideoManager.register(state.videoPlayerInstance);
                     state.videoPlayerInstance.on("ended", () => {
                         if (videoActions) videoActions.style.display = "";
                     });
