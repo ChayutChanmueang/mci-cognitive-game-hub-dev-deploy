@@ -858,6 +858,7 @@ export async function renderGameHubScreen(root, options = {}) {
                     checkInDates,
                     programStartedAt: getStartedProgram(),
                     defaultDayCount: options.defaultDayCount || 14,
+                    loadVideoSrc: () => db.getRandomGameVideoUrl(),
                 });
             }
         } catch (error) {

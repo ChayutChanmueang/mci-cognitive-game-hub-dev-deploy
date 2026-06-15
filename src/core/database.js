@@ -2440,6 +2440,14 @@ class Database {
 
         return this._buildLeaderboardPlayers(rows, parsedCurrentHn);
     }
+
+    async getRandomGameVideoUrl() {
+        await this.initAuth();
+        const client = this.getClient();
+        const { data, error } = await client.from("game_video_list").select("url");
+        if (error || !data?.length) return null;
+        return data[Math.floor(Math.random() * data.length)].url;
+    }
 }
 
 export default new Database();

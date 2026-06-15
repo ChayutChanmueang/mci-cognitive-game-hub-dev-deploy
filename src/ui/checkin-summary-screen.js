@@ -83,7 +83,7 @@ export function showCheckInPopup(options = {}) {
         checkInDates = [],
         programStartedAt = new Date(),
         defaultDayCount = 14,
-        videoSrc = "",
+        loadVideoSrc = null,
         videoTitle = "ละครสั้นประจำวัน",
         dismissible = false,
     } = options;
@@ -96,6 +96,7 @@ export function showCheckInPopup(options = {}) {
         const state = {
             step: "success",
             dayCount: clampDayCount(defaultDayCount),
+            videoSrc: "",
             videoPlayerInstance: null,
         };
 
@@ -196,19 +197,30 @@ export function showCheckInPopup(options = {}) {
                         </div>
                         <div class="app-popup__actions checkin-popup-success-actions">
                             <md-filled-button type="button" data-back-home style="width: 100%;">
-                                กลับสู่หน้าหลัก
+                                ต่อไป
                             </md-filled-button>
                         </div>
                     </div>
                 `;
 
-                overlay.querySelector("[data-back-home]")?.addEventListener("click", () => {
-                    if (videoSrc) {
-                        state.step = "video";
-                        render();
-                    } else {
+                overlay.querySelector("[data-back-home]")?.addEventListener("click", async (event) => {
+                    if (!loadVideoSrc) {
                         cleanup(true);
+                        return;
                     }
+                    const btn = event.currentTarget;
+                    btn.disabled = true;
+                    try {
+                        state.videoSrc = await loadVideoSrc() || "";
+                    } catch {
+                        state.videoSrc = "";
+                    }
+                    if (!state.videoSrc) {
+                        cleanup(true);
+                        return;
+                    }
+                    state.step = "video";
+                    render();
                 });
             } else if (state.step === "video") {
                 overlay.innerHTML = `
@@ -234,7 +246,7 @@ export function showCheckInPopup(options = {}) {
                 if (videoContainer) {
                     state.videoPlayerInstance?.destroy();
                     state.videoPlayerInstance = VideoPlayer.mount(videoContainer, {
-                        src: videoSrc,
+                        src: state.videoSrc,
                         label: escapeHtml(videoTitle),
                     });
                     state.videoPlayerInstance.on("ended", () => {

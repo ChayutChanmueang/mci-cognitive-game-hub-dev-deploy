@@ -87,7 +87,7 @@
 .vp-root md-filled-tonal-icon-button {
     --md-filled-tonal-icon-button-container-width:  56px;
     --md-filled-tonal-icon-button-container-height: 56px;
-    --md-sys-color-secondary-container:             rgba(255, 255, 255, 0.22);
+    --md-sys-color-secondary-container:             rgba(0, 0, 0, 0.75);
     --md-sys-color-on-secondary-container:          #fff;
 }
 
@@ -107,7 +107,7 @@
     --md-linear-progress-track-height:            4px;
     --md-linear-progress-track-shape:             0px;
     --md-linear-progress-active-indicator-height: 4px;
-    --md-linear-progress-track-color:             rgba(255, 255, 255, 0.85);
+    --md-linear-progress-track-color:             rgba(0, 0, 0, 0.5);
     --md-sys-color-primary:                       var(--vp-primary);
 }
 

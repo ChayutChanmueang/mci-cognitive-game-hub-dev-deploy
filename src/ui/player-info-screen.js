@@ -10,6 +10,7 @@ import {
 } from "../util/player-csv-export.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
+import db from "../core/database.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -465,6 +466,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
                 checkInDates,
                 programStartedAt: programStart.toISOString(),
                 defaultDayCount: totalDays,
+                loadVideoSrc: () => db.getRandomGameVideoUrl(),
             });
         });
 
