@@ -66,9 +66,8 @@ export class MinigameHUD {
         }
         let topbarHtml = "";
         if (topbarStyleGames.includes(this.options.gameSlug)) {
-            const isSymmetry = this.options.gameSlug === "symmetry-decor";
-            const scoreLabelText = isSymmetry ? `ด่าน ${score}` : score;
-            const iconSrc = isSymmetry ? "assets/icon_level.png" : "assets/icon_star.png";
+            const scoreLabelText = score;
+            const iconSrc = "assets/icon_star.png";
 
             topbarHtml = `
                 <div class="minigame-hud__score-box">
@@ -157,8 +156,7 @@ export class MinigameHUD {
     onScoreUpdate({ score }) {
         this.state.score = score;
         if (this.scoreElement) {
-            const isSymmetry = this.options.gameSlug === "symmetry-decor";
-            this.scoreElement.textContent = isSymmetry ? `ด่าน ${score}` : score;
+            this.scoreElement.textContent = score;
             this.scoreElement.classList.remove("pulse", "pop-animation");
             // Force a reflow to reset the animation instantly
             void this.scoreElement.offsetWidth;
