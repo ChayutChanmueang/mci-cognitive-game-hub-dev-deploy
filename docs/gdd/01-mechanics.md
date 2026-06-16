@@ -1,6 +1,14 @@
 # MCI Cognitive Games — Core Mechanics
 
-**Version:** 1.0 | **Last Updated:** 2026-05-02
+**Version:** 1.1 | **Last Updated:** 2026-06-16
+
+## Program-Level Core Loop
+1. ผู้เล่นเข้าสู่ระบบด้วยหมายเลข HN หรือสมัครผู้เล่นใหม่
+2. Game Hub โหลดโปรแกรมรายวันจาก Supabase และแสดง node ที่เล่นได้ตามวันที่/ประวัติ
+3. ผู้เล่นเล่นมินิเกมตามลำดับที่กำหนดใน daily preset
+4. ระบบบันทึกคะแนน เวลา stage/level และประวัติการเล่นลง Supabase
+5. เมื่อเล่นครบวัน ระบบแสดง rest/check-in/completion flow และอัปเดตความคืบหน้า
+6. ผู้เล่นหรือผู้ดูแลสามารถดูข้อมูล profile, leaderboard และ export CSV ได้
 
 ## Core Loop ของแต่ละเกม
 
@@ -62,15 +70,45 @@
 
 ---
 
+### 2.1.6 Resting Point (พักยืดเส้นยืดสาย)
+1. ระบบเปิดกิจกรรมพักเมื่อผู้เล่นถึง rest node ใน Game Hub
+2. เล่นวิดีโอหรือคำแนะนำการพักสายตา/ยืดเส้น
+3. เมื่อครบเวลา ระบบบันทึกประวัติ rest node แล้วกลับไปยัง Game Hub
+
+**Controls:** ดูวิดีโอ/กดดำเนินการต่อเมื่อครบเงื่อนไข
+
+---
+
+### 2.1.7 Fry Food (ทอดอาหาร)
+1. ระบบนำเสนอภารกิจทอดอาหารและเงื่อนไขการควบคุม
+2. ผู้เล่นควบคุมด้วยการสัมผัสหรือ sensor ตามอุปกรณ์
+3. ระบบประเมินจังหวะ/ความแม่นยำและบันทึกคะแนน
+
+**Controls:** Touch / device motion ตาม platform ที่รองรับ
+
+---
+
+## Game Hub & Progression Mechanics
+- **Daily Program:** โปรแกรมรายวันประกอบด้วย game nodes, rest node และ check-in node
+- **Sequential Completion:** ผู้เล่นต้องเล่น node ตามลำดับ และระบบใช้ `user_game_history` ตรวจว่าจบจริงหรือไม่
+- **Date Gate:** วันเล่นคำนวณจาก `started_program`, local day และจำนวนวันของ preset
+- **Rest Node:** แทรกระหว่างชุดเกมเพื่อพักสายตาและลดความล้า
+- **Check-in Node:** ปิดรอบวันและใช้สร้าง calendar/progress summary
+- **Leaderboard:** แสดงคะแนนรวมของผู้เล่น โดยโหลด top players และ rank ของผู้เล่นปัจจุบันจาก Supabase/Edge/RPC fallback
+- **Profile Export:** ผู้เล่น/ผู้ดูแลสามารถ export player, game score และ game history เป็น CSV
+
 ## ระบบคะแนนและความยาก (General Systems)
-ทุกเกมมี 3 ระดับความยากหลัก:
+เกมหลักมีระดับความยากตาม preset/stage:
 - **Easy:** 10 รอบ, คะแนน +15-20, หัก -5
 - **Medium:** 10 รอบ, คะแนน +16-20, หัก -6
 - **Hard:** 10 รอบ, คะแนน +17-20, หัก -7
 
+Daily preset สามารถกำหนด `gid`, `stage`, `level`, `day`, `loop`, และ `goal` เพื่อปรับลำดับและน้ำหนักการฝึกได้
+
 ## Win / Lose Conditions
 - **Win:** เล่นครบจำนวนรอบที่กำหนด
 - **Lose:** HP หมด (ในบางเกมที่มีระบบหัวใจ) หรือเวลาหมด
+- **Program Day Complete:** node ทั้งหมดของวันนั้นถูกบันทึกครบตามลำดับ รวมถึง rest/check-in ถ้ามี
 
 ## Linked Software Design
 - Subsystems: [System Design](../software/01-system-design.md)
@@ -78,4 +116,3 @@
 
 ---
 [Back to Index](../index.md)
-

@@ -2,6 +2,8 @@
 
 ---
 
+**Last Updated:** 2026-06-16
+
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
 | Sprint                                    | Timeline      | Focus Area                           | Status    |
@@ -11,7 +13,8 @@
 | [sprint-03](sprint-backlogs/sprint-03.md) | Mar 29-Apr 11 | Logic Games & Integration            | Completed |
 | [sprint-04](sprint-backlogs/sprint-04.md) | Apr 12-30     | Final Polish & Variety               | Completed |
 | [sprint-05](sprint-backlogs/sprint-05.md) | May 06-19     | User Management & Progression Overhaul | Completed |
-| [sprint-06](sprint-backlogs/sprint-06.md) | May 20-31     | **(Current)** Integration, Analytics & Admin | In-Progress |
+| [sprint-06](sprint-backlogs/sprint-06.md) | May 20-31     | Integration, Analytics & Admin | Completed |
+| Post-Sprint Hardening | Jun 01-16 | **(Current)** Deployment stabilization, branch cleanup, documentation sync | In-Progress |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -30,7 +33,9 @@ gantt
     section Sprint 5
     User Management & Progression :done, s5, 2026-05-06, 14d
     section Sprint 6
-    Integration, Analytics & Admin :active, s6, 2026-05-20, 12d
+    Integration, Analytics & Admin :done, s6, 2026-05-20, 12d
+    section Hardening
+    Deploy stabilization & docs sync :active, harden, 2026-06-01, 16d
 ```
 
 ---
@@ -45,6 +50,7 @@ gantt
 - **[sprint-04](sprint-backlogs/sprint-04.md)**: Final Polish & Alternative Games
 - **[sprint-05](sprint-backlogs/sprint-05.md)**: User Management & Progression Overhaul
 - **[sprint-06](sprint-backlogs/sprint-06.md)**: Integration, Analytics & Admin Dashboard
+- **Post-Sprint Hardening**: Stabilize deployment branches, verify Docker/nginx production build, fix stale leaderboard branch drift, and refresh documentation
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
@@ -65,6 +71,11 @@ gantt
 - **Sprint 2:** เริ่มต้นด้วยมาตรฐานพื้นฐาน (Font/Button Size)
 - **Sprint 4:** เพิ่มส่วนเสริมเพื่อการเข้าถึง (Voice Over) และขัดเกลา UI ทั้งหมด
 - **Target:** ได้มาตรฐานการออกแบบเพื่อผู้สูงอายุเมื่อจบโครงการ
+
+### 🛠 E6: Stabilization & Deployment
+- **June hardening:** Reset/align staging with dev-approved code, restore environment/Docker deployment files, and validate production build on the test VM
+- **Documentation:** Update GDD, software design, schema, UI components, backlog and roadmap to match the current app
+- **Target:** Test VM and local builds use the same implementation baseline and no stale UI code remains in production bundles
 
 ---
 

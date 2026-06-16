@@ -2,6 +2,16 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+## [2026-06-16] - Current Implementation Documentation Sync
+### Changed
+- Updated `docs/index.md` with the current implementation snapshot, active runtime surfaces, and deployment branch hygiene note.
+- Updated `docs/gdd/00-concept.md` to reflect the current Vanilla DOM + Material Web + Phaser architecture, Supabase data flow, leaderboard, admin/tooling screens, and Docker/nginx deployment.
+- Updated `docs/gdd/01-mechanics.md` with the program-level loop, Game Hub progression, Resting Point, Fry Food, leaderboard, and CSV export mechanics.
+- Updated `docs/software/01-system-design.md` with hash routing, Game Hub progression, leaderboard, CSV export, ProgramDateUtil, and database fallback patterns.
+- Updated `docs/software/03-data-schema.md` with daily preset, leaderboard read model, runtime notes, and deployment compatibility checks.
+- Updated `docs/software/04-ui-components.md` to describe the current DOM/Material Web UI screens instead of the older React HUD wording.
+- Updated Agile planning docs (`docs/agile/01-product-backlog.md`, `docs/agile/02-sprint-planning.md`, `docs/agile/kanban.md`) with post-Sprint hardening, branch cleanup, Docker/nginx smoke testing, and documentation sync work.
+
 ## [2026-05-26] - User Identifier Schema Update
 ### Changed
 - Updated `docs/software/03-data-schema.md` to describe `user_data` and `user_game_data` without the removed `uid` column and with the current `birth_date` and bigint identity keys.
