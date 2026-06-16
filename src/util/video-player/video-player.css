@@ -28,6 +28,25 @@
     cursor: pointer;
 }
 
+.vp-root:fullscreen,
+.vp-root.vp-pseudo-fullscreen {
+    width: 100vw;
+    height: 100dvh;
+    background: #000;
+}
+
+.vp-root.vp-pseudo-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+}
+
+html.vp-pseudo-fullscreen-active,
+body.vp-pseudo-fullscreen-active {
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
 /* ── Video ────────────────────────────────────────────────────────────── */
 
 .vp-root .vp-video {
@@ -61,7 +80,7 @@
 }
 
 .vp-root .vp-overlay--loading {
-    z-index: 6;
+    z-index: 30;
     background:
         radial-gradient(circle at center, rgba(53, 104, 89, 0.34), transparent 42%),
         rgba(0, 0, 0, 0.58);
@@ -92,6 +111,13 @@
     --md-sys-color-primary-container: rgba(255, 255, 255, 0.68);
     --md-sys-color-tertiary: #ffffff;
     --md-sys-color-tertiary-container: rgba(255, 255, 255, 0.38);
+}
+
+.vp-root.vp-is-loading .vp-btn-fullscreen,
+.vp-root.vp-is-loading .vp-volume-bar,
+.vp-root.vp-is-loading .vp-progress-wrap {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* ── Controls ─────────────────────────────────────────────────────────── */
@@ -167,4 +193,21 @@
     --md-filled-tonal-icon-button-container-height: 40px;
     --md-sys-color-secondary-container:             rgba(0, 0, 0, 0.65);
     --md-sys-color-on-secondary-container:          #fff;
+}
+
+/* ── Fullscreen button (bottom-right corner) ──────────────────────────── */
+
+.vp-root .vp-btn-fullscreen {
+    position: absolute;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 10;
+    --md-filled-tonal-icon-button-container-width:  48px;
+    --md-filled-tonal-icon-button-container-height: 48px;
+    --md-sys-color-secondary-container:             rgba(0, 0, 0, 0.65);
+    --md-sys-color-on-secondary-container:          #fff;
+}
+
+.vp-root .vp-btn-fullscreen .material-symbols-outlined {
+    font-size: 32px;
 }

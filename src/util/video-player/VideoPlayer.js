@@ -29,7 +29,7 @@
  *   player.on('volume-changed', (v) => console.log(v));
  *
  * Material Web components required:
- *   <md-fab>, <md-filled-tonal-icon-button>, <md-linear-progress>, <md-icon>
+ *   <md-fab>, <md-filled-tonal-icon-button>, <md-circular-progress>, <md-linear-progress>, <md-icon>
  */
 
 const VOLUME_STEP = 0.25;
@@ -46,12 +46,12 @@ function _buildPlayerHTML(src, label) {
                 class="vp-video"
                 src="${_esc(src)}"
                 playsinline
-                preload="metadata"
+                preload="auto"
                 aria-label="${_esc(label)}"
             ></video>
 
             <!-- Overlay: buffering / loading -->
-            <div class="vp-overlay vp-overlay--loading vp-hidden" aria-hidden="true" role="status" aria-live="polite">
+            <div class="vp-overlay vp-overlay--loading" aria-hidden="false" role="status" aria-live="polite">
                 <div class="vp-loading-indicator">
                     <md-circular-progress
                         indeterminate
@@ -63,7 +63,7 @@ function _buildPlayerHTML(src, label) {
             </div>
 
             <!-- Overlay A: initial (before first play) -->
-            <div class="vp-overlay vp-overlay--init" aria-hidden="false">
+            <div class="vp-overlay vp-overlay--init vp-hidden" aria-hidden="true">
                 <md-fab
                     class="vp-btn-play-init"
                     size="large"
@@ -113,6 +113,15 @@ function _buildPlayerHTML(src, label) {
                 </md-filled-tonal-icon-button>
                 -->
             </div>
+
+            <!-- Fullscreen control (bottom-right corner) -->
+            <md-filled-tonal-icon-button
+                class="vp-btn-fullscreen"
+                aria-label="ขยายวิดีโอเต็มจอ"
+                type="button"
+            >
+                <span class="material-symbols-rounded">zoom_out_map</span>
+            </md-filled-tonal-icon-button>
 
             <!-- Progress bar (read-only) -->
             <div class="vp-progress-wrap" aria-hidden="true">
@@ -168,8 +177,11 @@ export class VideoPlayer {
         this._root       = null;
         this._hasStarted = false;
         this._isLoading  = false;
+        this._isReady    = false;
+        this._isPseudoFullscreen = false;
         this._volume     = 1.0;
         this._muted      = false;
+        this._onFullscreenChange = null;
     }
 
     // ── Public playback API ──────────────────────────────────────────────────
@@ -223,6 +235,14 @@ export class VideoPlayer {
 
     destroy() {
         this._emit('destroy');
+        this._exitPseudoFullscreen();
+        if (document.fullscreenElement === this._root) {
+            document.exitFullscreen?.()?.catch?.(() => {});
+        }
+        if (this._onFullscreenChange) {
+            document.removeEventListener("fullscreenchange", this._onFullscreenChange);
+            this._onFullscreenChange = null;
+        }
         if (this._video) {
             this._video.pause();
             this._video.src = "";
@@ -254,12 +274,16 @@ export class VideoPlayer {
         this._btnMute      = this._root.querySelector(".vp-btn-mute");
         this._btnMuteIcon  = this._btnMute?.querySelector("span");
         this._btnVolUp     = this._root.querySelector(".vp-btn-vol-up");
+        this._btnFullscreen = this._root.querySelector(".vp-btn-fullscreen");
+        this._btnFullscreenIcon = this._btnFullscreen?.querySelector("span");
         this._progress     = this._root.querySelector(".vp-progress");
 
         this._video.volume = this._volume;
         this._video.muted  = this._muted;
 
         this._bindEvents();
+        this._showLoadingOverlay();
+        this._video.load();
     }
 
     /** @private */
@@ -275,6 +299,7 @@ export class VideoPlayer {
         this._btnPlayInit.addEventListener("click", () => this._play());
         this._btnResume.addEventListener("click",   () => this._play());
         this._btnReplay.addEventListener("click",   () => this._replay());
+        this._btnFullscreen.addEventListener("click", () => this._toggleFullscreen());
 
         // Volume controls — user-initiated, so emit events
         // vol-down / vol-up commented out in HTML until required
@@ -290,8 +315,9 @@ export class VideoPlayer {
         });
 
         this._video.addEventListener("loadstart", () => {
-            if (!this._hasStarted) return;
-            this._showLoadingOverlay();
+            if (!this._isReady) {
+                this._showLoadingOverlay();
+            }
         });
 
         this._video.addEventListener("waiting", () => {
@@ -305,11 +331,11 @@ export class VideoPlayer {
         });
 
         this._video.addEventListener("canplay", () => {
-            if (!this._hasStarted || this._video.paused || this._video.ended) return;
-            this._hideAllOverlays();
+            this._markVideoReady();
         });
 
         this._video.addEventListener("playing", () => {
+            this._isReady = true;
             this._hideAllOverlays();
         });
 
@@ -329,6 +355,11 @@ export class VideoPlayer {
             this._showPausedOverlay(false);
             this._emit("ended");
         });
+
+        this._onFullscreenChange = () => {
+            this._updateFullscreenButton();
+        };
+        document.addEventListener("fullscreenchange", this._onFullscreenChange);
     }
 
     // ── Volume helpers ───────────────────────────────────────────────────────
@@ -363,10 +394,107 @@ export class VideoPlayer {
         }
     }
 
+    // ── Fullscreen helpers ──────────────────────────────────────────────────
+
+    /** @private */
+    _toggleFullscreen() {
+        if (!this._isReady) {
+            return;
+        }
+
+        if (this._isFullscreen()) {
+            this._exitFullscreen();
+            return;
+        }
+
+        this._enterFullscreen();
+    }
+
+    /** @private */
+    _enterFullscreen() {
+        if (this._shouldUsePseudoFullscreen()) {
+            this._enterPseudoFullscreen();
+            return;
+        }
+
+        const request = this._root?.requestFullscreen?.();
+        if (request && typeof request.catch === "function") {
+            request.catch(() => this._enterPseudoFullscreen());
+        } else if (!request) {
+            this._enterPseudoFullscreen();
+        }
+    }
+
+    /** @private */
+    _exitFullscreen() {
+        if (this._isPseudoFullscreen) {
+            this._exitPseudoFullscreen();
+            return;
+        }
+
+        document.exitFullscreen?.()?.catch?.(() => {});
+    }
+
+    /** @private */
+    _enterPseudoFullscreen() {
+        this._isPseudoFullscreen = true;
+        this._root?.classList.add("vp-pseudo-fullscreen");
+        document.documentElement.classList.add("vp-pseudo-fullscreen-active");
+        document.body?.classList.add("vp-pseudo-fullscreen-active");
+        this._updateFullscreenButton();
+    }
+
+    /** @private */
+    _exitPseudoFullscreen() {
+        this._isPseudoFullscreen = false;
+        this._root?.classList.remove("vp-pseudo-fullscreen");
+        document.documentElement.classList.remove("vp-pseudo-fullscreen-active");
+        document.body?.classList.remove("vp-pseudo-fullscreen-active");
+        this._updateFullscreenButton();
+    }
+
+    /** @private */
+    _isFullscreen() {
+        return document.fullscreenElement === this._root || this._isPseudoFullscreen;
+    }
+
+    /** @private */
+    _shouldUsePseudoFullscreen() {
+        return !this._root?.requestFullscreen || this._isIOSWebKit();
+    }
+
+    /** @private */
+    _isIOSWebKit() {
+        const platform = navigator.platform || "";
+        const userAgent = navigator.userAgent || "";
+        const isTouchMac = platform === "MacIntel" && navigator.maxTouchPoints > 1;
+
+        return /iPad|iPhone|iPod/.test(userAgent) || isTouchMac;
+    }
+
+    /** @private */
+    _updateFullscreenButton() {
+        const isFullscreen = this._isFullscreen();
+
+        if (this._btnFullscreenIcon) {
+            this._btnFullscreenIcon.textContent = isFullscreen ? "zoom_in_map" : "zoom_out_map";
+        }
+
+        this._btnFullscreen?.setAttribute(
+            "aria-label",
+            isFullscreen ? "ย่อวิดีโอกลับหน้าต่าง" : "ขยายวิดีโอเต็มจอ"
+        );
+    }
+
     // ── Playback helpers ─────────────────────────────────────────────────────
 
     /** @private */
     _play() {
+        if (!this._isReady) {
+            this._showLoadingOverlay();
+            return;
+        }
+
         this._hasStarted = true;
         this._showLoadingOverlay();
         const playRequest = this._video.play();
@@ -416,6 +544,7 @@ export class VideoPlayer {
     /** @private */
     _showLoadingOverlay() {
         this._isLoading = true;
+        this._root?.classList.add("vp-is-loading");
         this._setVisible(this._overlayLoad,  true);
         this._setVisible(this._overlayInit,  false);
         this._setVisible(this._overlayPause, false);
@@ -424,7 +553,20 @@ export class VideoPlayer {
     /** @private */
     _hideLoadingOverlay() {
         this._isLoading = false;
+        this._root?.classList.remove("vp-is-loading");
         this._setVisible(this._overlayLoad, false);
+    }
+
+    /** @private */
+    _markVideoReady() {
+        this._isReady = true;
+
+        if (this._hasStarted && !this._video.paused && !this._video.ended) {
+            this._hideAllOverlays();
+            return;
+        }
+
+        this._showInitialOverlay();
     }
 
     /** @private */
