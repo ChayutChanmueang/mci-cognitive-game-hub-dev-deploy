@@ -107,13 +107,8 @@ export default class GameplayScene extends Phaser.Scene {
             }
 
             this.round++;
-            const addScore = Config.IncreaseScore[this.levelMap] + this.roundScore;
-            this.allScore += (addScore >= 0 ? addScore : 0);
-            this.roundScore = 0;
             const nextRoundDisplay = this.round + 1;
 
-            this.gameplayUI.setScore(this.allScore);
-            EventBus.emit('minigame:score', { score: this.allScore });
             this.gameplayUI.setLevel(this.levelMap, this.level, nextRoundDisplay, nextRoundDisplay);
             EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
 
@@ -138,19 +133,19 @@ export default class GameplayScene extends Phaser.Scene {
         this.onPlacementEvaluated = (callback = {})=>{
 
             const isReplacingSameCell = callback.previousCellIndex >= 0 && callback.previousCellIndex === callback.cellIndex;
+            const cell = this.gridBoard?.getCell(callback.cellIndex);
+            const cellPosition = cell ? {
+                x: this.gridBoard.x + cell.x + cell.size / 2,
+                y: this.gridBoard.y + cell.y + 32,
+            } : null;
+
             if (!callback.isCorrect && !isReplacingSameCell) {
-                this.roundScore -= Config.DecreaseScore[this.levelMap];
                 EventBus.emit('audio:play', 'zoo-detective:wrong');
-                const cell = this.gridBoard?.getCell(callback.cellIndex);
-                const cellPosition = cell ? {
-                    x: this.gridBoard.x + cell.x + cell.size / 2,
-                    y: this.gridBoard.y + cell.y + 32,
-                } : null;
-                this.showPenaltyEffect(Config.DecreaseScore[this.levelMap], cellPosition);
                 if (cell) {
                     this.flashCellErrorBorder(cell);
                 }
             } else if (callback.isCorrect) {
+                this.increaseScore(Config.IncreaseScore[this.levelMap], cellPosition);
                 EventBus.emit('audio:play', 'zoo-detective:correct');
             }
 
@@ -876,41 +871,61 @@ export default class GameplayScene extends Phaser.Scene {
         return panel;
     }
 
-    increaseScore(score){
-        this.allScore += score;
+    syncScoreUI() {
+        const score = Math.max(0, Number(this.allScore) || 0);
+
+        this.allScore = score;
+        this.gameplayUI?.setScore(score);
+        EventBus.emit('minigame:score', { score });
+    }
+
+    increaseScore(score, position = null){
+        const gain = Math.max(0, Number(score) || 0);
+        if (gain <= 0) {
+            return;
+        }
+
+        this.allScore += gain;
+        this.syncScoreUI();
+        this.showScoreGainEffect(gain, position);
     }
 
     decreaseScore(score){
-        this.allScore -= score;
-        this.showPenaltyEffect(score);
+        const penalty = Math.max(0, Number(score) || 0);
+        if (penalty <= 0) {
+            return;
+        }
+
+        this.allScore = Math.max(0, this.allScore - penalty);
+        this.syncScoreUI();
     }
 
-    showPenaltyEffect(score, position = null) {
+    showScoreGainEffect(score, position = null) {
         const x = position?.x ?? this.scale.width / 2;
         const y = position?.y ?? this.scale.height / 2 - 250;
 
-        const scorePenaltyText = createThaiText(
+        const scoreGainText = createThaiText(
             this,
             x,
             y,
-            `-${score}`,
+            `+${score}`,
             {
                 fontSize: "72px",
                 fontStyle: "bold",
-                color: "#fe0000"
+                color: "#20c66b"
             },
             { origin: 0.5 }
         );
-        scorePenaltyText.setDepth(200);
+        scoreGainText.setDepth(200);
 
         this.tweens.add({
-            targets: scorePenaltyText,
-            y: scorePenaltyText.y - 80,
+            targets: scoreGainText,
+            y: scoreGainText.y - 80,
             alpha: 0,
             duration: 1000,
             ease: "Sine.easeOut",
             onComplete: () => {
-                scorePenaltyText.destroy();
+                scoreGainText.destroy();
             }
         });
     }
@@ -951,5 +966,4 @@ export default class GameplayScene extends Phaser.Scene {
         return [container, bg, label];
     }
 }
-
 
