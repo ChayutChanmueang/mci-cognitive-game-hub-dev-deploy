@@ -8,6 +8,7 @@ import {
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
+import { showDayCompletionPopup, showProgramCompletionPopup } from "./day-completion-popup.js";
 import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
 import AudioManager from "../core/audio-manager.js";
@@ -334,6 +335,8 @@ function createGameHubInitialState() {
         loading: false,
         historyLoading: false,
         autoCheckInLoading: false,
+        restPopupActive: false,
+        completionPopupShown: false,
         scrollTop: 0,
         error: "",
     };
@@ -385,6 +388,9 @@ export async function renderGameHubScreen(root, options = {}) {
         target.addEventListener(eventName, handler, listenerOptions);
         activeCleanup.push(() => target.removeEventListener(eventName, handler, listenerOptions));
     };
+
+    history.pushState(null, "", location.href);
+    on(window, "popstate", () => history.pushState(null, "", location.href));
 
     const getCurrentProgramDay = () => Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
     const getProgramDayCount = () => Number(state.dailyProgram?.programDayCount || state.programDays[state.programDays.length - 1]?.day || 1);
@@ -506,7 +512,7 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const renderNode = (node, index, isDone, isCurrent, isProgramEnded) => {
-        const classes = ["hub-clean-level", isDone ? "is-done" : "", isCurrent ? "is-current" : ""]
+        const classes = ["hub-clean-level", isDone ? "is-done" : "", (isCurrent && !isProgramEnded) ? "is-current" : ""]
             .filter(Boolean)
             .join(" ");
         const nodeText = isDone
@@ -519,7 +525,7 @@ export async function renderGameHubScreen(root, options = {}) {
             : node.type === "checkin"
                 ? "รอเช็คชื่อ"
                 : node.title || `เกมที่ ${index + 1}`;
-        const side = isCurrent
+        const side = isCurrent && !isProgramEnded
             ? renderCurrentCard(node, isProgramEnded)
             : `<div class="hub-clean-game-pill">${escapeHtml(sideLabel)}</div>`;
 
@@ -550,7 +556,6 @@ export async function renderGameHubScreen(root, options = {}) {
                     <p>พักยืดเส้น</p>
                     <h2>${escapeHtml(node.title || "พักยืดเส้นยืดสาย")}</h2>
                     <span>พักสายตา ยืดเส้น และผ่อนคลายก่อนเล่นต่อ</span>
-                    <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button">บันทึกการพัก</md-filled-button>
                 </article>
             `;
         }
@@ -611,23 +616,6 @@ export async function renderGameHubScreen(root, options = {}) {
         try {
             if (node.type === "game") {
                 await options.onLaunchGame?.(node.gameData);
-                return;
-            }
-
-            if (node.type === "rest") {
-                const startAt = new Date().toISOString();
-                await showRestingPointPopup({ durationSeconds: 60 });
-                if (patientHn) {
-                    await db.addUserGameHistory({
-                        hn: patientHn,
-                        gid: "REST001",
-                        startAt,
-                        endAt: new Date().toISOString(),
-                        rest: true,
-                        checkIn: false,
-                    });
-                }
-                await loadHistory();
             }
         } catch (error) {
             console.error("Unable to handle game hub node action:", error);
@@ -740,6 +728,8 @@ export async function renderGameHubScreen(root, options = {}) {
             state.historyLoading = false;
             render();
             await ensureNextDayVisible();
+            await checkAndAutoShowRestingPopup();
+            await checkAndShowCompletionPopup();
         } catch (error) {
             console.warn("Unable to load game hub history:", error);
             state.historyRecords = [];
@@ -868,12 +858,72 @@ export async function renderGameHubScreen(root, options = {}) {
                     checkInDates,
                     programStartedAt: getStartedProgram(),
                     defaultDayCount: options.defaultDayCount || 14,
+                    loadVideoSrc: () => db.getRandomGameVideoUrl(),
                 });
             }
         } catch (error) {
             console.error("Unable to sync game hub check-in records:", error);
         } finally {
             state.autoCheckInLoading = false;
+        }
+    };
+
+    const checkAndAutoShowRestingPopup = async () => {
+        if (!patientHn || state.restPopupActive) {
+            return;
+        }
+
+        const sections = buildDaySections(state.programDays, state.restGame);
+        const currentDay = getCurrentProgramDay();
+        const currentSection = getCurrentDaySection(sections);
+        const currentHistory = getDisplayHistoryForProgramDay(currentDay);
+        const { completedCount } = getDayCompletion(currentSection, currentHistory);
+        const currentNode = currentSection.nodes[completedCount];
+
+        if (currentNode?.type !== "rest") {
+            return;
+        }
+
+        state.restPopupActive = true;
+        try {
+            const startAt = new Date().toISOString();
+            await showRestingPointPopup({ durationSeconds: 60 });
+            await db.addUserGameHistory({
+                hn: patientHn,
+                gid: "REST001",
+                startAt,
+                endAt: new Date().toISOString(),
+                rest: true,
+                checkIn: false,
+            });
+            await loadHistory();
+        } catch (error) {
+            console.error("Unable to auto-show resting point popup:", error);
+        } finally {
+            state.restPopupActive = false;
+        }
+    };
+
+    const checkAndShowCompletionPopup = async () => {
+        if (state.completionPopupShown) return;
+
+        const { programEnded: isProgramEnded } = getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+
+        if (isProgramEnded) {
+            state.completionPopupShown = true;
+            await showProgramCompletionPopup({ programDayCount: getProgramDayCount() });
+            return;
+        }
+
+        const sections = buildDaySections(state.programDays, state.restGame);
+        const currentDay = getCurrentProgramDay();
+        const currentSection = getCurrentDaySection(sections);
+        const currentHistory = getDisplayHistoryForProgramDay(currentDay);
+        const { isComplete } = getDayCompletion(currentSection, currentHistory);
+
+        if (isComplete) {
+            state.completionPopupShown = true;
+            await showDayCompletionPopup({ programDay: currentDay, programDayCount: getProgramDayCount() });
         }
     };
 

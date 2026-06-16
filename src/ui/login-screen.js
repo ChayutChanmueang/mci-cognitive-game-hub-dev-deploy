@@ -33,15 +33,15 @@ export function renderLoginScreen(root, options = {}) {
                     <md-outlined-text-field
                         id="patient-id-input"
                         class="login-field"
-                        label="กรอกหมายเลข HN"
-                        prefix-text="HN  |"
+                        label="กรอกหมายเลข ID"
+                        prefix-text="ID&nbsp;&nbsp;|"
                         type="number"
                         inputmode="numeric"
                         min="0"
                         step="1"
                         required
                         no-asterisk
-                        error-text="กรุณากรอกรหัสผู้ป่วย"
+                        error-text="กรุณากรอกรหัสผู้เล่น"
                     ></md-outlined-text-field>
 
                     <p id="patient-login-feedback" class="login-feedback" aria-live="polite"></p>
@@ -74,7 +74,7 @@ export function renderLoginScreen(root, options = {}) {
 
         submitButton.disabled = !hasValue;
         feedback.textContent = "";
-        input.errorText = "กรุณากรอกรหัสผู้ป่วย";
+        input.errorText = "กรุณากรอกรหัสผู้เล่น";
 
         toggleFieldError(input, false);
     };
@@ -86,7 +86,7 @@ export function renderLoginScreen(root, options = {}) {
 
         const patientId = normalizePatientId(input.value);
         if (!patientId) {
-            input.errorText = "กรุณากรอกรหัสผู้ป่วย";
+            input.errorText = "กรุณากรอกรหัสผู้เล่น";
             toggleFieldError(input, true);
             feedback.textContent = "";
             submitButton.disabled = true;
@@ -109,7 +109,7 @@ export function renderLoginScreen(root, options = {}) {
         } catch (error) {
             console.error("Patient login flow failed:", error);
             toggleFieldError(input, true);
-            input.errorText = error?.message || "ไม่สามารถตรวจสอบรหัสผู้ป่วยได้";
+            input.errorText = error?.message || "ไม่สามารถตรวจสอบรหัสผู้เล่นได้";
             feedback.textContent = "";
             input.disabled = false;
             submitButton.disabled = false;
