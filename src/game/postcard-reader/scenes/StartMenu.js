@@ -64,8 +64,8 @@ export default class StartMenuScene extends Phaser.Scene {
         };
         EventBus.emit('audio:register', 'postcard-reader', sounds);
 
-        // Play BGM
-        EventBus.emit('audio:bgm', 'postcard-reader');
+        // Stop the Game Hub's BGM since Postcard Reader has no BGM
+        EventBus.emit('audio:bgm-stop');
         EventBus.on('startmenu:start-game', handleStartGame);
 
         // Clean up DOM elements and listeners when transitioning away
