@@ -29,7 +29,7 @@
  *   player.on('volume-changed', (v) => console.log(v));
  *
  * Material Web components required:
- *   <md-fab>, <md-filled-tonal-icon-button>, <md-linear-progress>, <md-icon>
+ *   <md-fab>, <md-filled-tonal-icon-button>, <md-circular-progress>, <md-linear-progress>, <md-icon>
  */
 
 const VOLUME_STEP = 0.25;
@@ -114,6 +114,15 @@ function _buildPlayerHTML(src, label) {
                 -->
             </div>
 
+            <!-- Fullscreen control (bottom-right corner) -->
+            <md-filled-tonal-icon-button
+                class="vp-btn-fullscreen"
+                aria-label="ขยายวิดีโอเต็มจอ"
+                type="button"
+            >
+                <span class="material-symbols-rounded">zoom_out_map</span>
+            </md-filled-tonal-icon-button>
+
             <!-- Progress bar (read-only) -->
             <div class="vp-progress-wrap" aria-hidden="true">
                 <md-linear-progress
@@ -169,8 +178,10 @@ export class VideoPlayer {
         this._hasStarted = false;
         this._isLoading  = false;
         this._isReady    = false;
+        this._isPseudoFullscreen = false;
         this._volume     = 1.0;
         this._muted      = false;
+        this._onFullscreenChange = null;
     }
 
     // ── Public playback API ──────────────────────────────────────────────────
@@ -224,6 +235,14 @@ export class VideoPlayer {
 
     destroy() {
         this._emit('destroy');
+        this._exitPseudoFullscreen();
+        if (document.fullscreenElement === this._root) {
+            document.exitFullscreen?.()?.catch?.(() => {});
+        }
+        if (this._onFullscreenChange) {
+            document.removeEventListener("fullscreenchange", this._onFullscreenChange);
+            this._onFullscreenChange = null;
+        }
         if (this._video) {
             this._video.pause();
             this._video.src = "";
@@ -255,6 +274,8 @@ export class VideoPlayer {
         this._btnMute      = this._root.querySelector(".vp-btn-mute");
         this._btnMuteIcon  = this._btnMute?.querySelector("span");
         this._btnVolUp     = this._root.querySelector(".vp-btn-vol-up");
+        this._btnFullscreen = this._root.querySelector(".vp-btn-fullscreen");
+        this._btnFullscreenIcon = this._btnFullscreen?.querySelector("span");
         this._progress     = this._root.querySelector(".vp-progress");
 
         this._video.volume = this._volume;
@@ -278,6 +299,7 @@ export class VideoPlayer {
         this._btnPlayInit.addEventListener("click", () => this._play());
         this._btnResume.addEventListener("click",   () => this._play());
         this._btnReplay.addEventListener("click",   () => this._replay());
+        this._btnFullscreen.addEventListener("click", () => this._toggleFullscreen());
 
         // Volume controls — user-initiated, so emit events
         // vol-down / vol-up commented out in HTML until required
@@ -333,6 +355,11 @@ export class VideoPlayer {
             this._showPausedOverlay(false);
             this._emit("ended");
         });
+
+        this._onFullscreenChange = () => {
+            this._updateFullscreenButton();
+        };
+        document.addEventListener("fullscreenchange", this._onFullscreenChange);
     }
 
     // ── Volume helpers ───────────────────────────────────────────────────────
@@ -365,6 +392,98 @@ export class VideoPlayer {
             this._btnMuteIcon.textContent = "volume_up";
             this._btnMute.setAttribute("aria-label", "ปิดเสียง");
         }
+    }
+
+    // ── Fullscreen helpers ──────────────────────────────────────────────────
+
+    /** @private */
+    _toggleFullscreen() {
+        if (!this._isReady) {
+            return;
+        }
+
+        if (this._isFullscreen()) {
+            this._exitFullscreen();
+            return;
+        }
+
+        this._enterFullscreen();
+    }
+
+    /** @private */
+    _enterFullscreen() {
+        if (this._shouldUsePseudoFullscreen()) {
+            this._enterPseudoFullscreen();
+            return;
+        }
+
+        const request = this._root?.requestFullscreen?.();
+        if (request && typeof request.catch === "function") {
+            request.catch(() => this._enterPseudoFullscreen());
+        } else if (!request) {
+            this._enterPseudoFullscreen();
+        }
+    }
+
+    /** @private */
+    _exitFullscreen() {
+        if (this._isPseudoFullscreen) {
+            this._exitPseudoFullscreen();
+            return;
+        }
+
+        document.exitFullscreen?.()?.catch?.(() => {});
+    }
+
+    /** @private */
+    _enterPseudoFullscreen() {
+        this._isPseudoFullscreen = true;
+        this._root?.classList.add("vp-pseudo-fullscreen");
+        document.documentElement.classList.add("vp-pseudo-fullscreen-active");
+        document.body?.classList.add("vp-pseudo-fullscreen-active");
+        this._updateFullscreenButton();
+    }
+
+    /** @private */
+    _exitPseudoFullscreen() {
+        this._isPseudoFullscreen = false;
+        this._root?.classList.remove("vp-pseudo-fullscreen");
+        document.documentElement.classList.remove("vp-pseudo-fullscreen-active");
+        document.body?.classList.remove("vp-pseudo-fullscreen-active");
+        this._updateFullscreenButton();
+    }
+
+    /** @private */
+    _isFullscreen() {
+        return document.fullscreenElement === this._root || this._isPseudoFullscreen;
+    }
+
+    /** @private */
+    _shouldUsePseudoFullscreen() {
+        return !this._root?.requestFullscreen || this._isIOSWebKit();
+    }
+
+    /** @private */
+    _isIOSWebKit() {
+        const platform = navigator.platform || "";
+        const userAgent = navigator.userAgent || "";
+        const isTouchMac = platform === "MacIntel" && navigator.maxTouchPoints > 1;
+
+        return /iPad|iPhone|iPod/.test(userAgent) || isTouchMac;
+    }
+
+    /** @private */
+    _updateFullscreenButton() {
+        const isFullscreen = this._isFullscreen();
+
+        if (this._btnFullscreenIcon) {
+            this._btnFullscreenIcon.textContent = isFullscreen ? "zoom_in_map" : "zoom_out_map";
+        }
+
+        this._btnFullscreen?.setAttribute(
+            "aria-label",
+            isFullscreen ? "ย่อวิดีโอกลับหน้าต่าง" : "ขยายวิดีโอเต็มจอ"
+        );
     }
 
     // ── Playback helpers ─────────────────────────────────────────────────────
