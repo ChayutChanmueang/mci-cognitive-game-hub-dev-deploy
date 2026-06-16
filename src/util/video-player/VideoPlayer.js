@@ -46,12 +46,12 @@ function _buildPlayerHTML(src, label) {
                 class="vp-video"
                 src="${_esc(src)}"
                 playsinline
-                preload="metadata"
+                preload="auto"
                 aria-label="${_esc(label)}"
             ></video>
 
             <!-- Overlay: buffering / loading -->
-            <div class="vp-overlay vp-overlay--loading vp-hidden" aria-hidden="true" role="status" aria-live="polite">
+            <div class="vp-overlay vp-overlay--loading" aria-hidden="false" role="status" aria-live="polite">
                 <div class="vp-loading-indicator">
                     <md-circular-progress
                         indeterminate
@@ -63,7 +63,7 @@ function _buildPlayerHTML(src, label) {
             </div>
 
             <!-- Overlay A: initial (before first play) -->
-            <div class="vp-overlay vp-overlay--init" aria-hidden="false">
+            <div class="vp-overlay vp-overlay--init vp-hidden" aria-hidden="true">
                 <md-fab
                     class="vp-btn-play-init"
                     size="large"
@@ -168,6 +168,7 @@ export class VideoPlayer {
         this._root       = null;
         this._hasStarted = false;
         this._isLoading  = false;
+        this._isReady    = false;
         this._volume     = 1.0;
         this._muted      = false;
     }
@@ -260,6 +261,8 @@ export class VideoPlayer {
         this._video.muted  = this._muted;
 
         this._bindEvents();
+        this._showLoadingOverlay();
+        this._video.load();
     }
 
     /** @private */
@@ -290,8 +293,9 @@ export class VideoPlayer {
         });
 
         this._video.addEventListener("loadstart", () => {
-            if (!this._hasStarted) return;
-            this._showLoadingOverlay();
+            if (!this._isReady) {
+                this._showLoadingOverlay();
+            }
         });
 
         this._video.addEventListener("waiting", () => {
@@ -305,11 +309,11 @@ export class VideoPlayer {
         });
 
         this._video.addEventListener("canplay", () => {
-            if (!this._hasStarted || this._video.paused || this._video.ended) return;
-            this._hideAllOverlays();
+            this._markVideoReady();
         });
 
         this._video.addEventListener("playing", () => {
+            this._isReady = true;
             this._hideAllOverlays();
         });
 
@@ -367,6 +371,11 @@ export class VideoPlayer {
 
     /** @private */
     _play() {
+        if (!this._isReady) {
+            this._showLoadingOverlay();
+            return;
+        }
+
         this._hasStarted = true;
         this._showLoadingOverlay();
         const playRequest = this._video.play();
@@ -416,6 +425,7 @@ export class VideoPlayer {
     /** @private */
     _showLoadingOverlay() {
         this._isLoading = true;
+        this._root?.classList.add("vp-is-loading");
         this._setVisible(this._overlayLoad,  true);
         this._setVisible(this._overlayInit,  false);
         this._setVisible(this._overlayPause, false);
@@ -424,7 +434,20 @@ export class VideoPlayer {
     /** @private */
     _hideLoadingOverlay() {
         this._isLoading = false;
+        this._root?.classList.remove("vp-is-loading");
         this._setVisible(this._overlayLoad, false);
+    }
+
+    /** @private */
+    _markVideoReady() {
+        this._isReady = true;
+
+        if (this._hasStarted && !this._video.paused && !this._video.ended) {
+            this._hideAllOverlays();
+            return;
+        }
+
+        this._showInitialOverlay();
     }
 
     /** @private */

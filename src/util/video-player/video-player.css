@@ -61,7 +61,7 @@
 }
 
 .vp-root .vp-overlay--loading {
-    z-index: 6;
+    z-index: 30;
     background:
         radial-gradient(circle at center, rgba(53, 104, 89, 0.34), transparent 42%),
         rgba(0, 0, 0, 0.58);
@@ -92,6 +92,12 @@
     --md-sys-color-primary-container: rgba(255, 255, 255, 0.68);
     --md-sys-color-tertiary: #ffffff;
     --md-sys-color-tertiary-container: rgba(255, 255, 255, 0.38);
+}
+
+.vp-root.vp-is-loading .vp-volume-bar,
+.vp-root.vp-is-loading .vp-progress-wrap {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* ── Controls ─────────────────────────────────────────────────────────── */
