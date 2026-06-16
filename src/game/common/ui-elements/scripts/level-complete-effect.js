@@ -1,4 +1,12 @@
+import { Howl } from 'howler';
+
+const correctSound = new Howl({
+    src: ['assets/audio/common/sfx/Correct.mp3'],
+    preload: true,
+});
+
 export function showLevelCompleteEffect() {
+    correctSound.play();
     const container = document.createElement('div');
     Object.assign(container.style, {
         position: 'absolute',
