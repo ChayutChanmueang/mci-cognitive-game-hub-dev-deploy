@@ -10,10 +10,20 @@ export default class QuizGameData extends Struct{
     }
 
     increaseScore(score){
-        this.score += score;
+        const gain = Math.max(0, Number(score) || 0);
+        if (gain <= 0) {
+            return;
+        }
+
+        this.score += gain;
     }
 
     decreaseScore(score){
-        this.score -= score;
+        const penalty = Math.max(0, Number(score) || 0);
+        if (penalty <= 0) {
+            return;
+        }
+
+        this.score = Math.max(0, this.score - penalty);
     }
 }

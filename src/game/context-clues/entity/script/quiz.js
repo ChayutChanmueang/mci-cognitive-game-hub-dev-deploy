@@ -38,6 +38,7 @@ export default class Quiz extends Entity{
         this.ownedContainer = scene.add.container(x, y);
         this.ownedContainer.setDepth(20);
         this.dragDrop = new DragDropManager(scene);
+        this.onAnswerItemCorrect = (answer) => {};
         this.onAnswerCorrect = (answer) => {};
         this.onAnswerIncorrect = (answer) => {};
 
@@ -235,6 +236,7 @@ export default class Quiz extends Entity{
                             this.gameData.answers.push(data.word);
                             this.gameData.increaseScore(Config.IncreaseScore[this.scene.levelMap])
                         }
+                        this.onAnswerItemCorrect(data.word);
 
                         if (this.gameData.answers.length >= this.answers.length) {
                             this.gameData.id = this.id;

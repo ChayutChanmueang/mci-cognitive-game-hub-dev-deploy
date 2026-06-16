@@ -30,14 +30,14 @@ export const TutorialText = Object.freeze({
 export const Config = Object.freeze({
     TimeLimitSeconds: 180,
     IncreaseScore: {
-        easy: 20,
-        medium: 20,
-        hard: 20,
+        easy: 5,
+        medium: 5,
+        hard: 5,
     },
     DecreaseScore: {
-        easy: 5,
-        medium: 6,
-        hard: 7,
+        easy: 0,
+        medium: 0,
+        hard: 0,
     },
     MaxRound: {
         easy: 10,

@@ -141,6 +141,13 @@ export default class GameplayScene extends Phaser.Scene {
       }
 
       this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting.setting, this.quizBoxSize);
+      this.quizGame.onAnswerItemCorrect = () => {
+          if (this.isGameEnded) {
+              return;
+          }
+
+          this.increaseScore(Config.IncreaseScore[this.levelMap]);
+      };
       this.quizGame.onAnswerCorrect = (answer) => {
           if (this.isGameEnded) {
               return;
@@ -153,11 +160,9 @@ export default class GameplayScene extends Phaser.Scene {
           const maxRound = Config.MaxRound[this.levelMap];
           const nextRoundDisplay = this.round + 1;
 
-          this.increaseScore(Config.IncreaseScore[this.levelMap]);
           this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, true);
 
           EventBus.emit('audio:play', 'context-clues:correct');
-          EventBus.emit('minigame:score', { score: this.allScore });
           EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
 
           if (this.progressStory < maxRound) {
@@ -278,38 +283,67 @@ export default class GameplayScene extends Phaser.Scene {
         return panel;
     }
 
-    increaseScore(score){
-        this.allScore += score;
+    syncScoreUI() {
+        const score = Math.max(0, Number(this.allScore) || 0);
+
+        this.allScore = score;
+        this.gameplayUI?.setScore(score);
+        EventBus.emit('minigame:score', { score });
     }
 
-    decreaseScore(score){
-        this.allScore -= score;
+    showScoreChangeEffect(score, isIncrease = true) {
+        const value = Math.max(0, Number(score) || 0);
+        if (value <= 0) {
+            return;
+        }
 
         const position = this.resolveDecreaseScorePosition();
-        const scorePenaltyText = createThaiText(
+        const scoreChangeText = createThaiText(
             this,
             this.scale.width / 2 + position.x,
             this.scale.height / 2 + position.y,
-            `-${score}`,
+            `${isIncrease ? "+" : "-"}${value}`,
             {
                 fontSize: "72px",
                 fontStyle: "bold",
-                color: "#fe0000"
+                color: isIncrease ? "#20c66b" : "#fe0000"
             },
             { origin: 0.5 }
         );
-        scorePenaltyText.setDepth(200);
+        scoreChangeText.setDepth(200);
 
         this.tweens.add({
-            targets: scorePenaltyText,
-            y: scorePenaltyText.y - 80,
+            targets: scoreChangeText,
+            y: scoreChangeText.y - 80,
             alpha: 0,
             duration: 1000,
             ease: "Sine.easeOut",
             onComplete: () => {
-                scorePenaltyText.destroy();
+                scoreChangeText.destroy();
             }
         });
+    }
+
+    increaseScore(score){
+        const gain = Math.max(0, Number(score) || 0);
+        if (gain <= 0) {
+            return;
+        }
+
+        this.allScore += gain;
+        this.syncScoreUI();
+        this.showScoreChangeEffect(gain, true);
+    }
+
+    decreaseScore(score){
+        const penalty = Math.max(0, Number(score) || 0);
+        if (penalty <= 0) {
+            return;
+        }
+
+        this.allScore = Math.max(0, this.allScore - penalty);
+        this.syncScoreUI();
+        this.showScoreChangeEffect(penalty, false);
     }
 
   createButton(x,y,text,onClick){
@@ -326,5 +360,3 @@ export default class GameplayScene extends Phaser.Scene {
         return [bg,label];
     }
 }
-
-
