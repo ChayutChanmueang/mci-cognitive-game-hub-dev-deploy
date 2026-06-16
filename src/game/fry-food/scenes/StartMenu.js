@@ -29,6 +29,9 @@ export default class StartMenuScene extends Phaser.Scene {
         };
         EventBus.emit('audio:register', 'fry-food', sounds);
 
+        // Stop BGM (no game-specific BGM for fry-food)
+        EventBus.emit('audio:bgm-stop');
+
         // Hide the top bar HUD
         EventBus.emit('minigame:hide-hud');
 
