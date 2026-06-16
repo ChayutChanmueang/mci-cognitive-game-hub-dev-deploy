@@ -22,7 +22,21 @@ class VoiceService {
     _loadVoices() {
         const voices = this.synth.getVoices();
         // Prefer Thai voices for this project
-        this.defaultVoice = voices.find(v => v.lang.includes('th')) || voices[0];
+        const thaiVoices = voices.filter(v => v.lang.includes('th'));
+        
+        // Log available Thai voices so you can see their names in the console
+        if (thaiVoices.length > 0) {
+            console.log("Available Thai Voices:", thaiVoices.map(v => v.name));
+        }
+
+        // Change this string to the exact name of the voice you want from the console (e.g., "Microsoft Pattara - Thai (Thailand)")
+        const preferredVoiceName = ""; 
+
+        if (preferredVoiceName) {
+            this.defaultVoice = thaiVoices.find(v => v.name === preferredVoiceName) || thaiVoices[0] || voices[0];
+        } else {
+            this.defaultVoice = thaiVoices[0] || voices[0];
+        }
     }
 
     /**
