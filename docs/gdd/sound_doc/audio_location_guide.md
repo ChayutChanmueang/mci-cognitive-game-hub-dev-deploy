@@ -71,3 +71,38 @@ This table provides the exact file paths and function locations where the audio 
 | **Correct** | `Correct` | `assets/audio/common/sfx/Correct.mp3` | `src/game/postcard-reader/scenes/Gameplay.js` | Validation success logic | `EventBus.emit('audio:play', 'postcard-reader:correct');` |
 | **Wrong** | `Wrong` | `assets/audio/common/sfx/Wrong.wav` | `src/game/postcard-reader/scenes/Gameplay.js` | Validation failure logic | `EventBus.emit('audio:play', 'postcard-reader:wrong');` |
 | **End Game** | `EndGame` | `assets/audio/common/sfx/EndGame.mp3` | `src/game/postcard-reader/entity/script/ui/gameplay-ui.js` | `showGameOverPanel(...)` | `EventBus.emit('audio:play', 'postcard-reader:endgame');` |
+
+### 6. ทำอาหาร (Fry Food)
+
+> [!NOTE]
+> Fry Food does not have a game-specific BGM or a `Wrong` sound. Sounds are registered via `audio:register` in `StartMenu.js` and played in `Gameplay.js`. The game-specific SFX assets are located at `public/assets/audio/fry-food/`.
+
+| Description | Sound Name | Audio Asset Path | Source Code File Path | Specific Location / Function | Code to Implement |
+|---|---|---|---|---|---|
+| **Searing SFX** | `Sizzlingcooking_SFX` | `assets/audio/fry-food/Sizzlingcooking_SFX.mp3` | `src/game/fry-food/scenes/Gameplay.js` | `_startCooking()` — when the cooking timer begins | `EventBus.emit('audio:play', 'fry-food:sizzling');` |
+| **Flip SFX** | `Flip_Short_SFX` | `assets/audio/fry-food/Flip_Short_SFX.mp3` | `src/game/fry-food/scenes/Gameplay.js` | `_executeFlip()` — when the player tilts to flip | `EventBus.emit('audio:play', 'fry-food:flip');` |
+| **Ting SFX** | `Ting_SFX` | `assets/audio/fry-food/Ting_SFX.mp3` | `src/game/fry-food/scenes/Gameplay.js` | `_readyToFlip()` — when the progress bar is full and smoke appears | `EventBus.emit('audio:play', 'fry-food:ting');` |
+| **Cover PopUp** | `Panel_PopUp` | `assets/audio/common/sfx/Panel_PopUp.mp3` | `src/game/fry-food/scenes/StartMenu.js` | UI `show()` animation | `EventBus.emit('audio:play', 'ui:popup');` |
+| **Button Click** | `Button_Click` | `assets/audio/common/sfx/Button_Click.mp3` | (global) | `pointerdown` listener callback | `EventBus.emit('audio:play', 'ui:click');` |
+| **Correct** | `Correct` | `assets/audio/common/sfx/Correct.mp3` | `src/game/common/ui-elements/scripts/level-complete-effect.js` | `showLevelCompleteEffect()` — "เก่งมาก!" confetti popup | Played directly via `Howl` (see cross-game section below) |
+| **End Game** | `EndGame` | `assets/audio/common/sfx/EndGame.mp3` | `src/game/fry-food/scenes/Gameplay.js` | `_endGame()` → `minigame:game-over` event | *(handled by the shared game-over panel)* |
+
+---
+
+## Cross-Game: Level Complete Effect ("เก่งมาก!" Confetti)
+
+> [!IMPORTANT]
+> The `Correct.mp3` sound is played automatically by `showLevelCompleteEffect()` in **all minigames** when the "เก่งมาก!" confetti popup appears. This is implemented directly via `Howl` (not `EventBus`) in `src/game/common/ui-elements/scripts/level-complete-effect.js` to ensure reliable playback regardless of game-specific audio registration.
+
+| Description | Sound Name | Audio Asset Path | Source Code File Path | Specific Location / Function | Code Used |
+|---|---|---|---|---|---|
+| **Level Complete Correct** | `Correct` | `assets/audio/common/sfx/Correct.mp3` | `src/game/common/ui-elements/scripts/level-complete-effect.js` | Top of `showLevelCompleteEffect()` | `correctSound.play()` (Howl instance) |
+
+**Games using `showLevelCompleteEffect()`:**
+- สายพานอาหาร (Zoo Feeder) — `src/game/zoo-feeder/scenes/UITestScene.js`
+- นักสืบเติมคำ (Context Clues) — `src/game/context-clues/scenes/Gameplay.js`
+- สวนสัตว์นักสืบ (Zoo Detective) — `src/game/zoo-detective/scenes/Gameplay.js`
+- ภาพสะท้อน (Symmetry Decor) — `src/game/symmetry-decor/scenes/Gameplay.js`
+- จดหมายจากหลานรัก (Postcard Reader) — `src/game/postcard-reader/scenes/Gameplay.js`
+- ทำอาหาร (Fry Food) — `src/game/fry-food/scenes/Gameplay.js`
+

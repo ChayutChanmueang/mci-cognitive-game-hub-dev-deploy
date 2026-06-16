@@ -20,6 +20,15 @@ export default class StartMenuScene extends Phaser.Scene {
         // this.background.setDisplaySize(this.scale.width, this.scale.height);
         // this.background.setDepth(-10);
 
+        // Register Audio
+        const sounds = {
+            'sizzling': { src: ['assets/audio/fry-food/Sizzlingcooking_SFX.mp3'] },
+            'flip': { src: ['assets/audio/fry-food/Flip_Short_SFX.mp3'] },
+            'ting': { src: ['assets/audio/fry-food/Ting_SFX.mp3'] },
+            'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] },
+        };
+        EventBus.emit('audio:register', 'fry-food', sounds);
+
         // Hide the top bar HUD
         EventBus.emit('minigame:hide-hud');
 

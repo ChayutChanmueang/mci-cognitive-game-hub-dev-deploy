@@ -410,6 +410,9 @@ export default class GameplayScene extends Phaser.Scene {
         this._gameState = 'COOKING';
         this._flipInitiated = false;
 
+        // Play sizzling cooking sound
+        EventBus.emit('audio:play', 'fry-food:sizzling');
+
         // Hide smoke if it was active
         if (this._smokeDom) {
             this._smokeDom.setVisible(false);
@@ -435,6 +438,9 @@ export default class GameplayScene extends Phaser.Scene {
     _readyToFlip() {
         this._gameState = 'READY';
 
+        // Play ting sound when progress bar is full
+        EventBus.emit('audio:play', 'fry-food:ting');
+
         // Capture the baseline device angle at the exact moment the egg is ready
         this._startBetaAngle = AccelerometerManager.getOrientation().beta;
 
@@ -451,6 +457,9 @@ export default class GameplayScene extends Phaser.Scene {
 
     _executeFlip() {
         this._flipInitiated = false;
+
+        // Play flip sound
+        EventBus.emit('audio:play', 'fry-food:flip');
 
         // Temporarily disable mechanics while animating
         this._gameState = 'FLIPPING';
@@ -514,6 +523,7 @@ export default class GameplayScene extends Phaser.Scene {
         }
         
         // Trigger the premium DOM effect
+        EventBus.emit('audio:play', 'fry-food:endgame');
         showLevelCompleteEffect();
 
         // Wait for the effect to finish before showing the game over panel
