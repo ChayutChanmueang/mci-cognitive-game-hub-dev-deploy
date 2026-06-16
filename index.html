@@ -30,18 +30,30 @@
 
 <body>
     <script>
-      window.addEventListener('error', function(e) {
-        fetch('http://localhost:9999', { method: 'POST', body: 'ERROR: ' + e.message + '\n' + e.error?.stack }).catch(function(){});
-      });
-      window.addEventListener('unhandledrejection', function(e) {
-        fetch('http://localhost:9999', { method: 'POST', body: 'UNHANDLED REJECTION: ' + e.reason?.message + '\n' + e.reason?.stack }).catch(function(){});
-      });
-      // Monkey patch console.error
-      const origError = console.error;
-      console.error = function(...args) {
-        fetch('http://localhost:9999', { method: 'POST', body: 'CONSOLE ERROR: ' + args.map(a => a?.stack || a).join(' ') }).catch(function(){});
-        origError.apply(console, args);
-      };
+      // Opt-in local error relay for debugging. Enable with:
+      // window.__ENABLE_LOCAL_ERROR_LOGGER__ = true
+      (function() {
+        if (!window.__ENABLE_LOCAL_ERROR_LOGGER__) {
+          return;
+        }
+
+        const sendLocalError = function(body) {
+          fetch('http://localhost:9999', { method: 'POST', body }).catch(function(){});
+        };
+
+        window.addEventListener('error', function(e) {
+          sendLocalError('ERROR: ' + e.message + '\n' + e.error?.stack);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+          sendLocalError('UNHANDLED REJECTION: ' + e.reason?.message + '\n' + e.reason?.stack);
+        });
+
+        const origError = console.error;
+        console.error = function(...args) {
+          sendLocalError('CONSOLE ERROR: ' + args.map(a => a?.stack || a).join(' '));
+          origError.apply(console, args);
+        };
+      })();
     </script>
     <div id="app">
         <div id="ui-root"></div>
