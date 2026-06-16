@@ -2508,7 +2508,7 @@ class Database {
     async getRandomGameVideoUrl() {
         await this.initAuth();
         const client = this.getClient();
-        const { data, error } = await client.from("game_video_list").select("url");
+        const { data, error } = await client.from("game_video_list").select("url").eq("hidden", false);
         if (error || !data?.length) return null;
         return data[Math.floor(Math.random() * data.length)].url;
     }
