@@ -32,7 +32,7 @@ export default class PostcardPanel extends UIPage {
         this.startMemoryCountdown();
 
         // Accessibility: Read text aloud
-        // VoiceService.speak(scene.postcardText);
+        VoiceService.speak(scene.postcardText);
     }
 
     startMemoryCountdown() {
@@ -42,7 +42,7 @@ export default class PostcardPanel extends UIPage {
             callback: () => {
                 this.forceHide();
                 this.scene.showGame();
-                // VoiceService.stop();
+                VoiceService.stop();
             }
         });
 
@@ -56,7 +56,7 @@ export default class PostcardPanel extends UIPage {
         this.startMemoryCountdown();
 
         // Accessibility: Read text aloud
-        // VoiceService.speak(this.scene.postcardText);
+        VoiceService.speak(this.scene.postcardText);
     }
 
     update() {
