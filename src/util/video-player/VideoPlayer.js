@@ -50,6 +50,18 @@ function _buildPlayerHTML(src, label) {
                 aria-label="${_esc(label)}"
             ></video>
 
+            <!-- Overlay: buffering / loading -->
+            <div class="vp-overlay vp-overlay--loading vp-hidden" aria-hidden="true" role="status" aria-live="polite">
+                <div class="vp-loading-indicator">
+                    <md-circular-progress
+                        indeterminate
+                        four-color
+                        aria-label="กำลังโหลดวิดีโอ"
+                    ></md-circular-progress>
+                    <span class="vp-loading-text">กำลังโหลดวิดีโอ...</span>
+                </div>
+            </div>
+
             <!-- Overlay A: initial (before first play) -->
             <div class="vp-overlay vp-overlay--init" aria-hidden="false">
                 <md-fab
@@ -155,6 +167,7 @@ export class VideoPlayer {
         this._label      = label;
         this._root       = null;
         this._hasStarted = false;
+        this._isLoading  = false;
         this._volume     = 1.0;
         this._muted      = false;
     }
@@ -231,6 +244,7 @@ export class VideoPlayer {
         this._root = this._container.querySelector(".vp-root");
 
         this._video        = this._root.querySelector(".vp-video");
+        this._overlayLoad  = this._root.querySelector(".vp-overlay--loading");
         this._overlayInit  = this._root.querySelector(".vp-overlay--init");
         this._overlayPause = this._root.querySelector(".vp-overlay--paused");
         this._btnPlayInit  = this._root.querySelector(".vp-btn-play-init");
@@ -275,8 +289,31 @@ export class VideoPlayer {
             this._emit("progress", this._video.currentTime / this._video.duration);
         });
 
-        this._video.addEventListener("play", () => {
+        this._video.addEventListener("loadstart", () => {
+            if (!this._hasStarted) return;
+            this._showLoadingOverlay();
+        });
+
+        this._video.addEventListener("waiting", () => {
+            if (!this._hasStarted || this._video.paused || this._video.ended) return;
+            this._showLoadingOverlay();
+        });
+
+        this._video.addEventListener("stalled", () => {
+            if (!this._hasStarted || this._video.paused || this._video.ended) return;
+            this._showLoadingOverlay();
+        });
+
+        this._video.addEventListener("canplay", () => {
+            if (!this._hasStarted || this._video.paused || this._video.ended) return;
             this._hideAllOverlays();
+        });
+
+        this._video.addEventListener("playing", () => {
+            this._hideAllOverlays();
+        });
+
+        this._video.addEventListener("play", () => {
             this._btnResume.style.display = "";
             this._emit("play");
         });
@@ -331,8 +368,19 @@ export class VideoPlayer {
     /** @private */
     _play() {
         this._hasStarted = true;
-        this._video.play();
-        this._hideAllOverlays();
+        this._showLoadingOverlay();
+        const playRequest = this._video.play();
+
+        if (playRequest && typeof playRequest.catch === "function") {
+            playRequest.catch(() => {
+                this._hideLoadingOverlay();
+                if (this._hasStarted) {
+                    this._showPausedOverlay(true);
+                } else {
+                    this._showInitialOverlay();
+                }
+            });
+        }
     }
 
     /** @private */
@@ -345,15 +393,38 @@ export class VideoPlayer {
 
     /** @private */
     _hideAllOverlays() {
+        this._hideLoadingOverlay();
         this._setVisible(this._overlayInit,  false);
         this._setVisible(this._overlayPause, false);
     }
 
     /** @private */
+    _showInitialOverlay() {
+        this._hideLoadingOverlay();
+        this._setVisible(this._overlayInit,  true);
+        this._setVisible(this._overlayPause, false);
+    }
+
+    /** @private */
     _showPausedOverlay(showResume) {
-        this._setVisible(this._overlayInit,  false);
-        this._setVisible(this._overlayPause, true);
+        this._hideLoadingOverlay();
+        this._setVisible(this._overlayInit,   false);
+        this._setVisible(this._overlayPause,  true);
         this._btnResume.style.display = showResume ? "" : "none";
+    }
+
+    /** @private */
+    _showLoadingOverlay() {
+        this._isLoading = true;
+        this._setVisible(this._overlayLoad,  true);
+        this._setVisible(this._overlayInit,  false);
+        this._setVisible(this._overlayPause, false);
+    }
+
+    /** @private */
+    _hideLoadingOverlay() {
+        this._isLoading = false;
+        this._setVisible(this._overlayLoad, false);
     }
 
     /** @private */

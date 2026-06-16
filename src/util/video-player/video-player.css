@@ -60,6 +60,40 @@
     background: rgba(0, 0, 0, 0.32);
 }
 
+.vp-root .vp-overlay--loading {
+    z-index: 6;
+    background:
+        radial-gradient(circle at center, rgba(53, 104, 89, 0.34), transparent 42%),
+        rgba(0, 0, 0, 0.58);
+    cursor: wait;
+}
+
+.vp-root .vp-loading-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 56px;
+    padding: 12px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.52);
+    color: #fff;
+    font-family: "Noto Sans Thai", "Baloo 2", system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(8px);
+}
+
+.vp-root .vp-loading-indicator md-circular-progress {
+    --md-circular-progress-size: 32px;
+    --md-circular-progress-active-indicator-width: 12;
+    --md-sys-color-primary: var(--vp-primary);
+    --md-sys-color-primary-container: rgba(255, 255, 255, 0.68);
+    --md-sys-color-tertiary: #ffffff;
+    --md-sys-color-tertiary-container: rgba(255, 255, 255, 0.38);
+}
+
 /* ── Controls ─────────────────────────────────────────────────────────── */
 
 .vp-root .vp-controls {
