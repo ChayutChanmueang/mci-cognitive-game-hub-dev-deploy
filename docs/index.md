@@ -1,15 +1,28 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** 🟢 Ongoing | **Current Sprint:** Sprint 6 (Planning & Development)
-**Last Updated:** 2026-05-20 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 Stabilization & Deployment Testing | **Current Sprint:** Post-Sprint 6 Hardening
+**Last Updated:** 2026-06-16 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+
+---
+
+## Current Implementation Snapshot
+
+MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-based Material Web UI screens. The app now includes patient login/signup, a daily program game hub, profile and CSV export tools, leaderboard, admin login, daily preset management, Supabase-backed persistence, and a Docker/nginx production deployment flow.
+
+### Active Runtime Surfaces
+- **Patient flow:** Login -> Signup if HN is missing -> Game Hub -> Minigames -> Check-in/Profile/Leaderboard.
+- **Admin/tooling flow:** Admin login, player data screens, CSV export, daily preset editor, and test/debug controls.
+- **Game suite:** Zoo Detective, Zoo Feeder, Context Clues, Symmetry Decor, Postcard Reader, Resting Point, and Fry Food.
+- **Data services:** Supabase client, edge-function fallback paths, leaderboard RPC/client fallback, user rank lookup, game history, check-in history, and CSV export helpers.
+- **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
 ---
 
 ## 📘 Game Design (GDD)
 เอกสารที่ระบุว่าเกมนี้คืออะไร มีระบบและทิศทางอย่างไร
 - [00. Game Concept & Architecture](gdd/00-concept.md) - แนวคิดหลัก กลุ่มเป้าหมาย และสถาปัตยกรรมระบบ
-- [01. Core Mechanics](gdd/01-mechanics.md) - ระบบการเล่นและเงื่อนไขของทั้ง 5 เกม
+- [01. Core Mechanics](gdd/01-mechanics.md) - ระบบการเล่น เงื่อนไขเกม และ progression ระดับโปรแกรม
 - [02. Narrative & Theme](gdd/02-narrative.md) - เรื่องราวและบรรยากาศในเกม
 - [03. Art Direction](gdd/03-art-direction.md) - รูปแบบวิชวลและ UI/UX Guidelines
 - [04. Audio Direction](gdd/04-audio-direction.md) - แนวทางการใช้เสียงและดนตรี
@@ -19,7 +32,7 @@
 
 ## 💻 Software Design
 เอกสารทางเทคนิคเกี่ยวกับการสร้างและสถาปัตยกรรม
-- [00. Concept Design](gdd/00-concept.md) - (ดูใน Game Concept) โครงสร้างและการทำงานระหว่าง React & Phaser
+- [00. Concept Design](gdd/00-concept.md) - (ดูใน Game Concept) โครงสร้างและการทำงานระหว่าง DOM App UI, Supabase และ Phaser
 - [01. System Design](software/01-system-design.md) - รายละเอียด Subsystems และ Design Patterns
 - [02. Class Diagram](software/02-class-diagram.md) - แผนภาพความสัมพันธ์ของ Class หลัก
 - [03. Data Schema](software/03-data-schema.md) - โครงสร้างฐานข้อมูล Supabase

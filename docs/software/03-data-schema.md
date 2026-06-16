@@ -2,9 +2,9 @@
 
 ---
 
-## *Document Version: 1.3*
+## *Document Version: 1.4*
 *Project: MCI Cognitive Games*
-*Last Updated: 2026-05-26*
+*Last Updated: 2026-06-16*
 
 ## 1. Database Overview
 
@@ -16,6 +16,7 @@ erDiagram
     GAME_LIST_DATA ||--o{ USER_GAME_DATA : "records"
     GAME_LEVEL_PRESET_LIST ||--o{ GAME_LEVEL_PRESET_DATA : "defines"
     GAME_LEVEL_PRESET_LIST ||--o{ USER_GAME_PROFILE_DATA : "used by"
+    GAME_DAILY_PRESET_DATA ||--o{ GAME_LEVEL_PRESET_DATA : "groups daily plan"
 ```
 
 ---
@@ -41,6 +42,11 @@ Supabase built-in authentication table (`auth.users`).
 | started_program | timestamp | NOT NULL    | วันที่เริ่มโปรแกรม                  |
 | created_at      | timestamp | DEFAULT     | วันที่สร้างข้อมูล                   |
 
+**Runtime notes**
+- `hn` เป็น identifier หลักของ patient flow ใน UI และใช้ผูก session cookie/sessionStorage
+- `started_program` ใช้ร่วมกับ `ProgramDateUtil` เพื่อคำนวณวันเล่น วันสิ้นสุด และสถานะโปรแกรม
+- `education_level` ถูก resolve เป็นชื่อแสดงผลผ่าน `user_education_level` เมื่อโหลด profile/export
+
 ---
 
 ### 2.3 game_list_data
@@ -55,6 +61,11 @@ Supabase built-in authentication table (`auth.users`).
 | mci_group  | string    | NOT NULL    | กลุ่ม MCI (Attention, Memory) |
 | max_score  | int       | NULLABLE    | คะแนนสูงสุดพื้นฐาน            |
 | created_at | timestamp | DEFAULT     | วันที่สร้าง                   |
+
+**Known runtime game IDs**
+- Core minigames: Zoo Detective, Zoo Feeder, Context Clues, Symmetry Decor, Postcard Reader
+- Rest activity uses `REST001`
+- Additional/test minigame: Fry Food
 
 ---
 
@@ -85,6 +96,12 @@ Supabase built-in authentication table (`auth.users`).
 | end_at            | timestamp | NULLABLE    | เวลาที่เล่นเสร็จ                        |
 | user_game_data_id | bigint    | FK          | Linked to user_game_data                |
 | check-in          | boolean   | DEFAULT F   | สถานะการเช็คชื่อ                        |
+
+**Runtime notes**
+- ใช้เป็น timeline หลักของ Game Hub และ daily program completion
+- Game node ที่จบแล้วต้องมี `end_at`
+- Rest node ใช้ `gid = REST001`
+- Check-in compatibility layer รองรับทั้ง `checkIn`, `check_in`, และ `check-in` ในฝั่ง client
 
 ---
 
@@ -121,6 +138,32 @@ Supabase built-in authentication table (`auth.users`).
 | hn      | string | FK (user_data)                      |
 | program | int    | FK (game_level_preset_list)         |
 
+### 3.4 game_daily_preset_data
+ข้อมูลเป้าหมายและ loop ของชุดเกมรายวัน ใช้เป็น daily config ที่ `game_level_preset_data.gdid` อ้างถึง
+
+| Column | Type | Description |
+| ------ | ---- | ----------- |
+| id | int | PK |
+| goal | string | เป้าหมายประจำวัน |
+| loop | int | จำนวนรอบ/ชุดที่กำหนด |
+
+### 3.5 Leaderboard / Rank Read Model
+Leaderboard ปัจจุบันถูกอ่านผ่าน service layer ไม่จำเป็นต้องเป็น table เดี่ยว:
+
+1. Edge Function: `read-database/getLeaderboard`, `read-database/getUserRank`
+2. RPC fallback: `get_leaderboard_page`
+3. Client query fallback จาก score/history data
+
+ผลลัพธ์ที่ UI ใช้:
+
+| Field | Description |
+| ----- | ----------- |
+| rank | อันดับรวม |
+| name | ชื่อแสดงผล |
+| hn | HN ของผู้เล่น |
+| score | คะแนนรวม |
+| current | ผู้เล่นปัจจุบันหรือไม่ |
+
 ---
 
 ## 4. Full ER Diagram
@@ -149,6 +192,17 @@ erDiagram
 VITE_SUPABASE_URL=https://xxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
+
+## 6. Deployment/Data Compatibility Notes
+- Production Docker image builds Vite `dist/` and serves it with nginx
+- Test VM must build from the same branch/commit that passed UI smoke tests
+- Before production build, verify stale leaderboard code is absent:
+
+```bash
+grep -R "topObserver" src dist
+```
+
+If this command finds `topObserver` in `src/ui/leaderboard-screen.js`, the branch likely contains an older leaderboard implementation.
 
 ---
 [Back to Index](../index.md)

@@ -1,14 +1,24 @@
 # MCI Cognitive Games — System Design
 
-**Version:** 1.2 | **Last Updated:** 2026-05-08
+**Version:** 1.3 | **Last Updated:** 2026-06-16
 
 ```mermaid
 graph TD
     subgraph Core
         EventBus
         DB[Database & Storage]
+        Session[SessionStorageManager]
+        ProgramDate[ProgramDateUtil]
         Voice[VoiceService]
         DDM[DragDropManager]
+    end
+
+    subgraph AppUI
+        Routes[Hash Router]
+        Hub[Game Hub]
+        Profile[Player Profile / CSV]
+        Leaderboard
+        Admin[Admin / Daily Preset Tool]
     end
 
     subgraph Games
@@ -29,6 +39,7 @@ graph TD
         DBUtil[MiniGameDBUtil]
     end
 
+    AppUI <--> Core
     Core <--> Games
     Core <--> UI
     Games <--> Utils
@@ -51,6 +62,16 @@ graph TD
 
 ## 2. ระบบหลัก (Core Systems)
 
+### 2.0 App Controller & Hash Routing
+`src/main.js` ทำหน้าที่เป็น application controller หลัก โดยใช้ hash route เช่น `#/login`, `#/signup`, `#/hub`, `#/leaderboard`, `#/player-info`, `#/admin-login`, `#/tools/daily-presets` และ `#/game/:gid` เพื่อสลับระหว่าง DOM screens และ Phaser game instance
+
+หน้าที่หลัก:
+- จัดการ body/app mode (`hub-mode`, `landing-mode`, `game-mode`)
+- โหลดข้อมูลผู้เล่นและ session
+- เตรียม game launch context ผ่าน `SessionStorageManager`
+- เชื่อมต่อ Supabase ผ่าน `src/core/database.js`
+- ซ่อน/แสดง game canvas และ DOM UI ตาม route
+
 ### 2.1 Entity-Component System (ECS Lite)
 ในมินิเกมรุ่นใหม่ (เช่น Context Clues, Postcard Reader) มีการนำรูปแบบ ECS มาใช้เพื่อแยกตรรกะออกจากตัววัตถุ:
 - **Entity**: คลาสที่ขยายจาก `Phaser.Physics.Arcade.Sprite` ทำหน้าที่เป็น Container สำหรับ Components
@@ -59,7 +80,7 @@ graph TD
 
 ### 2.2 UI System (Dual-Layer Architecture)
 ระบบ UI ถูกแบ่งออกเป็น 2 ชั้นเพื่อให้เหมาะสมกับหน้าที่:
-1. **Web Components HUD**: ใช้ Vanilla JS ร่วมกับ Material Web Components (`@material/web`) สำหรับ UI หลักภายนอกเกม เช่น หน้า Hub, Login, และหน้าสรุปผลรวม (จัดการผ่าน `src/ui/`)
+1. **DOM + Material Web UI**: ใช้ Vanilla JS template ร่วมกับ Material Web Components (`@material/web`) สำหรับ UI หลักภายนอกเกม เช่น Login, Signup, Game Hub, Profile, Leaderboard, Admin และ Daily Preset Tool (จัดการผ่าน `src/ui/`)
 2. **Phaser UIPanel**: ใช้สำหรับ UI ภายใน Canvas ของเกม เช่น หน้าต่าง Pause หรือ Tutorial (จัดการผ่าน `src/game/common/ui/core/ui-panel-base.js`) โดยใช้ระบบ Tween และ Phaser Graphics
 
 ### 2.3 EventBus (The Bridge)
@@ -69,6 +90,27 @@ graph TD
 
 ### 2.4 Drag-Drop Manager
 ระบบจัดการการลากวางส่วนกลาง (`src/core/drag-drop-manager.js`) ที่ช่วยให้การตรวจจับการลากวัตถุและการตรวจสอบจุดวาง (Drop Zone) เป็นไปอย่างเป็นระบบ
+
+### 2.5 Game Hub Progression System
+Game Hub (`src/ui/game-hub-screen.js`) สร้าง daily progression จากข้อมูล preset และ history:
+- `buildProgramDays()` แปลงข้อมูล Supabase เป็น day sections
+- `buildDayNodes()` แทรก game/rest/check-in nodes
+- `getSequentialCompletedCount()` ตรวจ completion แบบลำดับ
+- `bindCurrentNodeScrollController()` scroll ไปยัง node ปัจจุบันโดยแยก logic เป็น utility
+
+### 2.6 Leaderboard System
+Leaderboard (`src/ui/leaderboard-screen.js`) แสดง top players และ rank ของผู้เล่นปัจจุบัน:
+- ใช้ `db.getLeaderboard({ currentHn, offset, limit })`
+- ใช้ `db.getUserRank(hn)` สำหรับ bottom bar/current rank
+- Database layer พยายามเรียก Edge Function ก่อน แล้ว fallback เป็น RPC/client query
+- หมายเหตุ deploy: branch เก่าบางชุดเคยมี stale `topObserver`; build ปัจจุบันไม่ควรมี symbol นี้ใน `src` หรือ `dist`
+
+### 2.7 Data Export System
+Profile screen ใช้ `src/util/player-csv-export.js` เพื่อสร้างและดาวน์โหลด CSV:
+- Player CSV
+- Game score CSV
+- Game history/check-in CSV
+- รองรับ current player และ all players scope ตามสิทธิ์/flow ที่เปิดใช้
 
 ---
 
@@ -86,6 +128,15 @@ graph TD
 
 ### 3.3 MiniGameDBUtil
 ตัวช่วยในการเชื่อมต่อข้อมูลเกมจาก Phaser กลับไปยัง Database ผ่าน `sessionStorage` และ `src/core/database.js` เพื่อบันทึกคะแนนและสถานะการเล่น
+
+### 3.4 ProgramDateUtil
+`src/util/program-date-util.js` รวม logic วันที่ของโปรแกรม:
+- local day start
+- date key
+- program day date
+- program end date
+- program day status
+- Thai display date
 
 ---
 
@@ -115,6 +166,15 @@ graph TD
 - `ProgressBar`: แสดงเวลาที่เหลือในการจดจำเนื้อหา
 - `VoiceService`: ระบบอ่านออกเสียงภาษาไทยอัตโนมัติเพื่อเพิ่มประสิทธิภาพการจดจำ
 
+### 4.6 Resting Point (พักยืดเส้นยืดสาย)
+- ใช้ video/player utility และ popup flow สำหรับ rest node
+- บันทึก history ด้วย `REST001`
+- กลับไป Game Hub หลังพักครบเงื่อนไข
+
+### 4.7 Fry Food (ทอดอาหาร)
+- Minigame แยก entry point ใน `src/game/fry-food/main.js`
+- รองรับ flow ทดสอบและ launch ผ่าน route/game context
+
 ---
 
 ## 5. มาตรฐานการพัฒนา (Design Patterns)
@@ -122,6 +182,7 @@ graph TD
 - **Observer Pattern**: ใช้ในระบบ EventBus
 - **State Pattern**: จัดการ Game State ภายใน Gameplay Scene (IDLE, PLAYING, EVALUATING, GAMEOVER)
 - **Factory Pattern**: ใช้ใน Object Pool สำหรับการสร้างสมาชิกใหม่
+- **Fallback Pattern**: Database methods ใช้ Edge Function -> RPC -> client query fallback เพื่อให้ deploy/test environment ทำงานได้แม้ backend บางส่วนยังไม่พร้อม
 
 ---
 
@@ -132,5 +193,4 @@ graph TD
 
 ---
 [Back to Index](../index.md)
-
 

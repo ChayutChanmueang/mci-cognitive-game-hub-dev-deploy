@@ -5,17 +5,22 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
+- [ ] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
 
 ## 🔵 In Progress (WIP Limit: 3)
 - [ ] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 - [ ] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชีและลงชื่อออก
+- [ ] TD-E6-03 อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน
 
 
 ## 🔍 Review / Testing
+- [ ] TD-E6-04 Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง
 
 
 ## ✅ Done
+- [x] TD-E6-01 ตรวจและแก้ branch/deploy drift ระหว่าง staging, dev และ test VM
+- [x] TD-E6-02 ป้องกัน stale leaderboard implementation (`topObserver`) กลับเข้า production build
 - [x] [US-E4-03](user-stories/archives/US-E4-03.md) บันทึกข้อมูลเชิงลึก (Accuracy, RT, Fatigue Effect)
 - [x] [US-E5-01](user-stories/archives/US-E5-01.md) ระบบ Admin Login เพื่อดูข้อมูลผู้ป่วย
 - [x] [US-E5-02](user-stories/archives/US-E5-02.md) ระบบส่งออกข้อมูลเป็นไฟล์ CSV
@@ -55,4 +60,3 @@ kanban-plugin: board
 {"kanban-plugin":"board","list-collapse":[false,false,false,false],"lanesWidth":250}
 ```
 %%
-

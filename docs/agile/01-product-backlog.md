@@ -2,6 +2,8 @@
 
 ---
 
+**Last Updated:** 2026-06-16
+
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"
 
@@ -55,6 +57,15 @@
 | [US-E5-03](./user-stories/US-E5-03.md) | ระบบลบบัญชีและลงชื่อออก               | Low      | 🏗 In-Progress |
 | [US-E5-04](./user-stories/archives/US-E5-04.md) | เครื่องมือจัดการตารางเล่นรายวัน (Daily Preset Editor)         | Med      | ✅ Done   |
 | [US-E5-05](./user-stories/archives/US-E5-05.md) | เครื่องมือทดสอบเกมสแตนด์อโลน (Test Game Hub & Video Player)    | Low      | ✅ Done   |
+
+### E6: Stabilization, Deployment & Documentation (P1)
+| ID | User Story | Priority | Status |
+| --- | --- | --- | --- |
+| TD-E6-01 | ตรวจและแก้ branch/deploy drift ระหว่าง `staging`, `dev`, และ test VM | High | ✅ Done |
+| TD-E6-02 | ป้องกัน stale leaderboard implementation (`topObserver`) กลับเข้า production build | High | ✅ Done |
+| TD-E6-03 | อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน | Med | 🏗 In-Progress |
+| TD-E6-04 | Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง | High | 🔍 Review / Testing |
+| TD-E6-05 | ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง | Med | 📋 Backlog |
 
 ---
 

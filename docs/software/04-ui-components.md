@@ -2,15 +2,15 @@
 
 ---
 
-## *Document Version: 1.0*  
+## *Document Version: 1.1*  
 *Project: MCI Cognitive Games*  
-*Last Updated: 2026-05-03*
+*Last Updated: 2026-06-16*
 
 ## 1. UI System Overview
 
 ระบบ UI ของโครงการแบ่งออกเป็น 2 ชั้นหลัก เพื่อรองรับความต้องการที่แตกต่างกันของหน้าจอเมนูและหน้าจอภายในเกม:
 
-1. **React HUD**: จัดการ UI ที่ซับซ้อน เช่น แถบคะแนนด้านบน หรือปุ่มเมนูหลัก (จัดการผ่าน `src/ui/`)
+1. **DOM + Material Web UI**: จัดการ UI ที่ซับซ้อน เช่น login, signup, game hub, profile, leaderboard, admin login, daily preset tool, popup และ HUD overlay (จัดการผ่าน `src/ui/`)
 2. **Phaser UIPanel**: ใช้สำหรับ UI ภายในเกม (Gameplay Overlays) เช่น หน้าต่างสรุปผล (GameOver), Tutorial, หรือปุ่มตอบคำถาม โดยใช้ `UIPanel.js` เพื่อความลื่นไหลผ่านระบบ Tween
 
 ---
@@ -25,6 +25,19 @@
 ---
 
 ## 3. Core UI Components
+
+### 3.0 App-Level Screens (`src/ui/`)
+| Screen / Module | Description | Notes |
+| :--- | :--- | :--- |
+| `login-screen.js` | Patient login ด้วย HN | ถ้าไม่พบผู้เล่นจะพาไป signup |
+| `signup-screen.js` | ลงทะเบียนผู้เล่นใหม่ | ใช้ phone/date/education validation |
+| `game-hub-screen.js` | Daily program hub | แสดง goal, progress, node map, rest/check-in และ leaderboard FAB |
+| `player-info-screen.js` | ข้อมูลผู้เล่นและ export | รองรับ CSV export และ test controls |
+| `leaderboard-screen.js` | ตารางคะแนนรวม | โหลด leaderboard และ user rank |
+| `admin-login-screen.js` | Admin login | สำหรับเข้าหน้าเครื่องมือ/ข้อมูลผู้ดูแล |
+| `daily-preset-tool-screen.js` | Daily preset editor | จัดการ preset รายวันและ game mapping |
+| `checkin-summary-screen.js` | Check-in/calendar summary | ใช้หลังจบ daily flow |
+| `resting-point-popup.js` | Rest node popup | ใช้ video player utility |
 
 ### 3.1 Panels
 | Component | Description | Usage |
@@ -51,9 +64,15 @@
 ---
 
 ## 5. Event Communication (EventBus)
-การสื่อสารระหว่าง React UI และ Phaser Gameplay ทำผ่าน `src/core/EventBus.js`:
-- **จาก React -> Phaser**: เช่น `start-game`, `pause-game`, `change-level`
-- **จาก Phaser -> React**: เช่น `game-over`, `score-update`, `timer-tick`
+การสื่อสารระหว่าง DOM UI และ Phaser Gameplay ทำผ่าน `src/core/EventBus.js`:
+- **จาก DOM UI -> Phaser**: เช่น launch game context, hide/show HUD, navigation state
+- **จาก Phaser -> DOM UI**: เช่น game completion, score update, timer tick, result summary
+
+## 6. Layout Rules for Current UI
+- App-level screens should lock viewport height and scroll only their intended content region
+- Game Hub and Leaderboard must keep FAB/topbar/bottom bar independent from scroll content
+- Before UI edits, read [UX/UI Guidelines](../wiki/guidelines/ux-ui-guidelines.md)
+- Use Material Symbols / Material Web components consistently for icon buttons, FABs, progress and form controls
 
 ---
 
