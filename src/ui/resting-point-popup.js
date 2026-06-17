@@ -71,17 +71,21 @@ export function showRestingPointPopup(options = {}) {
         `;
 
         const timerEl = overlay.querySelector("[data-resting-timer]");
+        const timerGroupEl = overlay.querySelector(".resting-popup-timer");
         const catImg = overlay.querySelector(".resting-popup-cat");
+        const layoutEl = overlay.querySelector(".resting-popup-layout");
 
         const skipBtn = overlay.querySelector("[data-resting-skip]");
 
         const onTimeUp = () => {
             if (timeUp) return;
             timeUp = true;
+            layoutEl?.classList.add("is-time-up");
             if (catImg) {
                 catImg.src = catStandingGif;
                 catImg.alt = "แมวลุกขึ้นพร้อมเล่นแล้ว";
             }
+            timerGroupEl?.setAttribute("aria-hidden", "true");
             if (skipBtn) {
                 skipBtn.textContent = "กลับสู่หน้าหลัก";
             }
