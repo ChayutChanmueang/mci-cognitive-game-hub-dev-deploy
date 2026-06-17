@@ -1,3 +1,6 @@
+import { RollingCountdownTimer } from "../util/Odometer/odometer.js";
+import "../util/Odometer/odometer.css";
+
 const CAT_SLEEPING_GIF = "/assets/resting-point/resting-cat/cat-sleep.gif";
 const CAT_JUMPING_GIF = "/assets/resting-point/resting-cat/cat-jump.gif";
 
@@ -29,6 +32,7 @@ export function showRestingPointPopup(options = {}) {
                 clearInterval(intervalId);
                 intervalId = null;
             }
+            timerDisplay?.destroy();
             overlay.remove();
             document.removeEventListener("keydown", onKeyDown);
             resolve(result);
@@ -60,7 +64,9 @@ export function showRestingPointPopup(options = {}) {
                         aria-live="polite"
                     >
                     <div class="resting-popup-timer" aria-live="polite" aria-atomic="true">
-                        <span class="resting-popup-timer__number" data-resting-timer>${timeLeft}</span>
+                        <span class="resting-popup-timer__number" data-resting-timer aria-label="${timeLeft}">
+                            <span class="resting-popup-timer__digit" data-resting-timer-value>${String(timeLeft).padStart(2, "0")}</span>
+                        </span>
                         <span class="resting-popup-timer__unit">วินาที</span>
                     </div>
                 </div>
@@ -71,15 +77,41 @@ export function showRestingPointPopup(options = {}) {
         `;
 
         const timerEl = overlay.querySelector("[data-resting-timer]");
+        const timerValueEl = overlay.querySelector("[data-resting-timer-value]");
         const timerGroupEl = overlay.querySelector(".resting-popup-timer");
         const catImg = overlay.querySelector(".resting-popup-cat");
         const layoutEl = overlay.querySelector(".resting-popup-layout");
+        const timerDisplay = timerValueEl
+            ? new RollingCountdownTimer({
+                el: timerValueEl,
+                value: timeLeft,
+                digitCount: 2,
+                durationMs: 520,
+            })
+            : null;
 
         const skipBtn = overlay.querySelector("[data-resting-skip]");
+
+        const updateTimer = (value) => {
+            const nextValue = Math.max(0, value);
+            if (timerEl) {
+                timerEl.setAttribute("aria-label", String(nextValue));
+            }
+            if (timerDisplay) {
+                timerDisplay.update(nextValue);
+            } else if (timerValueEl) {
+                timerValueEl.textContent = String(nextValue).padStart(2, "0");
+            }
+        };
 
         const onTimeUp = () => {
             if (timeUp) return;
             timeUp = true;
+            if (layoutEl && timerGroupEl) {
+                const layoutRect = layoutEl.getBoundingClientRect();
+                const timerRect = timerGroupEl.getBoundingClientRect();
+                layoutEl.style.setProperty("--resting-timer-top", `${timerRect.top - layoutRect.top}px`);
+            }
             layoutEl?.classList.add("is-time-up");
             if (catImg) {
                 catImg.src = catStandingGif;
@@ -96,9 +128,7 @@ export function showRestingPointPopup(options = {}) {
         } else {
             intervalId = setInterval(() => {
                 timeLeft -= 1;
-                if (timerEl) {
-                    timerEl.textContent = String(Math.max(0, timeLeft));
-                }
+                updateTimer(timeLeft);
                 if (timeLeft <= 0) {
                     clearInterval(intervalId);
                     intervalId = null;
@@ -114,9 +144,7 @@ export function showRestingPointPopup(options = {}) {
                     intervalId = null;
                 }
                 timeLeft = 0;
-                if (timerEl) {
-                    timerEl.textContent = "0";
-                }
+                updateTimer(timeLeft);
                 onTimeUp();
                 return;
             }
