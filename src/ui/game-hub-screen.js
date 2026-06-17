@@ -15,6 +15,16 @@ import AudioManager from "../core/audio-manager.js";
 import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
 
 const REST_GAME_GID = "REST001";
+const DAILY_REQUIRED_GAME_GID = "PHY001";
+const DAILY_REQUIRED_GAME_FALLBACK = Object.freeze({
+    gid: DAILY_REQUIRED_GAME_GID,
+    name: "fry-food",
+    th_name: "ทอดอาหาร",
+    displayName: "เกมทอดอาหาร",
+    mci_group: "Executive",
+    max_score: null,
+    created_at: null,
+});
 const MINIGAME_DEFAULT_BG_COLOR = '#028af8';
 
 const CATEGORY_META = Object.freeze({
@@ -98,7 +108,7 @@ function normalizeGame(item, index = 0, fallbackCategory = "Attention") {
 
 function normalizeProgramGame(item, index, dailyProgram, dayItem = null) {
     const game = normalizeGame(item, index, item?.mci_group || "Attention");
-    if (!game.gid || game.gid === REST_GAME_GID) {
+    if (!game.gid || game.gid === REST_GAME_GID || game.gid === DAILY_REQUIRED_GAME_GID) {
         return null;
     }
 
@@ -143,6 +153,11 @@ function buildAllGames(gameListItems) {
     return uniqueGames;
 }
 
+function getDailyRequiredGame(allGames) {
+    const game = (allGames || []).find((item) => item.gid === DAILY_REQUIRED_GAME_GID);
+    return game || DAILY_REQUIRED_GAME_FALLBACK;
+}
+
 function buildProgramDays(dailyProgram) {
     const rawDays = Array.isArray(dailyProgram?.days) ? dailyProgram.days : [];
 
@@ -174,7 +189,7 @@ function buildProgramDays(dailyProgram) {
         .sort((first, second) => Number(first.day) - Number(second.day));
 }
 
-function buildDayNodes(dayItem, restGame) {
+function buildDayNodes(dayItem, restGame, dailyRequiredGame) {
     const gameNodes = (dayItem?.games || []).map((game, index) => ({
         id: `game-${dayItem.day}-${game.presetDataId || game.gid}-${game.stage ?? index}`,
         type: "game",
@@ -186,21 +201,46 @@ function buildDayNodes(dayItem, restGame) {
         gameData: game,
     }));
 
-    if (!gameNodes.length) {
+    const requiredGameNode = dailyRequiredGame
+        ? {
+            id: `daily-required-${dayItem.day}-${DAILY_REQUIRED_GAME_GID}`,
+            type: "game",
+            gid: DAILY_REQUIRED_GAME_GID,
+            stage: null,
+            day: Number(dayItem.day),
+            title: dailyRequiredGame.displayName
+                || dailyRequiredGame.th_name
+                || dailyRequiredGame.name
+                || "เกมทอดอาหาร",
+            emoji: "🍳",
+            gameData: {
+                ...DAILY_REQUIRED_GAME_FALLBACK,
+                ...dailyRequiredGame,
+                gid: DAILY_REQUIRED_GAME_GID,
+                name: dailyRequiredGame.name || DAILY_REQUIRED_GAME_FALLBACK.name,
+            },
+            categoryLabel: "ภารกิจประจำวัน",
+            description: "เล่นเกมทอดอาหารก่อนเริ่มโปรแกรมประจำวัน",
+        }
+        : null;
+
+    if (!gameNodes.length && !requiredGameNode) {
         return [];
     }
 
     const splitIndex = Math.ceil(gameNodes.length / 2);
-    const restNode = {
-        id: `rest-${dayItem.day}`,
-        type: "rest",
-        gid: REST_GAME_GID,
-        stage: null,
-        day: Number(dayItem.day),
-        title: restGame?.displayName || restGame?.th_name || restGame?.name || "พักยืดเส้นยืดสาย",
-        gameData: restGame || { gid: REST_GAME_GID, name: "REST001", displayName: "พักยืดเส้นยืดสาย" },
-        emoji: "🏋️",
-    };
+    const restNode = gameNodes.length
+        ? {
+            id: `rest-${dayItem.day}`,
+            type: "rest",
+            gid: REST_GAME_GID,
+            stage: null,
+            day: Number(dayItem.day),
+            title: restGame?.displayName || restGame?.th_name || restGame?.name || "พักยืดเส้นยืดสาย",
+            gameData: restGame || { gid: REST_GAME_GID, name: "REST001", displayName: "พักยืดเส้นยืดสาย" },
+            emoji: "🏋️",
+        }
+        : null;
     const checkInNode = {
         id: `checkin-${dayItem.day}`,
         type: "checkin",
@@ -212,18 +252,19 @@ function buildDayNodes(dayItem, restGame) {
     };
 
     return [
+        ...(requiredGameNode ? [requiredGameNode] : []),
         ...gameNodes.slice(0, splitIndex),
-        restNode,
+        ...(restNode ? [restNode] : []),
         ...gameNodes.slice(splitIndex),
         checkInNode,
     ];
 }
 
-function buildDaySections(programDays, restGame) {
+function buildDaySections(programDays, restGame, dailyRequiredGame) {
     return (programDays || [])
         .map((dayItem) => ({
             ...dayItem,
-            nodes: buildDayNodes(dayItem, restGame),
+            nodes: buildDayNodes(dayItem, restGame, dailyRequiredGame),
         }))
         .filter((dayItem) => dayItem.nodes.length > 0)
         .sort((first, second) => Number(first.day) - Number(second.day));
@@ -327,6 +368,7 @@ function createGameHubInitialState() {
     return {
         allGames: [],
         restGame: null,
+        dailyRequiredGame: DAILY_REQUIRED_GAME_FALLBACK,
         programPresets: [],
         dailyProgram: null,
         programDays: [],
@@ -427,7 +469,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const render = () => {
         cleanup();
-        const sections = buildDaySections(state.programDays, state.restGame);
+        const sections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
         const currentDay = getCurrentProgramDay();
         const currentSection = getCurrentDaySection(sections);
         const currentHistory = getDisplayHistoryForProgramDay(currentDay);
@@ -517,8 +559,10 @@ export async function renderGameHubScreen(root, options = {}) {
             .join(" ");
         const nodeText = isDone
             ? "✓"
-            : node.type === "game"
-                ? String(node.gameNumber || index + 1)
+            : node.emoji
+                ? node.emoji
+                : node.type === "game"
+                    ? String(node.gameNumber || index + 1)
                 : node.emoji || "•";
         const sideLabel = node.type === "checkin" && isDone
             ? "เช็คชื่อแล้ว"
@@ -562,11 +606,13 @@ export async function renderGameHubScreen(root, options = {}) {
 
         const game = node.gameData || {};
         const categoryId = game.mci_group || "Attention";
+        const categoryLabel = node.categoryLabel || getCategoryLabel(categoryId);
+        const description = node.description || getCategoryDescription(categoryId);
         return `
             <article class="hub-clean-current-card">
-                <p>${escapeHtml(getCategoryLabel(categoryId))}</p>
+                <p>${escapeHtml(categoryLabel)}</p>
                 <h2>${escapeHtml(node.title || game.displayName || game.name || "เกมฝึกสมอง")}</h2>
-                <span>${escapeHtml(getCategoryDescription(categoryId))}</span>
+                <span>${escapeHtml(description)}</span>
                 <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button"${isProgramEnded ? " disabled" : ""}>เริ่มเกม</md-filled-button>
             </article>
         `;
@@ -659,8 +705,13 @@ export async function renderGameHubScreen(root, options = {}) {
                 typeof options.loadGameList === "function" ? options.loadGameList() : [],
                 typeof options.loadProgramPresets === "function" ? options.loadProgramPresets() : [],
             ]);
-            state.allGames = buildAllGames(gameListItems);
+            const allGames = buildAllGames(gameListItems);
+            const hasDailyRequiredGame = allGames.some((game) => game.gid === DAILY_REQUIRED_GAME_GID);
+            state.allGames = hasDailyRequiredGame
+                ? allGames
+                : [...allGames, DAILY_REQUIRED_GAME_FALLBACK];
             state.restGame = state.allGames.find((game) => game.gid === REST_GAME_GID) || null;
+            state.dailyRequiredGame = getDailyRequiredGame(state.allGames);
             state.programPresets = Array.isArray(programPresets) ? programPresets : [];
 
             const dailyProgram = await loadProgramWindow({
@@ -805,7 +856,7 @@ export async function renderGameHubScreen(root, options = {}) {
             return;
         }
 
-        const sections = buildDaySections(state.programDays, state.restGame);
+        const sections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
         const currentDay = getCurrentProgramDay();
         const sectionsToSync = sections.filter((section) => Number(section?.day) <= currentDay);
         if (!sectionsToSync.length) {
@@ -873,7 +924,7 @@ export async function renderGameHubScreen(root, options = {}) {
             return;
         }
 
-        const sections = buildDaySections(state.programDays, state.restGame);
+        const sections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
         const currentDay = getCurrentProgramDay();
         const currentSection = getCurrentDaySection(sections);
         const currentHistory = getDisplayHistoryForProgramDay(currentDay);
@@ -915,7 +966,7 @@ export async function renderGameHubScreen(root, options = {}) {
             return;
         }
 
-        const sections = buildDaySections(state.programDays, state.restGame);
+        const sections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
         const currentDay = getCurrentProgramDay();
         const currentSection = getCurrentDaySection(sections);
         const currentHistory = getDisplayHistoryForProgramDay(currentDay);
@@ -934,7 +985,7 @@ export async function renderGameHubScreen(root, options = {}) {
             return;
         }
 
-        const sections = buildDaySections(state.programDays, state.restGame);
+        const sections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
         const currentSection = getCurrentDaySection(sections);
         const playableNodes = getPlayableNodes(currentSection.nodes);
         if (!playableNodes.length) {
