@@ -389,8 +389,7 @@ export async function renderGameHubScreen(root, options = {}) {
         activeCleanup.push(() => target.removeEventListener(eventName, handler, listenerOptions));
     };
 
-    history.pushState(null, "", location.href);
-    on(window, "popstate", () => history.pushState(null, "", location.href));
+    // Removed rogue popstate trap here to fix minigame exit dialog conflicts
 
     const getCurrentProgramDay = () => Number(state.dailyProgram?.programDay || state.programDays[0]?.day || 1);
     const getProgramDayCount = () => Number(state.dailyProgram?.programDayCount || state.programDays[state.programDays.length - 1]?.day || 1);

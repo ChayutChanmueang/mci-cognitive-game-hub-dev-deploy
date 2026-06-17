@@ -9,6 +9,7 @@ import { renderLeaderboardScreen } from "./ui/leaderboard-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
+import { showGameExitPopup } from "./ui/game-exit-popup.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
 import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
@@ -74,6 +75,22 @@ const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
+const BACK_BUTTON_PROTECTED_SLUGS = new Set([
+    "zoo-feeder",
+    "postcard-reader",
+    "symmetry-decor",
+    "context-clues",
+    "zoo-detective",
+    "fry-food",
+]);
+const GAME_COLORS = Object.freeze({
+    "zoo-feeder": { border: "#DE8D23", header: "#FEA837", textPrimary: "#945E17", textSecondary: "#DE8519" },
+    "zoo-detective": { border: "#2D8FBA", header: "#45A9D4", textPrimary: "#235B75", textSecondary: "#3D86A8" },
+    "symmetry-decor": { border: "#DB4670", header: "#FF5585", textPrimary: "#A83855", textSecondary: "#F26A8D" },
+    "postcard-reader": { border: "#54AC24", header: "#65BD35", textPrimary: "#446930", textSecondary: "#6F9F55" },
+    "context-clues": { border: "#C73969", header: "#E34F81", textPrimary: "#8F2448", textSecondary: "#C8577C" },
+    "fry-food": { border: "#DE8D23", header: "#FEA837", textPrimary: "#945E17", textSecondary: "#DE8519" },
+});
 const TEST_GAME_HUB_LAUNCH_GID_KEY = "test_game_hub_launch_gid";
 const PENDING_GAME_HISTORY_STORAGE = Object.freeze({
     map: "pending_game_history_by_gid",
@@ -102,6 +119,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let routeRenderVersion = 0;
     let exitLogHn = "";
     let gameOpenedLogged = false;
+
+    // Back-button guard state: tracks whether a protected minigame is active.
+    // Uses a pushState sentinel so back press keeps the URL stable (popstate handler),
+    // with a hashchange fallback for edge cases where the sentinel is bypassed.
+    // Back-button guard state
+    let isBackGuardActive = false;
+    let backGuardSelectedGame = null;
+    let backGuardCleanup = null;
+    let isBackGuardBlocking = false;
 
     // Initialize the global audio system
     AudioManager.init();
@@ -1237,15 +1263,43 @@ document.addEventListener("DOMContentLoaded", () => {
             hud.render();
             let activeResultPanel = null;
 
+            // --- Back button guard for minigames ---
+            const isBackProtected = BACK_BUTTON_PROTECTED_SLUGS.has(slug);
+
+            const installBackGuard = () => {
+                if (!isBackProtected || isBackGuardActive) {
+                    return;
+                }
+                isBackGuardActive = true;
+                backGuardSelectedGame = selectedGame;
+                backGuardCleanup = cleanup;
+
+                // Push a sentinel history entry with the exact same URL.
+                // If the current history state is ALREADY the sentinel (e.g. after a page reload),
+                // we don't need to push another one.
+                if (window.history.state && window.history.state.__backGuard) {
+                    return;
+                }
+                window.history.pushState({ __backGuard: true }, "", window.location.href);
+            };
+
+            const removeBackGuard = () => {
+                isBackGuardActive = false;
+                backGuardSelectedGame = null;
+                backGuardCleanup = null;
+                isBackGuardBlocking = false;
+            };
+
+
 
             const handleExit = async () => {
-                const confirmed = await showPopup({
-                    title: "ออกจากเกม",
-                    message: "คุณต้องการออกจากเกมที่กำลังเล่นอยู่ใช่หรือไม่? ความก้าวหน้าในรอบนี้อาจจะไม่ถูกบันทึก",
+                const colors = GAME_COLORS[slug] || {};
+                const confirmed = await showGameExitPopup({
                     confirmText: "ออกจากการแข่งขัน",
-                    cancelText: "เล่นต่อ",
-                    icon: "logout",
-                    tone: "error"
+                    panelBorderColor: colors.border,
+                    panelHeaderColor: colors.header,
+                    primaryFontColor: colors.textPrimary,
+                    secondaryFontColor: colors.textSecondary,
                 });
 
                 if (confirmed) {
@@ -1301,6 +1355,7 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             const cleanup = () => {
+                removeBackGuard();
                 EventBus.off("minigame:exit-request", handleExit);
                 EventBus.off("minigame:game-over", handleGameOver);
                 EventBus.off("minigame:retry-request", handleRetry);
@@ -1310,6 +1365,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 activeResultPanel = null;
                 hud.destroy();
             };
+
+            installBackGuard();
 
             EventBus.on("minigame:exit-request", handleExit);
             EventBus.on("minigame:game-over", handleGameOver);
@@ -2258,8 +2315,76 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // --- Back-button guard: intercept popstate when leaving a protected minigame ---
+    const handleBackGuardIntercept = async () => {
+        isBackGuardBlocking = true;
+
+        // Pause all active Phaser scenes while the popup is shown
+        const pausedScenes = [];
+        if (activeGameInstance?.scene) {
+            for (const scene of activeGameInstance.scene.scenes) {
+                if (scene.scene.isActive() && !scene.scene.isPaused()) {
+                    scene.scene.pause();
+                    pausedScenes.push(scene);
+                }
+            }
+        }
+
+        const guardedGame = backGuardSelectedGame;
+        const guardedCleanup = backGuardCleanup;
+        const slug = guardedGame ? String(guardedGame.name || "").toLowerCase().replace(/\s+/g, "-") : "";
+        const colors = GAME_COLORS[slug] || {};
+
+        const confirmed = await showGameExitPopup({
+            panelBorderColor: colors.border,
+            panelHeaderColor: colors.header,
+            primaryFontColor: colors.textPrimary,
+            secondaryFontColor: colors.textSecondary,
+        });
+
+        isBackGuardBlocking = false;
+
+        if (confirmed) {
+            // Clear guard state before navigating
+            isBackGuardActive = false;
+            backGuardSelectedGame = null;
+            backGuardCleanup = null;
+            if (typeof guardedCleanup === "function") {
+                guardedCleanup();
+            }
+            navigateTo(getGameExitRoute(guardedGame));
+        } else {
+            // Resume all scenes that were paused
+            for (const scene of pausedScenes) {
+                try {
+                    scene.scene.resume();
+                } catch (_) {
+                    // Scene may have been destroyed
+                }
+            }
+        }
+    };
+
+    window.addEventListener("popstate", (e) => {
+        if (!isBackGuardActive || isBackGuardBlocking) {
+            return;
+        }
+        // If the state has our marker, it means we are ON the sentinel.
+        // We only care when the user navigates AWAY from the sentinel (popping it).
+        if (e.state && e.state.__backGuard) {
+            return;
+        }
+        
+        // Re-push sentinel immediately so the URL stays locked.
+        window.history.pushState({ __backGuard: true }, "", window.location.href);
+        void handleBackGuardIntercept();
+    });
+
     window.addEventListener("hashchange", () => {
-        void renderCurrentRoute();
+        // Normal routing — skip if a back-guard popup is currently blocking
+        if (!isBackGuardBlocking) {
+            void renderCurrentRoute();
+        }
     });
 
     const rememberedPatient = getPatientSessionCookie();

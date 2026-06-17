@@ -49,6 +49,11 @@ export class StartMenuPanel {
 
         overlay.innerHTML = `
             <div class="result-backdrop"></div>
+            <div style="position: absolute; top: 16px; left: 16px; z-index: 100;">
+                <md-icon-button id="start-menu-exit-button" aria-label="ออกจากเกม" style="--md-icon-button-icon-color: white;">
+                    <md-icon class="material-symbols-rounded">arrow_back</md-icon>
+                </md-icon-button>
+            </div>
             <div class="result-panel" id="gameover-result-panel">
                 <div class="result-header">
                     <h2 style="${titleFontSize ? `font-size: ${titleFontSize};` : ''}">${title}</h2>
@@ -94,6 +99,15 @@ export class StartMenuPanel {
             };
             btn.addEventListener("click", handleExit);
             btn.addEventListener("pointerdown", handleExit);
+        }
+
+        const backBtn = overlay.querySelector("#start-menu-exit-button");
+        if (backBtn) {
+            backBtn.addEventListener("click", () => {
+                EventBus.emit('audio:play', 'ui:click');
+                // Emitting this will trigger the main.js confirmation popup
+                EventBus.emit("minigame:exit-request");
+            });
         }
 
         window.addEventListener("resize", this.resizeHandler);
