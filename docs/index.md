@@ -2,7 +2,7 @@
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
 **Status:** 🟢 Stabilization & Deployment Testing | **Current Sprint:** Post-Sprint 6 Hardening
-**Last Updated:** 2026-06-16 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Last Updated:** 2026-06-17 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -15,6 +15,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Admin/tooling flow:** Admin login, player data screens, CSV export, daily preset editor, and test/debug controls.
 - **Game suite:** Zoo Detective, Zoo Feeder, Context Clues, Symmetry Decor, Postcard Reader, Resting Point, and Fry Food.
 - **Data services:** Supabase client, edge-function fallback paths, leaderboard RPC/client fallback, user rank lookup, game history, check-in history, and CSV export helpers.
+- **Media:** Embeddable `VideoPlayer` (loading overlay, buffering feedback, read-only progress, volume/mute sync, fullscreen with iOS pseudo-fullscreen fallback) used in the check-in short-video step and resting point; random video selection filters hidden entries from `game_video_list`.
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
 ---

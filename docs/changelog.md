@@ -2,6 +2,14 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+## [2026-06-17] - Video Player Documentation Sync
+### Changed
+- Added a `VideoPlayer` component section to `docs/software/04-ui-components.md` (no native controls, loading overlay, buffering feedback, read-only progress, volume/mute sync, fullscreen with iOS pseudo-fullscreen fallback, and event API) and updated the `resting-point-popup.js` note.
+- Expanded the Resting Point subsystem in `docs/software/01-system-design.md` with the `VideoPlayer` capabilities and the hidden-video filter on random video selection.
+- Added the `game_video_list` table (with the `hidden` column) to `docs/software/03-data-schema.md` and documented that `getRandomGameVideoUrl()` only queries `hidden = false`.
+- Added a Media line to the implementation snapshot in `docs/index.md`.
+- Bumped document versions/dates on the synced software docs.
+
 ## [2026-06-16] - Current Implementation Documentation Sync
 ### Changed
 - Updated `docs/index.md` with the current implementation snapshot, active runtime surfaces, and deployment branch hygiene note.

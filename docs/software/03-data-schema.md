@@ -2,9 +2,9 @@
 
 ---
 
-## *Document Version: 1.4*
+## *Document Version: 1.5*
 *Project: MCI Cognitive Games*
-*Last Updated: 2026-06-16*
+*Last Updated: 2026-06-17*
 
 ## 1. Database Overview
 
@@ -163,6 +163,17 @@ Leaderboard ปัจจุบันถูกอ่านผ่าน service la
 | hn | HN ของผู้เล่น |
 | score | คะแนนรวม |
 | current | ผู้เล่นปัจจุบันหรือไม่ |
+
+### 3.6 game_video_list
+รายการวิดีโอที่ใช้สุ่มแสดงในขั้นตอน short-video ของ check-in flow และ resting point ดึงผ่าน `Database.getRandomGameVideoUrl()`
+
+| Column | Type | Description |
+| ------ | ---- | ----------- |
+| id | int | PK |
+| url | string | URL ของไฟล์วิดีโอ |
+| hidden | boolean | ถ้า `true` จะถูกกรองออกจากการสุ่ม (ใช้ซ่อนวิดีโอโดยไม่ต้องลบ) |
+
+> หมายเหตุ: `getRandomGameVideoUrl()` query เฉพาะแถวที่ `hidden = false` เท่านั้น
 
 ---
 

@@ -2,9 +2,9 @@
 
 ---
 
-## *Document Version: 1.1*  
+## *Document Version: 1.2*  
 *Project: MCI Cognitive Games*  
-*Last Updated: 2026-06-16*
+*Last Updated: 2026-06-17*
 
 ## 1. UI System Overview
 
@@ -37,7 +37,22 @@
 | `admin-login-screen.js` | Admin login | สำหรับเข้าหน้าเครื่องมือ/ข้อมูลผู้ดูแล |
 | `daily-preset-tool-screen.js` | Daily preset editor | จัดการ preset รายวันและ game mapping |
 | `checkin-summary-screen.js` | Check-in/calendar summary | ใช้หลังจบ daily flow |
-| `resting-point-popup.js` | Rest node popup | ใช้ video player utility |
+| `resting-point-popup.js` | Rest node popup | ฝัง `VideoPlayer` สำหรับขั้นตอนพักผ่อน |
+
+### 3.0.1 VideoPlayer (`src/util/video-player/`)
+Component วิดีโอแบบ self-contained ที่ฝังลงใน container ใดก็ได้ (ไม่สร้าง modal/backdrop เอง — เป็นหน้าที่ของผู้เรียก) ใช้ใน check-in short-video step และ resting point
+
+| ความสามารถ | รายละเอียด |
+| :--- | :--- |
+| ไม่มี native controls | ป้องกันการ seek/ข้ามวิดีโอ; เล่น/หยุดด้วยการแตะที่ผิวจอ |
+| Loading overlay | แสดง `md-circular-progress` ขณะโหลดจนกว่าวิดีโอจะ `canplay`/`playing` |
+| Buffering feedback | event `waiting`/`stalled` ระหว่างเล่นจะแสดง loading overlay อีกครั้ง |
+| Read-only progress bar | `md-linear-progress` แสดงความคืบหน้า (pointer-events: none) |
+| Volume / mute | ปุ่ม mute toggle พร้อมไอคอนตามระดับเสียง; sync ได้ผ่าน `VideoManager` |
+| Fullscreen toggle | ใช้ Fullscreen API; fallback เป็น pseudo-fullscreen (CSS) บน iOS WebKit |
+| Events | `play`, `pause`, `ended`, `progress`, `volume-changed`, `mute-changed`, `destroy` |
+
+API หลัก: `VideoPlayer.mount(container, { src, label })`, `play()`, `pause()`, `replay()`, `setVolume()`, `setMuted()`, `on(event, cb)`, `destroy()`
 
 ### 3.1 Panels
 | Component | Description | Usage |
