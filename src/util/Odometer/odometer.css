@@ -1,0 +1,31 @@
+.countdown-odometer {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    font-variant-numeric: tabular-nums;
+}
+
+.countdown-odometer__digit {
+    display: inline-block;
+    position: relative;
+    width: 0.62em;
+    height: 1em;
+    line-height: 1;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: baseline;
+}
+
+.countdown-odometer__track {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+    transition-property: transform;
+    transition-timing-function: ease;
+}
+
+.countdown-odometer__value {
+    display: block;
+    height: 1em;
+    line-height: 1;
+}

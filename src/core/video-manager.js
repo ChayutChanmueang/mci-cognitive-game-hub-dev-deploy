@@ -15,6 +15,7 @@
 
 import StorageManager from './storage-manager.js';
 import { EventBus } from './EventBus.js';
+import { Howler } from 'howler';
 
 const STORAGE_KEYS = Object.freeze({
     volume: 'video_master_volume',
@@ -32,6 +33,12 @@ const VideoManager = {
 
     /** @type {Set<import('../util/video-player/VideoPlayer.js').VideoPlayer>} */
     _instances: new Set(),
+
+    /** @type {Set<import('../util/video-player/VideoPlayer.js').VideoPlayer>} */
+    _playingInstances: new Set(),
+
+    /** @type {number|null} */
+    _preVideoHowlerVolume: null,
 
     // ── Init ──────────────────────────────────────────────────────────────────
 
@@ -75,10 +82,39 @@ const VideoManager = {
             EventBus.emit('video:mute-changed', this._muted);
         });
 
-        player.on('destroy', () => this._instances.delete(player));
+        player.on('play', () => this._handleVideoStarted(player));
+        player.on('pause', () => this._handleVideoStopped(player));
+        player.on('ended', () => this._handleVideoStopped(player));
+        player.on('destroy', () => {
+            this._instances.delete(player);
+            this._handleVideoStopped(player);
+        });
 
         player.setVolume(this._volume);
         player.setMuted(this._muted);
+    },
+
+    // ── Background music coordination ────────────────────────────────────────
+
+    _handleVideoStarted(player) {
+        const hadPlayingVideo = this._playingInstances.size > 0;
+        this._playingInstances.add(player);
+
+        if (!hadPlayingVideo) {
+            this._preVideoHowlerVolume = Howler.volume();
+            Howler.volume(0);
+        }
+    },
+
+    _handleVideoStopped(player) {
+        this._playingInstances.delete(player);
+
+        if (this._playingInstances.size > 0 || this._preVideoHowlerVolume === null) {
+            return;
+        }
+
+        Howler.volume(this._preVideoHowlerVolume);
+        this._preVideoHowlerVolume = null;
     },
 
     // ── External control (from game UI) ───────────────────────────────────────

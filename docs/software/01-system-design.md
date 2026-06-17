@@ -1,6 +1,6 @@
 # MCI Cognitive Games — System Design
 
-**Version:** 1.3 | **Last Updated:** 2026-06-16
+**Version:** 1.4 | **Last Updated:** 2026-06-17
 
 ```mermaid
 graph TD
@@ -167,7 +167,9 @@ Profile screen ใช้ `src/util/player-csv-export.js` เพื่อสร�
 - `VoiceService`: ระบบอ่านออกเสียงภาษาไทยอัตโนมัติเพื่อเพิ่มประสิทธิภาพการจดจำ
 
 ### 4.6 Resting Point (พักยืดเส้นยืดสาย)
-- ใช้ video/player utility และ popup flow สำหรับ rest node
+- ฝัง `VideoPlayer` (`src/util/video-player/`) ใน popup flow สำหรับ rest node และ check-in short-video step
+- `VideoPlayer` รองรับ loading overlay, buffering feedback, read-only progress, volume/mute และ fullscreen (มี pseudo-fullscreen fallback สำหรับ iOS WebKit)
+- วิดีโอสุ่มผ่าน `Database.getRandomGameVideoUrl()` ซึ่งกรองเฉพาะแถวที่ `hidden = false` ใน `game_video_list`
 - บันทึก history ด้วย `REST001`
 - กลับไป Game Hub หลังพักครบเงื่อนไข
 
