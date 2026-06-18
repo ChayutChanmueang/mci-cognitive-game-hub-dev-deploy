@@ -25,6 +25,7 @@ export class StartMenuPanel {
         const secondaryFontColor = this.options.secondaryFontColor || '#DE8519';
         const titleFontSize = this.options.titleFontSize || null;
         const coverImage = this.options.coverImage || null;
+        const hideLevelInfo = this.options.hideLevelInfo || false;
 
         let levelText = "ง่าย";
         let starCount = 1;
@@ -62,6 +63,7 @@ export class StartMenuPanel {
                 <div class="result-picture result-picture--start" style="${coverStyle}"></div>
                 <div class="result-how-to-play-title" style="color: ${primaryFontColor};">วิธีการเล่น</div>
                 <div class="result-how-to-play-text" style="color: ${secondaryFontColor};">${instructions}</div>
+                ${hideLevelInfo ? "" : `
                 <div class="result-divider"></div>
                 <div class="result-level-info">
                     <span style="color: ${primaryFontColor};">ระดับ :</span>
@@ -71,6 +73,7 @@ export class StartMenuPanel {
                     </div>
                 </div>
                 <div class="result-level-detail" style="color: ${secondaryFontColor};">${levelDetail}</div>
+                `}
                 <button id="result-exit-button" class="result-btn-home result-btn-home--start">เริ่มเล่นเกม</button>
             </div>
         `;

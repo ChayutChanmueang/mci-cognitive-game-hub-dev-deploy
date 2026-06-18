@@ -22,7 +22,7 @@ export default class StartMenuScene extends Phaser.Scene {
 
         // Register Audio
         const sounds = {
-            'sizzling': { src: ['assets/audio/fry-food/Sizzlingcooking_SFX.mp3'] },
+            'sizzling': { src: ['assets/audio/fry-food/Sizzlingcooking_SFX.mp3'], loop: true },
             'flip': { src: ['assets/audio/fry-food/Flip_Short_SFX.mp3'] },
             'ting': { src: ['assets/audio/fry-food/Ting_SFX.mp3'] },
             'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] },
@@ -60,6 +60,7 @@ export default class StartMenuScene extends Phaser.Scene {
                 secondaryFontColor: StartMenuSetting.secondaryFontColor,
                 titleFontSize: StartMenuSetting.titleFontSize,
                 coverImage: StartMenuSetting.coverImage,
+                hideLevelInfo: StartMenuSetting.hideLevelInfo,
             });
             this.startMenuPanel.render();
         }

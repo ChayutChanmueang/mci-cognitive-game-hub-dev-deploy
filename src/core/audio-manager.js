@@ -104,6 +104,10 @@ const AudioManager = {
             this.play(key, options);
         });
 
+        EventBus.on('audio:stop', (key) => {
+            this.stop(key);
+        });
+
         // BGM control
         EventBus.on('audio:bgm', (key, options) => {
             this.playBgm(key, options);
@@ -285,6 +289,16 @@ const AudioManager = {
         }
 
         return id;
+    },
+
+    /**
+     * Stop a specific sound effect.
+     */
+    stop(key) {
+        const howl = this._sounds.get(key);
+        if (howl) {
+            howl.stop();
+        }
     },
 
     // ─── BGM Playback ─────────────────────────────────────

@@ -142,7 +142,7 @@ export default class GameplayScene extends Phaser.Scene {
         this._createProgressBarIcon();
 
         // -- Debug text overlay ---------------------------------------------
-        this._createDebugOverlay();
+        // this._createDebugOverlay();
 
         // -- Designer Menu --------------------------------------------------
         // this._createDesignerMenu();
@@ -258,8 +258,9 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         // -- Update debug overlay -------------------------------------------
-        this._updateDebugText(orientation, accel);
+        // this._updateDebugText(orientation, accel);
 
+        /*
         if (this._debugGraphics && this._food && this._foodBaseX !== undefined && this._foodSprite) {
             this._debugGraphics.clear();
             
@@ -272,6 +273,7 @@ export default class GameplayScene extends Phaser.Scene {
             this._debugGraphics.lineStyle(2, 0xff0000, 0.8);
             this._debugGraphics.strokeCircle(this._food.x, this._food.y, radius);
         }
+        */
 
         // -- Update progress bar --------------------------------------------
         if (this._gameState === 'COOKING' && this._cookTimer) {
@@ -413,6 +415,8 @@ export default class GameplayScene extends Phaser.Scene {
         this._gameState = 'COOKING';
         this._flipInitiated = false;
 
+        // Ensure old sizzling stops before playing (just in case)
+        EventBus.emit('audio:stop', 'fry-food:sizzling');
         // Play sizzling cooking sound
         EventBus.emit('audio:play', 'fry-food:sizzling');
 
@@ -462,6 +466,9 @@ export default class GameplayScene extends Phaser.Scene {
     _executeFlip() {
         this._flipInitiated = false;
 
+        // Stop sizzling sound while flipping
+        EventBus.emit('audio:stop', 'fry-food:sizzling');
+
         // Play flip sound
         EventBus.emit('audio:play', 'fry-food:flip');
 
@@ -477,7 +484,7 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         this._cookLevel++;
-        this.score = this._cookLevel * 100;
+        this.score = this._cookLevel * 20;
         EventBus.emit('minigame:score', { score: this.score });
 
         const flipDurationMs = this.time.now - this._readyToFlipTime;
@@ -509,7 +516,7 @@ export default class GameplayScene extends Phaser.Scene {
                 }
             },
             onComplete: () => {
-                if (this._cookLevel >= 4) {
+                if (this._cookLevel >= 5) {
                     this._endGame();
                 } else {
                     // Done flipping, restart cook cycle
@@ -529,10 +536,13 @@ export default class GameplayScene extends Phaser.Scene {
             this.countdownTimer.remove();
         }
         
+        // Stop sizzling sound
+        EventBus.emit('audio:stop', 'fry-food:sizzling');
+
         // Trigger the premium DOM effect
         EventBus.emit('audio:play', 'fry-food:endgame');
         
-        this.replayLogger.addEvent(ReplayEvent.FryFood.FINAL_SCORE, { data: this._cookLevel * 100 });
+        this.replayLogger.addEvent(ReplayEvent.FryFood.FINAL_SCORE, { data: this._cookLevel * 20 });
         this.replayLogger.pushToDatabase();
         
         showLevelCompleteEffect();
@@ -540,11 +550,11 @@ export default class GameplayScene extends Phaser.Scene {
         // Wait for the effect to finish before showing the game over panel
         this.time.delayedCall(1500, () => {
             EventBus.emit('minigame:game-over', {
-                score: this._cookLevel * 100,
+                score: this._cookLevel * 20,
                 level: this._cookLevel,
                 panelBorderColor: GameOverSetting.panelBorderColor,
                 panelHeaderColor: GameOverSetting.panelHeaderColor,
-                resultImage: 'assets/fry-food/tray.png',
+                resultImage: 'assets/common/result/result_fry_food.png',
             });
         });
     }
@@ -586,8 +596,8 @@ export default class GameplayScene extends Phaser.Scene {
             this._panContainer.add(this._food);
 
             // Create debug graphics to show slide radius and food hitbox
-            this._debugGraphics = this.add.graphics();
-            this._panContainer.add(this._debugGraphics);
+            // this._debugGraphics = this.add.graphics();
+            // this._panContainer.add(this._debugGraphics);
         }
     }
 

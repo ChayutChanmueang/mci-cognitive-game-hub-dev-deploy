@@ -2,9 +2,11 @@
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'Fry Food',
-    description: '',
-    instructions: '',
+    title: 'ทำอาหารแสนอร่อย',
+    description: 'เกมทำอาหารเมนูต่างๆ ด้วยการขยับมือถือ',
+    instructions: 'เอียงมือถือเพื่อผัดอาหาร เมื่อถึงจังหวะ ให้สบัดมือถือขึ้นเพื่อพลิกอาหาร',
+    hideLevelInfo: true,
+    coverImage: 'assets/common/cover/cover_fry_food.png',
     titleFontSize: '80px',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,
