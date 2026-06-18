@@ -554,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         EventBus.emit("minigame:hide-hud");
-        EventBus.emit('audio:bgm', 'hub');
+        // EventBus.emit('audio:bgm', 'hub'); // Temporarily disabled
 
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
