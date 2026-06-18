@@ -88,7 +88,7 @@ export default class UITestScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isRestarting = false;
     this.gameStartedAt = new Date();
-    this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.ROUND_START, true);
+    this.replayLogger.addTimestampEvent(ReplayEvent.ZooFeeder.ROUND_START);
     this.gameEndedAt = new Date();
     this.spawnFruitTimer = null;
 
@@ -278,7 +278,7 @@ export default class UITestScene extends Phaser.Scene {
         console.error("Failed to save game data:", error);
       });
 
-      this.replayLogger.addCorrectEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED, true);
+      this.replayLogger.addTimestampEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED);
 
       this.replayLogger.pushToDatabase();
 

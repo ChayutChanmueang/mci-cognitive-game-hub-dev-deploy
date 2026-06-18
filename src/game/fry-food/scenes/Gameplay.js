@@ -3,6 +3,8 @@ import { EventBus } from '../../../core/EventBus.js';
 import AccelerometerManager from '../../../core/accelerometer-manager.js';
 import { AccelerometerSettings, GameOverSetting } from '../constants.js';
 import { showLevelCompleteEffect } from '../../common/ui-elements/scripts/level-complete-effect.js';
+import ReplayLogBuffer from '../../../core/replay-log-buffer.js';
+import { ReplayEvent } from '../../../core/replay-event.js';
 
 /**
  * Food configuration for the fry-food minigame.
@@ -114,6 +116,7 @@ export default class GameplayScene extends Phaser.Scene {
         this._startBetaAngle = 0;    // Baseline angle captured when smoke appears
         this._cookLevel = 0;         // Tracks how many times it was flipped
         this._flipThresholdBeta = AccelerometerSettings.flipThresholdBeta; // dynamic threshold for designer
+        this.replayLogger = new ReplayLogBuffer();
 
         // -- Show DOM HUD (zoo-feeder top bar style) -------------------------
         this.score = 0;
@@ -443,6 +446,7 @@ export default class GameplayScene extends Phaser.Scene {
 
         // Capture the baseline device angle at the exact moment the egg is ready
         this._startBetaAngle = AccelerometerManager.getOrientation().beta;
+        this._readyToFlipTime = this.time.now;
 
         // Show flip prompt
         if (this._flipPromptContainer) {
@@ -475,6 +479,9 @@ export default class GameplayScene extends Phaser.Scene {
         this._cookLevel++;
         this.score = this._cookLevel * 100;
         EventBus.emit('minigame:score', { score: this.score });
+
+        const flipDurationMs = this.time.now - this._readyToFlipTime;
+        this.replayLogger.addEvent(ReplayEvent.FryFood.FLIP_DURATION, { data: flipDurationMs });
 
         // Visual change to food
         const cfg = this._foodConfig;
@@ -524,6 +531,10 @@ export default class GameplayScene extends Phaser.Scene {
         
         // Trigger the premium DOM effect
         EventBus.emit('audio:play', 'fry-food:endgame');
+        
+        this.replayLogger.addEvent(ReplayEvent.FryFood.FINAL_SCORE, { data: this._cookLevel * 100 });
+        this.replayLogger.pushToDatabase();
+        
         showLevelCompleteEffect();
 
         // Wait for the effect to finish before showing the game over panel

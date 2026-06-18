@@ -73,7 +73,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.choosePostcard();
     this.chooseQuestion();
     this.intializeGamePage();
-    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
+    this.replayLogger.addTimestampEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN);
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
 
@@ -219,7 +219,7 @@ export default class GameplayScene extends Phaser.Scene {
     for (const button of this.buttonPool.Pool) {
       button.forceShow();
     }
-    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.QUESTION_SHOWN, true);
+    this.replayLogger.addTimestampEvent(ReplayEvent.PostcardReader.QUESTION_SHOWN);
 
     // Hide timer during quiz
     EventBus.emit("minigame:hide-timer");
@@ -331,7 +331,7 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit("minigame:show-timer");
 
     this.gameplayUI.postcard.reinitializedPanel();
-    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
+    this.replayLogger.addTimestampEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN);
   }
 
   onGameOver() {
@@ -354,7 +354,7 @@ export default class GameplayScene extends Phaser.Scene {
       console.error("Failed to save game data:", error);
     });
 
-    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED, true);
+    this.replayLogger.addTimestampEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED);
     this.replayLogger.pushToDatabase();
     // this.gameplayUI.showGameOverPanel(this.allScore);
 

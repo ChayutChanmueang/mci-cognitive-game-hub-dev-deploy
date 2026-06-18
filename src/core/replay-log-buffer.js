@@ -41,8 +41,8 @@ function normalizeReplayEventValue(value) {
         throw new Error("Replay event value must be an object with answer and data");
     }
 
-    if (typeof value.data !== "boolean") {
-        throw new Error("Replay event value.data must be a boolean");
+    if (typeof value.data !== "boolean" && typeof value.data !== "string" && typeof value.data !== "number") {
+        throw new Error("Replay event value.data must be a boolean, string, or number");
     }
 
     const replayValue = {
@@ -313,6 +313,16 @@ export class ReplayLogBuffer {
 
         return this.addEvent(replayId, {
             data,
+        }, options);
+    }
+
+    /**
+     * @param {string} replayId
+     * @param {{ id?: string, createdAt?: string }} options
+     */
+    addTimestampEvent(replayId, options = {}) {
+        return this.addEvent(replayId, {
+            data: new Date().toISOString(),
         }, options);
     }
 

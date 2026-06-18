@@ -90,7 +90,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.constructGrid(true);
 
     this.gameStartedAt = new Date();
-    this.replayLogger.addCorrectEvent(ReplayEvent.SymmetryDecor.ROUND_START, true);
+    this.replayLogger.addTimestampEvent(ReplayEvent.SymmetryDecor.ROUND_START);
     this.gameEndedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
@@ -188,7 +188,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
-    this.replayLogger.addCorrectEvent(ReplayEvent.SymmetryDecor.ROUND_COMPLETED, true);
+    this.replayLogger.addTimestampEvent(ReplayEvent.SymmetryDecor.ROUND_COMPLETED);
     this.replayLogger.pushToDatabase();
 
     //Save game data to database

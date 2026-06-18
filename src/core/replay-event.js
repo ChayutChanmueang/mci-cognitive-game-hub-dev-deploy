@@ -52,6 +52,11 @@ export const ZooFeederReplayEvent = Object.freeze({
     ROUND_COMPLETED: "zoo_feeder.round_completed",
 });
 
+export const FryFoodReplayEvent = Object.freeze({
+    FINAL_SCORE: "fry_food.final_score",
+    FLIP_DURATION: "fry_food.flip_duration"
+});
+
 export const ReplayEvent = Object.freeze({
     Global: GlobalReplayEvent,
     ContextClues: ContextCluesReplayEvent,
@@ -59,4 +64,5 @@ export const ReplayEvent = Object.freeze({
     SymmetryDecor: SymmetryDecorReplayEvent,
     ZooDetective: ZooDetectiveReplayEvent,
     ZooFeeder: ZooFeederReplayEvent,
+    FryFood: FryFoodReplayEvent,
 });
