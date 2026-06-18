@@ -759,14 +759,12 @@ export default class GameplayScene extends Phaser.Scene {
         const tillingFrames = [
             'assets/fry-food/tilling/phone_tile_1.png',
             'assets/fry-food/tilling/phone_tile_2.png',
-            'assets/fry-food/tilling/phone_tile_3.png',
-            'assets/fry-food/tilling/phone_tile_4.png',
         ];
         iconEl.src = tillingFrames[0];
         iconEl.alt = 'Tilt phone to flip';
         Object.assign(iconEl.style, {
-            width: '96px',
-            height: '96px',
+            width: '144px',
+            height: '144px',
             objectFit: 'contain',
             imageRendering: 'auto',
             filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))',
