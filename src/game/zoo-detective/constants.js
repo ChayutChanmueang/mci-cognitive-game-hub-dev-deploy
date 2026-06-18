@@ -2,7 +2,7 @@
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'Zoo Detective',
+    title: 'สวนสัตว์นักสืบ',
     description: 'เกมสังเกตคำใบ้และจัดวางสัตว์ให้ถูกตำแหน่ง',
     instructions: 'อ่านคำใบ้ทีละข้อ แล้วเลือกสัตว์ไปวางในช่องให้ตรงกับเงื่อนไขทั้งหมด',
     coverImage: 'assets/common/cover/cover_zoo_detective.png',

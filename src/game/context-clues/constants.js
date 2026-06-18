@@ -2,7 +2,7 @@
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'Context Clues',
+    title: 'นักสืบเติมคำ',
     description: 'เกมฝึกอ่านบริบทและเลือกคำเติมประโยคให้ถูกต้อง',
     instructions: 'อ่านประโยคให้เข้าใจ แล้วเลือกคำที่เหมาะสมที่สุดเพื่อเติมลงในช่องว่าง',
     coverImage: 'assets/common/cover/cover_context_clue.png',
