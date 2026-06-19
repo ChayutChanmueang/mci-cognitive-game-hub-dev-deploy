@@ -51,8 +51,8 @@ export default class Fruit extends Entity {
                     callbackScope: this,
                     loop: false
                 })
-                if(!this.converyerBelt.onRemoveFood(this.currentFoodType)){
-                    new TextPopup(this.scene,this.x,this.y,"ทิ้งทำไม","#ff0000");
+                if (!this.converyerBelt.onRemoveFood(this.currentFoodType)) {
+                    new TextPopup(this.scene, this.x, this.y, "ทิ้งทำไม", "#ff0000");
                 }
             }
         })
@@ -64,7 +64,7 @@ export default class Fruit extends Entity {
             this.destroy();
         })
 
-        this.addComponent(ShadowComponent,{radius: 100,alpha: 0.2,offset: - 25});
+        this.addComponent(ShadowComponent, { radius: 100, alpha: 0.2, offset: - 25 });
 
         this.setCollideWorldBounds(true);
     }

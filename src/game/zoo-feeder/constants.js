@@ -77,6 +77,23 @@ export const AnimalSetting = Object.freeze({
 });
 
 // ---------------------------------------------------------------------------
+// Difficulty Mapping
+// ---------------------------------------------------------------------------
+/** Maps conveyor-belt count → numeric level stored in the database (1 = ง่าย, 2 = ปานกลาง, 3 = ยาก) */
+export const ConveyerDifficultyLevel = Object.freeze({
+    1: 1,
+    2: 2,
+    3: 3,
+});
+
+/** Maps numeric level → Thai difficulty label */
+export const DifficultyLabel = Object.freeze({
+    1: 'ง่าย',
+    2: 'ปานกลาง',
+    3: 'ยาก',
+});
+
+// ---------------------------------------------------------------------------
 // Gameplay Settings
 // ---------------------------------------------------------------------------
 export const GameplaySetting = Object.freeze({

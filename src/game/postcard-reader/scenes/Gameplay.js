@@ -37,12 +37,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.background.setDepth(-10);
 
     //Initialize Logging
-    if (this.replayLogger == null) {
-      this.replayLogger = new ReplayLogBuffer();
-    }
-    else {
-      this.replayLogger.clearEvents();
-    }
+    this.replayLogger = new ReplayLogBuffer();
+    // if (this.replayLogger == null) {
+    //   this.replayLogger = new ReplayLogBuffer();
+    // }
+    // else {
+    //   this.replayLogger.clearEvents();
+    // }
 
     this.correctAnswer = 0;
     this.wrongAnswer = 0;

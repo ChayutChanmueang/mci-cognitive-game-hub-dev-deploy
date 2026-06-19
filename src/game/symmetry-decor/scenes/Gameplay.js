@@ -118,15 +118,17 @@ export default class GameplayScene extends Phaser.Scene {
         this.totalMove++;
         if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
           console.log("Correct Socket");
-          this.correctSlotMove++;
-          this.replayLogger.addAnswerEvent(
-            ReplayEvent.SymmetryDecor.PIECE_PLACED,
-            entity.getComponent(DraggableDataComponent).animal,
-            true,
-          );
           EventBus.emit('audio:play', 'symmetry-decor:correct');
           if (!socketComponent.hasAwardedPoints) {
             socketComponent.hasAwardedPoints = true;
+            this.correctSlotMove++;
+            this.replayLogger.addAnswerEvent(
+              ReplayEvent.SymmetryDecor.PIECE_PLACED,
+              entity.getComponent(DraggableDataComponent).animal,
+              true,
+            );
+            console.log("Correct Slot Logged");
+            console.log("Current Correct Log : " + this.correctSlotMove);
             this.allScore += 5;
             EventBus.emit('minigame:score', { score: this.allScore });
           }
@@ -192,7 +194,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.replayLogger.pushToDatabase();
 
     //Save game data to database
-    game_db.pushGameData(this.allScore, DifficultyLevelNumber[this.level], this.gameStartedAt, this.gameEndedAt).then(() => {
+    game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
       console.log("Game data saved to database.");
     }).catch((error) => {
       console.error("Failed to save game data:", error);
