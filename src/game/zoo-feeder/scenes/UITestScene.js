@@ -157,7 +157,7 @@ export default class UITestScene extends Phaser.Scene {
   }
 
   startTimer() {
-    const gameTime = 30;
+    const gameTime = 180;
     if (this.countdownTimer) return;
     this.countdownTimer = this.time.addEvent({
       delay: 1000,

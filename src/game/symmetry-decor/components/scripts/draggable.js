@@ -90,12 +90,6 @@ export default class DraggableComponent extends Component {
                     // SCENARIO 3: The occupant is Locked, or the swap is invalid. Bounce back!
                     this.snapBack();
                 }
-                if (this.scene.replayLogger) {
-                    this.scene.replayLogger.addAnswerEvent(
-                        GlobalReplayEvent.ANSWER_SUBMITTED,
-                        this.entity.getComponent(DraggableDataComponent).animal,
-                        true,
-                    );
                 }
             }
         });

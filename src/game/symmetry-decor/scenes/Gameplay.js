@@ -5,7 +5,7 @@ import DraggableComponent from "../components/scripts/draggable";
 import SocketComponent from "../components/scripts/socket";
 import EntityGrid from "../entity/entityGrid";
 import NonDraggableComponent from "../components/scripts/non-draggable";
-import { Difficulty, GameLevels, Config, DifficultyLevelNumber } from "../constants";
+import { Difficulty, GameLevels, Config, DifficultyLevelNumber, getDifficultyLevelNumber } from "../constants";
 import SolutionSocketComponent from "../components/scripts/solutionSocket";
 import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
@@ -118,18 +118,12 @@ export default class GameplayScene extends Phaser.Scene {
         this.totalMove++;
         if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
           console.log("Correct Socket");
-          this.correctSlotMove++;
-          this.replayLogger.addAnswerEvent(
-            GlobalReplayEvent.ANSWER_SUBMITTED,
-            entity.getComponent(DraggableDataComponent).animal,
-            true,
-          );
           EventBus.emit('audio:play', 'symmetry-decor:correct');
           if (!socketComponent.hasAwardedPoints) {
             socketComponent.hasAwardedPoints = true;
             this.correctSlotMove++;
             this.replayLogger.addAnswerEvent(
-              ReplayEvent.SymmetryDecor.PIECE_PLACED,
+              GlobalReplayEvent.ANSWER_SUBMITTED,
               entity.getComponent(DraggableDataComponent).animal,
               true,
             );
@@ -152,6 +146,15 @@ export default class GameplayScene extends Phaser.Scene {
           );
           EventBus.emit('audio:play', 'symmetry-decor:wrong');
         }
+      } else {
+        // Dropped onto a socket that shouldn't have any piece at all
+        this.wrongSlotMove++;
+        this.replayLogger.addAnswerEvent(
+          GlobalReplayEvent.ANSWER_SUBMITTED,
+          entity.getComponent(DraggableDataComponent).animal,
+          false,
+        );
+        EventBus.emit('audio:play', 'symmetry-decor:wrong');
       }
     });
 
@@ -196,11 +199,12 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
-    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_COMPLETED, true);
+    this.replayLogger.addTimestampEvent(GlobalReplayEvent.ROUND_COMPLETED);
     this.replayLogger.pushToDatabase();
 
     //Save game data to database
-    game_db.pushGameData(this.allScore, this.level, this.gameStartedAt, this.gameEndedAt).then(() => {
+    const levelNumber = getDifficultyLevelNumber(this.level);
+    game_db.pushGameData(this.allScore, levelNumber, this.gameStartedAt, this.gameEndedAt).then(() => {
       console.log("Game data saved to database.");
     }).catch((error) => {
       console.error("Failed to save game data:", error);
@@ -216,7 +220,7 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit('audio:play', 'symmetry-decor:endgame');
     EventBus.emit('minigame:game-over', {
       score: this.allScore,
-      level: this.level,
+      level: levelNumber,
       panelBorderColor: GameOverSetting.panelBorderColor,
       panelHeaderColor: GameOverSetting.panelHeaderColor,
       resultImage: 'assets/common/result/result_symmetry_decor.png',
