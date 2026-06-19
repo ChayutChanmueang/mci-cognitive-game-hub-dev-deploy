@@ -178,11 +178,13 @@ export function showCheckInPopup(options = {}) {
                             <div class="tree-progress-divider"></div>
                         </div>
                         <div class="tree-progress-body">
-                            <img
-                                class="tree-progress-plant"
-                                src="${getTreeImagePath(stage)}"
-                                alt="ต้นไม้ระดับที่ ${escapeHtml(String(stage))}"
-                            >
+                            <div class="tree-progress-frame">
+                                <img
+                                    class="tree-progress-plant"
+                                    src="${getTreeImagePath(stage)}"
+                                    alt="ต้นไม้ระดับที่ ${escapeHtml(String(stage))}"
+                                >
+                            </div>
                             <p class="tree-progress-plant-label">${escapeHtml(label)}</p>
                             <div
                                 class="tree-progress-bar"
