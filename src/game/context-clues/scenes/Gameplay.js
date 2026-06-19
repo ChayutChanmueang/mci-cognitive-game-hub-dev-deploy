@@ -7,7 +7,7 @@ import Quiz from "../entity/script/quiz.js";
 import QuizGameData from "../data/scripts/quiz-game-data.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
-import {ContextCluesReplayEvent, GlobalReplayEvent} from "../../../core/replay-event.js";
+import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
@@ -64,6 +64,7 @@ export default class GameplayScene extends Phaser.Scene {
     // Create First Quiz
     this.getNewQuiz();
     this.gameStartedAt = new Date();
+    this.replayLog.addCorrectEvent(GlobalReplayEvent.ROUND_START, true);
     this.gameEndedAt = new Date();
     this.startCountdownTimer();
 
@@ -160,7 +161,8 @@ export default class GameplayScene extends Phaser.Scene {
           const maxRound = Config.MaxRound[this.levelMap];
           const nextRoundDisplay = this.round + 1;
 
-          this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, true);
+          this.increaseScore(Config.IncreaseScore[this.levelMap]);
+          this.replayLog.addAnswerEvent(GlobalReplayEvent.ANSWER_SUBMITTED, answer, true);
 
           EventBus.emit('audio:play', 'context-clues:correct');
           EventBus.emit('minigame:level', { level: `ด่าน ${nextRoundDisplay}` });
@@ -196,7 +198,7 @@ export default class GameplayScene extends Phaser.Scene {
           this.decreaseScore(Config.DecreaseScore[this.levelMap]);
           EventBus.emit('audio:play', 'context-clues:wrong');
 
-          this.replayLog.addAnswerEvent(GlobalReplayEvent.ROUND_COMPLETED, answer, false);
+          this.replayLog.addAnswerEvent(GlobalReplayEvent.ANSWER_SUBMITTED, answer, false);
       }
       this.gameplayUI.setScore(this.allScore);
       this.quizGame.onCreateQuiz();
@@ -244,6 +246,7 @@ export default class GameplayScene extends Phaser.Scene {
             console.error("Failed to save game data:", error);
         });
 
+        this.replayLog.addCorrectEvent(GlobalReplayEvent.ROUND_COMPLETED, resultStatus === "success");
         this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");})
 
         //Write debug here!

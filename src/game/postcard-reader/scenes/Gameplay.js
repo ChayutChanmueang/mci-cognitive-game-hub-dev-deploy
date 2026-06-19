@@ -8,7 +8,7 @@ import { createThaiText } from "../../../util/thai-text.js";
 import { EventBus } from "../../../core/EventBus.js";
 import DebugMenu from "./DebugMenu";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
-import { ReplayEvent } from "../../../core/replay-event.js";
+import { GlobalReplayEvent, ReplayEvent } from "../../../core/replay-event.js";
 import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
@@ -73,7 +73,8 @@ export default class GameplayScene extends Phaser.Scene {
     this.choosePostcard();
     this.chooseQuestion();
     this.intializeGamePage();
-    this.replayLogger.addTimestampEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN);
+    this.replayLogger.addCorrectEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN, true);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_START, true);
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
 
@@ -229,7 +230,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.allScore += Config.ScorePerCorrect;
     this.correctAnswer++;
     this.replayLogger.addAnswerEvent(
-      ReplayEvent.PostcardReader.CHOICE_SELECTED,
+      GlobalReplayEvent.ANSWER_SUBMITTED,
       selectedButton?.labelText ?? null,
       true,
     );
@@ -259,7 +260,7 @@ export default class GameplayScene extends Phaser.Scene {
     }
     this.wrongAnswer++;
     this.replayLogger.addAnswerEvent(
-      ReplayEvent.PostcardReader.CHOICE_SELECTED,
+      GlobalReplayEvent.ANSWER_SUBMITTED,
       selectedButton?.labelText ?? null,
       false,
     );
@@ -331,7 +332,7 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit("minigame:show-timer");
 
     this.gameplayUI.postcard.reinitializedPanel();
-    this.replayLogger.addTimestampEvent(ReplayEvent.PostcardReader.POSTCARD_SHOWN);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_START, true);
   }
 
   onGameOver() {
@@ -354,7 +355,7 @@ export default class GameplayScene extends Phaser.Scene {
       console.error("Failed to save game data:", error);
     });
 
-    this.replayLogger.addTimestampEvent(ReplayEvent.PostcardReader.ROUND_COMPLETED);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_COMPLETED, true);
     this.replayLogger.pushToDatabase();
     // this.gameplayUI.showGameOverPanel(this.allScore);
 

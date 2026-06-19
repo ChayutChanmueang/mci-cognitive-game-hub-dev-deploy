@@ -1,7 +1,7 @@
 import Component from "../component";
 import DraggableDataComponent from "./draggableData";
 import SocketComponent from "./socket";
-import {ReplayEvent} from "../../../../core/replay-event.js";
+import { GlobalReplayEvent } from "../../../../core/replay-event.js";
 
 export default class DraggableComponent extends Component {
     constructor(entity) {
@@ -92,7 +92,7 @@ export default class DraggableComponent extends Component {
                 }
                 if (this.scene.replayLogger) {
                     this.scene.replayLogger.addAnswerEvent(
-                        ReplayEvent.SymmetryDecor.PIECE_DROPPED,
+                        GlobalReplayEvent.ANSWER_SUBMITTED,
                         this.entity.getComponent(DraggableDataComponent).animal,
                         true,
                     );

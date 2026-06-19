@@ -9,30 +9,28 @@ export const GlobalReplayEvent = Object.freeze({
     TUTORIAL_OPENED: "global.tutorial_opened",
     TUTORIAL_CLOSED: "global.tutorial_closed",
     SCORE_CHANGED: "global.score_changed",
-    ROUND_COMPLETED: "round_completed"
+    ROUND_START: "global.round_start",
+    ROUND_COMPLETED: "global.round_completed",
+    ANSWER_SUBMITTED: "global.answer_submitted"
 });
 
 export const ContextCluesReplayEvent = Object.freeze({
     QUESTION_SHOWN: "context_clues.question_shown",
     BLANK_SELECTED: "context_clues.blank_selected",
     OPTION_SELECTED: "context_clues.option_selected",
-    ANSWER_SUBMITTED: "context_clues.answer_submitted"
 });
 
 export const PostcardReaderReplayEvent = Object.freeze({
     POSTCARD_SHOWN: "postcard_reader.postcard_shown",
     MEMORY_TIMER_STARTED: "postcard_reader.memory_timer_started",
     QUESTION_SHOWN: "postcard_reader.question_shown",
-    CHOICE_SELECTED: "postcard_reader.choice_selected",
-    ROUND_COMPLETED: "postcard_reader.round_completed",
+    CHOICE_SELECTED: "postcard_reader.choice_selected"
 });
 
 export const SymmetryDecorReplayEvent = Object.freeze({
-    ROUND_START: "symmetry_decor.round_start",
     PIECE_PICKED_UP: "symmetry_decor.piece_picked_up",
     PIECE_DROPPED: "symmetry_decor.piece_dropped",
-    PIECE_PLACED: "symmetry_decor.piece_placed",
-    ROUND_COMPLETED: "symmetry_decor.round_completed",
+    PIECE_PLACED: "symmetry_decor.piece_placed"
 });
 
 export const ZooDetectiveReplayEvent = Object.freeze({
@@ -40,16 +38,12 @@ export const ZooDetectiveReplayEvent = Object.freeze({
     HINT_SHOWN: "zoo_detective.hint_shown",
     ANIMAL_PICKED_UP: "zoo_detective.animal_picked_up",
     ANIMAL_DROPPED: "zoo_detective.animal_dropped",
-    ANIMAL_PLACED: "zoo_detective.animal_placed",
-    ANSWER_SUBMITTED: "zoo_detective.answer_submitted",
-    ROUND_COMPLETED: "zoo_detective.round_completed",
+    ANIMAL_PLACED: "zoo_detective.animal_placed"
 });
 
 export const ZooFeederReplayEvent = Object.freeze({
     FOOD_DROPPED: "zoo_feeder.food_dropped",
     FOOD_DELIVERED: "zoo_feeder.food_delivered",
-    ROUND_START: "zoo_feeder.round_start",
-    ROUND_COMPLETED: "zoo_feeder.round_completed",
 });
 
 export const FryFoodReplayEvent = Object.freeze({

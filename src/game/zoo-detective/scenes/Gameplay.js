@@ -10,7 +10,7 @@ import {Config} from "../../zoo-detective/constants.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
-import {ZooDetectiveReplayEvent} from "../../../core/replay-event.js";
+import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
@@ -99,6 +99,7 @@ export default class GameplayScene extends Phaser.Scene {
         EventBus.emit('minigame:tick', { timeLeft: Math.ceil(this.timeLimitMs / 1000) });
 
         this.gameStartedAt = new Date();
+        this.replayLog.addCorrectEvent(GlobalReplayEvent.ROUND_START, true);
         this.gameEndedAt = new Date();
 
         this.onPuzzleCompleted = (result = {})=>{
@@ -149,7 +150,7 @@ export default class GameplayScene extends Phaser.Scene {
                 EventBus.emit('audio:play', 'zoo-detective:correct');
             }
 
-            this.replayLog.addAnswerEvent(ZooDetectiveReplayEvent.ANIMAL_PLACED, {
+            this.replayLog.addAnswerEvent(GlobalReplayEvent.ANSWER_SUBMITTED, {
                 cellIndex: callback.cellIndex,
                 animal: callback.animal,
                 previousCellIndex: callback.previousCellIndex,
@@ -251,6 +252,7 @@ export default class GameplayScene extends Phaser.Scene {
             console.error("Failed to save game data:", error);
         });
 
+        this.replayLog.addCorrectEvent(GlobalReplayEvent.ROUND_COMPLETED, resultStatus === "success");
         this.replayLog.pushToDatabase().then(r => {console.log("Push data to database.");});
     }
 

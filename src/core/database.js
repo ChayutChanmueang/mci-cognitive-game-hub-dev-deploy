@@ -1679,42 +1679,6 @@ class Database {
         return data || null;
     }
 
-    /*
-     * Example game-completion flow:
-     *
-     * const pendingHistoryMapKey = "pending_game_history_by_gid";
-     * const stage = sessionStorage.getItem("selected_game_stage") || "";
-     * const historyKey = stage ? `${gid}:stage-${stage}` : gid;
-     * const pendingHistoryMap = JSON.parse(sessionStorage.getItem(pendingHistoryMapKey) || "{}");
-     * const pendingHistory = pendingHistoryMap[historyKey];
-     *
-     * if (!pendingHistory?.id) {
-     *     throw new Error(`Missing pending user_game_history for ${historyKey}`);
-     * }
-     *
-     * const endedAt = new Date().toISOString();
-     * const gameData = await db.submitGameData({
-     *     gid,
-     *     score,
-     *     level,
-     *     startedAt: pendingHistory.startAt,
-     *     endedAt,
-     * });
-     *
-     * await db.completeUserGameHistory({
-     *     historyId: pendingHistory.id,
-     *     endAt: endedAt,
-     *     userGameDataId: gameData.id,
-     * });
-     *
-     * delete pendingHistoryMap[historyKey];
-     * if (Object.keys(pendingHistoryMap).length > 0) {
-     *     sessionStorage.setItem(pendingHistoryMapKey, JSON.stringify(pendingHistoryMap));
-     * } else {
-     *     sessionStorage.removeItem(pendingHistoryMapKey);
-     * }
-     */
-
     async getCompletedUserGameHistoryByHn({
         hn,
         gids = [],
