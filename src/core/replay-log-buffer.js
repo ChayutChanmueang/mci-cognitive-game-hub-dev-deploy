@@ -430,6 +430,10 @@ export class ReplayLogBuffer {
                 return data || [];
             });
 
+            console.log(`Row: ${JSON.stringify(rows[index])}`);
+            console.log(`batch: ${JSON.stringify(batch)}`);
+            console.log(`batchRows: ${JSON.stringify(...batchRows)}`);
+
             insertedRows.push(...batchRows);
         }
 
