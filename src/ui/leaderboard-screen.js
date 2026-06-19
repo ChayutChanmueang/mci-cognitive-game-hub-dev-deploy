@@ -1,5 +1,3 @@
-import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
-
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -51,7 +49,6 @@ export function renderLeaderboardScreen(root, options = {}) {
         getUserRank,
     } = options;
 
-    const state = { scrollTop: 0 };
     let activeCleanup = [];
 
     const cleanup = () => {
@@ -71,7 +68,7 @@ export function renderLeaderboardScreen(root, options = {}) {
         root.innerHTML = `
             <section class="hub-clean-screen leaderboard-screen" aria-labelledby="leaderboard-title">
                 <div class="hub-clean-shell leaderboard-shell">
-                    <header class="hub-clean-topbar leaderboard-topbar">
+                    <header class="leaderboard-clean-topbar leaderboard-topbar">
                         <div class="hub-clean-profile leaderboard-back" role="button" tabindex="0" aria-label="กลับไปหน้าเกม">
                             <md-filled-tonal-icon-button aria-label="กลับไปหน้าเกม">
                                 <md-icon class="material-symbols-rounded">arrow_back</md-icon>
@@ -108,9 +105,6 @@ export function renderLeaderboardScreen(root, options = {}) {
                                 `}
                             </div>
                         </div>
-                        <md-fab class="hub-clean-fab leaderboard-fab" aria-label="เลื่อนไปยังอันดับของคุณ" data-scroll-top>
-                            <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
-                        </md-fab>
                     </section>
                     ${!loading && currentRankInfo?.rank ? `
                         <aside class="leaderboard-bottom-bar" aria-label="อันดับของผู้เล่นคนนี้">
@@ -125,19 +119,6 @@ export function renderLeaderboardScreen(root, options = {}) {
                 </div>
             </section>
         `;
-
-        bindCurrentNodeScrollController({
-            root,
-            state,
-            activeSectionSelector: "[data-leaderboard-section]",
-            scrollAreaSelector: "[data-leaderboard-scroll]",
-            currentNodeSelector: ".leaderboard-row.is-current",
-            completedNodeSelector: ".leaderboard-row",
-            fallbackNodeSelector: ".leaderboard-row",
-            offsetElementSelector: ".leaderboard-topbar",
-            scrollButtonTarget: "top",
-            on,
-        });
 
         on(root.querySelector(".leaderboard-back"), "click", () => onBack());
         on(root.querySelector(".leaderboard-back"), "keydown", (event) => {
