@@ -16,7 +16,7 @@ import EmojiRenderer from "../components/scripts/emoji-renderer";
 import SpriteRenderer from "../components/scripts/sprite-renderer";
 import DebugMenu from "./DebugMenu";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
-import { ReplayEvent } from "../../../core/replay-event.js";
+import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import { GameOverSetting } from "../constants.js";
@@ -90,7 +90,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.constructGrid(true);
 
     this.gameStartedAt = new Date();
-    this.replayLogger.addTimestampEvent(ReplayEvent.SymmetryDecor.ROUND_START);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_START, true);
     this.gameEndedAt = new Date();
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
@@ -118,6 +118,12 @@ export default class GameplayScene extends Phaser.Scene {
         this.totalMove++;
         if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
           console.log("Correct Socket");
+          this.correctSlotMove++;
+          this.replayLogger.addAnswerEvent(
+            GlobalReplayEvent.ANSWER_SUBMITTED,
+            entity.getComponent(DraggableDataComponent).animal,
+            true,
+          );
           EventBus.emit('audio:play', 'symmetry-decor:correct');
           if (!socketComponent.hasAwardedPoints) {
             socketComponent.hasAwardedPoints = true;
@@ -140,7 +146,7 @@ export default class GameplayScene extends Phaser.Scene {
         else {
           this.wrongSlotMove++;
           this.replayLogger.addAnswerEvent(
-            ReplayEvent.SymmetryDecor.PIECE_PLACED,
+            GlobalReplayEvent.ANSWER_SUBMITTED,
             entity.getComponent(DraggableDataComponent).animal,
             false,
           );
@@ -190,7 +196,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
-    this.replayLogger.addTimestampEvent(ReplayEvent.SymmetryDecor.ROUND_COMPLETED);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_COMPLETED, true);
     this.replayLogger.pushToDatabase();
 
     //Save game data to database

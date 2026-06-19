@@ -168,7 +168,7 @@ export function showCheckInPopup(options = {}) {
                 overlay.innerHTML = `
                     <div class="app-popup__backdrop"></div>
                     <div
-                        class="app-popup__dialog app-popup__dialog--tree-progress"
+                        class="app-popup__dialog"
                         role="dialog"
                         aria-modal="true"
                     >

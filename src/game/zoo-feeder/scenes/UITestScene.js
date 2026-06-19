@@ -6,7 +6,7 @@ import db from "../../../core/database.js";
 import { EventBus } from "../../../core/EventBus.js";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
-import { ReplayEvent } from "../../../core/replay-event.js";
+import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import DebugMenu from "./DebugMenu.js";
@@ -88,7 +88,7 @@ export default class UITestScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isRestarting = false;
     this.gameStartedAt = new Date();
-    this.replayLogger.addTimestampEvent(ReplayEvent.ZooFeeder.ROUND_START);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_START, true);
     this.gameEndedAt = new Date();
     this.spawnFruitTimer = null;
 
@@ -180,25 +180,25 @@ export default class UITestScene extends Phaser.Scene {
   onGetEatableFood() {
     this.addScore(1);
     this.correctDeliver++;
-    this.replayLogger.addAnswerEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, { isCorrect: true }, true);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ANSWER_SUBMITTED, true);
     EventBus.emit('audio:play', 'zoo-feeder:eating');
     EventBus.emit('audio:play', 'zoo-feeder:correct');
   }
   onGetUneatableFood() {
     this.wrongDeliver++;
-    this.replayLogger.addAnswerEvent(ReplayEvent.ZooFeeder.FOOD_DELIVERED, { isCorrect: false }, false);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ANSWER_SUBMITTED, false);
     EventBus.emit('audio:play', 'zoo-feeder:eating');
     EventBus.emit('audio:play', 'zoo-feeder:wrong');
   }
   onRemoveEatableFood() {
     this.wrongDrop++;
-    this.replayLogger.addAnswerEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, { isCorrect: false }, false);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ANSWER_SUBMITTED, false);
     EventBus.emit('audio:play', 'zoo-feeder:wrong');
   }
   onRemoveUneatableFood() {
     this.addScore(1);
     this.correctDrop++;
-    this.replayLogger.addAnswerEvent(ReplayEvent.ZooFeeder.FOOD_DROPPED, { isCorrect: true }, true);
+    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ANSWER_SUBMITTED, true);
     EventBus.emit('audio:play', 'zoo-feeder:correct');
   }
   addScore(addedScore) {
@@ -278,7 +278,7 @@ export default class UITestScene extends Phaser.Scene {
         console.error("Failed to save game data:", error);
       });
 
-      this.replayLogger.addTimestampEvent(ReplayEvent.ZooFeeder.ROUND_COMPLETED);
+      this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_COMPLETED, true);
 
       this.replayLogger.pushToDatabase();
 
