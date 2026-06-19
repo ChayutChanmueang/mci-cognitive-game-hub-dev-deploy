@@ -5,6 +5,7 @@ import {
 } from "../util/phone-number-util.js";
 import edgeFunction from "./edge-function.js";
 import { getProgramDayStatus } from "../util/program-date-util.js";
+import { GlobalReplayEvent } from "./replay-event.js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
@@ -346,15 +347,6 @@ class Database {
 
         const client = this.getClient();
         const parsedHn = String(hn || "").trim();
-        const { data: rpcRows, error: rpcError } = await client.rpc("get_game_csv_export_rows", {
-            p_hn: parsedHn || null,
-        });
-
-        if (!rpcError) {
-            return rpcRows || [];
-        }
-
-        console.warn("Unable to load game CSV export rows from RPC, falling back to client query:", rpcError);
 
         const [
             patients,
@@ -435,7 +427,8 @@ class Database {
                 const { data: replayData } = await client
                     .from(REPLAY_LOG_TABLE)
                     .select("historyid, value")
-                    .in("historyid", matchedHistoryIds);
+                    .in("historyid", matchedHistoryIds)
+                    .eq("replayid", GlobalReplayEvent.ANSWER_SUBMITTED);
 
                 for (const log of replayData || []) {
                     const historyId = Number(log?.historyid);
