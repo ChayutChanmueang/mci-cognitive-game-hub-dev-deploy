@@ -1,0 +1,505 @@
+/*
+ * GameHub-UI ported components — styles
+ *
+ * Ported from the Figma-verified demo (test-figma-export/src/components/*.vue).
+ * Every value here is a direct copy of a Figma-derived value (see EXPORT.md
+ * "Source Of Truth" + the demo PROGRESS.md), never an eyeballed substitute.
+ * Classes are namespaced `gh-` to avoid clashing with existing `hub-clean-*`.
+ *
+ * Import point: pulled into the module graph from game-hub-screen.js so Vite
+ * bundles it. The dev preview (components/preview/) imports it too.
+ */
+
+/* ── Part 1 · Node states (Pass / Current / Next + fryfood variant) ─────────
+ * Coordinates are at the Figma 1080x1920 frame scale (px). Sizing/scaling into
+ * the production .hub-clean-level__node container is reconciled in Part 8.
+ */
+
+/* Pass-Node-With-CheckIcon · 3108:28 (246.92 x 206.83) */
+.gh-pass-node {
+  position: relative;
+  width: 246.92px;
+  height: 206.83px;
+}
+.gh-pass-node__base { /* 3108:13 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: 5.283435px;
+  width: 246.92px;
+  height: 201.54657px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 14.693878px 5.877551px 0 rgba(33, 121, 25, 0.25);
+}
+.gh-pass-node__mid { /* 3108:14 Ellipse 34 */
+  position: absolute;
+  left: 15.83394px;
+  top: 0;
+  width: 214.20836px;
+  height: 181.49741px;
+  border-radius: 50%;
+  background: rgb(81, 172, 34);
+}
+.gh-pass-node__top { /* 3108:15 Ellipse 33 */
+  position: absolute;
+  left: 15.83394px;
+  top: 0;
+  width: 214.20836px;
+  height: 167.7796px;
+  border-radius: 50%;
+  background: rgb(116, 199, 78);
+  box-shadow: inset 2.938776px -8.816326px 5.877551px 0 rgba(254, 254, 254, 0.25);
+}
+.gh-pass-node__check { /* 3108:16 Group / 3108:17 Vector */
+  position: absolute;
+  left: 87.302155px;
+  top: 46.561699px;
+}
+
+/* Current-Node-With-Number · 3108:113 (295.7444 x 247.7193) */
+.gh-current-node {
+  position: relative;
+  width: 295.7444px;
+  height: 247.7193px;
+}
+.gh-current-node__base { /* 3108:95 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: 6.321022px;
+  width: 295.7444px;
+  height: 241.39822px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 14.693878px 5.877551px 0 rgba(33, 121, 25, 0.25);
+}
+.gh-current-node__mid { /* 3108:96 Ellipse 34 */
+  position: absolute;
+  left: 18.963032px;
+  top: 0;
+  width: 256.5646px;
+  height: 217.38477px;
+  border-radius: 50%;
+  background: rgb(108, 133, 237);
+}
+.gh-current-node__top { /* 3108:97 Ellipse 33 */
+  position: absolute;
+  left: 18.963032px;
+  top: 0;
+  width: 256.5646px;
+  height: 200.95454px;
+  border-radius: 50%;
+  background: rgb(117, 168, 255);
+  box-shadow: inset 2.938776px -8.816326px 5.877551px 0 rgba(254, 254, 254, 0.25);
+}
+
+/* Next-Node-With-Number · 3108:19 / 3031:189..194 (246.9225 x 206.83) */
+.gh-next-node {
+  position: relative;
+  width: 246.9225px;
+  height: 206.83px;
+}
+.gh-next-node__base { /* 3031:191 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: 5.2823px;
+  width: 246.9225px;
+  height: 201.5478px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 14.693878px 5.877551px 0 rgba(33, 121, 25, 0.25);
+}
+.gh-next-node__mid { /* 3031:192 Ellipse 34 */
+  position: absolute;
+  left: 15.8336px;
+  top: 0;
+  width: 214.2105px;
+  height: 181.4986px;
+  border-radius: 50%;
+  background: rgb(148, 152, 154);
+}
+.gh-next-node__top { /* 3031:193 Ellipse 33 */
+  position: absolute;
+  left: 15.8336px;
+  top: 0;
+  width: 214.2105px;
+  height: 167.7806px;
+  border-radius: 50%;
+  background: rgb(166, 185, 200);
+  box-shadow: inset 2.938776px -8.816326px 5.877551px 0 rgba(254, 254, 254, 0.25);
+}
+
+/* Current-Node-With-FryFoodIcon · 3108:8 (295.7444 x 247.7193) — Current variant */
+.gh-fryfood-node {
+  position: relative;
+  width: 295.7444px;
+  height: 247.7193px;
+}
+.gh-fryfood-node__base { /* 3031:129 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: 6.321022px;
+  width: 295.7444px;
+  height: 241.39822px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 14.693878px 5.877551px 0 rgba(33, 121, 25, 0.25);
+}
+.gh-fryfood-node__mid { /* 3031:130 Ellipse 34 */
+  position: absolute;
+  left: 18.963032px;
+  top: 0;
+  width: 256.5646px;
+  height: 217.38477px;
+  border-radius: 50%;
+  background: rgb(108, 133, 237);
+}
+.gh-fryfood-node__top { /* 3031:131 Ellipse 33 */
+  position: absolute;
+  left: 18.963032px;
+  top: 0;
+  width: 256.5646px;
+  height: 200.95454px;
+  border-radius: 50%;
+  background: rgb(117, 168, 255);
+  box-shadow: inset 2.938776px -8.816326px 5.877551px 0 rgba(254, 254, 254, 0.25);
+}
+.gh-fryfood-node__icon { /* 3031:132 fry-food icon, placed by render bounds */
+  position: absolute;
+  left: 54.999px;
+  top: 48.9967px;
+  width: 206.0847px;
+  height: 105.9737px;
+}
+
+/* number glyph (Current + Next share it; centered on the coin, see number-glyph.js) */
+.gh-node-num {
+  position: absolute;
+}
+.gh-node-num text {
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: 80px;
+}
+
+/* ── Part 2 · Path connectors ───────────────────────────────────────────────
+ * Sharp offset shadow (radius 0) — no blur. Coordinates at Figma frame scale.
+ */
+
+/* Current-Line-between · 3108:10 / 3031:259 (24 x 166 pill) */
+.gh-current-line {
+  width: 24px;
+  height: 166px;
+  border-radius: 52px;
+  background: #ffffff;
+  box-shadow: 0 5px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+/* NextGame-Line-Dot-between · 3108:27 (24 x 99, three dots at y 0/38/75) */
+.gh-dot-line {
+  position: relative;
+  width: 24px;
+  height: 99px;
+}
+.gh-dot-line__dot {
+  position: absolute;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 52px;
+  background: #ffffff;
+  box-shadow: 0 5px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+/* ── Part 3 · Day Section (Figma 3108:7, 1080 x 98) ─────────────────────────
+ * Hidden Figma effects (white-pill shadow, text stroke/shadow) intentionally omitted.
+ */
+.gh-day-section {
+  position: relative;
+  width: 1080px;
+  height: 98px;
+  flex: 0 0 auto;
+}
+.gh-day-section__pill-base { /* 3031:124 gray lower pill (visible drop shadow) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 259px;
+  height: 98px;
+  border-radius: 88px;
+  background: rgb(199, 199, 199);
+  box-shadow: 0 13px 4px 0 rgba(0, 0, 0, 0.25);
+}
+.gh-day-section__pill-top { /* 3031:125 white top pill (shadow hidden) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 259px;
+  height: 90px;
+  border-radius: 88px;
+  background: #ffffff;
+}
+.gh-day-section__label { /* 3031:126 day text (stroke + shadow hidden) */
+  position: absolute;
+  left: 80px;
+  top: 10px;
+  width: 117px;
+  height: 69px;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: 43px;
+  line-height: normal;
+  color: rgb(105, 105, 105);
+}
+.gh-day-section__divider { /* 3031:127 */
+  position: absolute;
+  left: 288px;
+  top: 44px;
+  width: 792px;
+  height: 5px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.71);
+}
+
+/* ── Part 4 · Start button + Lesson card ────────────────────────────────────*/
+
+/* Start-Game-Button · 3108:68 (rect bbox 540.3278 x 186.7422; white stroke overflows) */
+.gh-start-button {
+  position: relative;
+  display: block;
+  width: 540.3278px;
+  height: 186.7422px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-start-button[disabled] {
+  cursor: default;
+  opacity: 0.5; /* non-Figma affordance for the program-ended disabled state */
+}
+.gh-start-button__base { /* 3108:63 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 540.3278px;
+  height: 186.7422px;
+  border-radius: 79.59504px;
+  background: rgb(66, 134, 29);
+  box-shadow: 0 0 0 10.714716px rgba(255, 255, 255, 1); /* white OUTSIDE stroke */
+}
+.gh-start-button__fill { /* 3108:64 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 540.3278px;
+  height: 179.85416px;
+  border-radius: 79.59504px;
+  background: linear-gradient(to bottom, rgb(125, 215, 76) 0%, rgb(74, 157, 29) 100%);
+}
+.gh-start-button__label { /* 3108:66 */
+  position: absolute;
+  left: 107.570221px;
+  top: 36.707027px;
+  width: 326px;
+  height: 107px;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: 66.71947px;
+  line-height: normal;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* LessonCard · 3108:26 (658.1367 x 546.7422) */
+.gh-lesson-card {
+  position: relative;
+  width: 658.1367px;
+  height: 546.7422px;
+}
+.gh-lesson-card__panel { /* 3031:412, placed by its render bounds */
+  position: absolute;
+  left: -10px;
+  top: -1px;
+}
+.gh-lesson-card__category { /* 3031:416 */
+  position: absolute;
+  left: 93px;
+  top: 0;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: 78.55112px;
+  line-height: normal;
+  color: rgb(103, 163, 42);
+  white-space: nowrap;
+}
+.gh-lesson-card__title { /* 3031:417 */
+  position: absolute;
+  left: 93px;
+  top: 101.65625px;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 500;
+  font-size: 51.98235px;
+  line-height: normal;
+  color: rgb(142, 207, 77);
+  white-space: nowrap;
+}
+.gh-lesson-card__desc { /* 3031:418 */
+  position: absolute;
+  left: 93px;
+  top: 184.828125px;
+  width: 515.2029px;
+  margin: 0;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 500;
+  font-size: 36.96523px;
+  line-height: normal;
+  color: rgb(94, 94, 94);
+}
+.gh-lesson-card__button { /* 3108:69 */
+  position: absolute;
+  left: 81px;
+  top: 360px;
+}
+
+/* ── Part 5 · Floating Action Buttons (Figma 3108:3 / 3108:4, 160 x 160) ──────*/
+
+/* 3031:448 / 3031:426 shared container */
+.gh-fab {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  padding: 0;
+  border: 0;
+  border-radius: 25px;
+  background: rgb(236, 249, 242);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* white OUTSIDE stroke 12, then DROP_SHADOW (0,6) r0 of the stroked shape */
+  box-shadow: 0 0 0 12px rgba(255, 255, 255, 1), 0 6px 0 12px rgba(0, 0, 0, 0.25);
+}
+
+/* 3031:449 arrow, placed by render bounds */
+.gh-fab__arrow {
+  position: absolute;
+  left: 28.209px;
+  top: 25.474px;
+  transform-origin: center;
+}
+/* up/down state driven by the scroll controller's data-scroll-direction (no JS swap) */
+.gh-fab[data-scroll-direction="down"] .gh-fab__arrow {
+  transform: rotate(180deg);
+}
+
+/* 3031:427 trophy SVG (viewBox 133x120; image rect at x=4,y=0; shadow pads sides+bottom).
+   Image origin (17,24.039) -> svg offset by the rect's in-viewBox margin (4,0). */
+.gh-fab__trophy {
+  position: absolute;
+  left: 13px;
+  top: 24.039px;
+  width: 133px;
+  height: 120px;
+}
+
+/* ── Part 6 · Header Bar (Progression) (Figma 3108:2, 958 x 344) ─────────────
+ * Hidden Figma effects (text strokes, text/track drop shadows) omitted.
+ */
+.gh-header-bar { /* 3031:429 card */
+  position: relative;
+  flex: 0 0 auto;
+  width: 958px;
+  height: 344px;
+  border-radius: 52px;
+  background: #ffffff;
+  /* blue OUTSIDE stroke 12 + DROP_SHADOW (0,13) r0 of the stroked shape */
+  box-shadow: 0 0 0 12px rgb(138, 197, 219), 0 13px 0 12px rgba(0, 0, 0, 0.25);
+}
+.gh-header-bar span {
+  position: absolute;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  line-height: normal;
+  white-space: nowrap;
+}
+/* Production robustness (deviation): Figma used short text; production patient
+   names / goal summaries can be long, so cap the text column at the track width
+   (ends at 60+572=632, clear of the divider at 660) and ellipsis the overflow.
+   Short text is unaffected — renders identical to Figma. */
+.gh-header-bar__name,
+.gh-header-bar__goal,
+.gh-header-bar__summary {
+  max-width: 572px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gh-header-bar__name { /* 3031:434 */
+  left: 60px;
+  top: 34px;
+  font-weight: 500;
+  font-size: 52px;
+  color: rgb(89, 89, 89);
+}
+.gh-header-bar__goal { /* 3031:433 */
+  left: 60px;
+  top: 98.0703px;
+  font-weight: 700;
+  font-size: 62.55027px;
+  color: rgb(48, 90, 105);
+}
+.gh-header-bar__summary { /* 3031:435 */
+  left: 60px;
+  top: 178.9453px;
+  font-weight: 500;
+  font-size: 37.06683px;
+  color: rgb(54, 144, 177);
+}
+.gh-header-bar__track { /* 3031:437 */
+  position: absolute;
+  left: 60px;
+  top: 240px;
+  width: 572px;
+  height: 68px;
+  border-radius: 27.80012px;
+  background: rgb(252, 233, 204);
+}
+.gh-header-bar__fill { /* 3031:438 (width set inline from progress) */
+  position: absolute;
+  left: 60px;
+  top: 240px;
+  height: 68px;
+  border-radius: 27.80012px;
+  background: rgb(253, 203, 52);
+}
+.gh-header-bar__progress-text { /* 3031:439 */
+  left: 189px;
+  top: 239px;
+  font-weight: 700;
+  font-size: 43.64919px;
+  color: rgb(255, 250, 242);
+}
+.gh-header-bar__divider { /* 3031:440 */
+  position: absolute;
+  left: 660px;
+  top: 36px;
+  width: 11px;
+  height: 272px;
+  border-radius: 24px;
+  background: rgb(230, 230, 230);
+}
+.gh-header-bar__profile { /* avatar-as-profile-button; resets the <button> chrome */
+  position: absolute;
+  left: 692px;
+  top: 51.5px;
+  width: 240px;
+  height: 240px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-header-bar__avatar { /* 3031:441 */
+  display: block;
+  width: 240px;
+  height: 240px;
+  border-radius: 52px;
+}

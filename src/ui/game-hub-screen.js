@@ -13,6 +13,7 @@ import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
 import AudioManager from "../core/audio-manager.js";
 import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
+import "./components/components.css";
 
 const REST_GAME_GID = "REST001";
 const DAILY_REQUIRED_GAME_GID = "PHY001";
