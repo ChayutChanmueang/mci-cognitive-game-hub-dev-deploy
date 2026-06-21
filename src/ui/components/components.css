@@ -503,3 +503,125 @@
   height: 240px;
   border-radius: 52px;
 }
+
+/* ── Part 8 · Level-path composition (1080 design scale) ─────────────────────
+ * The stage is authored at 1080px width and scaled to the device via `zoom`
+ * (set on .gh-stage by JS). Everything below is in 1080-frame px.
+ */
+.gh-stage {
+  width: 1080px;
+  /* zoom is set inline (deviceWidth / 1080) so layout + scroll height scale too */
+}
+
+.gh-level-path {
+  width: 1080px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.gh-day-block {
+  display: flex;
+  flex-direction: column;
+}
+.gh-day-block__header {
+  margin-bottom: 24px;
+}
+.gh-level-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* a node + its side content; node sits in a centered left rail (width 360) */
+.gh-level-row {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+}
+.gh-level-row--current {
+  align-items: center;
+}
+.gh-level-row__rail {
+  display: flex;
+  justify-content: center;
+}
+.gh-level-row__side {
+  min-width: 0;
+}
+
+/* connector lives in the rail column, centered on the node axis (x≈180) */
+.gh-level-connector {
+  width: 360px;
+  display: flex;
+  justify-content: center;
+  margin: 14px 0;
+}
+
+/* rest/checkin emoji node — coin matching next (gray) / pass (green when done) */
+.gh-emoji-node {
+  position: relative;
+  width: 246.9225px;
+  height: 206.83px;
+}
+.gh-emoji-node__base {
+  position: absolute;
+  left: 0;
+  top: 5.2823px;
+  width: 246.9225px;
+  height: 201.5478px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 14.693878px 5.877551px 0 rgba(33, 121, 25, 0.25);
+}
+.gh-emoji-node__mid {
+  position: absolute;
+  left: 15.8336px;
+  top: 0;
+  width: 214.2105px;
+  height: 181.4986px;
+  border-radius: 50%;
+  background: rgb(148, 152, 154);
+}
+.gh-emoji-node--done .gh-emoji-node__mid {
+  background: rgb(81, 172, 34);
+}
+.gh-emoji-node__top {
+  position: absolute;
+  left: 15.8336px;
+  top: 0;
+  width: 214.2105px;
+  height: 167.7806px;
+  border-radius: 50%;
+  background: rgb(166, 185, 200);
+  box-shadow: inset 2.938776px -8.816326px 5.877551px 0 rgba(254, 254, 254, 0.25);
+}
+.gh-emoji-node--done .gh-emoji-node__top {
+  background: rgb(116, 199, 78);
+}
+.gh-emoji-node__glyph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 246.9225px;
+  height: 167.7806px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 96px;
+  line-height: 1;
+}
+
+/* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill) */
+.gh-game-pill {
+  display: inline-block;
+  max-width: 620px;
+  padding: 28px 40px;
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid rgba(183, 176, 168, 0.62);
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1.15;
+  color: #4a4a4a;
+}
