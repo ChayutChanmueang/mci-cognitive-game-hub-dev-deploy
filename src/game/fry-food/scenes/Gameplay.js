@@ -489,6 +489,7 @@ export default class GameplayScene extends Phaser.Scene {
 
         const flipDurationMs = this.time.now - this._readyToFlipTime;
         this.replayLogger.addEvent(ReplayEvent.FryFood.FLIP_DURATION, { data: flipDurationMs });
+        this.replayLogger.addAnswerEvent(ReplayEvent.Global.ANSWER_SUBMITTED, "flip", true);
 
         // Visual change to food
         const cfg = this._foodConfig;
@@ -543,6 +544,12 @@ export default class GameplayScene extends Phaser.Scene {
         EventBus.emit('audio:play', 'fry-food:endgame');
         
         this.replayLogger.addEvent(ReplayEvent.FryFood.FINAL_SCORE, { data: this._cookLevel * 20 });
+
+        const remainingFlips = Math.max(0, 5 - this._cookLevel);
+        for (let i = 0; i < remainingFlips; i++) {
+            this.replayLogger.addAnswerEvent(ReplayEvent.Global.ANSWER_SUBMITTED, "missed_flip", false);
+        }
+
         this.replayLogger.pushToDatabase();
         
         showLevelCompleteEffect();
@@ -551,7 +558,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.time.delayedCall(1500, () => {
             EventBus.emit('minigame:game-over', {
                 score: this._cookLevel * 20,
-                level: this._cookLevel,
+                level: "",
                 panelBorderColor: GameOverSetting.panelBorderColor,
                 panelHeaderColor: GameOverSetting.panelHeaderColor,
                 resultImage: 'assets/common/result/result_fry_food.png',

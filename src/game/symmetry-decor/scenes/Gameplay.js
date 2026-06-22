@@ -142,23 +142,23 @@ export default class GameplayScene extends Phaser.Scene {
           }
         }
         else {
-          this.wrongSlotMove++;
-          this.replayLogger.addAnswerEvent(
-            GlobalReplayEvent.ANSWER_SUBMITTED,
-            draggableData.animal,
-            false,
-          );
-          EventBus.emit('audio:play', 'symmetry-decor:wrong');
+          // During a swap, only count one wrong answer for the whole action
+          if (this._swapInProgress && this._swapWrongLogged) {
+            // Skip — already logged one wrong for this swap
+          } else {
+            if (this._swapInProgress) this._swapWrongLogged = true;
+            this.wrongSlotMove++;
+            console.log("Current Wrong Slot : " + this.wrongSlotMove);
+            this.replayLogger.addAnswerEvent(
+              GlobalReplayEvent.ANSWER_SUBMITTED,
+              draggableData.animal,
+              false,
+            );
+            EventBus.emit('audio:play', 'symmetry-decor:wrong');
+          }
         }
       } else {
-        // Dropped onto a socket that shouldn't have any piece at all
-        this.wrongSlotMove++;
-        this.replayLogger.addAnswerEvent(
-          GlobalReplayEvent.ANSWER_SUBMITTED,
-          draggableData.animal,
-          false,
-        );
-        EventBus.emit('audio:play', 'symmetry-decor:wrong');
+        // Dropped onto a socket that shouldn't have any piece at all — silently ignore
       }
     });
 
@@ -205,6 +205,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.gameEndedAt = new Date();
     this.replayLogger.addTimestampEvent(GlobalReplayEvent.ROUND_COMPLETED);
     this.replayLogger.pushToDatabase();
+    console.log("Game Over — Final Wrong Slot Move : " + this.wrongSlotMove);
 
     //Save game data to database
     const levelNumber = getDifficultyLevelNumber(this.level);
