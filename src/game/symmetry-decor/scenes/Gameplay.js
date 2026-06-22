@@ -112,11 +112,15 @@ export default class GameplayScene extends Phaser.Scene {
     this.events.on('socketFilled', (socketComponent, entity) => {
       if (this.isGameEnded) return;
 
+      // Ignore non-draggable entities (blockers) — they have no DraggableDataComponent
+      const draggableData = entity.getComponent(DraggableDataComponent);
+      if (!draggableData) return;
+
       console.log(`Locked into ${socketComponent.name}`);
       if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
         var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
         this.totalMove++;
-        if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
+        if (socketChecker.checkEntity(draggableData)) {
           console.log("Correct Socket");
           EventBus.emit('audio:play', 'symmetry-decor:correct');
           if (!socketComponent.hasAwardedPoints) {
@@ -124,7 +128,7 @@ export default class GameplayScene extends Phaser.Scene {
             this.correctSlotMove++;
             this.replayLogger.addAnswerEvent(
               GlobalReplayEvent.ANSWER_SUBMITTED,
-              entity.getComponent(DraggableDataComponent).animal,
+              draggableData.animal,
               true,
             );
             console.log("Correct Slot Logged");
@@ -141,7 +145,7 @@ export default class GameplayScene extends Phaser.Scene {
           this.wrongSlotMove++;
           this.replayLogger.addAnswerEvent(
             GlobalReplayEvent.ANSWER_SUBMITTED,
-            entity.getComponent(DraggableDataComponent).animal,
+            draggableData.animal,
             false,
           );
           EventBus.emit('audio:play', 'symmetry-decor:wrong');
@@ -151,7 +155,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.wrongSlotMove++;
         this.replayLogger.addAnswerEvent(
           GlobalReplayEvent.ANSWER_SUBMITTED,
-          entity.getComponent(DraggableDataComponent).animal,
+          draggableData.animal,
           false,
         );
         EventBus.emit('audio:play', 'symmetry-decor:wrong');

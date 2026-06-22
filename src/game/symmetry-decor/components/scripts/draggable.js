@@ -90,7 +90,6 @@ export default class DraggableComponent extends Component {
                     // SCENARIO 3: The occupant is Locked, or the swap is invalid. Bounce back!
                     this.snapBack();
                 }
-                }
             }
         });
 
