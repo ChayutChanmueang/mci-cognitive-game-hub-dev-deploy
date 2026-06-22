@@ -46,7 +46,12 @@ class _AccelerometerManager {
         /** @type {boolean} */
         this._listening = false;
 
-        /** @type {boolean} */
+        /**
+         * Whether the user has granted motion/orientation permission.
+         * Intentionally NOT reset by stop() so that iOS doesn't demand a
+         * second permission button when the gameplay scene restarts.
+         * @type {boolean}
+         */
         this._permissionGranted = false;
 
         /** @type {'idle'|'requesting'|'granted'|'denied'|'unsupported'} */
@@ -72,10 +77,18 @@ class _AccelerometerManager {
     }
 
     /**
-     * Returns true if iOS 13+ permission-gated flow is required.
-     * Checks both DeviceMotionEvent and DeviceOrientationEvent.
+     * Returns true if iOS 13+ permission-gated flow is required AND
+     * permission has not yet been granted in this session.
+     *
+     * On iOS, DeviceOrientationEvent.requestPermission always exists, but once
+     * the user has tapped "Allow" the OS remembers it for the session.
+     * We mirror that with _permissionGranted so we don't re-show the button
+     * on every scene restart.
      */
     requiresPermissionRequest() {
+        // Already granted this session — no button needed.
+        if (this._permissionGranted) return false;
+
         const motionNeedsPermission =
             typeof DeviceMotionEvent !== 'undefined' &&
             typeof DeviceMotionEvent.requestPermission === 'function';
@@ -144,7 +157,10 @@ class _AccelerometerManager {
     }
 
     /**
-     * Stop listening and reset values.
+     * Stop listening and reset sensor values.
+     * NOTE: _permissionGranted and _status are intentionally preserved so
+     * that iOS does not require a second permission tap when the scene
+     * restarts within the same browser session.
      */
     stop() {
         if (this._listening) {
@@ -156,6 +172,18 @@ class _AccelerometerManager {
         this._acceleration = { x: 0, y: 0, z: 0 };
         this._linearAcceleration = { x: 0, y: 0, z: 0 };
         this._orientation = { alpha: 0, beta: 0, gamma: 0 };
+    }
+
+    /**
+     * Full reset — clears permission state as well.
+     * Use only when you need to re-trigger the iOS permission dialog
+     * (e.g., the user explicitly denied and wants to retry).
+     */
+    reset() {
+        this.stop();
+        this._permissionGranted = false;
+        this._status = 'idle';
+        console.log('[AccelerometerManager] Full reset (permission state cleared).');
     }
 
     /**

@@ -902,14 +902,36 @@ export default class GameplayScene extends Phaser.Scene {
         const uiRoot = document.getElementById('ui-root');
         if (!uiRoot) return;
 
+        // Semi-transparent backdrop so the player knows to tap before playing
+        this._iosBackdrop = document.createElement('div');
+        Object.assign(this._iosBackdrop.style, {
+            position: 'absolute',
+            inset: '0',
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            zIndex: '9998',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '20px',
+        });
+
+        // Instruction text above the button
+        const label = document.createElement('p');
+        label.textContent = 'เกมนี้ต้องการสิทธิ์เซ็นเซอร์การเคลื่อนไหว';
+        Object.assign(label.style, {
+            color: '#fff',
+            fontSize: '22px',
+            fontFamily: 'sans-serif',
+            textAlign: 'center',
+            margin: '0 24px',
+            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+        });
+
         this._iosButton = document.createElement('button');
         this._iosButton.id = 'accel-permission-btn';
-        this._iosButton.textContent = '🎮 Enable Motion Control';
+        this._iosButton.textContent = '🎮 เปิดใช้งานการควบคุมด้วยการเอียง';
         Object.assign(this._iosButton.style, {
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
             zIndex: '9999',
             padding: '20px 40px',
             fontSize: '24px',
@@ -927,20 +949,35 @@ export default class GameplayScene extends Phaser.Scene {
             this._tryLockOrientation();
             const status = await AccelerometerManager.start();
             console.log('[FryFood] iOS accelerometer status:', status);
-            this._removeIOSButton();
+
+            if (status === 'denied') {
+                // Show a denied message — user must go to iOS Settings to re-enable
+                label.textContent = '⚠️ สิทธิ์ถูกปฏิเสธ กรุณาเปิดการตั้งค่า → Safari → การเคลื่อนไหวและการวางแนว';
+                label.style.color = '#FFCC00';
+                this._iosButton.textContent = '❌ ไม่ได้รับสิทธิ์';
+                this._iosButton.style.backgroundColor = '#cc4444';
+                this._iosButton.style.border = '3px solid #aa2222';
+                this._iosButton.disabled = true;
+            } else {
+                this._removeIOSButton();
+            }
         }, { once: true });
 
-        uiRoot.appendChild(this._iosButton);
+        this._iosBackdrop.appendChild(label);
+        this._iosBackdrop.appendChild(this._iosButton);
+        uiRoot.appendChild(this._iosBackdrop);
     }
 
     /**
-     * Remove the iOS permission button from the DOM.
+     * Remove the iOS permission button and backdrop from the DOM.
      */
     _removeIOSButton() {
-        if (this._iosButton && this._iosButton.parentNode) {
-            this._iosButton.parentNode.removeChild(this._iosButton);
-            this._iosButton = null;
+        if (this._iosBackdrop && this._iosBackdrop.parentNode) {
+            this._iosBackdrop.parentNode.removeChild(this._iosBackdrop);
+            this._iosBackdrop = null;
         }
+        // Nullify button reference (it was inside the backdrop)
+        this._iosButton = null;
     }
 
     /**
