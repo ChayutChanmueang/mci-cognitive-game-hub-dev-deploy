@@ -669,10 +669,12 @@
   bottom: 48px;
 }
 .gh-fab-slot--scroll-top {
-  /* scroll-to-current (arrow) FAB — hidden until controller adds .is-visible */
+  /* scroll-to-current (arrow) FAB — positioned above leaderboard */
+  bottom: calc(48px + 210px + 20px);
 }
 .gh-fab-slot--leaderboard {
-  bottom: calc(48px + 100px + 20px); /* above scroll-top FAB with spacing */
+  /* leaderboard (trophy) FAB — positioned below arrow FAB */
+  bottom: 48px;
 }
 /* visibility controlled by scroll controller */
 [data-scroll-top] {
