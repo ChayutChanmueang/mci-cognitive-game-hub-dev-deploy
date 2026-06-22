@@ -46,7 +46,7 @@ export function renderHeaderBar({
           <span class="gh-header-bar__summary">${escapeText(goalSummary)}</span>
 
           <div class="gh-header-bar__track"></div>
-          <div class="gh-header-bar__fill"></div>
+          <div class="gh-header-bar__fill" style="width:${fillPct}%"></div>
           <span class="gh-header-bar__progress-text">${escapeText(done)} / ${escapeText(total)}</span>
         </div>
 
