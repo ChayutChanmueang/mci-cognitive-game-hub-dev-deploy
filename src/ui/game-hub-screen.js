@@ -14,6 +14,9 @@ import SessionStorageManager from "../core/session-storage-manager.js";
 import AudioManager from "../core/audio-manager.js";
 import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
 import "./components/components.css";
+import { renderHeaderBar } from "./components/header-bar.js";
+import { renderLevelPath } from "./components/level-path.js";
+import { renderFab } from "./components/fab-button.js";
 
 const REST_GAME_GID = "REST001";
 const DAILY_REQUIRED_GAME_GID = "PHY001";
@@ -467,170 +470,139 @@ export async function renderGameHubScreen(root, options = {}) {
     };
     const getActiveDay = () => getCurrentProgramDay();
 
+    const buildLevelSections = () => {
+        const prodSections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
+        const activeDay = getActiveDay();
+        const { programEnded: isProgramEnded } = getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+
+        return prodSections.map((section) => {
+            const day = Number(section.day);
+            const dayHistory = getDisplayHistoryForProgramDay(day);
+            const completion = getDayCompletion(section, dayHistory);
+            const currentNodeIndex = day === Number(activeDay) && completion.completedCount < section.nodes.length
+                ? completion.completedCount
+                : -1;
+
+            const nodes = section.nodes.map((node, index) => {
+                const isDone = index < completion.completedCount;
+                const isCurrent = index === currentNodeIndex;
+                const nodeState = isDone ? "pass" : (isCurrent && !isProgramEnded) ? "current" : "next";
+
+                const isGameCurrent = isCurrent && !isProgramEnded && node.type === "game";
+                const nodeObj = {
+                    id: node.id,
+                    type: node.type,
+                    state: nodeState,
+                    day: node.day,
+                    emoji: node.emoji,
+                    number: node.gameNumber || index + 1,
+                    fryfood: isGameCurrent && node.emoji === "🍳",
+                    disabled: isProgramEnded,
+                    sideLabel: node.type === "checkin" && isDone ? "เช็คชื่อแล้ว"
+                            : node.type === "checkin" ? "รอเช็คชื่อ"
+                            : node.title || `เกมที่ ${index + 1}`,
+                };
+
+                if (isCurrent && !isProgramEnded) {
+                    const game = node.gameData || {};
+                    const categoryId = game.mci_group || "Attention";
+                    nodeObj.category = getCategoryLabel(categoryId);
+                    nodeObj.title = node.title || game.displayName || game.name || "เกมฝึกสมอง";
+                    nodeObj.description = node.type === "checkin"
+                        ? "ยินดีด้วยคุณเล่นเกมครบแล้ว รอเล่นเกมวันถัดไปนะ"
+                        : node.type === "rest"
+                        ? "พักสายตา ยืดเส้น และผ่อนคลายก่อนเล่นต่อ"
+                        : (node.description || getCategoryDescription(categoryId));
+                }
+
+                return nodeObj;
+            });
+
+            return {
+                day,
+                label: `วันที่ ${day}`,
+                nodes,
+            };
+        });
+    };
+
     const render = () => {
         cleanup();
-        const sections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
+        const levelSections = buildLevelSections();
         const currentDay = getCurrentProgramDay();
-        const currentSection = getCurrentDaySection(sections);
+        const currentSection = getCurrentDaySection(buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame));
         const currentHistory = getDisplayHistoryForProgramDay(currentDay);
         const currentCompletion = getDayCompletion(currentSection, currentHistory);
-        const activeDay = getActiveDay();
         const { programEnded: isProgramEnded } = getProgramDayStatus(getStartedProgram(), getProgramDayCount());
         const progress = currentCompletion.nodeTarget > 0
             ? Math.min(1, currentCompletion.completedCount / currentCompletion.nodeTarget)
             : 0;
-        const progressClass = progress >= 0.5 ? "is-half-passed" : "";
         const currentGoal = String(currentSection.goal || state.dailyProgram?.dailyPreset?.goal || "").trim()
             || (currentCompletion.nodeTarget > 0
                 ? `ทำภารกิจ ${currentCompletion.nodeTarget} ขั้นตอน ให้ครบตามแผนประจำวัน`
                 : "ยังไม่พบรายการเกมประจำวัน");
+
+        const shellW = 420;
+        const zoom = shellW / 1080;
+
         root.innerHTML = `
             <section class="hub-clean-screen">
-                <div class="hub-clean-shell">
-                    <header class="hub-clean-topbar">
-                        <div class="hub-clean-goal">
-                            <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
-                            <h1>เป้าหมายของวันที่ ${escapeHtml(currentDay)}</h1>
-                            <p>${escapeHtml(currentGoal)}</p>
-                            <div class="hub-clean-progress ${progressClass}" style="--hub-progress: ${progress};">
-                                <md-linear-progress value="${progress}" aria-label="ทำแล้ว ${currentCompletion.completedCount} จาก ${currentCompletion.nodeTarget} ขั้นตอน"></md-linear-progress>
-                                <span>${currentCompletion.completedCount}/${currentCompletion.nodeTarget}</span>
-                            </div>
-                        </div>
-                        <div class="hub-clean-profile" role="button" tabindex="0" aria-label="เปิดโปรไฟล์ผู้เล่น">
-                            <md-filled-tonal-icon-button aria-label="เปิดโปรไฟล์ผู้เล่น">
-                                <md-icon class="material-symbols-rounded">person</md-icon>
-                            </md-filled-tonal-icon-button>
-                            <strong>โปรไฟล์</strong>
-                        </div>
-                    </header>
+                <div class="hub-clean-shell" style="zoom:${zoom}">
+                    <div class="gh-header-float">
+                        ${renderHeaderBar({
+                            patientLabel,
+                            goalTitle: `เป้าหมายของวันที่ ${escapeHtml(currentDay)}`,
+                            goalSummary: currentGoal,
+                            progress,
+                            done: currentCompletion.completedCount,
+                            total: currentCompletion.nodeTarget,
+                        })}
+                    </div>
                     <section class="hub-clean-stage">
                         <div class="hub-clean-scroll" data-hub-scroll>
-                            <div class="hub-clean-content">
-                                ${state.error ? `<div class="hub-clean-empty"><p>${escapeHtml(state.error)}</p></div>` : ""}
-                                ${sections.map((section) => renderDaySection(section, activeDay, isProgramEnded)).join("")}
+                            <div class="gh-stage">
+                                ${levelSections.length > 0 ? renderLevelPath(levelSections) : `<div style="padding:60px"><p>ยังไม่พบรายการเกม</p></div>`}
                                 ${state.loading || state.historyLoading ? `
-                                    <div class="hub-clean-empty">
+                                    <div style="padding:60px;text-align:center">
                                         <md-circular-progress indeterminate aria-label="กำลังโหลดรายการเกม"></md-circular-progress>
                                         <p>กำลังโหลดรายการเกม</p>
                                     </div>
                                 ` : ""}
+                                ${state.error ? `<div style="padding:60px"><p>${escapeHtml(state.error)}</p></div>` : ""}
                             </div>
                         </div>
-                        <md-fab class="hub-clean-fab" aria-label="เลื่อนไปยังจุดปัจจุบัน" data-scroll-top>
-                            <md-icon class="material-symbols-rounded" slot="icon">arrow_upward</md-icon>
-                        </md-fab>
-                        <md-fab class="hub-clean-leaderboard-fab" aria-label="เปิดหน้าคะแนนผู้เล่น" data-leaderboard-action>
-                            <md-icon class="material-symbols-rounded" slot="icon">trophy</md-icon>
-                        </md-fab>
+                        <div class="gh-fab-slot gh-fab-slot--scroll-top">
+                            ${renderFab({ icon: "arrow", action: "scroll-top", ariaLabel: "เลื่อนไปยังจุดปัจจุบัน" })}
+                        </div>
+                        <div class="gh-fab-slot gh-fab-slot--leaderboard">
+                            ${renderFab({ icon: "trophy", action: "leaderboard", ariaLabel: "เปิดหน้าคะแนนผู้เล่น" })}
+                        </div>
                     </section>
                 </div>
             </section>
         `;
 
-        bind(sections, activeDay);
+        bind(levelSections);
     };
 
-    const renderDaySection = (section, activeDay, isProgramEnded) => {
-        const day = Number(section.day);
-        const dayHistory = getDisplayHistoryForProgramDay(day);
-        const completion = getDayCompletion(section, dayHistory);
-        const currentNodeIndex = day === Number(activeDay) && completion.completedCount < section.nodes.length
-            ? completion.completedCount
-            : -1;
-
-        return `
-            <section class="hub-clean-day-section" data-program-day="${escapeHtml(day)}">
-                <div class="hub-clean-day-divider">
-                    <span></span>
-                    <strong>วันที่ ${escapeHtml(day)}</strong>
-                    <span></span>
-                </div>
-                <div class="hub-clean-levels">
-                    ${section.nodes.map((node, index) => renderNode(node, index, index < completion.completedCount, index === currentNodeIndex, isProgramEnded)).join("")}
-                </div>
-            </section>
-        `;
-    };
-
-    const renderNode = (node, index, isDone, isCurrent, isProgramEnded) => {
-        const classes = ["hub-clean-level", isDone ? "is-done" : "", (isCurrent && !isProgramEnded) ? "is-current" : ""]
-            .filter(Boolean)
-            .join(" ");
-        const nodeText = isDone
-            ? "✓"
-            : node.emoji
-                ? node.emoji
-                : node.type === "game"
-                    ? String(node.gameNumber || index + 1)
-                : node.emoji || "•";
-        const sideLabel = node.type === "checkin" && isDone
-            ? "เช็คชื่อแล้ว"
-            : node.type === "checkin"
-                ? "รอเช็คชื่อ"
-                : node.title || `เกมที่ ${index + 1}`;
-        const side = isCurrent && !isProgramEnded
-            ? renderCurrentCard(node, isProgramEnded)
-            : `<div class="hub-clean-game-pill">${escapeHtml(sideLabel)}</div>`;
-
-        return `
-            <div class="${classes}">
-                <div class="hub-clean-level__node" aria-hidden="true">
-                    <span>${escapeHtml(nodeText)}</span>
-                </div>
-                <div class="hub-clean-level__side">${side}</div>
-            </div>
-        `;
-    };
-
-    const renderCurrentCard = (node, isProgramEnded = false) => {
-        if (node.type === "checkin") {
-            return `
-                <article class="hub-clean-current-card">
-                    <p>เล่นเกมครบทั้งหมดแล้ว</p>
-                    <h2>เช็คชื่อแล้ว</h2>
-                    <span>ยินดีด้วยคุณเล่นเกมครบแล้ว รอเล่นเกมวันถัดไปนะ</span>
-                </article>
-            `;
-        }
-
-        if (node.type === "rest") {
-            return `
-                <article class="hub-clean-current-card">
-                    <p>พักยืดเส้น</p>
-                    <h2>${escapeHtml(node.title || "พักยืดเส้นยืดสาย")}</h2>
-                    <span>พักสายตา ยืดเส้น และผ่อนคลายก่อนเล่นต่อ</span>
-                </article>
-            `;
-        }
-
-        const game = node.gameData || {};
-        const categoryId = game.mci_group || "Attention";
-        const categoryLabel = node.categoryLabel || getCategoryLabel(categoryId);
-        const description = node.description || getCategoryDescription(categoryId);
-        return `
-            <article class="hub-clean-current-card">
-                <p>${escapeHtml(categoryLabel)}</p>
-                <h2>${escapeHtml(node.title || game.displayName || game.name || "เกมฝึกสมอง")}</h2>
-                <span>${escapeHtml(description)}</span>
-                <md-filled-button data-node-action data-day="${escapeHtml(node.day)}" data-node-id="${escapeHtml(node.id)}" type="button"${isProgramEnded ? " disabled" : ""}>เริ่มเกม</md-filled-button>
-            </article>
-        `;
-    };
-
-    const bind = (sections, activeDay) => {
+    const bind = (levelSections) => {
         bindCurrentNodeScrollController({
             root,
             state,
-            activeKey: activeDay,
+            activeKey: getActiveDay(),
             on,
+            scrollAreaSelector: '[data-hub-scroll]',
+            currentNodeSelector: '.gh-level-row--current',
+            completedNodeSelector: '.gh-level-row--pass',
+            fallbackNodeSelector: '.gh-level-row',
+            offsetElementSelector: '.gh-header-float',
         });
 
-        on(root.querySelector(".hub-clean-profile"), "click", () => {
+        on(root.querySelector("[data-profile-action]"), "click", () => {
             AudioManager.play('ui:click');
             options.onProfile?.();
         });
-        on(root.querySelector(".hub-clean-profile"), "keydown", (event) => {
+        on(root.querySelector("[data-profile-action]"), "keydown", (event) => {
             if (event.key !== "Enter" && event.key !== " ") {
                 return;
             }
@@ -638,12 +610,14 @@ export async function renderGameHubScreen(root, options = {}) {
             AudioManager.play('ui:click');
             options.onProfile?.();
         });
+
         on(root.querySelector("[data-leaderboard-action]"), "click", () => {
             AudioManager.play('ui:click');
             options.onLeaderboard?.();
         });
 
-        const nodeMap = new Map(sections.flatMap((section) => section.nodes.map((node) => [node.id, node])));
+        const prodSections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
+        const nodeMap = new Map(prodSections.flatMap((section) => section.nodes.map((node) => [node.id, node])));
         root.querySelectorAll("[data-node-action]").forEach((button) => {
             on(button, "click", async () => {
                 AudioManager.play('ui:click');
@@ -651,7 +625,6 @@ export async function renderGameHubScreen(root, options = {}) {
                 await handleNodeAction(node);
             });
         });
-
     };
 
     const handleNodeAction = async (node) => {

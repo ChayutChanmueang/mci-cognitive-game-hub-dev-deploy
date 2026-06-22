@@ -43,6 +43,8 @@ const PANEL_SVG = `<svg class="gh-lesson-card__panel" width="678.13672" height="
  * @param {string} [opts.nodeId]      -> button data-node-id (set when wiring)
  * @param {number|string} [opts.day]  -> button data-day
  * @param {boolean} [opts.disabled]   disable the button
+ * @param {boolean} [opts.showButton] render the nested start button (false for
+ *                                    current rest/check-in cards, which have no game)
  */
 export function renderLessonCard({
   category = "ภาษา",
@@ -52,15 +54,17 @@ export function renderLessonCard({
   nodeId,
   day,
   disabled = false,
+  showButton = true,
 } = {}) {
+  const button = showButton
+    ? `<div class="gh-lesson-card__button">${renderStartGameButton({ label: buttonLabel, nodeId, day, disabled })}</div>`
+    : "";
   return `
     <div class="gh-lesson-card">
       ${PANEL_SVG}
       <span class="gh-lesson-card__category">${escapeText(category)}</span>
       <span class="gh-lesson-card__title">${escapeText(title)}</span>
       <p class="gh-lesson-card__desc">${escapeText(description)}</p>
-      <div class="gh-lesson-card__button">
-        ${renderStartGameButton({ label: buttonLabel, nodeId, day, disabled })}
-      </div>
+      ${button}
     </div>`;
 }

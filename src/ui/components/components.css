@@ -215,6 +215,8 @@
  */
 .gh-day-section {
   position: relative;
+  margin-top: 50px;
+  margin-bottom: 50px;
   width: 1080px;
   height: 98px;
   flex: 0 0 auto;
@@ -527,34 +529,51 @@
   margin-bottom: 24px;
 }
 .gh-level-list {
+  position: relative;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
-/* a node + its side content; node sits in a centered left rail (width 360) */
+/* Figma coordinates (1080 frame): node centers sit on the x=225 rail axis
+   (current 296→left 77≈Figma 78; next/pass 247→left 101.5≈Figma 102); the side
+   card is at x=336 (its tail tucks ~38px behind the node). Side content is
+   absolutely placed so the tall lesson card overflows the rail rhythm without
+   pushing it (matches Figma, where the card floats to the right of the path). */
 .gh-level-row {
-  display: grid;
-  grid-template-columns: 360px minmax(0, 1fr);
-  align-items: center;
-  column-gap: 12px;
+  position: relative;
+  width: 1080px;
+  height: 206.83px; /* pass / next / emoji node height */
 }
 .gh-level-row--current {
-  align-items: center;
+  height: 247.72px; /* current / fryfood node height */
 }
 .gh-level-row__rail {
-  display: flex;
-  justify-content: center;
+  position: absolute;
+  left: 225px;
+  top: 0;
+  transform: translateX(-50%);
 }
 .gh-level-row__side {
-  min-width: 0;
+  position: absolute;
+  left: 336px;
+  top: 50%;
+  transform: translateY(-50%); /* label pills: vertically centered on the node */
+}
+.gh-level-row--current .gh-level-row__side {
+  /* lesson card: top is 25px above the node top so its left tail aligns with the
+     node center (Figma: node y=1020, card y=995). */
+  top: -25px;
+  transform: none;
 }
 
-/* connector lives in the rail column, centered on the node axis (x≈180) */
+/* connector on the rail axis (450-wide wrapper centers the line at x=225).
+   margin gives the gap between a node and the connector line (both sides). */
 .gh-level-connector {
-  width: 360px;
+  width: 450px;
   display: flex;
   justify-content: center;
-  margin: 14px 0;
+  margin: 48px 0;
 }
 
 /* rest/checkin emoji node — coin matching next (gray) / pass (green when done) */
@@ -616,6 +635,7 @@
   display: inline-block;
   max-width: 620px;
   padding: 28px 40px;
+  margin-left: 48px;
   border-radius: 40px;
   background: rgba(255, 255, 255, 0.9);
   border: 3px solid rgba(183, 176, 168, 0.62);
@@ -624,4 +644,47 @@
   font-size: 44px;
   line-height: 1.15;
   color: #4a4a4a;
+}
+
+/* ── Part 8b · production hub layout (floating header + level-path) ─
+ * The shell (.hub-clean-shell, fixed-width centered) holds a floating header
+ * (.gh-header-float, fixed/sticky at top) and a [data-hub-scroll] scroll area.
+ * Inside the scroll, .gh-stage contains .gh-level-path (1080px authored, zoomed
+ * via JS). The FABs float as fixed overlays (.gh-fab-slot, positioned absolutely
+ * within .hub-clean-stage context).
+ */
+.gh-header-float {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  justify-items: center;
+}
+.gh-stage {
+  /* 1080px authored at Figma scale; parent sets zoom via inline style */
+}
+.gh-fab-slot {
+  position: absolute;
+  z-index: 30;
+  right: 28px;
+  bottom: 48px;
+}
+.gh-fab-slot--scroll-top {
+  /* scroll-to-current (arrow) FAB — hidden until controller adds .is-visible */
+}
+.gh-fab-slot--leaderboard {
+  bottom: calc(48px + 100px + 20px); /* above scroll-top FAB with spacing */
+}
+/* visibility controlled by scroll controller */
+[data-scroll-top] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+[data-scroll-top].is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* legacy: .gh-topbar-inflow for in-flow headers (if needed) */
+.gh-topbar-inflow {
+  margin: 0 0 8px 61px;
 }

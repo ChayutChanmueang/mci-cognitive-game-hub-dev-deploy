@@ -51,7 +51,7 @@ export function renderHeaderBar({
 
       <div class="gh-header-bar__divider"></div>
 
-      <button type="button" class="gh-header-bar__profile hub-clean-profile" aria-label="${escapeAttr(profileAriaLabel)}">
+      <button type="button" class="gh-header-bar__profile" data-profile-action aria-label="${escapeAttr(profileAriaLabel)}">
         <img class="gh-header-bar__avatar" src="${avatarSrc}" alt="" aria-hidden="true" />
       </button>
     </div>`;

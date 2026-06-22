@@ -46,9 +46,11 @@ function renderNodeGlyph(node) {
   return renderNextNumberNode(node.number);
 }
 
-// side content next to a node: lesson card for the current game, label pill otherwise
+// side content next to a node: lesson card for the current node (with a start
+// button only for games — current rest/check-in get a button-less card), label
+// pill for every other node.
 function renderSide(node) {
-  if (node.state === "current" && node.type === "game") {
+  if (node.state === "current") {
     return renderLessonCard({
       category: node.category,
       title: node.title,
@@ -56,6 +58,7 @@ function renderSide(node) {
       nodeId: node.id,
       day: node.day,
       disabled: node.disabled,
+      showButton: node.type === "game",
     });
   }
   const label = node.sideLabel || node.title || "";
