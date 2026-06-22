@@ -22,7 +22,10 @@ export function renderNumberGlyph(number, { centerX, top }) {
   const fid = `gh-num-inner-${seq++}`; // unique filter id per instance
   const label = String(number).replace(/[<>&"]/g, ""); // hygiene; values are game numbers
   const left = centerX - BOX_W / 2;
-  return `<svg class="gh-node-num" style="left:${left}px;top:${top}px;width:${BOX_W}px;height:128px" width="${BOX_W}" height="128" viewBox="0 0 ${BOX_W} 128" xmlns="http://www.w3.org/2000/svg">
+  // Placement + rendered box scale with --gh-scale; the SVG viewBox (and the 80px
+  // text inside) map through the scaled box automatically, so internal coords stay raw.
+  const sv = "var(--gh-scale, 1)";
+  return `<svg class="gh-node-num" style="left:calc(${left}px * ${sv});top:calc(${top}px * ${sv});width:calc(${BOX_W}px * ${sv});height:calc(128px * ${sv})" width="${BOX_W}" height="128" viewBox="0 0 ${BOX_W} 128" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <filter id="${fid}" x="-50%" y="-50%" width="200%" height="200%">
           <feComponentTransfer in="SourceAlpha"><feFuncA type="table" tableValues="1 0" /></feComponentTransfer>

@@ -542,12 +542,13 @@ export async function renderGameHubScreen(root, options = {}) {
                 ? `ทำภารกิจ ${currentCompletion.nodeTarget} ขั้นตอน ให้ครบตามแผนประจำวัน`
                 : "ยังไม่พบรายการเกมประจำวัน");
 
-        const shellW = 420;
-        const zoom = shellW / 1080;
+        // Scaling is pure CSS now: components are authored at Figma 1080px and
+        // scaled to the device column via --gh-scale (set on .hub-clean-shell in
+        // components.css). No zoom / no transform — see EXPORT.md Part 8.
 
         root.innerHTML = `
             <section class="hub-clean-screen">
-                <div class="hub-clean-shell" style="zoom:${zoom}">
+                <div class="hub-clean-shell">
                     <div class="gh-header-float">
                         ${renderHeaderBar({
                             patientLabel,

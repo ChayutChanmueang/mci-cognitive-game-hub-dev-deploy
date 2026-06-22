@@ -8,7 +8,7 @@
 export function renderDotLine() {
   return `<div class="gh-dot-line">
       <span class="gh-dot-line__dot" style="top:0"></span>
-      <span class="gh-dot-line__dot" style="top:38px"></span>
-      <span class="gh-dot-line__dot" style="top:75px"></span>
+      <span class="gh-dot-line__dot" style="top:calc(38px * var(--gh-scale, 1))"></span>
+      <span class="gh-dot-line__dot" style="top:calc(75px * var(--gh-scale, 1))"></span>
     </div>`;
 }
