@@ -31,8 +31,10 @@ export function bindCurrentNodeScrollController({
         }
 
         const offsetElement = root.querySelector(offsetElementSelector);
-        const offsetElementBottom = offsetElement
-            ? offsetElement.offsetTop + offsetElement.offsetHeight
+        const scrollAreaRect = scrollArea.getBoundingClientRect();
+        const offsetElementRect = offsetElement?.getBoundingClientRect();
+        const offsetElementBottom = offsetElementRect
+            ? Math.max(0, offsetElementRect.bottom - scrollAreaRect.top)
             : 160;
 
         return Math.max(DEFAULT_SCROLL_OFFSET, offsetElementBottom + Math.round(scrollArea.clientHeight * 0.03));
@@ -44,6 +46,14 @@ export function bindCurrentNodeScrollController({
         }
 
         return Math.max(DEFAULT_SCROLL_TOLERANCE, Math.round(scrollArea.clientHeight * 0.3));
+    };
+
+    const getScrollUnitScale = () => {
+        const content = scrollArea?.firstElementChild;
+        const visualHeight = content?.getBoundingClientRect?.().height || 0;
+        return visualHeight > 0
+            ? scrollArea.scrollHeight / visualHeight
+            : 1;
     };
 
     const getCurrentNodeTarget = () => {
@@ -81,7 +91,11 @@ export function bindCurrentNodeScrollController({
         const targetRect = targetNode.getBoundingClientRect();
 
         return targetRect
-            ? Math.max(0, scrollArea.scrollTop + targetRect.top - scrollAreaRect.top - getScrollOffset())
+            ? Math.max(
+                0,
+                scrollArea.scrollTop
+                    + ((targetRect.top - scrollAreaRect.top - getScrollOffset()) * getScrollUnitScale()),
+            )
             : 0;
     };
 

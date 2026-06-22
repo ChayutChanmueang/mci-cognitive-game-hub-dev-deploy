@@ -496,7 +496,7 @@ export async function renderGameHubScreen(root, options = {}) {
                     day: node.day,
                     emoji: node.emoji,
                     number: node.gameNumber || index + 1,
-                    fryfood: isGameCurrent && node.emoji === "🍳",
+                    fryfood: node.type === "game" && node.emoji === "🍳" && nodeState !== "pass",
                     disabled: isProgramEnded,
                     sideLabel: node.type === "checkin" && isDone ? "เช็คชื่อแล้ว"
                             : node.type === "checkin" ? "รอเช็คชื่อ"

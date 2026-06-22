@@ -16,7 +16,7 @@
 import { renderPassNode } from "./nodes/pass-node.js";
 import { renderCurrentNumberNode } from "./nodes/current-number-node.js";
 import { renderNextNumberNode } from "./nodes/next-number-node.js";
-import { renderCurrentFryFoodNode } from "./nodes/current-fryfood-node.js";
+import { renderCurrentFryFoodNode, renderNextFryFoodNode } from "./nodes/current-fryfood-node.js";
 import { renderCurrentLine } from "./path/current-line.js";
 import { renderDotLine } from "./path/dot-line.js";
 import { renderDaySectionHeader } from "./day-section.js";
@@ -40,6 +40,7 @@ function renderNodeGlyph(node) {
     return renderEmojiNode(node.emoji || (node.type === "rest" ? "🏋️" : "🏁"), { done: node.state === "pass" });
   }
   if (node.state === "pass") return renderPassNode();
+  if (node.fryfood && node.state !== "current") return renderNextFryFoodNode();
   if (node.state === "current") {
     return node.fryfood ? renderCurrentFryFoodNode() : renderCurrentNumberNode(node.number);
   }
@@ -104,5 +105,10 @@ export function renderLevelPath(daySections) {
         </section>`;
     })
     .join("");
-  return `<div class="gh-level-path">${days}</div>`;
+  return `
+    <div class="gh-level-path">
+      <div class="gh-level-path__spacer gh-level-path__spacer--top" aria-hidden="true"></div>
+      ${days}
+      <div class="gh-level-path__spacer gh-level-path__spacer--bottom" aria-hidden="true"></div>
+    </div>`;
 }

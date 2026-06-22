@@ -170,6 +170,36 @@
   width: 206.0847px;
   height: 105.9737px;
 }
+.gh-fryfood-node--next {
+  width: 246.9225px;
+  height: 206.83px;
+}
+.gh-fryfood-node--next .gh-fryfood-node__base {
+  left: 0;
+  top: 5.2823px;
+  width: 246.9225px;
+  height: 201.5478px;
+}
+.gh-fryfood-node--next .gh-fryfood-node__mid {
+  left: 15.8336px;
+  top: 0;
+  width: 214.2105px;
+  height: 181.4986px;
+  background: rgb(148, 152, 154);
+}
+.gh-fryfood-node--next .gh-fryfood-node__top {
+  left: 15.8336px;
+  top: 0;
+  width: 214.2105px;
+  height: 167.7806px;
+  background: rgb(166, 185, 200);
+}
+.gh-fryfood-node--next .gh-fryfood-node__icon {
+  left: 45.914px;
+  top: 40.904px;
+  width: 171.998px;
+  height: 88.452px;
+}
 
 /* number glyph (Current + Next share it; centered on the coin, see number-glyph.js) */
 .gh-node-num {
@@ -495,7 +525,8 @@
   top: 205px;
   text-align: center;
   font-weight: 700;
-  font-size: 43.64919px;
+  font-size: 44px;
+  width: 100%;
   color: rgb(255, 250, 242);
 }
 .gh-header-bar__divider { /* 3031:440 */
@@ -540,6 +571,16 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+.gh-level-path__spacer {
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+.gh-level-path__spacer--top {
+  height: 420px;
+}
+.gh-level-path__spacer--bottom {
+  height: 360px;
 }
 .gh-day-block {
   display: flex;

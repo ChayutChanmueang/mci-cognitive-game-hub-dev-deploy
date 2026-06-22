@@ -20,3 +20,13 @@ export function renderCurrentFryFoodNode() {
       <img class="gh-fryfood-node__icon" src="${fryFoodIcon}" alt="" aria-hidden="true" />
     </div>`;
 }
+
+export function renderNextFryFoodNode() {
+  return `
+    <div class="gh-fryfood-node gh-fryfood-node--next">
+      <div class="gh-fryfood-node__base"></div>
+      <div class="gh-fryfood-node__mid"></div>
+      <div class="gh-fryfood-node__top"></div>
+      <img class="gh-fryfood-node__icon" src="${fryFoodIcon}" alt="" aria-hidden="true" />
+    </div>`;
+}
