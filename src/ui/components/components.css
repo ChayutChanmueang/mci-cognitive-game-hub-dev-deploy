@@ -409,12 +409,31 @@
 .gh-header-bar { /* 3031:429 card */
   position: relative;
   flex: 0 0 auto;
-  width: 958px;
+  width: min(95%, 958px);
   height: 344px;
   border-radius: 52px;
   background: #ffffff;
   /* blue OUTSIDE stroke 12 + DROP_SHADOW (0,13) r0 of the stroked shape */
   box-shadow: 0 0 0 12px rgb(138, 197, 219), 0 13px 0 12px rgba(0, 0, 0, 0.25);
+}
+.gh-header-bar__grid {
+  position: absolute;
+  left: 60px;
+  top: 34px;
+  width: calc(100% - 86px);
+  max-width: 872px;
+  height: 274px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px 11px 21px 240px;
+  grid-template-areas: "progress . divider . profile";
+  align-items: start;
+}
+.gh-header-bar__progress-area {
+  grid-area: progress;
+  position: relative;
+  width: 100%;
+  height: 274px;
+  min-width: 0;
 }
 .gh-header-bar span {
   position: absolute;
@@ -429,68 +448,69 @@
 .gh-header-bar__name,
 .gh-header-bar__goal,
 .gh-header-bar__summary {
-  max-width: 572px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .gh-header-bar__name { /* 3031:434 */
-  left: 60px;
-  top: 34px;
+  left: 0;
+  top: 0;
   font-weight: 500;
-  font-size: 52px;
+  font-size: 42px;
   color: rgb(89, 89, 89);
 }
 .gh-header-bar__goal { /* 3031:433 */
-  left: 60px;
-  top: 98.0703px;
+  left: 0;
+  top: 64.0703px;
   font-weight: 700;
-  font-size: 62.55027px;
+  font-size: 52px;
   color: rgb(48, 90, 105);
 }
 .gh-header-bar__summary { /* 3031:435 */
-  left: 60px;
-  top: 178.9453px;
+  left: 0;
+  top: 144.9453px;
   font-weight: 500;
   font-size: 37.06683px;
   color: rgb(54, 144, 177);
 }
 .gh-header-bar__track { /* 3031:437 */
   position: absolute;
-  left: 60px;
-  top: 240px;
-  width: 572px;
+  left: 0;
+  top: 206px;
+  width: 100%;
   height: 68px;
   border-radius: 27.80012px;
   background: rgb(252, 233, 204);
 }
 .gh-header-bar__fill { /* 3031:438 (width set inline from progress) */
   position: absolute;
-  left: 60px;
-  top: 240px;
+  left: 0;
+  top: 206px;
   height: 68px;
   border-radius: 27.80012px;
   background: rgb(253, 203, 52);
 }
 .gh-header-bar__progress-text { /* 3031:439 */
-  left: 189px;
-  top: 239px;
+  left: 0;
+  top: 205px;
+  text-align: center;
   font-weight: 700;
   font-size: 43.64919px;
   color: rgb(255, 250, 242);
 }
 .gh-header-bar__divider { /* 3031:440 */
-  position: absolute;
-  left: 660px;
-  top: 36px;
+  grid-area: divider;
+  position: relative;
+  top: 2px;
   width: 11px;
   height: 272px;
   border-radius: 24px;
   background: rgb(230, 230, 230);
 }
 .gh-header-bar__profile { /* avatar-as-profile-button; resets the <button> chrome */
-  position: absolute;
-  left: 692px;
-  top: 51.5px;
+  grid-area: profile;
+  position: relative;
+  top: 17.5px;
   width: 240px;
   height: 240px;
   padding: 0;
@@ -654,10 +674,13 @@
  * within .hub-clean-stage context).
  */
 .gh-header-float {
+  justify-self: center;
+  width: min(90%, 1024px);
   position: sticky;
   top: 0;
   z-index: 10;
   justify-items: center;
+  margin-top: 86px;
 }
 .gh-stage {
   /* 1080px authored at Figma scale; parent sets zoom via inline style */

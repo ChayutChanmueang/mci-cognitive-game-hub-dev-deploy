@@ -1050,7 +1050,7 @@ body.hub-mode {
 
 .hub-clean-shell {
     position: relative;
-    width: min(100%, 1080px);
+    width: min(100%, 1026px);
     height: 100%;
     overflow: hidden;
 }

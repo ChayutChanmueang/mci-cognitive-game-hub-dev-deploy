@@ -17,8 +17,6 @@
 import avatarSrc from "./assets/header-avatar.png";
 import { escapeText, escapeAttr } from "./escape.js";
 
-const TRACK_W = 572; // 3031:437 track width — fill spans TRACK_W * progress
-
 /**
  * @param {object} [opts]
  * @param {string} [opts.patientLabel]
@@ -38,21 +36,25 @@ export function renderHeaderBar({
   total = 10,
   profileAriaLabel = "เปิดโปรไฟล์ผู้เล่น",
 } = {}) {
-  const fillW = Math.max(0, Math.min(1, Number(progress) || 0)) * TRACK_W;
+  const fillPct = Math.max(0, Math.min(1, Number(progress) || 0)) * 100;
   return `
     <div class="gh-header-bar">
-      <span class="gh-header-bar__name">${escapeText(patientLabel)}</span>
-      <span class="gh-header-bar__goal">${escapeText(goalTitle)}</span>
-      <span class="gh-header-bar__summary">${escapeText(goalSummary)}</span>
+      <div class="gh-header-bar__grid">
+        <div class="gh-header-bar__progress-area">
+          <span class="gh-header-bar__name">${escapeText(patientLabel)}</span>
+          <span class="gh-header-bar__goal">${escapeText(goalTitle)}</span>
+          <span class="gh-header-bar__summary">${escapeText(goalSummary)}</span>
 
-      <div class="gh-header-bar__track"></div>
-      <div class="gh-header-bar__fill" style="width:${fillW}px"></div>
-      <span class="gh-header-bar__progress-text">${escapeText(done)} / ${escapeText(total)}</span>
+          <div class="gh-header-bar__track"></div>
+          <div class="gh-header-bar__fill" style="width:${fillPct}%"></div>
+          <span class="gh-header-bar__progress-text" style="width:${fillPct}%">${escapeText(done)} / ${escapeText(total)}</span>
+        </div>
 
-      <div class="gh-header-bar__divider"></div>
+        <div class="gh-header-bar__divider"></div>
 
-      <button type="button" class="gh-header-bar__profile" data-profile-action aria-label="${escapeAttr(profileAriaLabel)}">
-        <img class="gh-header-bar__avatar" src="${avatarSrc}" alt="" aria-hidden="true" />
-      </button>
+        <button type="button" class="gh-header-bar__profile" data-profile-action aria-label="${escapeAttr(profileAriaLabel)}">
+          <img class="gh-header-bar__avatar" src="${avatarSrc}" alt="" aria-hidden="true" />
+        </button>
+      </div>
     </div>`;
 }
