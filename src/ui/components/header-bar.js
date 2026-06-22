@@ -37,6 +37,11 @@ export function renderHeaderBar({
   profileAriaLabel = "เปิดโปรไฟล์ผู้เล่น",
 } = {}) {
   const fillPct = Math.max(0, Math.min(1, Number(progress) || 0)) * 100;
+  // The progress text is centered on the track. While the fill hasn't reached the
+  // center (<50%) the text sits over the light cream track -> dark text (#595959);
+  // once the fill passes the center (>=50%) the text sits over the yellow fill ->
+  // light text (#FFFAF2).
+  const progressTextColor = fillPct >= 50 ? "#FFFAF2" : "#595959";
   return `
     <div class="gh-header-bar">
       <div class="gh-header-bar__grid">
@@ -47,7 +52,7 @@ export function renderHeaderBar({
 
           <div class="gh-header-bar__track"></div>
           <div class="gh-header-bar__fill" style="width:${fillPct}%"></div>
-          <span class="gh-header-bar__progress-text">${escapeText(done)} / ${escapeText(total)}</span>
+          <span class="gh-header-bar__progress-text" style="color:${progressTextColor}">${escapeText(done)} / ${escapeText(total)}</span>
         </div>
 
         <div class="gh-header-bar__divider"></div>
