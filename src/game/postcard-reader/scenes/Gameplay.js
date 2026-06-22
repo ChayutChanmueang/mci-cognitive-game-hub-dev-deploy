@@ -95,7 +95,7 @@ export default class GameplayScene extends Phaser.Scene {
     });
 
     // Debug menu
-    this.debugMenu = new DebugMenu(this);
+    // this.debugMenu = new DebugMenu(this);
   }
 
   update(time, delta) {

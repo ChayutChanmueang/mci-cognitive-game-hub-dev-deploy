@@ -166,7 +166,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.levelIsActive = true;
 
     // Debug menu (bottom-left toggle button)
-    this.debugMenu = new DebugMenu(this);
+    // this.debugMenu = new DebugMenu(this);
   }
 
   handleRoundComplete() {

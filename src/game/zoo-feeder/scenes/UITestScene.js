@@ -137,7 +137,7 @@ export default class UITestScene extends Phaser.Scene {
     this.physics.pause();
 
     // Debug menu
-    this.debugMenu = new DebugMenu(this);
+    // this.debugMenu = new DebugMenu(this);
 
     // Show DOM Tutorial Panel
     const uiRoot = document.getElementById('ui-root');
