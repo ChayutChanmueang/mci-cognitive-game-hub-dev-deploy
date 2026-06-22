@@ -147,7 +147,7 @@ export default class GameplayScene extends Phaser.Scene {
               return;
           }
 
-          this.increaseScore(Config.IncreaseScore[this.levelMap]);
+          //this.increaseScore(Config.IncreaseScore[this.levelMap]);
       };
       this.quizGame.onAnswerCorrect = (answer) => {
           if (this.isGameEnded) {
