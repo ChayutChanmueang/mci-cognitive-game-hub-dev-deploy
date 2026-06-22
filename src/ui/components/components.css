@@ -283,10 +283,10 @@
 }
 .gh-day-section__label { /* 3031:126 day text (stroke + shadow hidden) */
   position: absolute;
-  left: calc(80px * var(--gh-scale, 1));
   top: calc(10px * var(--gh-scale, 1));
-  width: calc(117px * var(--gh-scale, 1));
+  width: calc(259px * var(--gh-scale, 1));
   height: calc(69px * var(--gh-scale, 1));
+  text-align: center;
   font-family: "Noto Sans Thai Looped", sans-serif;
   font-weight: 700;
   font-size: calc(43px * var(--gh-scale, 1));
@@ -713,7 +713,7 @@
   margin-left: calc(48px * var(--gh-scale, 1));
   border-radius: calc(40px * var(--gh-scale, 1));
   background: rgba(255, 255, 255, 0.9);
-  border: calc(3px * var(--gh-scale, 1)) solid rgba(183, 176, 168, 0.62);
+  /*border: calc(3px * var(--gh-scale, 1)) solid rgba(183, 176, 168, 0.62);*/
   font-family: "Noto Sans Thai Looped", sans-serif;
   font-weight: 700;
   font-size: calc(44px * var(--gh-scale, 1));

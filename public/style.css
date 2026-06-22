@@ -27,10 +27,7 @@ body {
 
 body {
     color: var(--md-sys-color-on-surface);
-    background:
-        radial-gradient(circle at top left, rgba(210, 234, 223, 0.9), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(255, 214, 153, 0.35), transparent 28%),
-        linear-gradient(180deg, #f8f5ef 0%, #f2ede4 100%);
+    background: linear-gradient(180deg, #8be298 0%, #6ed8ff 100%);
     font-family: "Noto Sans Thai", sans-serif;
 }
 
