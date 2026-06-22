@@ -9,7 +9,7 @@
 //   3031:130 Ellipse 34 blue mid     fill rgb(108,133,237)
 //   3031:131 Ellipse 33 blue top     fill rgb(117,168,255) + INNER_SHADOW
 //   3031:132 Group      fry-food icon, render bounds rel (54.999, 48.9967) 206.0847 x 105.9737
-import fryFoodIcon from "../assets/fry-food-icon.png";
+const fryFoodIcon = "/assets/gamehub/icon/fry-food-icon.png";
 
 export function renderCurrentFryFoodNode() {
   return `

@@ -12,7 +12,7 @@
 // ("up"|"down") on the [data-scroll-top] button. We flip the up-arrow via CSS
 // (rotate 180deg on [data-scroll-direction="down"]) — NO controller change. The
 // controller's `md-icon` textContent swap is skipped harmlessly (no md-icon here).
-import trophySrc from "./assets/leaderboard-trophy.svg";
+const trophySrc = "/assets/gamehub/icon/leaderboard-trophy.svg";
 import { escapeAttr } from "./escape.js";
 
 const ARROW_SVG = `<svg class="gh-fab__arrow" width="103.6847" height="117.5284" viewBox="0 0 104 118" fill="none" xmlns="http://www.w3.org/2000/svg">

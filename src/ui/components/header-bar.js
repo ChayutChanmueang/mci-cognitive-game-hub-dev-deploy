@@ -14,7 +14,7 @@
 //   3031:441 avatar      (692,51.5) 240x240 r52 — composed Figma render; here it is
 //                        ALSO the profile button (keeps the .hub-clean-profile hook so
 //                        game-hub-screen.js bind() opens the profile on click/keydown).
-import avatarSrc from "./assets/header-avatar.png";
+const avatarSrc = "/assets/gamehub/profile/Profile_OldMan.png";
 import { escapeText, escapeAttr } from "./escape.js";
 
 /**
