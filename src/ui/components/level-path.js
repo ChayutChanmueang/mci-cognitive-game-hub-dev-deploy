@@ -21,23 +21,31 @@ import { renderCurrentLine } from "./path/current-line.js";
 import { renderDotLine } from "./path/dot-line.js";
 import { renderDaySectionHeader } from "./day-section.js";
 import { renderLessonCard } from "./lesson-card.js";
-import { escapeText } from "./escape.js";
+import { escapeText, escapeAttr } from "./escape.js";
 
-// rest/checkin: keep emoji, shown in a coin matching the node's done/next look.
-function renderEmojiNode(emoji, { done = false } = {}) {
+// rest/checkin: shown in a coin matching the node's done/next look. A gender-specific
+// character image (node.image) replaces the emoji glyph when provided; the emoji is
+// kept as the fallback for when no image is supplied.
+function renderEmojiNode(emoji, { done = false, image = "" } = {}) {
   const cls = done ? "gh-emoji-node gh-emoji-node--done" : "gh-emoji-node";
+  const face = image
+    ? `<img class="gh-emoji-node__image" src="${escapeAttr(image)}" alt="" aria-hidden="true" />`
+    : `<span class="gh-emoji-node__glyph">${escapeText(emoji)}</span>`;
   return `
     <div class="${cls}">
       <div class="gh-emoji-node__base"></div>
       <div class="gh-emoji-node__mid"></div>
       <div class="gh-emoji-node__top"></div>
-      <span class="gh-emoji-node__glyph">${escapeText(emoji)}</span>
+      ${face}
     </div>`;
 }
 
 function renderNodeGlyph(node) {
   if (node.type === "rest" || node.type === "checkin") {
-    return renderEmojiNode(node.emoji || (node.type === "rest" ? "🏋️" : "🏁"), { done: node.state === "pass" });
+    return renderEmojiNode(node.emoji || (node.type === "rest" ? "🏋️" : "🏁"), {
+      done: node.state === "pass",
+      image: node.image,
+    });
   }
   if (node.state === "pass") return renderPassNode();
   if (node.fryfood && node.state !== "current") return renderNextFryFoodNode();

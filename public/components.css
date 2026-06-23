@@ -704,6 +704,16 @@
   font-size: calc(96px * var(--gh-scale, 1));
   line-height: 1;
 }
+/* gender-specific character art replacing the emoji glyph; sits on the coin top */
+.gh-emoji-node__image {
+  position: absolute;
+  left: calc(6px * var(--gh-scale, 1));
+  top: calc(-30px * var(--gh-scale, 1));
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
 
 /* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill) */
 .gh-game-pill {

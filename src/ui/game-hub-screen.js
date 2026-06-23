@@ -31,6 +31,16 @@ const DAILY_REQUIRED_GAME_FALLBACK = Object.freeze({
 });
 const MINIGAME_DEFAULT_BG_COLOR = '#028af8';
 
+// Gender-specific character art for the rest / check-in coins. DB gender is
+// "male"/"female" (see signup-screen.js); anything else falls back to the man set.
+const CHARACTER_IMAGE_BASE = "/assets/common/character";
+function getCharacterImage(gender, variant) {
+    const isFemale = String(gender || "").trim().toLowerCase() === "female";
+    const folder = isFemale ? "female" : "man";
+    const prefix = isFemale ? "OldWoman" : "OldMan";
+    return `${CHARACTER_IMAGE_BASE}/${folder}/${prefix}_${variant}.png`;
+}
+
 const CATEGORY_META = Object.freeze({
     Attention: {
         nameTh: "สมาธิ",
@@ -495,6 +505,11 @@ export async function renderGameHubScreen(root, options = {}) {
                     state: nodeState,
                     day: node.day,
                     emoji: node.emoji,
+                    image: node.type === "rest"
+                        ? getCharacterImage(options.patientGender, "resting")
+                        : node.type === "checkin"
+                        ? getCharacterImage(options.patientGender, "finish-line")
+                        : undefined,
                     number: node.gameNumber || index + 1,
                     fryfood: node.type === "game" && node.emoji === "🍳" && nodeState !== "pass",
                     disabled: isProgramEnded,
