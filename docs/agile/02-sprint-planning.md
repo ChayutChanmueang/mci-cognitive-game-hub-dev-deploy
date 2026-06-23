@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-06-16
+**Last Updated:** 2026-06-23
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
@@ -14,7 +14,8 @@
 | [sprint-04](sprint-backlogs/sprint-04.md) | Apr 12-30     | Final Polish & Variety               | Completed |
 | [sprint-05](sprint-backlogs/sprint-05.md) | May 06-19     | User Management & Progression Overhaul | Completed |
 | [sprint-06](sprint-backlogs/sprint-06.md) | May 20-31     | Integration, Analytics & Admin | Completed |
-| Post-Sprint Hardening | Jun 01-16 | **(Current)** Deployment stabilization, branch cleanup, documentation sync | In-Progress |
+| Post-Sprint Hardening | Jun 01-16 | Deployment stabilization, branch cleanup, documentation sync | Completed |
+| [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 06 | **(Current)** Game Art Assets, Version Display & Mini-game Vertical Responsiveness | In-Progress |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -35,7 +36,9 @@ gantt
     section Sprint 6
     Integration, Analytics & Admin :done, s6, 2026-05-20, 12d
     section Hardening
-    Deploy stabilization & docs sync :active, harden, 2026-06-01, 16d
+    Deploy stabilization & docs sync :done, harden, 2026-06-01, 16d
+    section Sprint 7
+    Art assets, version display & vertical responsive :active, s7, 2026-06-23, 14d
 ```
 
 ---
@@ -51,6 +54,7 @@ gantt
 - **[sprint-05](sprint-backlogs/sprint-05.md)**: User Management & Progression Overhaul
 - **[sprint-06](sprint-backlogs/sprint-06.md)**: Integration, Analytics & Admin Dashboard
 - **Post-Sprint Hardening**: Stabilize deployment branches, verify Docker/nginx production build, fix stale leaderboard branch drift, and refresh documentation
+- **[sprint-07](sprint-backlogs/sprint-07.md)**: Game Art Assets, Version Display & Mini-game Vertical Responsiveness
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
@@ -76,6 +80,10 @@ gantt
 - **June hardening:** Reset/align staging with dev-approved code, restore environment/Docker deployment files, and validate production build on the test VM
 - **Documentation:** Update GDD, software design, schema, UI components, backlog and roadmap to match the current app
 - **Target:** Test VM and local builds use the same implementation baseline and no stale UI code remains in production bundles
+
+### 🎨 E7: Game Art Assets & UI/UX Polish
+- **Sprint 7:** เพิ่ม game art assets ให้หน้าจอ DOM หลัก (Leaderboard, Login, Sign-up, Player-Info, Popup), แสดงเลขเวอร์ชันบนตัวเกมหลัก (ซ่อนในมินิเกม) และทำให้มินิเกมยืดแนวตั้งได้ (Vertical Responsive)
+- **Target:** ชั้นการนำเสนอ (presentation layer) มีเอกลักษณ์ภาพครบทุกหน้าจอหลัก และมินิเกมแสดงผลเต็มจอแนวตั้งบนมือถือทุกอัตราส่วนเมื่อจบ Sprint 7
 
 ---
 

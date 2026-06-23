@@ -5,6 +5,12 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
+- [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
+- [ ] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard
+- [ ] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up
+- [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
+- [ ] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info
+- [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup
 - [ ] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
 
 ## 🔵 In Progress (WIP Limit: 3)

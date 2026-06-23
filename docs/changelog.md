@@ -24,6 +24,16 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-23] - Sprint 7 Planning (Art Assets, Versioning & Vertical Responsiveness)
+**Process/docs only — no project version change (stays at `0.11.0`).**
+
+### Added
+- Opened **Sprint 7** (2026-06-23 → 2026-07-06): created `docs/agile/sprint-backlogs/sprint-07.md` and Epic **E7: Game Art Assets & UI/UX Polish** with stories `US-E7-01`..`US-E7-06` (art assets for Leaderboard, Login/Sign-up, Player-Info, Popup; Game Hub version indicator hidden inside mini-games; mini-game vertical-responsive stretch).
+
+### Changed
+- Updated `docs/agile/02-sprint-planning.md` (schedule table, Gantt, sprint details, E7 strategy; marked Post-Sprint Hardening Completed), `docs/agile/01-product-backlog.md` (added E7), and `docs/agile/kanban.md` (queued E7 stories).
+- Updated `docs/index.md` Current Sprint pointer to Sprint 7.
+
 ## [2026-06-23] - Welcome Screen, PWA Icons & iOS Motion Input (v0.11.0)
 **Version bump:** `0.10.0 → 0.11.0` (MINOR) — new backward-compatible functionality (welcome screen + game logo, full PWA icon set, iOS gyro input handler, temporary iOS permission button) shipped alongside fixes; highest applicable part wins, PATCH reset to 0.
 

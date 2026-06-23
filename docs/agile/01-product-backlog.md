@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-06-16
+**Last Updated:** 2026-06-23
 
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"
@@ -66,6 +66,16 @@
 | TD-E6-03 | อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน | Med | 🏗 In-Progress |
 | TD-E6-04 | Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง | High | 🔍 Review / Testing |
 | TD-E6-05 | ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง | Med | 📋 Backlog |
+
+### E7: Game Art Assets & UI/UX Polish (P1)
+| ID | User Story | Priority | Status |
+| --- | --- | --- | --- |
+| [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
+| [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 📋 Backlog |
+| [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 📋 Backlog |
+| [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
+| [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
+| [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
 
 ---
 
