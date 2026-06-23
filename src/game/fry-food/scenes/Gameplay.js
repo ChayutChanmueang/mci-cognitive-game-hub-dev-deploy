@@ -946,7 +946,11 @@ export default class GameplayScene extends Phaser.Scene {
         });
 
         this._iosButton.addEventListener('click', async () => {
-            this._tryLockOrientation();
+            // IMPORTANT: requestPermission() MUST be the first gesture-consuming
+            // call in this handler. Do NOT call _tryLockOrientation() before it
+            // because startFullscreen() spends the user activation token on iOS,
+            // leaving requestPermission() without a valid gesture and silently
+            // returning 'denied' without ever showing the system dialog.
             const status = await AccelerometerManager.start();
             console.log('[FryFood] iOS accelerometer status:', status);
 
@@ -960,6 +964,8 @@ export default class GameplayScene extends Phaser.Scene {
                 this._iosButton.disabled = true;
             } else {
                 this._removeIOSButton();
+                // Lock orientation only after permission is secured
+                this._tryLockOrientation();
             }
         }, { once: true });
 
@@ -982,10 +988,15 @@ export default class GameplayScene extends Phaser.Scene {
 
     /**
      * Attempt to lock the screen orientation to portrait and enter fullscreen.
-     * Note: This usually requires a user gesture or fullscreen mode on mobile browsers.
+     * Note: iOS Safari does not support the Fullscreen API — skip it there to
+     * avoid wasting the user activation token that requestPermission() needs.
      */
     async _tryLockOrientation() {
-        if (this.scale && !this.scale.isFullscreen) {
+        const isIOS = AccelerometerManager.isIOS();
+
+        // Skip fullscreen on iOS: requestFullscreen() is unsupported and the
+        // failed attempt still consumes the user gesture on some iOS versions.
+        if (!isIOS && this.scale && !this.scale.isFullscreen) {
             try {
                 const fsPromise = this.scale.startFullscreen();
                 if (fsPromise && typeof fsPromise.catch === 'function') {
