@@ -969,8 +969,35 @@ export default class GameplayScene extends Phaser.Scene {
             }
         }, { once: true });
 
+        // -- Skip button -------------------------------------------------------
+        // Lets the player exit the game cleanly if the permission dialog cannot
+        // be shown (e.g. iOS on HTTP dev server, or user wants to skip for today).
+        const skipBtn = document.createElement('button');
+        skipBtn.id = 'accel-skip-btn';
+        skipBtn.textContent = 'ข้ามเกมนี้';
+        Object.assign(skipBtn.style, {
+            zIndex: '9999',
+            padding: '12px 32px',
+            fontSize: '18px',
+            fontFamily: 'sans-serif',
+            color: 'rgba(255,255,255,0.8)',
+            backgroundColor: 'transparent',
+            border: '2px solid rgba(255,255,255,0.4)',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            marginTop: '8px',
+        });
+
+        skipBtn.addEventListener('click', () => {
+            // Exit the game without saving a score.
+            // minigame:exit-confirmed is handled in main.js → cleanup() + navigateTo(exitRoute)
+            this._removeIOSButton();
+            EventBus.emit('minigame:exit-confirmed');
+        }, { once: true });
+
         this._iosBackdrop.appendChild(label);
         this._iosBackdrop.appendChild(this._iosButton);
+        this._iosBackdrop.appendChild(skipBtn);
         uiRoot.appendChild(this._iosBackdrop);
     }
 
