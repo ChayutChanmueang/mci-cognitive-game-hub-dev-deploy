@@ -914,6 +914,11 @@ export default class GameplayScene extends Phaser.Scene {
             alignItems: 'center',
             justifyContent: 'center',
             gap: '20px',
+            // The #ui-root element has pointer-events:none in game mode (style.css)
+            // so that the HUD doesn't accidentally swallow Phaser touch events.
+            // We must explicitly re-enable pointer events on this overlay so the
+            // permission button and skip button are actually tappable.
+            pointerEvents: 'auto',
         });
 
         // Instruction text above the button
