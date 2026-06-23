@@ -15,6 +15,19 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
+// Gender-specific celebration art for the "เก่งมาก !!!" success step. DB gender is
+// "male"/"female" (see signup-screen.js); anything else falls back to the man set.
+// One of the three cheer-complete variants is picked at random per popup.
+const CHARACTER_IMAGE_BASE = "/assets/common/character";
+const CHEER_COMPLETE_VARIANTS = 3;
+function getRandomCheerImage(gender) {
+    const isFemale = String(gender || "").trim().toLowerCase() === "female";
+    const folder = isFemale ? "female" : "man";
+    const prefix = isFemale ? "OldWoman" : "OldMan";
+    const variant = String(Math.floor(Math.random() * CHEER_COMPLETE_VARIANTS) + 1).padStart(2, "0");
+    return `${CHARACTER_IMAGE_BASE}/${folder}/${prefix}_cheer-complete-${variant}.png`;
+}
+
 function clampDayCount(value, fallback = 14) {
     const parsed = Number(value);
     if (!Number.isFinite(parsed)) {
@@ -87,6 +100,7 @@ export function showCheckInPopup(options = {}) {
         loadVideoSrc = null,
         videoTitle = "ละครสั้นประจำวัน",
         dismissible = false,
+        patientGender = "",
     } = options;
 
     return new Promise((resolve) => {
@@ -99,6 +113,8 @@ export function showCheckInPopup(options = {}) {
             dayCount: clampDayCount(defaultDayCount),
             videoSrc: "",
             videoPlayerInstance: null,
+            // Picked once per popup so it stays stable across re-renders of the success step.
+            cheerImageSrc: getRandomCheerImage(patientGender),
         };
 
         overlay.className = "app-popup";
@@ -138,7 +154,7 @@ export function showCheckInPopup(options = {}) {
                         <div class="checkin-popup-success-layout">
                             <div class="app-popup__copy checkin-popup-success-copy">
                                 <h2 id="${titleId}" style="color: var(--md-sys-color-primary); font-size: 39px;">เก่งมาก !!!</h2>
-                                <div class="checkin-success-emoji" aria-hidden="true" style="font-size: 83px;">😊</div>
+                                <img class="checkin-success-emoji checkin-success-image" src="${escapeHtml(state.cheerImageSrc)}" alt="" aria-hidden="true" />
                                 <p id="${messageId}" style="margin-top: 8px; font-size: 22px;">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อยแล้ว</p>
                             </div>
                         </div>

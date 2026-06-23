@@ -1702,6 +1702,14 @@ body.hub-mode {
     line-height: 1;
 }
 
+/* Gender-specific celebration character replacing the success emoji. Adjust
+   width/height here to resize; object-fit keeps the square art undistorted. */
+.checkin-success-image {
+/*    width: clamp(150px, 40vw, 200px);
+    height: clamp(150px, 40vw, 200px);*/
+    object-fit: contain;
+}
+
 .checkin-success-message {
     margin: 0;
     color: #0f0f0f;
