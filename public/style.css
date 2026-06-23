@@ -140,17 +140,12 @@ body.hub-mode {
     aspect-ratio: 1.1;
     display: grid;
     place-items: center;
-    border-radius: clamp(48px, 10vw, 88px);
-    background: #dddddd;
-    color: #1f1f1f;
 }
 
-.landing-screen__logo h1 {
-    margin: 0;
-    font-family: "Baloo 2", "Noto Sans Thai", sans-serif;
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 500;
-    line-height: 1;
+.landing-screen__logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .landing-screen__actions {
@@ -158,7 +153,6 @@ body.hub-mode {
     width: min(100%, clamp(280px, 44vw, 420px));
 }
 
-.landing-screen__logo h1,
 .login-card h1,
 .signup-card__header h1,
 .player-info-card h1,
@@ -1443,7 +1437,6 @@ body.hub-mode {
 }
 
 .leaderboard-screen {
-    background: #f7f4ee;
 }
 
 .leaderboard-topbar {
