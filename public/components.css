@@ -433,9 +433,16 @@
   top: calc(25.474px * var(--gh-scale, 1));
   transform-origin: center;
 }
-/* up/down state driven by the scroll controller's data-scroll-direction (no JS swap) */
-.gh-fab[data-scroll-direction="down"] .gh-fab__arrow {
-  transform: rotate(180deg);
+/* scroll-top FAB carries both real arrow SVGs; show one based on the scroll
+   controller's data-scroll-direction (no JS swap). Default (no/up direction) = up. */
+.gh-fab[data-scroll-top] .gh-fab__arrow--down {
+  display: none;
+}
+.gh-fab[data-scroll-top][data-scroll-direction="down"] .gh-fab__arrow--up {
+  display: none;
+}
+.gh-fab[data-scroll-top][data-scroll-direction="down"] .gh-fab__arrow--down {
+  display: block;
 }
 
 /* 3031:427 trophy SVG (viewBox 133x120; image rect at x=4,y=0; shadow pads sides+bottom).
