@@ -13,7 +13,7 @@ import db from "../core/database.js";
 import SessionStorageManager from "../core/session-storage-manager.js";
 import AudioManager from "../core/audio-manager.js";
 import { bindCurrentNodeScrollController } from "../util/current-node-scroll-controller.js";
-import "./components/components.css";
+import "../../public/components.css";
 import { renderHeaderBar } from "./components/header-bar.js";
 import { renderLevelPath } from "./components/level-path.js";
 import { renderFab } from "./components/fab-button.js";
