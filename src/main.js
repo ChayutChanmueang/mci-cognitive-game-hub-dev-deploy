@@ -4,7 +4,7 @@ import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";
 import { createGameHubState, renderGameHubScreen } from "./ui/game-hub-screen.js";
 import { createTestGameHubState, renderTestGameHubScreen } from "./ui/test-game-hub.js";
 import { renderAdminLoginScreen } from "./ui/admin-login-screen.js";
-import { renderLandingScreen } from "./ui/landing-screen.js";
+import { renderWelcomeScreen } from "./ui/welcome-screen.js";
 import { renderLeaderboardScreen } from "./ui/leaderboard-screen.js";
 import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
@@ -543,7 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
         gameContainer.classList.add("game-container--hidden");
         showUiRoot();
 
-        renderLandingScreen(uiRoot, {
+        renderWelcomeScreen(uiRoot, {
             onLogin: () => navigateTo(ROUTES.login),
         });
     };
