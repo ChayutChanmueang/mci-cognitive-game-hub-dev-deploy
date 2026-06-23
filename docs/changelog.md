@@ -2,6 +2,38 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
+> Project version follows [Semantic Versioning 2.0.0](https://semver.org). Source of truth: `package.json`. The game is **pre-beta**, so it stays in the `0.x` line (SemVer rule 4 — "anything MAY change"); we do **not** bump to `1.0.0` until a stable, production public API is declared. Within `0.x`: new backward-compatible functionality bumps MINOR; bug fixes bump PATCH.
+
+## Project Version History (reconstructed)
+
+The `package.json` previously held an arbitrary `1.4.0` that never corresponded to a real release (no git release tags, no recorded 1.x progression). On 2026-06-23 the project was renumbered into the correct pre-beta `0.x` line by mapping each feature/system milestone to a MINOR version:
+
+| Version | Date (approx.) | Milestone — new functionality |
+| :--- | :--- | :--- |
+| `0.1.0` | 2026-02 | First game (Zoo Feeder / sorting line) prototype; Express + Supabase + highscore |
+| `0.2.0` | 2026-03 | Supabase client flow, anon auth, scoreboard, login/signup, Game Hub + tutorial |
+| `0.3.0` | 2026-04 | Minigames Context Clues, Zoo Detective, Symmetry Decor (drag-drop, puzzle systems) |
+| `0.4.0` | 2026-04 | Patient profile (edu/age/phone), admin Supabase auth, session timers, rest/check-in nodes |
+| `0.5.0` | 2026-04→05 | Daily preset editor + CSV import/export tooling |
+| `0.6.0` | 2026-05 | Minigame infrastructure (EventBus, modular HUD/panels), Resting Point, voice service, error logging |
+| `0.7.0` | 2026-05 | Replay logging system, level-complete effects, sprite entities, PWA installability |
+| `0.8.0` | 2026-05→06 | Reusable start menu, UI/top-bar redesigns, image-asset redesigns, user event log, Fry Food (accelerometer), mock leaderboard |
+| `0.9.0` | 2026-06 | Live leaderboard (RPC + infinite scroll), audio system (BGM/SFX), scoring overhaul, completion popups, tree-growth check-in + short-video VideoPlayer, Docker build |
+| `0.10.0` | 2026-06-23 | **(current)** Figma-derived Game Hub components + gender-based avatars + asset consolidation |
+
+> The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [2026-06-23] - Game Hub Components & Gender-Based Avatars (v0.10.0)
+**Version bump:** `0.9.0 → 0.10.0` (MINOR) — new backward-compatible functionality (Game Hub component system + gender-based character avatars); PATCH reset to 0. (Also renumbered the project from a placeholder `1.4.0` back into the pre-beta `0.x` line — see version history above.)
+
+### Added
+- Documented the Figma-derived Game Hub component system (header bar, level-path/progression nodes, and an auto-layout progress bar with fill-width rendering and a text-color flip at the 50% mark) now driving the hub UI.
+- Documented gender-based character avatars: the profile avatar in the Game Hub header, the rest/check-in progression node images, and the random gender-based character image on the check-in success screen.
+
+### Changed
+- Updated `docs/index.md` snapshot and Active Runtime Surfaces to reflect the Game Hub component system and gender-based avatars; bumped the project version header and Last Updated date.
+- Consolidated image/icon/SVG and component CSS assets under `public/` (including `public/assets/gamehub`) and removed the obsolete preview page.
+
 ## [2026-06-17] - Video Player Documentation Sync
 ### Changed
 - Added a `VideoPlayer` component section to `docs/software/04-ui-components.md` (no native controls, loading overlay, buffering feedback, read-only progress, volume/mute sync, fullscreen with iOS pseudo-fullscreen fallback, and event API) and updated the `resting-point-popup.js` note.

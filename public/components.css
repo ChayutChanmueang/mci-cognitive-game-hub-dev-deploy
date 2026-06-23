@@ -1,0 +1,787 @@
+/*
+ * GameHub-UI ported components — styles
+ *
+ * Ported from the Figma-verified demo (test-figma-export/src/components/*.vue).
+ * Every value here is a direct copy of a Figma-derived value (see EXPORT.md
+ * "Source Of Truth" + the demo PROGRESS.md), never an eyeballed substitute.
+ * Classes are namespaced `gh-` to avoid clashing with existing `hub-clean-*`.
+ *
+ * Import point: pulled into the module graph from game-hub-screen.js so Vite
+ * bundles it. The dev preview (components/preview/) imports it too.
+ */
+
+/* Production scale (no zoom / no transform): the hub is authored at Figma 1080px
+ * width; every length is calc(px * var(--gh-scale, 1)) so it renders as real,
+ * reflowing layout boxes (scroll height + hit areas scale too). Set once here on
+ * the fixed-width device column. The dev preview has no .hub-clean-shell, so it
+ * falls back to --gh-scale:1 (exact full Figma size for verification). */
+.hub-clean-shell {
+  --gh-scale: calc(420 / 1080);
+}
+
+/* ── Part 1 · Node states (Pass / Current / Next + fryfood variant) ─────────
+ * Coordinates are at the Figma 1080x1920 frame scale (px). Sizing/scaling into
+ * the production .hub-clean-level__node container is reconciled in Part 8.
+ */
+
+/* Pass-Node-With-CheckIcon · 3108:28 (246.92 x 206.83) */
+.gh-pass-node {
+  position: relative;
+  width: calc(246.92px * var(--gh-scale, 1));
+  height: calc(206.83px * var(--gh-scale, 1));
+}
+.gh-pass-node__base { /* 3108:13 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: calc(5.283435px * var(--gh-scale, 1));
+  width: calc(246.92px * var(--gh-scale, 1));
+  height: calc(201.54657px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 calc(14.693878px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(33, 121, 25, 0.25);
+}
+.gh-pass-node__mid { /* 3108:14 Ellipse 34 */
+  position: absolute;
+  left: calc(15.83394px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.20836px * var(--gh-scale, 1));
+  height: calc(181.49741px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(81, 172, 34);
+}
+.gh-pass-node__top { /* 3108:15 Ellipse 33 */
+  position: absolute;
+  left: calc(15.83394px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.20836px * var(--gh-scale, 1));
+  height: calc(167.7796px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(116, 199, 78);
+  box-shadow: inset calc(2.938776px * var(--gh-scale, 1)) calc(-8.816326px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(254, 254, 254, 0.25);
+}
+.gh-pass-node__check { /* 3108:16 Group / 3108:17 Vector */
+  position: absolute;
+  width: calc(75.5053px * var(--gh-scale, 1));
+  height: calc(63.0599px * var(--gh-scale, 1));
+  left: calc(87.302155px * var(--gh-scale, 1));
+  top: calc(46.561699px * var(--gh-scale, 1));
+}
+
+/* Current-Node-With-Number · 3108:113 (295.7444 x 247.7193) */
+.gh-current-node {
+  position: relative;
+  width: calc(295.7444px * var(--gh-scale, 1));
+  height: calc(247.7193px * var(--gh-scale, 1));
+}
+.gh-current-node__base { /* 3108:95 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: calc(6.321022px * var(--gh-scale, 1));
+  width: calc(295.7444px * var(--gh-scale, 1));
+  height: calc(241.39822px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 calc(14.693878px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(33, 121, 25, 0.25);
+}
+.gh-current-node__mid { /* 3108:96 Ellipse 34 */
+  position: absolute;
+  left: calc(18.963032px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(256.5646px * var(--gh-scale, 1));
+  height: calc(217.38477px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(108, 133, 237);
+}
+.gh-current-node__top { /* 3108:97 Ellipse 33 */
+  position: absolute;
+  left: calc(18.963032px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(256.5646px * var(--gh-scale, 1));
+  height: calc(200.95454px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(117, 168, 255);
+  box-shadow: inset calc(2.938776px * var(--gh-scale, 1)) calc(-8.816326px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(254, 254, 254, 0.25);
+}
+
+/* Next-Node-With-Number · 3108:19 / 3031:189..194 (246.9225 x 206.83) */
+.gh-next-node {
+  position: relative;
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(206.83px * var(--gh-scale, 1));
+}
+.gh-next-node__base { /* 3031:191 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: calc(5.2823px * var(--gh-scale, 1));
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(201.5478px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 calc(14.693878px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(33, 121, 25, 0.25);
+}
+.gh-next-node__mid { /* 3031:192 Ellipse 34 */
+  position: absolute;
+  left: calc(15.8336px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.2105px * var(--gh-scale, 1));
+  height: calc(181.4986px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(148, 152, 154);
+}
+.gh-next-node__top { /* 3031:193 Ellipse 33 */
+  position: absolute;
+  left: calc(15.8336px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.2105px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(166, 185, 200);
+  box-shadow: inset calc(2.938776px * var(--gh-scale, 1)) calc(-8.816326px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(254, 254, 254, 0.25);
+}
+
+/* Current-Node-With-FryFoodIcon · 3108:8 (295.7444 x 247.7193) — Current variant */
+.gh-fryfood-node {
+  position: relative;
+  width: calc(295.7444px * var(--gh-scale, 1));
+  height: calc(247.7193px * var(--gh-scale, 1));
+}
+.gh-fryfood-node__base { /* 3031:129 Ellipse 35 */
+  position: absolute;
+  left: 0;
+  top: calc(6.321022px * var(--gh-scale, 1));
+  width: calc(295.7444px * var(--gh-scale, 1));
+  height: calc(241.39822px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 calc(14.693878px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(33, 121, 25, 0.25);
+}
+.gh-fryfood-node__mid { /* 3031:130 Ellipse 34 */
+  position: absolute;
+  left: calc(18.963032px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(256.5646px * var(--gh-scale, 1));
+  height: calc(217.38477px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(108, 133, 237);
+}
+.gh-fryfood-node__top { /* 3031:131 Ellipse 33 */
+  position: absolute;
+  left: calc(18.963032px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(256.5646px * var(--gh-scale, 1));
+  height: calc(200.95454px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(117, 168, 255);
+  box-shadow: inset calc(2.938776px * var(--gh-scale, 1)) calc(-8.816326px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(254, 254, 254, 0.25);
+}
+.gh-fryfood-node__icon { /* 3031:132 fry-food icon, placed by render bounds */
+  position: absolute;
+  left: calc(54.999px * var(--gh-scale, 1));
+  top: calc(48.9967px * var(--gh-scale, 1));
+  width: calc(206.0847px * var(--gh-scale, 1));
+  height: calc(105.9737px * var(--gh-scale, 1));
+}
+.gh-fryfood-node--next {
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(206.83px * var(--gh-scale, 1));
+}
+.gh-fryfood-node--next .gh-fryfood-node__base {
+  left: 0;
+  top: calc(5.2823px * var(--gh-scale, 1));
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(201.5478px * var(--gh-scale, 1));
+}
+.gh-fryfood-node--next .gh-fryfood-node__mid {
+  left: calc(15.8336px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.2105px * var(--gh-scale, 1));
+  height: calc(181.4986px * var(--gh-scale, 1));
+  background: rgb(148, 152, 154);
+}
+.gh-fryfood-node--next .gh-fryfood-node__top {
+  left: calc(15.8336px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.2105px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  background: rgb(166, 185, 200);
+}
+.gh-fryfood-node--next .gh-fryfood-node__icon {
+  left: calc(45.914px * var(--gh-scale, 1));
+  top: calc(40.904px * var(--gh-scale, 1));
+  width: calc(171.998px * var(--gh-scale, 1));
+  height: calc(88.452px * var(--gh-scale, 1));
+}
+
+/* number glyph (Current + Next share it; centered on the coin, see number-glyph.js) */
+.gh-node-num {
+  position: absolute;
+}
+.gh-node-num text {
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: 80px;
+}
+
+/* ── Part 2 · Path connectors ───────────────────────────────────────────────
+ * Sharp offset shadow (radius 0) — no blur. Coordinates at Figma frame scale.
+ */
+
+/* Current-Line-between · 3108:10 / 3031:259 (24 x 166 pill) */
+.gh-current-line {
+  width: calc(24px * var(--gh-scale, 1));
+  height: calc(166px * var(--gh-scale, 1));
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: #ffffff;
+  box-shadow: 0 calc(5px * var(--gh-scale, 1)) 0 0 rgba(0, 0, 0, 0.25);
+}
+
+/* NextGame-Line-Dot-between · 3108:27 (24 x 99, three dots at y 0/38/75) */
+.gh-dot-line {
+  position: relative;
+  width: calc(24px * var(--gh-scale, 1));
+  height: calc(99px * var(--gh-scale, 1));
+}
+.gh-dot-line__dot {
+  position: absolute;
+  left: 0;
+  width: calc(24px * var(--gh-scale, 1));
+  height: calc(24px * var(--gh-scale, 1));
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: #ffffff;
+  box-shadow: 0 calc(5px * var(--gh-scale, 1)) 0 0 rgba(0, 0, 0, 0.25);
+}
+
+/* ── Part 3 · Day Section (Figma 3108:7, 1080 x 98) ─────────────────────────
+ * Hidden Figma effects (white-pill shadow, text stroke/shadow) intentionally omitted.
+ */
+.gh-day-section {
+  position: relative;
+  margin-top: calc(50px * var(--gh-scale, 1));
+  margin-bottom: calc(50px * var(--gh-scale, 1));
+  width: calc(1080px * var(--gh-scale, 1));
+  height: calc(98px * var(--gh-scale, 1));
+  flex: 0 0 auto;
+}
+.gh-day-section__pill-base { /* 3031:124 gray lower pill (visible drop shadow) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(259px * var(--gh-scale, 1));
+  height: calc(98px * var(--gh-scale, 1));
+  border-radius: calc(88px * var(--gh-scale, 1));
+  background: rgb(199, 199, 199);
+  box-shadow: 0 calc(13px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) 0 rgba(0, 0, 0, 0.25);
+}
+.gh-day-section__pill-top { /* 3031:125 white top pill (shadow hidden) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(259px * var(--gh-scale, 1));
+  height: calc(90px * var(--gh-scale, 1));
+  border-radius: calc(88px * var(--gh-scale, 1));
+  background: #ffffff;
+}
+.gh-day-section__label { /* 3031:126 day text (stroke + shadow hidden) */
+  position: absolute;
+  top: calc(10px * var(--gh-scale, 1));
+  width: calc(259px * var(--gh-scale, 1));
+  height: calc(69px * var(--gh-scale, 1));
+  text-align: center;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: calc(43px * var(--gh-scale, 1));
+  line-height: normal;
+  color: rgb(105, 105, 105);
+}
+.gh-day-section__divider { /* 3031:127 */
+  position: absolute;
+  left: calc(288px * var(--gh-scale, 1));
+  top: calc(44px * var(--gh-scale, 1));
+  width: calc(792px * var(--gh-scale, 1));
+  height: calc(5px * var(--gh-scale, 1));
+  border-radius: calc(10px * var(--gh-scale, 1));
+  background: rgba(255, 255, 255, 0.71);
+}
+
+/* ── Part 4 · Start button + Lesson card ────────────────────────────────────*/
+
+/* Start-Game-Button · 3108:68 (rect bbox 540.3278 x 186.7422; white stroke overflows) */
+.gh-start-button {
+  position: relative;
+  display: block;
+  width: calc(540.3278px * var(--gh-scale, 1));
+  height: calc(186.7422px * var(--gh-scale, 1));
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-start-button[disabled] {
+  cursor: default;
+  opacity: 0.5; /* non-Figma affordance for the program-ended disabled state */
+}
+.gh-start-button__base { /* 3108:63 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(540.3278px * var(--gh-scale, 1));
+  height: calc(186.7422px * var(--gh-scale, 1));
+  border-radius: calc(79.59504px * var(--gh-scale, 1));
+  background: rgb(66, 134, 29);
+  box-shadow: 0 0 0 calc(10.714716px * var(--gh-scale, 1)) rgba(255, 255, 255, 1); /* white OUTSIDE stroke */
+}
+.gh-start-button__fill { /* 3108:64 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(540.3278px * var(--gh-scale, 1));
+  height: calc(179.85416px * var(--gh-scale, 1));
+  border-radius: calc(79.59504px * var(--gh-scale, 1));
+  background: linear-gradient(to bottom, rgb(125, 215, 76) 0%, rgb(74, 157, 29) 100%);
+}
+.gh-start-button__label { /* 3108:66 */
+  position: absolute;
+  left: calc(107.570221px * var(--gh-scale, 1));
+  top: calc(36.707027px * var(--gh-scale, 1));
+  width: calc(326px * var(--gh-scale, 1));
+  height: calc(107px * var(--gh-scale, 1));
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: calc(66.71947px * var(--gh-scale, 1));
+  line-height: normal;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* LessonCard · 3108:26 (658.1367 x 546.7422) */
+.gh-lesson-card {
+  position: relative;
+  width: calc(658.1367px * var(--gh-scale, 1));
+  height: calc(546.7422px * var(--gh-scale, 1));
+}
+.gh-lesson-card__panel { /* 3031:412, placed by its render bounds */
+  position: absolute;
+  width: calc(678.13672px * var(--gh-scale, 1));
+  height: calc(463.75049px * var(--gh-scale, 1));
+  left: calc(-10px * var(--gh-scale, 1));
+  top: calc(-1px * var(--gh-scale, 1));
+}
+.gh-lesson-card__category { /* 3031:416 */
+  position: absolute;
+  left: calc(93px * var(--gh-scale, 1));
+  top: 0;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: calc(78.55112px * var(--gh-scale, 1));
+  line-height: normal;
+  color: rgb(103, 163, 42);
+  white-space: nowrap;
+}
+.gh-lesson-card__title { /* 3031:417 */
+  position: absolute;
+  left: calc(93px * var(--gh-scale, 1));
+  top: calc(101.65625px * var(--gh-scale, 1));
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 500;
+  font-size: calc(51.98235px * var(--gh-scale, 1));
+  line-height: normal;
+  color: rgb(142, 207, 77);
+  white-space: nowrap;
+}
+.gh-lesson-card__desc { /* 3031:418 */
+  position: absolute;
+  left: calc(93px * var(--gh-scale, 1));
+  top: calc(184.828125px * var(--gh-scale, 1));
+  width: calc(515.2029px * var(--gh-scale, 1));
+  margin: 0;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 500;
+  font-size: calc(36.96523px * var(--gh-scale, 1));
+  line-height: normal;
+  color: rgb(94, 94, 94);
+}
+.gh-lesson-card__button { /* 3108:69 */
+  position: absolute;
+  left: calc(81px * var(--gh-scale, 1));
+  top: calc(360px * var(--gh-scale, 1));
+}
+
+/* ── Part 5 · Floating Action Buttons (Figma 3108:3 / 3108:4, 160 x 160) ──────*/
+
+/* 3031:448 / 3031:426 shared container */
+.gh-fab {
+  position: relative;
+  width: calc(160px * var(--gh-scale, 1));
+  height: calc(160px * var(--gh-scale, 1));
+  padding: 0;
+  border: 0;
+  border-radius: calc(25px * var(--gh-scale, 1));
+  background: rgb(236, 249, 242);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* white OUTSIDE stroke 12, then DROP_SHADOW (0,6) r0 of the stroked shape */
+  box-shadow: 0 0 0 calc(12px * var(--gh-scale, 1)) rgba(255, 255, 255, 1), 0 calc(6px * var(--gh-scale, 1)) 0 calc(12px * var(--gh-scale, 1)) rgba(0, 0, 0, 0.25);
+}
+
+/* 3031:449 arrow, placed by render bounds */
+.gh-fab__arrow {
+  position: absolute;
+  width: calc(103.6847px * var(--gh-scale, 1));
+  height: calc(117.5284px * var(--gh-scale, 1));
+  left: calc(28.209px * var(--gh-scale, 1));
+  top: calc(25.474px * var(--gh-scale, 1));
+  transform-origin: center;
+}
+/* scroll-top FAB carries both real arrow SVGs; show one based on the scroll
+   controller's data-scroll-direction (no JS swap). Default (no/up direction) = up. */
+.gh-fab[data-scroll-top] .gh-fab__arrow--down {
+  display: none;
+}
+.gh-fab[data-scroll-top][data-scroll-direction="down"] .gh-fab__arrow--up {
+  display: none;
+}
+.gh-fab[data-scroll-top][data-scroll-direction="down"] .gh-fab__arrow--down {
+  display: block;
+}
+
+/* 3031:427 trophy SVG (viewBox 133x120; image rect at x=4,y=0; shadow pads sides+bottom).
+   Image origin (17,24.039) -> svg offset by the rect's in-viewBox margin (4,0). */
+.gh-fab__trophy {
+  position: absolute;
+  left: calc(13px * var(--gh-scale, 1));
+  top: calc(24.039px * var(--gh-scale, 1));
+  width: calc(133px * var(--gh-scale, 1));
+  height: calc(120px * var(--gh-scale, 1));
+}
+
+/* ── Part 6 · Header Bar (Progression) (Figma 3108:2, 958 x 344) ─────────────
+ * Hidden Figma effects (text strokes, text/track drop shadows) omitted.
+ */
+.gh-header-bar { /* 3031:429 card */
+  position: relative;
+  flex: 0 0 auto;
+  width: min(95%, calc(958px * var(--gh-scale, 1)));
+  height: calc(344px * var(--gh-scale, 1));
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: #ffffff;
+  /* blue OUTSIDE stroke 12 + DROP_SHADOW (0,13) r0 of the stroked shape */
+  box-shadow: 0 0 0 calc(12px * var(--gh-scale, 1)) rgb(138, 197, 219), 0 calc(13px * var(--gh-scale, 1)) 0 calc(12px * var(--gh-scale, 1)) rgba(0, 0, 0, 0.25);
+}
+.gh-header-bar__grid {
+  position: absolute;
+  left: calc(60px * var(--gh-scale, 1));
+  top: calc(34px * var(--gh-scale, 1));
+  width: calc(100% - calc(86px * var(--gh-scale, 1)));
+  max-width: calc(872px * var(--gh-scale, 1));
+  height: calc(274px * var(--gh-scale, 1));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) calc(28px * var(--gh-scale, 1)) calc(11px * var(--gh-scale, 1)) calc(21px * var(--gh-scale, 1)) calc(240px * var(--gh-scale, 1));
+  grid-template-areas: "progress . divider . profile";
+  align-items: start;
+}
+.gh-header-bar__progress-area {
+  grid-area: progress;
+  position: relative;
+  width: 100%;
+  height: calc(274px * var(--gh-scale, 1));
+  min-width: 0;
+}
+.gh-header-bar span {
+  position: absolute;
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  line-height: normal;
+  white-space: nowrap;
+}
+/* Production robustness (deviation): Figma used short text; production patient
+   names / goal summaries can be long, so cap the text column at the track width
+   (ends at 60+572=632, clear of the divider at 660) and ellipsis the overflow.
+   Short text is unaffected — renders identical to Figma. */
+.gh-header-bar__name,
+.gh-header-bar__goal,
+.gh-header-bar__summary {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gh-header-bar__name { /* 3031:434 */
+  left: 0;
+  top: 0;
+  font-weight: 500;
+  font-size: calc(42px * var(--gh-scale, 1));
+  color: rgb(89, 89, 89);
+}
+.gh-header-bar__goal { /* 3031:433 */
+  left: 0;
+  top: calc(64.0703px * var(--gh-scale, 1));
+  font-weight: 700;
+  font-size: calc(52px * var(--gh-scale, 1));
+  color: rgb(48, 90, 105);
+}
+.gh-header-bar__summary { /* 3031:435 */
+  left: 0;
+  top: calc(144.9453px * var(--gh-scale, 1));
+  font-weight: 500;
+  font-size: calc(37.06683px * var(--gh-scale, 1));
+  color: rgb(54, 144, 177);
+}
+.gh-header-bar__track { /* 3031:437 */
+  position: absolute;
+  left: 0;
+  top: calc(206px * var(--gh-scale, 1));
+  width: 100%;
+  height: calc(68px * var(--gh-scale, 1));
+  border-radius: calc(27.80012px * var(--gh-scale, 1));
+  background: rgb(252, 233, 204);
+}
+.gh-header-bar__fill { /* 3031:438 (width set inline from progress) */
+  position: absolute;
+  left: 0;
+  top: calc(206px * var(--gh-scale, 1));
+  height: calc(68px * var(--gh-scale, 1));
+  border-radius: calc(27.80012px * var(--gh-scale, 1));
+  background: rgb(253, 203, 52);
+}
+.gh-header-bar__progress-text { /* 3031:439 */
+  left: 0;
+  top: calc(205px * var(--gh-scale, 1));
+  text-align: center;
+  font-weight: 700;
+  font-size: calc(44px * var(--gh-scale, 1));
+  width: 100%;
+  color: rgb(255, 250, 242);
+}
+.gh-header-bar__divider { /* 3031:440 */
+  grid-area: divider;
+  position: relative;
+  top: calc(2px * var(--gh-scale, 1));
+  width: calc(11px * var(--gh-scale, 1));
+  height: calc(272px * var(--gh-scale, 1));
+  border-radius: calc(24px * var(--gh-scale, 1));
+  background: rgb(230, 230, 230);
+}
+.gh-header-bar__profile { /* avatar-as-profile-button; resets the <button> chrome */
+  grid-area: profile;
+  position: relative;
+  top: calc(17.5px * var(--gh-scale, 1));
+  width: calc(240px * var(--gh-scale, 1));
+  height: calc(240px * var(--gh-scale, 1));
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-header-bar__avatar { /* 3031:441 */
+  display: block;
+  width: calc(240px * var(--gh-scale, 1));
+  height: calc(240px * var(--gh-scale, 1));
+  border-radius: calc(52px * var(--gh-scale, 1));
+}
+
+/* ── Part 8 · Level-path composition (1080 design scale) ─────────────────────
+ * Authored at the Figma 1080 frame; every length is calc(px * var(--gh-scale))
+ * so the whole stage scales to the device column (no zoom / no transform).
+ */
+.gh-stage {
+  width: calc(1080px * var(--gh-scale, 1));
+}
+
+.gh-level-path {
+  width: calc(1080px * var(--gh-scale, 1));
+  display: flex;
+  flex-direction: column;
+  gap: calc(24px * var(--gh-scale, 1));
+}
+.gh-level-path__spacer {
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+.gh-level-path__spacer--top {
+  height: calc(420px * var(--gh-scale, 1));
+}
+.gh-level-path__spacer--bottom {
+  height: calc(360px * var(--gh-scale, 1));
+}
+.gh-day-block {
+  display: flex;
+  flex-direction: column;
+}
+.gh-day-block__header {
+  margin-bottom: calc(24px * var(--gh-scale, 1));
+}
+.gh-level-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Figma coordinates (1080 frame): node centers sit on the x=225 rail axis
+   (current 296→left 77≈Figma 78; next/pass 247→left 101.5≈Figma 102); the side
+   card is at x=336 (its tail tucks ~calc(38px * var(--gh-scale, 1)) behind the node). Side content is
+   absolutely placed so the tall lesson card overflows the rail rhythm without
+   pushing it (matches Figma, where the card floats to the right of the path). */
+.gh-level-row {
+  position: relative;
+  width: calc(1080px * var(--gh-scale, 1));
+  height: calc(206.83px * var(--gh-scale, 1)); /* pass / next / emoji node height */
+}
+.gh-level-row--current {
+  height: calc(247.72px * var(--gh-scale, 1)); /* current / fryfood node height */
+}
+.gh-level-row__rail {
+  position: absolute;
+  left: calc(225px * var(--gh-scale, 1));
+  top: 0;
+  transform: translateX(-50%);
+}
+.gh-level-row__side {
+  position: absolute;
+  left: calc(336px * var(--gh-scale, 1));
+  top: 50%;
+  transform: translateY(-50%); /* label pills: vertically centered on the node */
+}
+.gh-level-row--current .gh-level-row__side {
+  /* lesson card: top is calc(25px * var(--gh-scale, 1)) above the node top so its left tail aligns with the
+     node center (Figma: node y=1020, card y=995). */
+  top: calc(-25px * var(--gh-scale, 1));
+  transform: none;
+}
+
+/* connector on the rail axis (450-wide wrapper centers the line at x=225).
+   margin gives the gap between a node and the connector line (both sides). */
+.gh-level-connector {
+  width: calc(450px * var(--gh-scale, 1));
+  display: flex;
+  justify-content: center;
+  margin: calc(48px * var(--gh-scale, 1)) 0;
+}
+
+/* rest/checkin emoji node — coin matching next (gray) / pass (green when done) */
+.gh-emoji-node {
+  position: relative;
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(206.83px * var(--gh-scale, 1));
+}
+.gh-emoji-node__base {
+  position: absolute;
+  left: 0;
+  top: calc(5.2823px * var(--gh-scale, 1));
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(201.5478px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 calc(14.693878px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(33, 121, 25, 0.25);
+}
+.gh-emoji-node__mid {
+  position: absolute;
+  left: calc(15.8336px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.2105px * var(--gh-scale, 1));
+  height: calc(181.4986px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(148, 152, 154);
+}
+.gh-emoji-node--done .gh-emoji-node__mid {
+  background: rgb(81, 172, 34);
+}
+.gh-emoji-node__top {
+  position: absolute;
+  left: calc(15.8336px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(214.2105px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  border-radius: 50%;
+  background: rgb(166, 185, 200);
+  box-shadow: inset calc(2.938776px * var(--gh-scale, 1)) calc(-8.816326px * var(--gh-scale, 1)) calc(5.877551px * var(--gh-scale, 1)) 0 rgba(254, 254, 254, 0.25);
+}
+.gh-emoji-node--done .gh-emoji-node__top {
+  background: rgb(116, 199, 78);
+}
+.gh-emoji-node__glyph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(96px * var(--gh-scale, 1));
+  line-height: 1;
+}
+/* gender-specific character art replacing the emoji glyph; sits on the coin top */
+.gh-emoji-node__image {
+  position: absolute;
+  left: calc(6px * var(--gh-scale, 1));
+  top: calc(-30px * var(--gh-scale, 1));
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill) */
+.gh-game-pill {
+  display: inline-block;
+  max-width: calc(620px * var(--gh-scale, 1));
+  padding: calc(28px * var(--gh-scale, 1)) calc(40px * var(--gh-scale, 1));
+  margin-left: calc(48px * var(--gh-scale, 1));
+  border-radius: calc(40px * var(--gh-scale, 1));
+  background: rgba(255, 255, 255, 0.9);
+  /*border: calc(3px * var(--gh-scale, 1)) solid rgba(183, 176, 168, 0.62);*/
+  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-weight: 700;
+  font-size: calc(44px * var(--gh-scale, 1));
+  line-height: 1.15;
+  color: #4a4a4a;
+}
+
+/* ── Part 8b · production hub layout (floating header + level-path) ─
+ * The shell (.hub-clean-shell, fixed-width centered) holds a floating header
+ * (.gh-header-float, fixed/sticky at top) and a [data-hub-scroll] scroll area.
+ * Inside the scroll, .gh-stage contains .gh-level-path (1080 authored, scaled via
+ * --gh-scale). The FABs float as fixed overlays (.gh-fab-slot, positioned
+ * absolutely within .hub-clean-stage context).
+ */
+.gh-header-float {
+  justify-self: center;
+  width: min(90%, calc(1024px * var(--gh-scale, 1)));
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  justify-items: center;
+  margin-top: calc(86px * var(--gh-scale, 1));
+}
+.gh-stage {
+  /* width scaled in the Part 8 rule above via --gh-scale */
+}
+.gh-fab-slot {
+  position: absolute;
+  z-index: 30;
+  right: calc(28px * var(--gh-scale, 1));
+  bottom: calc(48px * var(--gh-scale, 1));
+}
+.gh-fab-slot--scroll-top {
+  /* scroll-to-current (arrow) FAB — positioned above leaderboard */
+  bottom: calc(calc(48px * var(--gh-scale, 1)) + calc(210px * var(--gh-scale, 1)) + calc(20px * var(--gh-scale, 1)));
+}
+.gh-fab-slot--leaderboard {
+  /* leaderboard (trophy) FAB — positioned below arrow FAB */
+  bottom: calc(48px * var(--gh-scale, 1));
+}
+/* visibility controlled by scroll controller */
+[data-scroll-top] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+[data-scroll-top].is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* legacy: .gh-topbar-inflow for in-flow headers (if needed) */
+.gh-topbar-inflow {
+  margin: 0 0 calc(8px * var(--gh-scale, 1)) calc(61px * var(--gh-scale, 1));
+}
