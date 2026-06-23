@@ -1,4 +1,4 @@
-export function renderLandingScreen(root, options = {}) {
+export function renderWelcomeScreen(root, options = {}) {
     if (!root) {
         return;
     }
@@ -9,8 +9,13 @@ export function renderLandingScreen(root, options = {}) {
 
     root.innerHTML = `
         <section class="landing-screen" aria-labelledby="landing-title">
-            <div class="landing-screen__logo" role="img" aria-label="Game Logo">
-                <h1 id="landing-title">Game Logo</h1>
+            <div class="landing-screen__logo">
+                <img
+                    id="landing-title"
+                    class="landing-screen__logo-img"
+                    src="/Logo.png"
+                    alt="Game Logo"
+                />
             </div>
 
             <div class="landing-screen__actions">
