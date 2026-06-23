@@ -2,7 +2,7 @@
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
 **Status:** 🟢 Pre-beta (0.x) — Stabilization & Deployment Testing | **Current Sprint:** Post-Sprint 6 Hardening
-**Version:** 0.10.0 | **Last Updated:** 2026-06-23 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Version:** 0.11.0 | **Last Updated:** 2026-06-23 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -11,7 +11,8 @@
 MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-based Material Web UI screens. The app now includes patient login/signup, a daily program game hub, profile and CSV export tools, leaderboard, admin login, daily preset management, Supabase-backed persistence, and a Docker/nginx production deployment flow.
 
 ### Active Runtime Surfaces
-- **Patient flow:** Login -> Signup if HN is missing -> Game Hub -> Minigames -> Check-in/Profile/Leaderboard.
+- **Patient flow:** Welcome (game logo) -> Login -> Signup if HN is missing -> Game Hub -> Minigames -> Check-in/Profile/Leaderboard.
+- **Platform/PWA:** Installable PWA with a full icon set (192/512/maskable + apple-touch) and web manifest; Fry Food motion controls use the accelerometer manager with an iOS gyro input handler and motion-permission flow.
 - **Admin/tooling flow:** Admin login, player data screens, CSV export, daily preset editor, and test/debug controls.
 - **Game suite:** Zoo Detective, Zoo Feeder, Context Clues, Symmetry Decor, Postcard Reader, Resting Point, and Fry Food.
 - **Game Hub UI:** Figma-derived component system — header bar, level-path/progression nodes, and an auto-layout progress bar (fill-width rendering with a text-color flip at the 50% mark); CSS `--gh-scale` scaling with scroll-to-current targeting.

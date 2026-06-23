@@ -19,9 +19,28 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.7.0` | 2026-05 | Replay logging system, level-complete effects, sprite entities, PWA installability |
 | `0.8.0` | 2026-05→06 | Reusable start menu, UI/top-bar redesigns, image-asset redesigns, user event log, Fry Food (accelerometer), mock leaderboard |
 | `0.9.0` | 2026-06 | Live leaderboard (RPC + infinite scroll), audio system (BGM/SFX), scoring overhaul, completion popups, tree-growth check-in + short-video VideoPlayer, Docker build |
-| `0.10.0` | 2026-06-23 | **(current)** Figma-derived Game Hub components + gender-based avatars + asset consolidation |
+| `0.10.0` | 2026-06-23 | Figma-derived Game Hub components + gender-based avatars + asset consolidation |
+| `0.11.0` | 2026-06-23 | **(current)** Welcome screen + game logo, full PWA icon set, iOS gyro input handler, in-game logging rework |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [2026-06-23] - Welcome Screen, PWA Icons & iOS Motion Input (v0.11.0)
+**Version bump:** `0.10.0 → 0.11.0` (MINOR) — new backward-compatible functionality (welcome screen + game logo, full PWA icon set, iOS gyro input handler, temporary iOS permission button) shipped alongside fixes; highest applicable part wins, PATCH reset to 0.
+
+### Added
+- Welcome screen with the game logo (`public/Logo.png`); the former `landing-screen.js` is now `welcome-screen.js`.
+- Full PWA icon set — `icon-192`, `icon-512`, maskable icon, and `apple-touch-icon` — with a corrected `manifest.webmanifest` for installable app icons.
+- iOS gyro input handler in the accelerometer manager so Fry Food motion controls work on iOS; plus a temporary iOS motion-permission button.
+
+### Changed
+- Reworked in-game data/answer logging across Postcard Reader, Symmetry Decor, Zoo Feeder, Zoo Detective, and Fry Food (logging functions and wrong-answer/score logging logic).
+- Game Hub scroll FAB down state now renders the real `scroll-bottom-arrow.svg` instead of a CSS 180° rotation of the up-arrow.
+- Updated the game background color and the game icon asset.
+
+### Fixed
+- Double score-add bug in Context Clues; answer-logging and second-data-logging issues in Symmetry Decor.
+- iOS HTTPS motion-permission handling, permission call order, and fullscreen skip in Fry Food.
+- PWA app icon not updating after asset changes.
 
 ## [2026-06-23] - Game Hub Components & Gender-Based Avatars (v0.10.0)
 **Version bump:** `0.9.0 → 0.10.0` (MINOR) — new backward-compatible functionality (Game Hub component system + gender-based character avatars); PATCH reset to 0. (Also renumbered the project from a placeholder `1.4.0` back into the pre-beta `0.x` line — see version history above.)
