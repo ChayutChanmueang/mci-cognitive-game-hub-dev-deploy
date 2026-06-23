@@ -14,12 +14,22 @@
 //   3031:441 avatar      (692,51.5) 240x240 r52 — composed Figma render; here it is
 //                        ALSO the profile button (keeps the .hub-clean-profile hook so
 //                        game-hub-screen.js bind() opens the profile on click/keydown).
-const avatarSrc = "/assets/gamehub/profile/Profile_OldMan.png";
+// Avatar art is gender-specific. DB gender is "male"/"female" (see signup-screen.js);
+// anything else (empty/legacy records) falls back to the male avatar.
+const AVATAR_SRC_MALE = "/assets/gamehub/profile/Profile_OldMan.png";
+const AVATAR_SRC_FEMALE = "/assets/gamehub/profile/Profile_OldWoman.png";
 import { escapeText, escapeAttr } from "./escape.js";
+
+function resolveAvatarSrc(gender) {
+  return String(gender || "").trim().toLowerCase() === "female"
+    ? AVATAR_SRC_FEMALE
+    : AVATAR_SRC_MALE;
+}
 
 /**
  * @param {object} [opts]
  * @param {string} [opts.patientLabel]
+ * @param {string} [opts.patientGender] "male" | "female" (from DB) — picks the avatar
  * @param {string} [opts.goalTitle]    e.g. "เป้าหมายของวันที่ 14"
  * @param {string} [opts.goalSummary]
  * @param {number} [opts.progress]     0..1 (fill fraction)
@@ -29,6 +39,7 @@ import { escapeText, escapeAttr } from "./escape.js";
  */
 export function renderHeaderBar({
   patientLabel = "สมชาย รักธรรมชาติ",
+  patientGender = "",
   goalTitle = "เป้าหมายของวันที่ 14",
   goalSummary = "บทสรุปชัยชนะ",
   progress = 1,
@@ -36,6 +47,7 @@ export function renderHeaderBar({
   total = 10,
   profileAriaLabel = "เปิดโปรไฟล์ผู้เล่น",
 } = {}) {
+  const avatarSrc = resolveAvatarSrc(patientGender);
   const fillPct = Math.max(0, Math.min(1, Number(progress) || 0)) * 100;
   // The progress text is centered on the track. While the fill hasn't reached the
   // center (<50%) the text sits over the light cream track -> dark text (#595959);

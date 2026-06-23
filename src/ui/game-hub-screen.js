@@ -552,6 +552,7 @@ export async function renderGameHubScreen(root, options = {}) {
                     <div class="gh-header-float">
                         ${renderHeaderBar({
                             patientLabel,
+                            patientGender: options.patientGender,
                             goalTitle: `เป้าหมายของวันที่ ${escapeHtml(currentDay)}`,
                             goalSummary: currentGoal,
                             progress,

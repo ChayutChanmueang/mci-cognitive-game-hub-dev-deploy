@@ -570,6 +570,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const patientCode = String(rememberedPatient?.patientCode || SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "").trim();
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
+        let patientGender = "";
+        if (patientCode) {
+            try {
+                const patient = await db.getPatientByHn(patientCode);
+                patientGender = String(patient?.gender || "").trim();
+            } catch (error) {
+                console.warn("Unable to load patient gender for avatar:", error);
+            }
+        }
+
         setupExitLog(patientCode);
 
         if (!gameOpenedLogged && patientCode) {
@@ -598,6 +608,7 @@ document.addEventListener("DOMContentLoaded", () => {
             patientHn: patientCode,
             patientCode,
             patientLabel,
+            patientGender,
             initialScene: options.initialScene,
             initialCategory: options.initialCategory,
             sharedState: hubUiState,
