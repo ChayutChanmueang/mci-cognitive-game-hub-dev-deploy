@@ -8,9 +8,15 @@ kanban-plugin: board
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
 - [ ] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard
 - [ ] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up
+- [ ] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2)
+- [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
 - [ ] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info
 - [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup
+- [ ] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก: เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ (Doctor FB #2)
+- [ ] [US-E7-10](user-stories/US-E7-10.md) ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (Doctor FB #2)
+- [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)
+- [ ] [US-E7-12](user-stories/US-E7-12.md) แสดงโดเมน Cognitive + สรุปหลังบ้าน + เตรียมข้อมูล AI (Doctor FB #2)
 - [ ] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
 
 ## 🔵 In Progress (WIP Limit: 3)

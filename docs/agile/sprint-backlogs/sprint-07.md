@@ -38,8 +38,24 @@ gantt
 
 ---
 
+## 📨 Customer Feedback Items — Doctor Meeting #2 (2026-06-24)
+เพิ่มเข้า Sprint 7 จากข้อเสนอแนะของคุณหมอ (Sprint ยังไม่เริ่ม implement) — ดูบันทึกฉบับเต็ม: [2026-06-24](../meeting-backlogs/2026-06-24.md)
+
+| ID | Story / Task | Priority | Status |
+|----|--------------|----------|--------|
+| [US-E7-07](../user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | 📋 Backlog |
+| [US-E7-08](../user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
+| [US-E7-09](../user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
+| [US-E7-10](../user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | 📋 Backlog |
+| [US-E7-11](../user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
+| [US-E7-12](../user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
+
+> **หมายเหตุนอกขอบเขต Dev:** การเก็บข้อมูล MOCA (กระดาษ → Google Sheet) เป็นกระบวนการของทีมแพทย์ และจุดเด่นของแอป/บทบาท AI/ทิศทางธีมใหม่ต่อเนื่อง เป็นประเด็นเชิงกลยุทธ์ — บันทึกไว้ในรายงานการประชุม
+
+---
+
 ## 📊 Sprint Summary & Velocity
-- **งานที่วางแผนไว้ (Planned):** 6 User Stories ภายใต้ Epic E7 (Presentation Layer)
+- **งานที่วางแผนไว้ (Planned):** 12 User Stories ภายใต้ Epic E7 (6 เดิม + 6 จาก Doctor Feedback ครั้งที่ 2)
 - **สถานะปัจจุบัน (Status):** 📋 Planned — เริ่มต้น Sprint
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 

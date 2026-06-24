@@ -24,6 +24,30 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-24] - Doctor Feedback (Meeting #2) → Sprint 7
+**Process/docs only — no project version change (stays at `0.11.0`).**
+
+### Added
+- Recorded **สรุปประชุมอัปเดต MCI กับคุณหมอ ครั้งที่ 2** as `docs/agile/meeting-backlogs/2026-06-24.md` (full doctor feedback, categorized into Dev / Clinical / Strategy, with action items).
+- Created six feedback-derived stories `US-E7-07`..`US-E7-12`: Thai mini-game names + larger how-to-play text; replace unfamiliar word "สมอบก" in Context Clues; Postcard Reader voice/text; multi-variant check-in tree + juicy effects; happier short-drama videos + AI production pipeline; in-game cognitive-domain display + backend aggregation for AI readiness.
+
+### Changed
+- Expanded **Sprint 7** scope from 6 to 12 stories (added a "Customer Feedback Items" section); registered the new stories in `01-product-backlog.md` (E7) and `kanban.md`.
+- Refreshed the meeting index `03-meeting-backlogs.md` (added the 2026-05-11, 2026-06-08, and 2026-06-24 entries; corrected the 2026-04-07 link).
+
+## [2026-06-24] - Documentation Link Audit
+**Process/docs only — no project version change (stays at `0.11.0`).**
+
+### Fixed
+- Full link audit across `docs/`: repaired **32 broken relative links** (the ones unresolvable even under Obsidian vault-name resolution).
+- `01-product-backlog.md`: de-linked four user stories with no backing file (`US-E3-04/05`, `US-E4-01/02`); Symmetry/Postcard now point to their GDD pages instead.
+- `changelog.md`: replaced an absolute `file:///c:/Users/...` Windows path with a repo-relative link.
+- `sprint-01..04.md`: fixed back-link to the renamed `02-sprint-planning.md` (was `03-sprint-backlogs.md`).
+- Reports/bugs (`BUG-001..003`, `POL-001`, `QA-001`): removed `.md.md` double extensions, corrected the final-system-test report name (`260531` → `260503`), and pointed epic-name pseudo-links to the product backlog.
+- `TD-DB-01.md`: corrected source-file paths (`../../../../src` → `../../../src`).
+- Archived `US-E3-01/02/03`: fixed epic and `voice-service.js` links.
+- Meeting notes (`2026-04-07`, `2026-05-06`, `meeting-template`): fixed Sprint Planning links and de-linked untracked template files.
+
 ## [2026-06-23] - Sprint 7 Planning (Art Assets, Versioning & Vertical Responsiveness)
 **Process/docs only — no project version change (stays at `0.11.0`).**
 
@@ -170,7 +194,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - Fixed `rexUI` plugin configuration typo (`ket` -> `key`).
 - Removed redundant external CDN loading for `rexUI` across all minigames.
 - Fixed scene key mismatches in `Preloader.js` starting `MainMenu` instead of `main-menu-scene`.
-- Added [HF-260502-01 Report](file:///c:/Users/noppon/sources/mci-cognitive-games/docs/agile/reports/260502_1640_Minigame_Hotfix_Report.md).
+- Added [HF-260502-01 Report](agile/reports/260502_1640_Minigame_Hotfix_Report.md).
 
 
 ## [2026-05-02] - Documentation Restructuring

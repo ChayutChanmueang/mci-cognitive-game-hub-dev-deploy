@@ -34,4 +34,4 @@ gantt
 ---
 
 Back to Index: [Index](../../index.md)
-Back to Sprint Backlogs: [Sprint Backlogs](../03-sprint-backlogs.md)
+Back to Sprint Backlogs: [Sprint Backlogs](../02-sprint-planning.md)

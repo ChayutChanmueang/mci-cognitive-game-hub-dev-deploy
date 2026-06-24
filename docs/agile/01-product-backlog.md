@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-06-23
+**Last Updated:** 2026-06-24
 
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"
@@ -34,8 +34,8 @@
 | [US-E3-01](./user-stories/archives/US-E3-01.md) | เกม Zoo Detective (การคิดวิเคราะห์/Executive)                  | High     | ✅ Done  |
 | [US-E3-02](./user-stories/archives/US-E3-02.md) | เกม Zoo Feeder (ความจดจ่อ/Attention)                           | High     | ✅ Done  |
 | [US-E3-03](./user-stories/archives/US-E3-03.md) | เกม Context Clues (คำศัพท์/Language)                           | High     | ✅ Done  |
-| [US-E3-04](./user-stories/US-E3-04.md) | เกม Symmetry Decor (มิติสัมพันธ์/Visuospatial)                 | Med      | ✅ Done  |
-| [US-E3-05](./user-stories/US-E3-05.md) | เกม Postcard Reader (ความจำระยะสั้น/Memory)                    | Med      | ✅ Done  |
+| US-E3-04 | เกม Symmetry Decor (มิติสัมพันธ์/Visuospatial) — ดู [GDD](../gdd/minigames/gdd_symmetry_decor.md) | Med      | ✅ Done  |
+| US-E3-05 | เกม Postcard Reader (ความจำระยะสั้น/Memory) — ดู [GDD](../gdd/minigames/gdd_postcard_reader.md) | Med      | ✅ Done  |
 | [US-E3-06](./user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | Low      | 🏗 In-Progress |
 | [US-E3-07](./user-stories/archives/US-E3-07.md) | เกม Fry Food (ทอดไข่/ทอดอาหาร) และการควบคุมด้วย Accelerometer | Med      | ✅ Done  |
 | [US-E3-08](./user-stories/archives/US-E3-08.md) | ระบบติดตั้งแอปพลิเคชันแบบ Progressive Web App (PWA)            | Low      | ✅ Done  |
@@ -44,8 +44,8 @@
 ### E4: Data Tracking & Analytics (Supabase) (P1)
 | ID       | User Story                                                    | Priority | Status   |
 | -------- | ------------------------------------------------------------- | -------- | -------- |
-| [US-E4-01](./user-stories/US-E4-01.md) | บันทึกข้อมูลส่วนตัวและเวลาการใช้งาน Gamehub                   | High     | ✅ Done   |
-| [US-E4-02](./user-stories/US-E4-02.md) | บันทึกผลการเล่นมินิเกม (Score, Time, Difficulty)              | High     | ✅ Done   |
+| US-E4-01 | บันทึกข้อมูลส่วนตัวและเวลาการใช้งาน Gamehub                   | High     | ✅ Done   |
+| US-E4-02 | บันทึกผลการเล่นมินิเกม (Score, Time, Difficulty)              | High     | ✅ Done   |
 | [US-E4-03](./user-stories/archives/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med      | ✅ Done   |
 | [US-E4-04](./user-stories/archives/US-E4-04.md) | ระบบจัดเก็บบันทึกการเล่นซ้ำพฤติกรรม (Replay Event Logging)     | Med      | ✅ Done   |
 
@@ -76,6 +76,14 @@
 | [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
 | [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
 | [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
+| [US-E7-07](./user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | 📋 Backlog |
+| [US-E7-08](./user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
+| [US-E7-09](./user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
+| [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | 📋 Backlog |
+| [US-E7-11](./user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
+| [US-E7-12](./user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
+
+> ⤷ US-E7-07..12 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md)
 
 ---
 
