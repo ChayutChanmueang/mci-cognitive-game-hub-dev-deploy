@@ -49,13 +49,26 @@ gantt
 | [US-E7-10](../user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | 📋 Backlog |
 | [US-E7-11](../user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
 | [US-E7-12](../user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
+| [US-E7-13](../user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | 📋 Backlog |
 
 > **หมายเหตุนอกขอบเขต Dev:** การเก็บข้อมูล MOCA (กระดาษ → Google Sheet) เป็นกระบวนการของทีมแพทย์ และจุดเด่นของแอป/บทบาท AI/ทิศทางธีมใหม่ต่อเนื่อง เป็นประเด็นเชิงกลยุทธ์ — บันทึกไว้ในรายงานการประชุม
 
 ---
 
+## 🐛 Stability & Bug Fixes
+บั๊กที่พบในช่วง Sprint 7 และต้องแก้ในรอบนี้
+
+| ID | Bug / Task | Severity | Status |
+|----|------------|----------|--------|
+| [BUG-004](../reports/bugs/BUG-004.md) | กลับจากมินิเกมโหมด full-screen แล้วพื้นหลัง Game Hub เป็นสีดำ | 🟠 Medium | 🔴 Open |
+| [BUG-005](../reports/bugs/BUG-005.md) | โหลดข้อมูลช้า → ผู้ใช้เปิดเกม/Leaderboard ก่อนโหลดเสร็จแล้วถูกดีดกลับหน้า Game Hub (เสนอ: loading overlay หรือเลิก redirect) | 🔴 High | 🔴 Open |
+
+> หมายเหตุ: UI แสดงเวอร์ชันระดับ body ครอบทุกหน้า (และซ่อนในมินิเกม) อยู่ใน [US-E7-05](../user-stories/US-E7-05.md) แล้ว — ปรับ acceptance criteria ให้ครอบคลุมการ render ระดับ body/ทุกหน้า
+
+---
+
 ## 📊 Sprint Summary & Velocity
-- **งานที่วางแผนไว้ (Planned):** 12 User Stories ภายใต้ Epic E7 (6 เดิม + 6 จาก Doctor Feedback ครั้งที่ 2)
+- **งานที่วางแผนไว้ (Planned):** 13 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2)
 - **สถานะปัจจุบัน (Status):** 📋 Planned — เริ่มต้น Sprint
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 

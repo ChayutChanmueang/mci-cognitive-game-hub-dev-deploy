@@ -24,15 +24,24 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-24] - Sprint 7 Stability Bugs + Version-UI Refinement
+**Process/docs only — no project version change (stays at `0.11.0`).**
+
+### Added
+- Filed `BUG-004` (black background after returning from a full-screen mini-game) and `BUG-005` (slow DB load → premature navigation bounces the user back to Game Hub) as Open bugs targeting Sprint 7; added a "Stability & Bug Fixes" section to `sprint-07.md` and queued both in `kanban.md`.
+
+### Changed
+- Refined `US-E7-05` acceptance criteria: the version indicator renders at **body (html) level** across **all DOM pages** (not just Game Hub) and is hidden only inside mini-games.
+
 ## [2026-06-24] - Doctor Feedback (Meeting #2) → Sprint 7
 **Process/docs only — no project version change (stays at `0.11.0`).**
 
 ### Added
 - Recorded **สรุปประชุมอัปเดต MCI กับคุณหมอ ครั้งที่ 2** as `docs/agile/meeting-backlogs/2026-06-24.md` (full doctor feedback, categorized into Dev / Clinical / Strategy, with action items).
-- Created six feedback-derived stories `US-E7-07`..`US-E7-12`: Thai mini-game names + larger how-to-play text; replace unfamiliar word "สมอบก" in Context Clues; Postcard Reader voice/text; multi-variant check-in tree + juicy effects; happier short-drama videos + AI production pipeline; in-game cognitive-domain display + backend aggregation for AI readiness.
+- Created seven feedback-derived stories `US-E7-07`..`US-E7-13`: Thai mini-game names + larger how-to-play text; replace unfamiliar word "สมอบก" in Context Clues; Postcard Reader voice/text; multi-variant check-in tree + juicy effects; happier short-drama videos + AI production pipeline; in-game cognitive-domain display + backend aggregation for AI readiness; "เก่งมาก!!!" check-in celebration effect (confetti/ribbon burst + elderly-character bounce).
 
 ### Changed
-- Expanded **Sprint 7** scope from 6 to 12 stories (added a "Customer Feedback Items" section); registered the new stories in `01-product-backlog.md` (E7) and `kanban.md`.
+- Expanded **Sprint 7** scope from 6 to 13 stories (added a "Customer Feedback Items" section); registered the new stories in `01-product-backlog.md` (E7) and `kanban.md`.
 - Refreshed the meeting index `03-meeting-backlogs.md` (added the 2026-05-11, 2026-06-08, and 2026-06-24 entries; corrected the 2026-04-07 link).
 
 ## [2026-06-24] - Documentation Link Audit
