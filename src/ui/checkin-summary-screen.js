@@ -5,6 +5,7 @@ import {
 } from "../util/program-date-util.js";
 import { VideoPlayer } from "../util/video-player/index.js";
 import VideoManager from "../core/video-manager.js";
+import { showCelebrationEffect } from "./components/celebration-effect.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -13,6 +14,29 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#39;");
+}
+
+// Slow, happy up/down bounce for the success character: two bounces, 0.5s up + 0.5s down each
+// (2s total), ease-in-out both ways. Lives here because it animates this screen's own element.
+function bounceCheckInCharacter(target) {
+    if (!target || typeof target.animate !== "function") {
+        return null;
+    }
+    if (typeof window !== "undefined"
+        && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+        return null;
+    }
+    const up = "translateY(-16px)";
+    return target.animate(
+        [
+            { transform: "translateY(0)", offset: 0, easing: "ease-in-out" },
+            { transform: up, offset: 0.2, easing: "ease-in-out" },   // up 0.5s
+            { transform: "translateY(0)", offset: 0.4, easing: "ease-in-out" }, // down 0.5s
+            { transform: up, offset: 0.6, easing: "ease-in-out" },   // up 0.5s
+            { transform: "translateY(0)", offset: 0.8 }, // down 0.5s
+        ],
+        { duration: 2000, iterations: 1 },
+    );
 }
 
 // Gender-specific celebration art for the "เก่งมาก !!!" success step. DB gender is
@@ -118,8 +142,10 @@ export function showCheckInPopup(options = {}) {
         };
 
         overlay.className = "app-popup";
-        
+
         let settled = false;
+        let celebration = null;
+        let characterBounce = null;
 
         const cleanup = (result) => {
             if (settled) {
@@ -127,6 +153,10 @@ export function showCheckInPopup(options = {}) {
             }
 
             settled = true;
+            celebration?.cancel();
+            celebration = null;
+            characterBounce?.cancel();
+            characterBounce = null;
             state.videoPlayerInstance?.destroy();
             state.videoPlayerInstance = null;
             overlay.remove();
@@ -291,6 +321,11 @@ export function showCheckInPopup(options = {}) {
 
         document.body.appendChild(overlay);
         document.addEventListener("keydown", onKeyDown);
+
+        // Celebrate the "เก่งมาก !!!" success step: generic confetti burst (reusable component)
+        // plus a screen-specific happy bounce on the gender-based character.
+        celebration = showCelebrationEffect();
+        characterBounce = bounceCheckInCharacter(overlay.querySelector(".checkin-success-image"));
     });
 }
 

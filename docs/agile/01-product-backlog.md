@@ -82,7 +82,7 @@
 | [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | 📋 Backlog |
 | [US-E7-11](./user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
 | [US-E7-12](./user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
-| [US-E7-13](./user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | 📋 Backlog |
+| [US-E7-13](./user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | 🏗 In-Progress |
 | [US-E7-14](./user-stories/US-E7-14.md) | ปรับ Layout หน้าหลัก Game Hub (ระยะเลเวล, สลับชื่อเกม/หมวด, เงาตัวละคร) | Med | 📋 Backlog |
 | [US-E7-15](./user-stories/US-E7-15.md) | ระบบสีปุ่มมาตรฐาน (เขียว = ยืนยัน, แดง = ยกเลิก) | Med | 📋 Backlog |
 | [US-E7-16](./user-stories/US-E7-16.md) | แก้ Popup (หลังดูละคร + เข้าเกมซ้ำในวันที่เล่นจบแล้ว) | Med | 📋 Backlog |

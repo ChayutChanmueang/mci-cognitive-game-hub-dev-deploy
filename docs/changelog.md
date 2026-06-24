@@ -24,6 +24,13 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-24] - Check-in Celebration Effect (US-E7-13, code)
+**First Sprint 7 feature code.** New backward-compatible functionality → when Sprint 7 ships this is a **MINOR** bump (`0.11.0 → 0.12.0`); `package.json` not bumped yet (mid-sprint, release-time decision).
+
+### Added
+- New component `src/ui/components/celebration-effect.js` — **generic, reusable** DOM/hub confetti burst (`position: fixed`, above popups, `pointer-events: none`, auto-cleanup + `cancel()` handle, optional headline/sound, respects `prefers-reduced-motion`). Kept **separate** from the Phaser `level-complete-effect.js` so the 6 minigames are untouched; intentionally contains **no screen-specific animation**.
+- Wired into `checkin-summary-screen.js` "เก่งมาก !!!" step: confetti + a screen-local `bounceCheckInCharacter()` helper (two slow 0.5s-up/0.5s-down bounces via Web Animations API) on the gender-based character; both cancelled in `cleanup()` if the popup closes early. US-E7-13 → 🏗 In-Progress (pending mobile QA).
+
 ## [2026-06-24] - Sprint 7 Scroll-Containment Bug (BUG-006)
 **Process/docs only — no project version change (stays at `0.11.0`).**
 
