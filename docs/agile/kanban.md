@@ -23,6 +23,7 @@ kanban-plugin: board
 - [ ] [US-E7-16](user-stories/US-E7-16.md) แก้ Popup หลังดูละคร + เข้าเกมซ้ำในวันเดิม (ก้องไผ่)
 - [ ] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen
 - [ ] [BUG-005](reports/bugs/BUG-005.md) โหลดช้า → premature navigation ดีดกลับหน้า Game Hub
+- [ ] [BUG-006](reports/bugs/BUG-006.md) จอเล็ก: background ถูกตัด + FAB ไม่ float (scroll containment เสีย)
 - [ ] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
 
 ## 🔵 In Progress (WIP Limit: 3)

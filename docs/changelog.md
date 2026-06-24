@@ -24,6 +24,12 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-24] - Sprint 7 Scroll-Containment Bug (BUG-006)
+**Process/docs only — no project version change (stays at `0.11.0`).**
+
+### Added
+- Filed `BUG-006` (Open, Medium): on small screens, scrolling drags the **background** (gets cut off) and the **FAB** (fails to float, ends mid-screen) along with the content — broken scroll containment, seen on Player-Info. Saved the reference screenshot under `docs/agile/reports/bugs/assets/`; added to `sprint-07.md` Stability table and `kanban.md`; linked to the TD-E6-05 scroll-containment audit.
+
 ## [2026-06-24] - Sprint 7 Popup/Layout Test Specs (+ reference screenshots)
 **Process/docs only — no project version change (stays at `0.11.0`).**
 
