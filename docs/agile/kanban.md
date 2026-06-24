@@ -18,6 +18,9 @@ kanban-plugin: board
 - [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)
 - [ ] [US-E7-12](user-stories/US-E7-12.md) แสดงโดเมน Cognitive + สรุปหลังบ้าน + เตรียมข้อมูล AI (Doctor FB #2)
 - [ ] [US-E7-13](user-stories/US-E7-13.md) เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + คนแก่ดีใจ) (Doctor FB #2)
+- [ ] [US-E7-14](user-stories/US-E7-14.md) ปรับ Layout หน้าหลัก Game Hub (ระยะเลเวล/สลับชื่อ/เงาตัวละคร) (ก้องไผ่)
+- [ ] [US-E7-15](user-stories/US-E7-15.md) ระบบสีปุ่มมาตรฐาน เขียว=ยืนยัน/แดง=ยกเลิก (ก้องไผ่)
+- [ ] [US-E7-16](user-stories/US-E7-16.md) แก้ Popup หลังดูละคร + เข้าเกมซ้ำในวันเดิม (ก้องไผ่)
 - [ ] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen
 - [ ] [BUG-005](reports/bugs/BUG-005.md) โหลดช้า → premature navigation ดีดกลับหน้า Game Hub
 - [ ] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง

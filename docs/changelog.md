@@ -24,6 +24,26 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-24] - Sprint 7 Popup/Layout Test Specs (+ reference screenshots)
+**Process/docs only — no project version change (stays at `0.11.0`).**
+
+### Added
+- Saved 3 reference screenshots under `docs/agile/user-stories/assets/` and embedded them in the relevant stories.
+- `US-E7-16`: post-drama popup must show the **ต้นคิดดี at the same growth size as the previous screen**; same-day re-entry popup must show a **gender-based resting elderly character** (male = คุณตา, female = คุณยาย).
+- `US-E7-14`: added the level-spacing reference image; new criterion to add a **shadow beneath the elderly character in both node and popup** (not just the main page).
+
+## [2026-06-24] - Sprint 7 Owner Task Block (ก้องไผ่)
+**Process/docs only — no project version change (stays at `0.11.0`).**
+
+### Added
+- Added an **Owner Task Block (ก้องไผ่)** section to `sprint-07.md` mapping each assigned item to a story or coordination note.
+- Created `US-E7-14` (Game Hub main-page layout: level spacing, swap game-name ↔ cognitive-category, character shadow), `US-E7-15` (standardized button colors — green = start/confirm/next, red = cancel), `US-E7-16` (popup fixes: post-drama popup + same-day re-entry popup). Registered in `01-product-backlog.md` and `kanban.md`.
+
+### Changed
+- Extended `US-E7-02` to cover the **Admin Login** screen art (`admin-login-screen.js`).
+- Mapped existing art stories to the owner block (Login/Sign-up → US-E7-02, Player-Info → US-E7-03, Popup frame → US-E7-04, Leaderboard → US-E7-01); noted **พี่กวาง assets** as the E7 art source.
+- Captured the backend data-deletion agreement with น้องเกม (clean full player-data deletion, no SE/our-side blockers) as a coordination item linked to `US-E5-03` and `TD-DB-01`.
+
 ## [2026-06-24] - Sprint 7 Stability Bugs + Version-UI Refinement
 **Process/docs only — no project version change (stays at `0.11.0`).**
 
