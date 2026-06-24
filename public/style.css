@@ -1630,7 +1630,8 @@ body.hub-mode {
 
 .leaderboard-fab {
     right: 20px;
-    bottom: 115px; !important;
+    bottom: 115px;
+    !important;
 }
 
 .leaderboard-bottom-bar {
@@ -2345,7 +2346,7 @@ body.hub-mode {
 .result-how-to-play-title {
     position: absolute;
     top: 890px;
-    left: 120px;
+    left: 90px;
     font-family: 'Noto Looped Thai', sans-serif;
     font-size: 56px;
     font-weight: 700;
@@ -2354,10 +2355,10 @@ body.hub-mode {
 .result-how-to-play-text {
     position: absolute;
     top: 930px;
-    left: 120px;
-    right: 120px;
+    left: 90px;
+    right: 90px;
     font-family: 'Noto Looped Thai', sans-serif;
-    font-size: 40px;
+    font-size: 48px;
     font-weight: 500;
     line-height: 1.4;
 }
@@ -2374,7 +2375,7 @@ body.hub-mode {
 .result-level-info {
     position: absolute;
     top: 1105px;
-    left: 120px;
+    left: 90px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -2394,11 +2395,19 @@ body.hub-mode {
 .result-level-detail {
     position: absolute;
     top: 1200px;
-    left: 120px;
+    left: 90px;
     font-family: 'Noto Looped Thai', sans-serif;
     font-size: 40px;
     font-weight: 500;
 }
+
+/* =====================================================
+   DEBUG: text container bounds — REMOVE WHEN DONE
+   ===================================================== */
+/* .result-how-to-play-title  { outline: 2px dashed #e91e63; } */   /* pink   – "วิธีการเล่น" label */
+/* .result-how-to-play-text   { outline: 2px dashed #2196f3; } */   /* blue   – instruction text   */
+/* .result-level-info         { outline: 2px dashed #ff9800; } */   /* orange – level row          */
+/* .result-level-detail       { outline: 2px dashed #4caf50; } */   /* green  – level detail text  */
 
 /* Tutorial Panel specific styles */
 .result-panel--tutorial {
@@ -2406,7 +2415,35 @@ body.hub-mode {
 }
 
 .result-btn-home--tutorial {
-    top: 1740px; /* 1700 + 40 */
+    top: 1740px;
+    /* 1700 + 40 */
+}
+
+/* Context Clues & Zoo Detective: taller panel (+60px) with level indicator anchored to the bottom */
+.result-panel--context-clues,
+.result-panel--zoo-detective {
+    height: 1379px; /* 1319 + 60 */
+    margin-top: -60px; /* shift panel up so start button matches other games */
+}
+
+.result-panel--context-clues .result-btn-home,
+.result-panel--zoo-detective .result-btn-home {
+    top: 1419px; /* 1379 + 40 */
+}
+
+.result-panel--context-clues .result-divider,
+.result-panel--zoo-detective .result-divider {
+    top: 1140px; /* after 2-line how-to-play text (~1064px) + gap */
+}
+
+.result-panel--context-clues .result-level-info,
+.result-panel--zoo-detective .result-level-info {
+    top: 1165px; /* 40px below divider */
+}
+
+.result-panel--context-clues .result-level-detail,
+.result-panel--zoo-detective .result-level-detail {
+    top: 1265px; /* below level-info row */
 }
 
 /* Zoo Feeder Custom DOM Top UI */
@@ -2585,6 +2622,23 @@ md-linear-progress.no-transition::part(bar) {
     /* Overlap left edge */
     z-index: 2 !important;
     /* Keep icon on top of border */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__time-text {
+    flex-grow: 1;
+    text-align: center;
+    color: #743D14 !important;
+    font-family: 'Noto Sans Thai', sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-right: 12px;
+    /* Visual offset to center the text relative to the box */
+}
+
+/* Overlap left edge */
+z-index: 2 !important;
+/* Keep icon on top of border */
 }
 
 .minigame-hud--zoo-feeder .minigame-hud__time-text {

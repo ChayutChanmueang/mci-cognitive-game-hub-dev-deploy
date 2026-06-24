@@ -26,6 +26,7 @@ export class StartMenuPanel {
         const titleFontSize = this.options.titleFontSize || null;
         const coverImage = this.options.coverImage || null;
         const hideLevelInfo = this.options.hideLevelInfo || false;
+        const panelClass = this.options.panelClass || null;
 
         let levelText = "ง่าย";
         let starCount = 1;
@@ -44,8 +45,8 @@ export class StartMenuPanel {
             starsHtml += `<img src="${src}" style="width: 62px; height: 60px; object-fit: contain;" />`;
         }
 
-        const coverStyle = coverImage 
-            ? `background-image: url('${coverImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;` 
+        const coverStyle = coverImage
+            ? `background-image: url('${coverImage}'); background-size: cover; background-position: center; background-repeat: no-repeat;`
             : "";
 
         overlay.innerHTML = `
@@ -55,7 +56,7 @@ export class StartMenuPanel {
                     <md-icon class="material-symbols-rounded">arrow_back</md-icon>
                 </md-icon-button>
             </div>
-            <div class="result-panel" id="gameover-result-panel">
+            <div class="result-panel${panelClass ? ` ${panelClass}` : ''}" id="gameover-result-panel">
                 <div class="result-header">
                     <h2 style="${titleFontSize ? `font-size: ${titleFontSize};` : ''}">${title}</h2>
                 </div>
