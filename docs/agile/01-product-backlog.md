@@ -79,7 +79,7 @@
 | [US-E7-07](./user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | 📋 Backlog |
 | [US-E7-08](./user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
 | [US-E7-09](./user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
-| [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | 📋 Backlog |
+| [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (sparkle เริ่มแล้ว) | Med | 🏗 In-Progress |
 | [US-E7-11](./user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
 | [US-E7-12](./user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
 | [US-E7-13](./user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | 🏗 In-Progress |

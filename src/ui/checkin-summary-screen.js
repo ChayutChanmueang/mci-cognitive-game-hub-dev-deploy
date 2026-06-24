@@ -5,7 +5,8 @@ import {
 } from "../util/program-date-util.js";
 import { VideoPlayer } from "../util/video-player/index.js";
 import VideoManager from "../core/video-manager.js";
-import { showCelebrationEffect } from "./components/celebration-effect.js";
+import { showCelebrationEffect } from "./components/effects/celebration-effect.js";
+import { showSparkleEffect } from "./components/effects/sparkle-effect.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -146,6 +147,7 @@ export function showCheckInPopup(options = {}) {
         let settled = false;
         let celebration = null;
         let characterBounce = null;
+        let sparkle = null;
 
         const cleanup = (result) => {
             if (settled) {
@@ -157,6 +159,8 @@ export function showCheckInPopup(options = {}) {
             celebration = null;
             characterBounce?.cancel();
             characterBounce = null;
+            sparkle?.cancel();
+            sparkle = null;
             state.videoPlayerInstance?.destroy();
             state.videoPlayerInstance = null;
             overlay.remove();
@@ -251,6 +255,18 @@ export function showCheckInPopup(options = {}) {
                         </div>
                     </div>
                 `;
+
+                // Sparkle the tree on the progression page (rainbow particles spreading out).
+                // Wait one frame so the tree element has layout for anchoring.
+                sparkle?.cancel();
+                requestAnimationFrame(() => {
+                    if (settled || state.step !== "calendar") {
+                        return;
+                    }
+                    sparkle = showSparkleEffect({
+                        anchor: overlay.querySelector(".tree-progress-frame"),
+                    });
+                });
 
                 overlay.querySelector("[data-back-home]")?.addEventListener("click", async (event) => {
                     if (!loadVideoSrc) {

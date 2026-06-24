@@ -14,7 +14,7 @@
 // - Big celebration text is OPTIONAL (a popup usually shows its own heading).
 // - No hard audio dependency: sound is opt-in and routed through the central AudioManager.
 
-import AudioManager from "../../core/audio-manager.js";
+import AudioManager from "../../../core/audio-manager.js";
 
 const CONFETTI_COLORS = ["#FFC700", "#FF0055", "#00F0FF", "#00FF66", "#9D00FF"];
 

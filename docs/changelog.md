@@ -24,11 +24,22 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-24] - Sparkle Particle Effect (US-E7-10, code)
+**Sprint 7 feature code** (same MINOR bucket as US-E7-13 → `0.12.0` at ship; `package.json` not bumped yet).
+
+### Added
+- New reusable component `src/ui/components/effects/sparkle-effect.js` — rainbow, random sparkle particles that spread out and up from an anchor element (bone-meal-inspired, not green). 4-point twinkle star drawn as an inline **SVG cubic-bezier path** (concave sides, adapted from a p5.js `bezierVertex` star) that scales per particle; Web Animations API, `position: fixed`, `pointer-events: none`, staggered spawn for gradual spread, glow via `drop-shadow`, `cancel()` handle, respects `prefers-reduced-motion`.
+- Wired into `checkin-summary-screen.js`: shows on the **tree progression (calendar) step**, anchored to `.tree-progress-frame`; cancelled in `cleanup()`. Growth-transition animation intentionally **not** added yet (per request) — sparkle currently fires on entering the page, to be re-timed to the grow moment later.
+- Both effect components now live under `src/ui/components/effects/` (celebration-effect moved here too).
+
+### Spec (docs)
+- Documented the **tree growth transition** flow in `US-E7-10` (previous stage → bounce up → collapse → bounce next stage up; day 1 already has `tree_01`, so no empty case) and saved 2 sparkle reference screenshots under `docs/agile/user-stories/assets/`.
+
 ## [2026-06-24] - Check-in Celebration Effect (US-E7-13, code)
 **First Sprint 7 feature code.** New backward-compatible functionality → when Sprint 7 ships this is a **MINOR** bump (`0.11.0 → 0.12.0`); `package.json` not bumped yet (mid-sprint, release-time decision).
 
 ### Added
-- New component `src/ui/components/celebration-effect.js` — **generic, reusable** DOM/hub confetti burst (`position: fixed`, above popups, `pointer-events: none`, auto-cleanup + `cancel()` handle, optional headline/sound, respects `prefers-reduced-motion`). Kept **separate** from the Phaser `level-complete-effect.js` so the 6 minigames are untouched; intentionally contains **no screen-specific animation**.
+- New component `src/ui/components/effects/celebration-effect.js` — **generic, reusable** DOM/hub confetti burst (`position: fixed`, above popups, `pointer-events: none`, auto-cleanup + `cancel()` handle, optional headline/sound, respects `prefers-reduced-motion`). Kept **separate** from the Phaser `level-complete-effect.js` so the 6 minigames are untouched; intentionally contains **no screen-specific animation**.
 - Wired into `checkin-summary-screen.js` "เก่งมาก !!!" step: confetti + a screen-local `bounceCheckInCharacter()` helper (two slow 0.5s-up/0.5s-down bounces via Web Animations API) on the gender-based character; both cancelled in `cleanup()` if the popup closes early. US-E7-13 → 🏗 In-Progress (pending mobile QA).
 
 ## [2026-06-24] - Sprint 7 Scroll-Containment Bug (BUG-006)
