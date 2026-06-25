@@ -88,7 +88,7 @@ gantt
 
 **Popup**
 - [ ] กรอบ Popup + นำไปใส่ Popup ต่าง ๆ ที่มีในเกม → [US-E7-04](../user-stories/US-E7-04.md)
-- [ ] แก้ Popup หลังดูละครเสร็จ → [US-E7-16](../user-stories/US-E7-16.md)
+- [ ] **ตัด** Popup หลังดูละครเสร็จ ("พบกันใหม่วันพรุ่งนี้") ออก → [US-E7-16](../user-stories/US-E7-16.md)
 - [ ] แก้ Popup เมื่อผู้เล่นเล่นจบของวันแล้วเข้ามาในวันเดิม → [US-E7-16](../user-stories/US-E7-16.md)
 
 **ข้อมูลหลังบ้าน (coordination)**

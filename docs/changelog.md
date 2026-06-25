@@ -24,6 +24,13 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-25] - Scope cut: drop "พบกันใหม่วันพรุ่งนี้" after-drama popup (US-E7-16, docs)
+**Docs-only** (no `package.json` bump). Records an owner scope decision.
+
+### Changed
+- **US-E7-16 AC#1 changed from "fix" to "cut":** the after-drama see-you-tomorrow popup ("พบกันใหม่วันพรุ่งนี้" / "พรุ่งนี้มีต้นคิดดี และละครสั้นรอคุณอยู่") is **removed from scope** — it will not be shown. After the short-video (drama) step, the check-in flow closes and returns home directly (no extra popup). The page was never implemented in code, so this is a design/scope removal only.
+- Updated `US-E7-16.md` (title, AC#1 + scope-change note, technical tasks, visual-reference caption marked ❌ removed), `01-product-backlog.md`, and `sprint-07.md` accordingly.
+
 ## [2026-06-25] - Tree Growth Transition (US-E7-10, code)
 **Sprint 7 feature code** (same MINOR bucket as US-E7-13 → `0.12.0` at ship; `package.json` not bumped yet).
 
