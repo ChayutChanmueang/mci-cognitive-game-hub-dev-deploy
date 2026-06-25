@@ -41,6 +41,30 @@ body.hub-mode {
     overflow: hidden;
 }
 
+/* App version badge (US-E7-05): shows on every DOM page, hidden while a minigame is active.
+   Sits in the bottom-right viewport corner with pointer-events disabled so it never blocks UI. */
+.app-version-badge {
+    position: fixed;
+    right: 8px;
+    bottom: 8px;
+    z-index: 2147483000;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: "Noto Sans Thai", sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.55);
+    pointer-events: none;
+    user-select: none;
+}
+
+body.game-mode .app-version-badge {
+    display: none;
+}
+
 #app {
     width: 100%;
     min-height: 100vh;

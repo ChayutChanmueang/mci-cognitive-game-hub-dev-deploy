@@ -112,6 +112,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const app = document.getElementById("app");
     const uiRoot = document.getElementById("ui-root");
     const gameContainer = document.getElementById("game-container");
+
+    // App version badge (US-E7-05): shows on every DOM page (Game Hub, Login, Sign-up,
+    // Leaderboard, Player-Info, Popups, …) and is hidden while a minigame is active —
+    // hide/show is driven purely by the `body.game-mode` class via CSS, so no JS toggling
+    // is needed on route changes. Version comes from package.json (single source of truth),
+    // injected at build time by Vite's `define` as `__APP_VERSION__`.
+    const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "";
+    if (APP_VERSION && !document.getElementById("app-version-badge")) {
+        const badge = document.createElement("div");
+        badge.id = "app-version-badge";
+        badge.className = "app-version-badge";
+        badge.setAttribute("aria-hidden", "true");
+        badge.textContent = `v${APP_VERSION}`;
+        document.body.appendChild(badge);
+    }
     const hubUiState = createGameHubState();
     const testGameHubUiState = createTestGameHubState();
     let activeGameInstance = null;

@@ -74,7 +74,7 @@
 | [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 📋 Backlog |
 | [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 📋 Backlog |
 | [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
-| [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
+| [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 🏗 In-Progress |
 | [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
 | [US-E7-07](./user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | 📋 Backlog |
 | [US-E7-08](./user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |

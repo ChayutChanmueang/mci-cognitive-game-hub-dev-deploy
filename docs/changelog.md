@@ -24,6 +24,14 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-25] - App Version Badge (US-E7-05, code)
+**Sprint 7 feature code** (same MINOR bucket → `0.12.0` at ship; `package.json` not bumped yet).
+
+### Added
+- Version badge shown on every DOM page (Game Hub, Login, Sign-up, Leaderboard, Player-Info, popups). Appended once as `.app-version-badge` to `document.body` in `src/main.js`, displaying `v<version>`.
+- Version comes from a **single source of truth** (`package.json`), injected at build time via Vite `define: { __APP_VERSION__ }` in both `vite/config.dev.mjs` and `vite/config.prod.mjs` (read with `readFileSync`). Verified `v0.11.0` is folded into the production bundle.
+- Auto show/hide tied to the existing `body.game-mode` class via CSS (`public/style.css`): hidden inside minigames, visible on all DOM shells — no per-route JS toggling. Badge is bottom-right, `pointer-events: none`, `user-select: none`.
+
 ## [2026-06-25] - Scope cut: drop "พบกันใหม่วันพรุ่งนี้" after-drama popup (US-E7-16, docs)
 **Docs-only** (no `package.json` bump). Records an owner scope decision.
 
