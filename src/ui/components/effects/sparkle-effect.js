@@ -25,11 +25,11 @@ function prefersReducedMotion() {
         && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function centerOf(anchor) {
+function centerOf(anchor, sRadius = 1 /*0.6*/) {
     if (anchor && typeof anchor.getBoundingClientRect === "function") {
         const r = anchor.getBoundingClientRect();
         if (r.width > 0 || r.height > 0) {
-            return { x: r.left + r.width / 2, y: r.top + r.height / 2, spread: Math.max(r.width, r.height) * 0.6 };
+            return { x: r.left + r.width / 2, y: r.top + r.height / 2, spread: Math.max(r.width, r.height) * sRadius };
         }
     }
     // Fallback: viewport centre.
@@ -44,18 +44,20 @@ function centerOf(anchor) {
  * @param {Object} [options]
  * @param {Element|null} [options.anchor=null]  Element to centre the sparkles on (e.g. the tree).
  * @param {Element} [options.mount=document.body] Where to append the overlay.
- * @param {number}  [options.count=18]          Number of sparkle particles.
+ * @param {number}  [options.count=48]          Number of sparkle particles.
  * @param {number}  [options.zIndex=2001]       Stacking; default sits above `.app-popup` (2000).
  * @param {number|null} [options.spread=null]   Spread radius in px (null = derived from anchor).
+ * @param {{min:number,max:number}} [options.sMinMax={min:25,max:50}] Per-particle star size range in px.
  * @returns {{ cancel: () => void }} Handle to stop the effect early.
  */
 export function showSparkleEffect(options = {}) {
     const {
         anchor = null,
         mount = document.body,
-        count = 18,
+        count = 48,
         zIndex = 2001,
         spread = null,
+        sMinMax = {min: 25, max: 50}
     } = options;
 
     const reduced = prefersReducedMotion();
@@ -94,7 +96,7 @@ export function showSparkleEffect(options = {}) {
     };
 
     for (let i = 0; i < total; i++) {
-        const size = 8 + Math.random() * 9;
+        const size = sMinMax.min + (Math.random() * (sMinMax.max / 2));
         const hue = Math.floor(Math.random() * 360);
         const color = `hsl(${hue}, 95%, 62%)`;
 

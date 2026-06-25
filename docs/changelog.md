@@ -32,6 +32,9 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - Wired into `checkin-summary-screen.js`: shows on the **tree progression (calendar) step**, anchored to `.tree-progress-frame`; cancelled in `cleanup()`. Growth-transition animation intentionally **not** added yet (per request) — sparkle currently fires on entering the page, to be re-timed to the grow moment later.
 - Both effect components now live under `src/ui/components/effects/` (celebration-effect moved here too).
 
+### Changed
+- Tuned sparkle defaults to be bigger and denser: particle `count` 18 → 48, spread radius factor 0.6 → 1.0 (`centerOf`), and a new `sMinMax` option `{min, max}` to control per-particle star size in px (default `{min:25, max:50}`).
+
 ### Spec (docs)
 - Documented the **tree growth transition** flow in `US-E7-10` (previous stage → bounce up → collapse → bounce next stage up; day 1 already has `tree_01`, so no empty case) and saved 2 sparkle reference screenshots under `docs/agile/user-stories/assets/`.
 
