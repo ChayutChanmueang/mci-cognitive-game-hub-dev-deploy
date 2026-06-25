@@ -40,11 +40,11 @@ function bounceCheckInCharacter(target) {
     );
 }
 
-// Tree growth transition for the check-in progression page. Flow: show the PREVIOUS stage,
-// bounce it up a touch then collapse it down to nothing → swap to the NEXT stage image →
-// bounce the new tree up (overshoot, then settle). Scales from the bottom so the tree looks
-// like it grows up out of its pot. Lives here (not in a shared effect component) because it
-// animates this screen's own <img>, mirroring bounceCheckInCharacter().
+// Tree growth transition for the check-in progression page. Flow: show the PREVIOUS stage and
+// hold it ~1s → bounce it up a touch then collapse it down to nothing → swap to the NEXT stage
+// image → bounce the new tree up (overshoot, then settle). Scales from the bottom so the tree
+// looks like it grows up out of its pot. Lives here (not in a shared effect component) because
+// it animates this screen's own <img>, mirroring bounceCheckInCharacter().
 //
 // `onGrow` fires at the exact moment the new tree pops in — used to time the sparkle burst.
 // Returns a `{ cancel }` handle that stops both phases and leaves the next-stage image in place.
@@ -68,42 +68,55 @@ function growTreeTransition(img, prevStage, nextStage, onGrow) {
     img.style.transformOrigin = "bottom center";
     img.src = getTreeImagePath(prevStage);
 
+    // Hold the previous tree on screen before starting the transition.
+    const HOLD_PREV_MS = 1000;
+
     let cancelled = false;
+    let collapse = null;
     let grow = null;
+    let holdTimer = null;
 
-    // Phase 1: previous tree bounces up slightly, then collapses down to nothing.
-    const collapse = img.animate(
-        [
-            { transform: "scale(1)", offset: 0, easing: "ease-out" },
-            { transform: "scale(1.12)", offset: 0.45, easing: "ease-in" },
-            { transform: "scale(0)", offset: 1 },
-        ],
-        { duration: 520, fill: "forwards" },
-    );
-
-    collapse.onfinish = () => {
+    // Show the previous tree for a beat, then run the collapse → swap → grow sequence.
+    holdTimer = setTimeout(() => {
+        holdTimer = null;
         if (cancelled) {
             return;
         }
-        // Phase 2: swap to the next stage, fire the sparkle, then pop the new tree up.
-        img.src = getTreeImagePath(nextStage);
-        onGrow?.();
-        grow = img.animate(
+
+        // Phase 1: previous tree bounces up slightly, then collapses down to nothing.
+        collapse = img.animate(
             [
-                { transform: "scale(0)", offset: 0, easing: "ease-out" },
-                { transform: "scale(1.15)", offset: 0.6, easing: "ease-in-out" },
-                { transform: "scale(0.95)", offset: 0.8, easing: "ease-in-out" },
-                { transform: "scale(1)", offset: 1 },
+                { transform: "scale(1)", offset: 0, easing: "ease-out" },
+                { transform: "scale(1.12)", offset: 0.45, easing: "ease-in" },
+                { transform: "scale(0)", offset: 1 },
             ],
-            { duration: 620, fill: "forwards" },
+            { duration: 520, fill: "forwards" },
         );
-        grow.onfinish = () => {
-            if (!cancelled) {
-                img.style.transform = "";
-                img.style.transformOrigin = "";
+
+        collapse.onfinish = () => {
+            if (cancelled) {
+                return;
             }
+            // Phase 2: swap to the next stage, fire the sparkle, then pop the new tree up.
+            img.src = getTreeImagePath(nextStage);
+            onGrow?.();
+            grow = img.animate(
+                [
+                    { transform: "scale(0)", offset: 0, easing: "ease-out" },
+                    { transform: "scale(1.15)", offset: 0.6, easing: "ease-in-out" },
+                    { transform: "scale(0.95)", offset: 0.8, easing: "ease-in-out" },
+                    { transform: "scale(1)", offset: 1 },
+                ],
+                { duration: 620, fill: "forwards" },
+            );
+            grow.onfinish = () => {
+                if (!cancelled) {
+                    img.style.transform = "";
+                    img.style.transformOrigin = "";
+                }
+            };
         };
-    };
+    }, HOLD_PREV_MS);
 
     return {
         cancel: () => {
@@ -111,7 +124,11 @@ function growTreeTransition(img, prevStage, nextStage, onGrow) {
                 return;
             }
             cancelled = true;
-            collapse.cancel?.();
+            if (holdTimer !== null) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
+            collapse?.cancel?.();
             grow?.cancel?.();
             finishToNext();
         },
