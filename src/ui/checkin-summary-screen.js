@@ -40,6 +40,84 @@ function bounceCheckInCharacter(target) {
     );
 }
 
+// Tree growth transition for the check-in progression page. Flow: show the PREVIOUS stage,
+// bounce it up a touch then collapse it down to nothing → swap to the NEXT stage image →
+// bounce the new tree up (overshoot, then settle). Scales from the bottom so the tree looks
+// like it grows up out of its pot. Lives here (not in a shared effect component) because it
+// animates this screen's own <img>, mirroring bounceCheckInCharacter().
+//
+// `onGrow` fires at the exact moment the new tree pops in — used to time the sparkle burst.
+// Returns a `{ cancel }` handle that stops both phases and leaves the next-stage image in place.
+function growTreeTransition(img, prevStage, nextStage, onGrow) {
+    const finishToNext = () => {
+        if (img) {
+            img.src = getTreeImagePath(nextStage);
+            img.style.transform = "";
+            img.style.transformOrigin = "";
+        }
+    };
+
+    if (!img || typeof img.animate !== "function"
+        || (typeof window !== "undefined"
+            && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)) {
+        finishToNext();
+        onGrow?.();
+        return null;
+    }
+
+    img.style.transformOrigin = "bottom center";
+    img.src = getTreeImagePath(prevStage);
+
+    let cancelled = false;
+    let grow = null;
+
+    // Phase 1: previous tree bounces up slightly, then collapses down to nothing.
+    const collapse = img.animate(
+        [
+            { transform: "scale(1)", offset: 0, easing: "ease-out" },
+            { transform: "scale(1.12)", offset: 0.45, easing: "ease-in" },
+            { transform: "scale(0)", offset: 1 },
+        ],
+        { duration: 520, fill: "forwards" },
+    );
+
+    collapse.onfinish = () => {
+        if (cancelled) {
+            return;
+        }
+        // Phase 2: swap to the next stage, fire the sparkle, then pop the new tree up.
+        img.src = getTreeImagePath(nextStage);
+        onGrow?.();
+        grow = img.animate(
+            [
+                { transform: "scale(0)", offset: 0, easing: "ease-out" },
+                { transform: "scale(1.15)", offset: 0.6, easing: "ease-in-out" },
+                { transform: "scale(0.95)", offset: 0.8, easing: "ease-in-out" },
+                { transform: "scale(1)", offset: 1 },
+            ],
+            { duration: 620, fill: "forwards" },
+        );
+        grow.onfinish = () => {
+            if (!cancelled) {
+                img.style.transform = "";
+                img.style.transformOrigin = "";
+            }
+        };
+    };
+
+    return {
+        cancel: () => {
+            if (cancelled) {
+                return;
+            }
+            cancelled = true;
+            collapse.cancel?.();
+            grow?.cancel?.();
+            finishToNext();
+        },
+    };
+}
+
 // Gender-specific celebration art for the "เก่งมาก !!!" success step. DB gender is
 // "male"/"female" (see signup-screen.js); anything else falls back to the man set.
 // One of the three cheer-complete variants is picked at random per popup.
@@ -148,6 +226,7 @@ export function showCheckInPopup(options = {}) {
         let celebration = null;
         let characterBounce = null;
         let sparkle = null;
+        let treeGrow = null;
 
         const cleanup = (result) => {
             if (settled) {
@@ -161,6 +240,8 @@ export function showCheckInPopup(options = {}) {
             characterBounce = null;
             sparkle?.cancel();
             sparkle = null;
+            treeGrow?.cancel();
+            treeGrow = null;
             state.videoPlayerInstance?.destroy();
             state.videoPlayerInstance = null;
             overlay.remove();
@@ -256,15 +337,25 @@ export function showCheckInPopup(options = {}) {
                     </div>
                 `;
 
-                // Sparkle the tree on the progression page (rainbow particles spreading out).
+                // Grow the tree on the progression page: show the previous stage, collapse it,
+                // then pop the current stage up — firing the rainbow sparkle burst at the exact
+                // moment the new tree appears. Day 1 already maps to a previous stage (tree_01),
+                // so there is always a "previous tree" and no empty case to handle.
                 // Wait one frame so the tree element has layout for anchoring.
+                treeGrow?.cancel();
                 sparkle?.cancel();
                 requestAnimationFrame(() => {
                     if (settled || state.step !== "calendar") {
                         return;
                     }
-                    sparkle = showSparkleEffect({
-                        anchor: overlay.querySelector(".tree-progress-frame"),
+                    const plant = overlay.querySelector(".tree-progress-plant");
+                    const frame = overlay.querySelector(".tree-progress-frame");
+                    const prevStage = getTreeStage(Math.max(0, completedDays - 1), state.dayCount);
+                    treeGrow = growTreeTransition(plant, prevStage, stage, () => {
+                        if (settled || state.step !== "calendar") {
+                            return;
+                        }
+                        sparkle = showSparkleEffect({ anchor: frame });
                     });
                 });
 

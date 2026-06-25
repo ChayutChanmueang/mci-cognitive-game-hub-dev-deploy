@@ -24,6 +24,17 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-25] - Tree Growth Transition (US-E7-10, code)
+**Sprint 7 feature code** (same MINOR bucket as US-E7-13 → `0.12.0` at ship; `package.json` not bumped yet).
+
+### Added
+- Tree growth animation on the check-in progression page. New screen-local helper `growTreeTransition(img, prevStage, nextStage, onGrow)` in `checkin-summary-screen.js`: shows the **previous** stage, bounces it up then collapses it down, swaps to the **current** stage image, then bounces the new tree up (overshoot → settle). Scales from `transform-origin: bottom center` so the tree appears to grow out of its pot. Web Animations API; kept out of the shared effect components (mirrors `bounceCheckInCharacter`).
+- Day 1 already maps to a previous stage (`getTreeStage(completedDays - 1)` → `tree_01`), so there is always a "previous tree" — no empty case.
+- Respects `prefers-reduced-motion` (skips the animation, sets the final image) and exposes a `cancel()` handle that is cancelled in `cleanup()`.
+
+### Changed
+- **Re-timed the sparkle burst** to fire at the grow moment (via the `onGrow` callback, when the new tree pops in) instead of immediately on entering the page.
+
 ## [2026-06-24] - Sparkle Particle Effect (US-E7-10, code)
 **Sprint 7 feature code** (same MINOR bucket as US-E7-13 → `0.12.0` at ship; `package.json` not bumped yet).
 
