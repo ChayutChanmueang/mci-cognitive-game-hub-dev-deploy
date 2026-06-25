@@ -45,11 +45,12 @@ body.hub-mode {
    Sits in the bottom-right viewport corner with pointer-events disabled so it never blocks UI. */
 .app-version-badge {
     position: fixed;
-    right: 8px;
-    bottom: 8px;
     z-index: 2147483000;
-    padding: 2px 8px;
-    border-radius: 999px;
+    padding-right: 8px;
+    padding-bottom: 2px;
+    right: 0px;
+    bottom: 0px;
+    border-top-left-radius: 10px;
     font-family: "Noto Sans Thai", sans-serif;
     font-size: 12px;
     line-height: 1.4;

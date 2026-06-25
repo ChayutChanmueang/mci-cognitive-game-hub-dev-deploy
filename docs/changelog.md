@@ -3,6 +3,8 @@
 All notable changes to the game documentation suite will be documented in this file.
 
 > Project version follows [Semantic Versioning 2.0.0](https://semver.org). Source of truth: `package.json`. The game is **pre-beta**, so it stays in the `0.x` line (SemVer rule 4 — "anything MAY change"); we do **not** bump to `1.0.0` until a stable, production public API is declared. Within `0.x`: new backward-compatible functionality bumps MINOR; bug fixes bump PATCH.
+>
+> ⚠️ **REMINDER — bump the version with the change, not "at ship".** Every change that adds functionality (MINOR) or fixes a bug (PATCH) **must** apply the version bump in lockstep — update `package.json` **and** this changelog **and** every doc that cites the version — following the **[semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md)** (see its §4 decision procedure + §5 update protocol + §9 checklist). Do **not** defer bumps to release time and do **not** bump PATCH for new features. When several unreleased changes accumulate, the highest applicable part wins and they share one version.
 
 ## Project Version History (reconstructed)
 
@@ -20,17 +22,33 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.8.0` | 2026-05→06 | Reusable start menu, UI/top-bar redesigns, image-asset redesigns, user event log, Fry Food (accelerometer), mock leaderboard |
 | `0.9.0` | 2026-06 | Live leaderboard (RPC + infinite scroll), audio system (BGM/SFX), scoring overhaul, completion popups, tree-growth check-in + short-video VideoPlayer, Docker build |
 | `0.10.0` | 2026-06-23 | Figma-derived Game Hub components + gender-based avatars + asset consolidation |
-| `0.11.0` | 2026-06-23 | **(current)** Welcome screen + game logo, full PWA icon set, iOS gyro input handler, in-game logging rework |
+| `0.11.0` | 2026-06-23 | Welcome screen + game logo, full PWA icon set, iOS gyro input handler, in-game logging rework |
+| `0.12.0` | 2026-06-25 | **(current)** Sprint 7 polish: check-in celebration effect, rainbow sparkle, tree growth transition, app version badge |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [0.12.0] - 2026-06-25
+**Version bump:** `0.11.0 → 0.12.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible functionality shipped this sprint: check-in celebration effect, rainbow sparkle effect, tree growth transition, and the app version badge. Highest applicable part wins; PATCH reset to 0. Bug-fix-style refinements within these features (sparkle star shape/sizing, growth timing) fold into the same unreleased MINOR. The detailed dated sub-entries below are all part of this version.
+
+> The per-feature dated entries that follow were authored mid-development and previously said "not bumped yet"; that deferral was incorrect under the skill (§5: bump in lockstep). They are now consolidated under `0.12.0`.
+
 ## [2026-06-25] - App Version Badge (US-E7-05, code)
-**Sprint 7 feature code** (same MINOR bucket → `0.12.0` at ship; `package.json` not bumped yet).
+**Part of `0.12.0` (MINOR).**
 
 ### Added
 - Version badge shown on every DOM page (Game Hub, Login, Sign-up, Leaderboard, Player-Info, popups). Appended once as `.app-version-badge` to `document.body` in `src/main.js`, displaying `v<version>`.
-- Version comes from a **single source of truth** (`package.json`), injected at build time via Vite `define: { __APP_VERSION__ }` in both `vite/config.dev.mjs` and `vite/config.prod.mjs` (read with `readFileSync`). Verified `v0.11.0` is folded into the production bundle.
+- Version comes from a **single source of truth** (`package.json`), injected at build time via Vite `define: { __APP_VERSION__ }` in both `vite/config.dev.mjs` and `vite/config.prod.mjs` (read with `readFileSync`). Verified `v0.12.0` is folded into the production bundle.
 - Auto show/hide tied to the existing `body.game-mode` class via CSS (`public/style.css`): hidden inside minigames, visible on all DOM shells — no per-route JS toggling. Badge is bottom-right, `pointer-events: none`, `user-select: none`.
+
+## [2026-06-25] - Thai minigame names in Game Hub (US-E7-07, data — partial)
+**No project version change (stays at `0.12.0`).** Database-data change, not a repo code change — `game-hub-screen.js` already renders `th_name || name`, so no code/version bump.
+
+### Changed
+- Minigame display names now show in **Thai on the Game Hub**, by populating the database `th_name` column. Internal `gid`/slug references untouched.
+
+### Pending (US-E7-07 remaining)
+- Game **covers/tutorials** and **result screens** still show English names — not done yet.
+- How-to-play text **font enlargement** on game covers — not done yet.
 
 ## [2026-06-25] - Scope cut: drop "พบกันใหม่วันพรุ่งนี้" after-drama popup (US-E7-16, docs)
 **Docs-only** (no `package.json` bump). Records an owner scope decision.
@@ -40,7 +58,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - Updated `US-E7-16.md` (title, AC#1 + scope-change note, technical tasks, visual-reference caption marked ❌ removed), `01-product-backlog.md`, and `sprint-07.md` accordingly.
 
 ## [2026-06-25] - Tree Growth Transition (US-E7-10, code)
-**Sprint 7 feature code** (same MINOR bucket as US-E7-13 → `0.12.0` at ship; `package.json` not bumped yet).
+**Part of `0.12.0` (MINOR).**
 
 ### Added
 - Tree growth animation on the check-in progression page. New screen-local helper `growTreeTransition(img, prevStage, nextStage, onGrow)` in `checkin-summary-screen.js`: shows the **previous** stage, bounces it up then collapses it down, swaps to the **current** stage image, then bounces the new tree up (overshoot → settle). Scales from `transform-origin: bottom center` so the tree appears to grow out of its pot. Web Animations API; kept out of the shared effect components (mirrors `bounceCheckInCharacter`).
@@ -51,7 +69,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - **Re-timed the sparkle burst** to fire at the grow moment (via the `onGrow` callback, when the new tree pops in) instead of immediately on entering the page.
 
 ## [2026-06-24] - Sparkle Particle Effect (US-E7-10, code)
-**Sprint 7 feature code** (same MINOR bucket as US-E7-13 → `0.12.0` at ship; `package.json` not bumped yet).
+**Part of `0.12.0` (MINOR).**
 
 ### Added
 - New reusable component `src/ui/components/effects/sparkle-effect.js` — rainbow, random sparkle particles that spread out and up from an anchor element (bone-meal-inspired, not green). 4-point twinkle star drawn as an inline **SVG cubic-bezier path** (concave sides, adapted from a p5.js `bezierVertex` star) that scales per particle; Web Animations API, `position: fixed`, `pointer-events: none`, staggered spawn for gradual spread, glow via `drop-shadow`, `cancel()` handle, respects `prefers-reduced-motion`.
@@ -65,7 +83,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - Documented the **tree growth transition** flow in `US-E7-10` (previous stage → bounce up → collapse → bounce next stage up; day 1 already has `tree_01`, so no empty case) and saved 2 sparkle reference screenshots under `docs/agile/user-stories/assets/`.
 
 ## [2026-06-24] - Check-in Celebration Effect (US-E7-13, code)
-**First Sprint 7 feature code.** New backward-compatible functionality → when Sprint 7 ships this is a **MINOR** bump (`0.11.0 → 0.12.0`); `package.json` not bumped yet (mid-sprint, release-time decision).
+**First feature of `0.12.0` (MINOR `0.11.0 → 0.12.0`).** New backward-compatible functionality.
 
 ### Added
 - New component `src/ui/components/effects/celebration-effect.js` — **generic, reusable** DOM/hub confetti burst (`position: fixed`, above popups, `pointer-events: none`, auto-cleanup + `cancel()` handle, optional headline/sound, respects `prefers-reduced-motion`). Kept **separate** from the Phaser `level-complete-effect.js` so the 6 minigames are untouched; intentionally contains **no screen-specific animation**.
