@@ -23,9 +23,27 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.9.0` | 2026-06 | Live leaderboard (RPC + infinite scroll), audio system (BGM/SFX), scoring overhaul, completion popups, tree-growth check-in + short-video VideoPlayer, Docker build |
 | `0.10.0` | 2026-06-23 | Figma-derived Game Hub components + gender-based avatars + asset consolidation |
 | `0.11.0` | 2026-06-23 | Welcome screen + game logo, full PWA icon set, iOS gyro input handler, in-game logging rework |
-| `0.12.0` | 2026-06-25 | **(current)** Sprint 7 polish: check-in celebration effect, rainbow sparkle, tree growth transition, app version badge |
+| `0.12.0` | 2026-06-25 | Sprint 7 polish: check-in celebration effect, rainbow sparkle, tree growth transition, app version badge |
+| `0.12.1` | 2026-06-26 | Fix BUG-005: stale async route handler bouncing user back to Game Hub (route-version guard) |
+| `0.13.0` | 2026-06-26 | **(current)** Boot loading overlay (modal) that blocks interaction until the first screen is ready |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.13.0] - 2026-06-26
+**Version bump:** `0.12.1 → 0.13.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible functionality (a boot loading screen).
+
+### Added
+- **Boot loading overlay** (modal). Markup with critical inline styles lives in `index.html` so it paints immediately (before `style.css`/fonts), covering the screen with a spinner + "กำลังโหลด...". It blocks interaction until the first route has fully rendered, so the user can't tap a game/leaderboard before data is ready (complements the BUG-005 / [PB-01-01](agile/problems/PB-01-01.md) route-version guard). Dismissed once via `finishBootLoading()` in `src/main.js` with a fade-out; a 12s safety timeout guarantees it can never trap the user behind it if a load hangs.
+- To support "dismiss only when ready", `navigateTo()` now returns the `renderCurrentRoute()` promise on its direct-render paths, and the in-dispatcher redirects `return navigateTo(...)` so the boot promise chains through redirects to the real final screen.
+
+## [0.12.1] - 2026-06-26
+**Version bump:** `0.12.0 → 0.12.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible bug fix, no new functionality.
+
+### Fixed
+- **BUG-005** — slow data loads no longer bounce the user back to the Game Hub. When the user opened a minigame or the Leaderboard before the Hub finished loading, a stale in-flight `showHub()` (and `renderGameHubScreen`'s post-load re-renders) painted the Hub over the newer screen. Fixed with a **route-version guard**: `showHub` snapshots `routeRenderVersion` and aborts if it changes after its `await`s, and passes an `isStale` callback into `renderGameHubScreen` so its `render()` skips painting once the route has moved on. Root-cause write-up: [PB-01-01](agile/problems/PB-01-01.md).
+
+### Docs
+- New **Problem Records** log (`docs/agile/problems/`, numbered `PB-XX-XX`) capturing root causes + the rule to avoid repeating them; first record `PB-01-01`. Linked from `docs/index.md`; `BUG-005` marked Resolved.
 
 ## [0.12.0] - 2026-06-25
 **Version bump:** `0.11.0 → 0.12.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible functionality shipped this sprint: check-in celebration effect, rainbow sparkle effect, tree growth transition, and the app version badge. Highest applicable part wins; PATCH reset to 0. Bug-fix-style refinements within these features (sparkle star shape/sizing, growth timing) fold into the same unreleased MINOR. The detailed dated sub-entries below are all part of this version.

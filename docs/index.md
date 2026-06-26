@@ -2,7 +2,7 @@
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
 **Status:** 🟢 Pre-beta (0.x) — Stabilization & Deployment Testing | **Current Sprint:** [Sprint 7 — Art, Versioning & Vertical Responsiveness](agile/sprint-backlogs/sprint-07.md)
-**Version:** 0.12.0 | **Last Updated:** 2026-06-25 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Version:** 0.13.0 | **Last Updated:** 2026-06-26 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -52,6 +52,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - [03. Meeting Logs](agile/03-meeting-backlogs.md) - บันทึกการประชุมของทีม
 - [04. Sprint Retrospectives](agile/04-retrospectives-backlog.md) - บันทึกสรุปบทเรียนและแนวทางการปรับปรุงในแต่ละ Sprint
 - [05. System Test Reports](agile/05-report-backlog.md) - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด
+- [🧩 Problem Records (Root-Cause Log)](agile/problems/README.md) - บันทึกสาเหตุรากของปัญหา (`PB-XX-XX`) และกฎที่ต้องทำตามเพื่อไม่ทำผิดซ้ำ
 
 ---
 

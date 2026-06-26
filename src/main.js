@@ -135,6 +135,24 @@ document.addEventListener("DOMContentLoaded", () => {
     let exitLogHn = "";
     let gameOpenedLogged = false;
 
+    // Boot loading overlay (markup in index.html). It's a modal cover that blocks interaction
+    // until the first screen is fully rendered, so the user can't tap a game/leaderboard before
+    // data is ready. Dismissed exactly once; a safety timeout guarantees it can never trap the
+    // user behind it if a load hangs.
+    let bootLoadingDismissed = false;
+    const finishBootLoading = () => {
+        if (bootLoadingDismissed) {
+            return;
+        }
+        bootLoadingDismissed = true;
+        const overlay = document.getElementById("app-loading");
+        if (!overlay) {
+            return;
+        }
+        overlay.classList.add("app-loading--hidden");
+        setTimeout(() => overlay.remove(), 400);
+    };
+
     // Back-button guard state: tracks whether a protected minigame is active.
     // Uses a pushState sentinel so back press keeps the URL stable (popstate handler),
     // with a hashchange fallback for edge cases where the sentinel is bypassed.
@@ -386,19 +404,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const nextHash = hash.startsWith("#") ? hash : `#${hash}`;
 
         if (window.location.hash === nextHash) {
-            void renderCurrentRoute();
-            return;
+            // Return the promise so callers (e.g. boot) can await the first render. The hash
+            // is unchanged, so no hashchange event fires — we render directly here.
+            return renderCurrentRoute();
         }
 
         if (replace) {
             const url = new URL(window.location.href);
             url.hash = nextHash.slice(1);
             window.history.replaceState(null, "", url);
-            void renderCurrentRoute();
-            return;
+            return renderCurrentRoute();
         }
 
+        // Changing the hash triggers the hashchange listener, which renders asynchronously;
+        // there's no promise to hand back in this path.
         window.location.hash = nextHash;
+        return undefined;
     };
 
     const persistSelectedGame = (selectedGame) => {
@@ -568,6 +589,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // BUG-005 / PB-01-01: snapshot the route version so we can detect if the user
+        // navigates away (e.g. opens a game or the leaderboard) while this handler's data
+        // is still loading. A stale handler must NOT render the Hub over the newer route.
+        const renderVersion = routeRenderVersion;
+
         EventBus.emit("minigame:hide-hud");
         // EventBus.emit('audio:bgm', 'hub'); // Temporarily disabled
 
@@ -596,6 +622,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // BUG-005 / PB-01-01: bail out if the route changed during the patient load above.
+        if (renderVersion !== routeRenderVersion) {
+            return;
+        }
+
         setupExitLog(patientCode);
 
         if (!gameOpenedLogged && patientCode) {
@@ -604,6 +635,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         await renderGameHubScreen(uiRoot, {
+            // BUG-005 / PB-01-01: renderGameHubScreen renders once, then re-renders after its
+            // own async loads. This lets it skip those re-renders if the user has since left.
+            isStale: () => renderVersion !== routeRenderVersion,
             loadGameList: () => db.getGameList(),
             loadProgramPresets: () => db.getGameLevelPresetList(),
             loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
@@ -2143,13 +2177,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.remove("game-hub-route");
 
         if (route.name === "unknown") {
-            navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.home, { replace: true });
-            return;
+            return navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.home, { replace: true });
         }
 
         if ((route.name === "login" || route.name === "signup") && rememberedPatient) {
-            navigateTo(ROUTES.hub, { replace: true });
-            return;
+            return navigateTo(ROUTES.hub, { replace: true });
         }
 
         if (
@@ -2170,8 +2202,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             clearPatientClientState();
-            navigateTo(ROUTES.home, { replace: true });
-            return;
+            return navigateTo(ROUTES.home, { replace: true });
         }
 
         if (route.name === "home") {
@@ -2202,8 +2233,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (!isAdminSession) {
-                navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
-                return;
+                return navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
             }
 
             await showPlayerInfo();
@@ -2218,8 +2248,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (route.name === "signup") {
             const pendingPatientCode = SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "";
             if (!pendingPatientCode) {
-                navigateTo(ROUTES.login, { replace: true });
-                return;
+                return navigateTo(ROUTES.login, { replace: true });
             }
 
             await showSignup({
@@ -2250,8 +2279,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (window.location.hash !== canonicalTestHubRoute) {
-                navigateTo(canonicalTestHubRoute, { replace: true });
-                return;
+                return navigateTo(canonicalTestHubRoute, { replace: true });
             }
 
             await showTestGameHub({
@@ -2268,8 +2296,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (window.location.hash !== canonicalHubRoute) {
-                navigateTo(canonicalHubRoute, { replace: true });
-                return;
+                return navigateTo(canonicalHubRoute, { replace: true });
             }
 
             await showHub({
@@ -2419,11 +2446,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    const rememberedPatient = getPatientSessionCookie();
-    if (!window.location.hash) {
-        navigateTo(ROUTES.home, { replace: true });
-        return;
-    }
+    // Safety net: never let the boot overlay trap the user if the first load hangs.
+    const bootLoadingSafety = setTimeout(finishBootLoading, 12000);
 
-    void renderCurrentRoute();
+    // Kick off the first route render, then dismiss the boot loading overlay once the first
+    // screen is ready. navigateTo(replace) and renderCurrentRoute both return the render promise
+    // (and redirects chain through it), so this resolves only after the real screen has painted.
+    const firstRender = !window.location.hash
+        ? navigateTo(ROUTES.home, { replace: true })
+        : renderCurrentRoute();
+
+    Promise.resolve(firstRender).finally(() => {
+        clearTimeout(bootLoadingSafety);
+        finishBootLoading();
+    });
 });

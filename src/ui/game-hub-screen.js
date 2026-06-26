@@ -542,6 +542,12 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const render = () => {
+        // BUG-005 / PB-01-01: the caller (main.js route dispatcher) owns a route version.
+        // If the user navigated away while this hub was still loading, skip the render so
+        // we don't paint the Game Hub over whatever screen the user actually moved to.
+        if (typeof options.isStale === "function" && options.isStale()) {
+            return;
+        }
         cleanup();
         const levelSections = buildLevelSections();
         const currentDay = getCurrentProgramDay();

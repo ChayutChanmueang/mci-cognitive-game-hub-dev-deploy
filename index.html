@@ -56,6 +56,15 @@
         };
       })();
     </script>
+    <!-- Boot loading overlay (BUG-005 / PB-01-01 follow-up): modal cover shown immediately on
+         load and removed by main.js once the first screen has finished rendering. Critical inline
+         styles so it paints before style.css / fonts arrive. -->
+    <div id="app-loading" role="status" aria-live="polite" aria-label="กำลังโหลด"
+         style="position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(180deg,#8be298 0%,#6ed8ff 100%);">
+        <div class="app-loading__spinner"></div>
+        <div class="app-loading__text">กำลังโหลด...</div>
+    </div>
+
     <div id="app">
         <div id="ui-root"></div>
         <div id="game-container"></div>

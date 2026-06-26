@@ -1,3 +1,37 @@
+/* Boot loading overlay (markup + critical inline styles live in index.html so it paints
+   instantly; these enhance it once style.css loads). main.js adds .app-loading--hidden then
+   removes the node when the first screen is ready. */
+.app-loading__spinner {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 6px solid rgba(255, 255, 255, 0.45);
+    border-top-color: #ffffff;
+    animation: app-loading-spin 0.9s linear infinite;
+}
+
+@keyframes app-loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.app-loading__text {
+    font-family: "Noto Sans Thai", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+#app-loading {
+    transition: opacity 0.35s ease;
+}
+
+#app-loading.app-loading--hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
 :root {
     --md-sys-color-primary: #356859;
     --md-sys-color-on-primary: #ffffff;
