@@ -159,6 +159,7 @@ body {
 body {
     color: var(--md-sys-color-on-surface);
     background: linear-gradient(180deg, #8be298 0%, #6ed8ff 100%);
+    background-attachment: fixed;
     font-family: "Noto Sans Thai", sans-serif;
 }
 
