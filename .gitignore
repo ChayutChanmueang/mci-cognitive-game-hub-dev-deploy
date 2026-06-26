@@ -31,3 +31,6 @@ graphify-out/cache
 public/js/material-components material-web/*
 .obsidian
 .mcp.json
+
+# TTS generator — auto-generated, do not commit
+tools/tts-manifest.json

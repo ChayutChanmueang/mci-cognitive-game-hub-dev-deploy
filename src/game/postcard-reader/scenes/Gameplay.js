@@ -122,6 +122,10 @@ export default class GameplayScene extends Phaser.Scene {
     let options = GameLevelsByTopic[this.currentTopic][difficultyKey];
     let newIndex = this.postcardsPlayed % options.length;
 
+    // Stored on scene so PostcardPanel can build the TTS audio URL deterministically
+    this.currentDifficultyKey   = difficultyKey;
+    this.currentPostcardIndex   = newIndex;
+
     this.currentPostcard = options[newIndex];
     this.postcardText = this.currentPostcard.text || this.currentPostcard.Postcard;
     this.currentQuestionList = [...(this.currentPostcard.questions || this.currentPostcard.Questions)];
