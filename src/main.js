@@ -152,8 +152,25 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const destroyActiveGame = () => {
-        if (activeGameInstance && typeof activeGameInstance.destroy === "function") {
-            activeGameInstance.destroy(true);
+        if (activeGameInstance) {
+            if (activeGameInstance.scale && activeGameInstance.scale.isFullscreen) {
+                try {
+                    activeGameInstance.scale.stopFullscreen();
+                } catch (e) {}
+            }
+            if (typeof activeGameInstance.destroy === "function") {
+                activeGameInstance.destroy(true);
+            }
+        }
+
+        // Native exit fullscreen and orientation unlock as fallback
+        if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+        if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+            try {
+                screen.orientation.unlock();
+            } catch (e) {}
         }
 
         activeGameInstance = null;
@@ -164,6 +181,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.documentElement.style.removeProperty("--game-mode-background");
+        
+        // Clear any inline styles that might have been set by Phaser Fullscreen
+        document.body.style.backgroundColor = "";
+        document.body.style.backgroundImage = "";
+        document.documentElement.style.backgroundColor = "";
+        document.documentElement.style.backgroundImage = "";
 
         // Unregister any game-specific sounds to free memory
         EventBus.emit('audio:unregister', currentGameSlug);
