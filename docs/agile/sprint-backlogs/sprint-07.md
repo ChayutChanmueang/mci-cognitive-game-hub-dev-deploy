@@ -65,6 +65,7 @@ gantt
 | [BUG-004](../reports/bugs/BUG-004.md) | กลับจากมินิเกมโหมด full-screen แล้วพื้นหลัง Game Hub เป็นสีดำ | 🟠 Medium | 🔴 Open |
 | [BUG-005](../reports/bugs/BUG-005.md) | โหลดข้อมูลช้า → ผู้ใช้เปิดเกม/Leaderboard ก่อนโหลดเสร็จแล้วถูกดีดกลับหน้า Game Hub (เสนอ: loading overlay หรือเลิก redirect) | 🔴 High | ✅ Resolved |
 | [BUG-006](../reports/bugs/BUG-006.md) | จอเล็ก: scroll ลงแล้ว background ถูกตัด + ปุ่ม FAB ไม่ float (เลื่อนตาม content) — scroll containment เสีย | 🟠 Medium | ✅ Resolved |
+| [BUG-007](../reports/bugs/BUG-007.md) | Game Hub header ไม่อยู่กึ่งกลางในบางเบราว์เซอร์ (`justify-items` บน element ที่ไม่ใช่ grid) | 🟡 Low | ✅ Resolved |
 
 > หมายเหตุ: UI แสดงเวอร์ชันระดับ body ครอบทุกหน้า (และซ่อนในมินิเกม) อยู่ใน [US-E7-05](../user-stories/US-E7-05.md) แล้ว — ปรับ acceptance criteria ให้ครอบคลุมการ render ระดับ body/ทุกหน้า
 

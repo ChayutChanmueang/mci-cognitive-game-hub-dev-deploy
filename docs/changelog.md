@@ -28,7 +28,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.13.0` | 2026-06-26 | Boot loading overlay (modal) that blocks interaction until the first screen is ready |
 | `0.13.1` | 2026-06-26 | Fix boot overlay staying up ~10-20s — dismiss at first paint, not after full data load |
 | `0.14.0` | 2026-06-26 | Boot loading visual refresh: game logo + 5-dot progress indicator |
-| `0.14.1` | 2026-06-26 | **(current)** Fix BUG-006: Player-Info background + test FAB scrolled with content on short screens (scroll containment) |
+| `0.14.1` | 2026-06-26 | Fix BUG-006: Player-Info background + test FAB scrolled with content on short screens (scroll containment) |
+| `0.14.2` | 2026-06-26 | **(current)** Fix BUG-007: Game Hub header not centered in some browsers (`justify-items` on a non-grid element) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
@@ -38,6 +39,12 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.14.2] - 2026-06-26
+**Version bump:** `0.14.1 → 0.14.2` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible cross-browser layout bug fix, no new functionality.
+
+### Fixed
+- **BUG-007:** the Game Hub header (`.gh-header-bar`) was not centered in some browsers (notably Firefox) and DevTools warned *"justify-items has no effect on this element since it's not a grid container"*. `.gh-header-float` relied on `justify-items: center` to centre its child, but the element was plain block flow so the property was ignored; its own `justify-self: center` was likewise dead against the block parent `.hub-clean-shell`. Fix (CSS-only in `public/components.css`): made `.gh-header-float` a grid container (`display: grid`, keeping `justify-items: center`) and centred the float itself with `margin-inline: auto` (dropping the ineffective `justify-self`). Header now centres consistently across engines and the warning is gone.
 
 ## [0.14.1] - 2026-06-26
 **Version bump:** `0.14.0 → 0.14.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible layout bug fix, no new functionality.

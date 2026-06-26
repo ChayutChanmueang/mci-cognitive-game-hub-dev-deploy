@@ -746,12 +746,18 @@
  * absolutely within .hub-clean-stage context).
  */
 .gh-header-float {
-  justify-self: center;
+  /* BUG-007: must be a grid container for `justify-items: center` to take effect —
+     otherwise (plain block flow) browsers ignore it and the header bar stays
+     left-aligned. `margin-inline: auto` centers the float itself within the shell
+     regardless of whether the parent is a grid (so it no longer relies on the
+     equally-ineffective `justify-self` against a block parent). */
+  display: grid;
+  justify-items: center;
   width: min(90%, calc(1024px * var(--gh-scale, 1)));
+  margin-inline: auto;
   position: sticky;
   top: 0;
   z-index: 10;
-  justify-items: center;
   margin-top: calc(86px * var(--gh-scale, 1));
 }
 .gh-stage {
