@@ -29,7 +29,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.13.1` | 2026-06-26 | Fix boot overlay staying up ~10-20s — dismiss at first paint, not after full data load |
 | `0.14.0` | 2026-06-26 | Boot loading visual refresh: game logo + 5-dot progress indicator |
 | `0.14.1` | 2026-06-26 | Fix BUG-006: Player-Info background + test FAB scrolled with content on short screens (scroll containment) |
-| `0.14.2` | 2026-06-26 | **(current)** Fix BUG-007: Game Hub header not centered in some browsers (`justify-items` on a non-grid element) |
+| `0.14.2` | 2026-06-26 | Fix BUG-007: Game Hub header not centered in some browsers (`justify-items` on a non-grid element) |
+| `0.15.0` | 2026-06-26 | **(current)** US-E7-16 AC#2: same-day re-entry "วันนี้พักก่อน" rest popup with gender-based resting character (คุณตา/คุณยาย) + ground shadow |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
@@ -39,6 +40,15 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.15.0] - 2026-06-26
+**Version bump:** `0.14.2 → 0.15.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality.
+
+### Changed
+- **US-E7-16 AC#2 — same-day re-entry rest popup.** Redesigned `showDayCompletionPopup` (`src/ui/day-completion-popup.js`), shown when the player has already completed today's goal and re-enters the Game Hub on the same day. Replaced the generic "เก่งมากวันนี้" + 🧓 emoji popup with the compact **"วันนี้พักก่อน"** design: a gender-based resting character (`OldMan_resting.png` / `OldWoman_resting.png` → คุณตา / คุณยาย, picked from `options.patientGender`), message "กลับมาเล่นใหม่วันพรุ่งนี้นะ", and a green confirm button "กลับหน้าหลัก". Added a soft elliptical ground shadow under the character (US-E7-14 #4). The button uses the default `md-filled-button` green (`--md-sys-color-primary` `#356859`, US-E7-15 "เขียว = ยืนยัน"); frame uses the shared `app-popup` dialog system (will inherit dedicated US-E7-04 art when that lands). New CSS block `.app-popup__dialog--rest-day` + `.rest-day-popup-*` in `public/style.css`. `showProgramCompletionPopup` is unchanged.
+
+### Added
+- **Test hook:** added a "ทดสอบ Popup พักวันนี้" item to the Player-Info settings FAB menu (`src/ui/player-info-screen.js`) so the "วันนี้พักก่อน" popup can be previewed on demand (uses the current player's gender, `dismissible: true`). Sits alongside the existing Resting / Check-in test items.
 
 ## [0.14.2] - 2026-06-26
 **Version bump:** `0.14.1 → 0.14.2` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible cross-browser layout bug fix, no new functionality.

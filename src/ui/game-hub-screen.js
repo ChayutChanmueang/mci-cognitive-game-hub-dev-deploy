@@ -971,7 +971,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
         if (isComplete) {
             state.completionPopupShown = true;
-            await showDayCompletionPopup({ programDay: currentDay, programDayCount: getProgramDayCount() });
+            await showDayCompletionPopup({ gender: options.patientGender });
         }
     };
 

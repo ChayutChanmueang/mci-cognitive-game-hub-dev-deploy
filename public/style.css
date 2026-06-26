@@ -1197,6 +1197,75 @@ body.game-mode .app-version-badge {
     overflow-wrap: anywhere;
 }
 
+/* US-E7-16 AC#2 · same-day re-entry "วันนี้พักก่อน" rest popup ─────────────
+   Compact popup with the gender-based resting character (คุณตา/คุณยาย) and a
+   soft ground shadow (US-E7-14 #4). Confirm button is the default green
+   md-filled-button (--md-sys-color-primary #356859, US-E7-15 "เขียว = ยืนยัน"). */
+.app-popup__dialog--rest-day {
+    width: min(100%, 400px);
+    text-align: center;
+    padding: 30px 24px 26px;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+}
+
+.rest-day-popup-title {
+    margin: 0;
+    color: var(--md-sys-color-primary);
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.rest-day-popup-character {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    height: 250px;
+    width: 250px;
+    align-content: center;
+    justify-self: center;
+    margin: 4px 0 2px;
+}
+
+.rest-day-popup-character__img {
+    width: 176px;
+    max-width: 62%;
+    height: auto;
+    display: block;
+    position: relative;
+    z-index: 1;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.rest-day-popup-character__shadow {
+    position: absolute;
+    bottom: 2px;
+    width: 140px;
+    max-width: 48%;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.18);
+    filter: blur(7px);
+    z-index: 0;
+}
+
+.rest-day-popup-message {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.5;
+    color: var(--md-sys-color-on-surface);
+    max-width: 300px;
+    overflow-wrap: anywhere;
+}
+
+.rest-day-popup-actions {
+    width: 100%;
+    margin-top: 6px;
+}
+
 .hub-clean-screen {
     width: 100%;
     height: 100dvh;

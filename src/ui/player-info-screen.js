@@ -10,6 +10,7 @@ import {
 } from "../util/player-csv-export.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
+import { showDayCompletionPopup } from "./day-completion-popup.js";
 import db from "../core/database.js";
 
 function createDateValue() {
@@ -359,6 +360,10 @@ export function renderPlayerInfoScreen(root, options = {}) {
                     <md-icon class="material-symbols-rounded" slot="start">park</md-icon>
                     <div slot="headline">ทดสอบ Check-in Popup</div>
                 </md-menu-item>
+                <md-menu-item data-test-daycompletion-popup>
+                    <md-icon class="material-symbols-rounded" slot="start">weekend</md-icon>
+                    <div slot="headline">ทดสอบ Popup พักวันนี้</div>
+                </md-menu-item>
                 <md-divider role="separator" tabindex="-1"></md-divider>
                 <md-menu-item data-test-logout>
                     <md-icon class="material-symbols-rounded" slot="start">logout</md-icon>
@@ -468,6 +473,11 @@ export function renderPlayerInfoScreen(root, options = {}) {
                 defaultDayCount: totalDays,
                 loadVideoSrc: () => db.getRandomGameVideoUrl(),
             });
+        });
+
+        root.querySelector("[data-test-daycompletion-popup]")?.addEventListener("click", async () => {
+            closeTestMenus();
+            await showDayCompletionPopup({ gender: player.gender, dismissible: true });
         });
 
         root.querySelector("[data-test-logout]")?.addEventListener("click", () => {
