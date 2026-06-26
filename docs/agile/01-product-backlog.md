@@ -89,7 +89,7 @@
 | [US-E7-17](./user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
 
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..17 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
-> บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md)
+> บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md)
 
 ---
 

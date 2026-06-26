@@ -265,7 +265,7 @@ body.game-mode .app-version-badge {
 }
 
 #ui-root {
-    width: 95%;
+    width: 100%;
 }
 
 #app.hub-mode #ui-root {
@@ -347,8 +347,8 @@ body.game-mode .app-version-badge {
 .login-screen,
 .signup-screen,
 .player-info-screen {
-    width: 100%;
-    min-height: 100vh;
+    width: 95%;
+    justify-self: center;
     display: grid;
     place-items: center;
 }
@@ -1536,7 +1536,9 @@ body.game-mode .app-version-badge {
 }
 
 .hub-clean-test-menu {
-    position: absolute;
+    /* BUG-006: float relative to the viewport so the test FAB stays pinned and never
+       scrolls away with the Player-Info content on short screens. */
+    position: fixed;
     z-index: 30;
     left: 24px;
     bottom: 18px;
@@ -2003,6 +2005,10 @@ body.game-mode .app-version-badge {
         padding-inline: 18px;
         border-inline: 0;
         border-radius: 28px;
+    }
+
+    .player-info-card {
+        margin-bottom: 64px;
     }
 
     .signup-card__header {

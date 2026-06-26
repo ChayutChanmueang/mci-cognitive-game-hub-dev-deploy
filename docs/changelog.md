@@ -27,7 +27,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.12.1` | 2026-06-26 | Fix BUG-005: stale async route handler bouncing user back to Game Hub (route-version guard) |
 | `0.13.0` | 2026-06-26 | Boot loading overlay (modal) that blocks interaction until the first screen is ready |
 | `0.13.1` | 2026-06-26 | Fix boot overlay staying up ~10-20s — dismiss at first paint, not after full data load |
-| `0.14.0` | 2026-06-26 | **(current)** Boot loading visual refresh: game logo + 5-dot progress indicator |
+| `0.14.0` | 2026-06-26 | Boot loading visual refresh: game logo + 5-dot progress indicator |
+| `0.14.1` | 2026-06-26 | **(current)** Fix BUG-006: Player-Info background + test FAB scrolled with content on short screens (scroll containment) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
@@ -37,6 +38,12 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.14.1] - 2026-06-26
+**Version bump:** `0.14.0 → 0.14.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible layout bug fix, no new functionality.
+
+### Fixed
+- **BUG-006 (fix applied, pending user verification):** on the Player-Info page the gradient background got cut and the test FAB drifted up with the content. Root cause: the page `<section>` set its own `min-height: 100vh` while nested inside `#app` (also `min-height: 100vh` + `padding: 24px`); with global `box-sizing: border-box` the section overflowed `#app`'s content area by the 48px padding, forcing the whole document to scroll even when the content fit. Fix: **removed `min-height: 100vh` from the shared card-screen rule** (`.login-screen, .signup-screen, .player-info-screen`) so the viewport height lives only on the `#app` shell (which keeps `min-height: 100vh` + `place-items: center` to centre the card), and changed the test FAB `.hub-clean-test-menu` from `position: absolute` to `position: fixed` so it floats. Full-bleed screens that legitimately own their height (`.landing-screen`, `.checkin-summary-screen`) were left unchanged. CSS-only change in `public/style.css`.
 
 ## [0.14.0] - 2026-06-26
 **Version bump:** `0.13.1 → 0.14.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible boot loading presentation behavior.
