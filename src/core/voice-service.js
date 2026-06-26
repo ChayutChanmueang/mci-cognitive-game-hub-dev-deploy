@@ -103,7 +103,7 @@ class VoiceService {
 
         const howl = new Howl({
             src:    [url],
-            format: ['wav'],
+            format: ['mp3'],
             html5:  true,  // stream instead of decode-all — better for mobile
         });
 

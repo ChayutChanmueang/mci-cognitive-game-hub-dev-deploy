@@ -6,12 +6,11 @@ import { EventBus } from "../../../../core/EventBus.js";
 import VoiceService from "../../../../core/voice-service.js";
 
 /**
- * Builds the relative URL to a pre-recorded TTS WAV for the current postcard.
- * Path: assets/audio/postcard-reader/tts/{topic}/{difficulty}/{index}.wav
+ * Builds the relative URL to a pre-recorded TTS MP3 for the current postcard.
+ * Path: assets/audio/postcard-reader/tts/{topic}/{difficulty}/{index}.mp3
  *
  * Phase 2 (Supabase CDN): swap the base string to
  *   `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/postcard-tts`
- *   and change the extension to .mp3 after converting with ffmpeg.
  *
  * @param {Phaser.Scene} scene
  * @returns {string}
@@ -20,7 +19,7 @@ function getTtsUrl(scene) {
     const topic   = scene.currentTopic        ?? 'farm';
     const diffKey = scene.currentDifficultyKey ?? 'easy';
     const index   = scene.currentPostcardIndex ?? 0;
-    return `assets/audio/postcard-reader/tts/${topic}/${diffKey}/${index}.wav`;
+    return `assets/audio/postcard-reader/tts/${topic}/${diffKey}/${index}.mp3`;
 }
 
 export default class PostcardPanel extends UIPage {

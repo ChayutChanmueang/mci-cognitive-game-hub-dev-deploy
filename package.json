@@ -20,7 +20,7 @@
         "dev-nolog": "vite --config vite/config.dev.mjs",
         "build-nolog": "vite build --config vite/config.prod.mjs",
         "start": "vite --config vite/config.dev.mjs",
-        "generate-tts": "node tools/generate-tts.mjs && python tools/generate_tts.py"
+        "generate-tts": "node tools/generate-tts.mjs"
     },
     "devDependencies": {
         "terser": "^5.39.0",
