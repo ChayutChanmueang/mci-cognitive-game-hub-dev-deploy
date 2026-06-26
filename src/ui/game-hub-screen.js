@@ -1027,6 +1027,10 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     render();
+    // PB-01-02: first paint is done — the hub is on screen and usable. Signal readiness now so
+    // the boot loading overlay dismisses immediately, instead of waiting for the data loads
+    // below (loadProgram/loadHistory) which can take several seconds and made boot feel ~10-20s.
+    options.onReady?.();
     await loadProgram();
     await loadHistory();
 }

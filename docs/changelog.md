@@ -25,9 +25,16 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.11.0` | 2026-06-23 | Welcome screen + game logo, full PWA icon set, iOS gyro input handler, in-game logging rework |
 | `0.12.0` | 2026-06-25 | Sprint 7 polish: check-in celebration effect, rainbow sparkle, tree growth transition, app version badge |
 | `0.12.1` | 2026-06-26 | Fix BUG-005: stale async route handler bouncing user back to Game Hub (route-version guard) |
-| `0.13.0` | 2026-06-26 | **(current)** Boot loading overlay (modal) that blocks interaction until the first screen is ready |
+| `0.13.0` | 2026-06-26 | Boot loading overlay (modal) that blocks interaction until the first screen is ready |
+| `0.13.1` | 2026-06-26 | **(current)** Fix boot overlay staying up ~10-20s — dismiss at first paint, not after full data load |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.13.1] - 2026-06-26
+**Version bump:** `0.13.0 → 0.13.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible bug fix to the boot overlay, no new functionality.
+
+### Fixed
+- **Boot loading overlay stayed up ~10-20s.** It was dismissed only when the boot's first-render promise resolved, which for the Game Hub is the **whole** `renderGameHubScreen()` promise — i.e. after `loadProgram()` + `loadHistory()` finished (and the safety timeout often became what hid it). Now `renderGameHubScreen` fires an `onReady` callback right after its **initial paint**, and `showHub` passes `onReady: finishBootLoading`, so the overlay clears as soon as the hub is visible (~1-2s) while data continues loading in the background. Safety-net timeout tightened `12s → 8s`. Root cause: [PB-01-02](agile/problems/PB-01-02.md).
 
 ## [0.13.0] - 2026-06-26
 **Version bump:** `0.12.1 → 0.13.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible functionality (a boot loading screen).

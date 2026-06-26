@@ -638,6 +638,9 @@ document.addEventListener("DOMContentLoaded", () => {
             // BUG-005 / PB-01-01: renderGameHubScreen renders once, then re-renders after its
             // own async loads. This lets it skip those re-renders if the user has since left.
             isStale: () => renderVersion !== routeRenderVersion,
+            // PB-01-02: dismiss the boot loading overlay at first paint (hub visible), not after
+            // the slow data loads. Idempotent + once-guarded, so calling it on every hub nav is safe.
+            onReady: finishBootLoading,
             loadGameList: () => db.getGameList(),
             loadProgramPresets: () => db.getGameLevelPresetList(),
             loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
@@ -2446,8 +2449,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Safety net: never let the boot overlay trap the user if the first load hangs.
-    const bootLoadingSafety = setTimeout(finishBootLoading, 12000);
+    // Safety net: never let the boot overlay trap the user if the first render hangs. Normal
+    // dismissal is at first paint (fast), so this is just a last-resort backstop.
+    const bootLoadingSafety = setTimeout(finishBootLoading, 8000);
 
     // Kick off the first route render, then dismiss the boot loading overlay once the first
     // screen is ready. navigateTo(replace) and renderCurrentRoute both return the render promise
