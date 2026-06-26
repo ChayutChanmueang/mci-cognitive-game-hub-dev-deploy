@@ -20,6 +20,7 @@ gantt
     Game Hub version indicator (US-E7-05) :a5, 2026-06-24, 2d
     section Epic 7: Responsiveness
     Mini-game vertical stretch (US-E7-06) :a6, 2026-07-01, 4d
+    Boot loading visual refresh (US-E7-17) :a7, 2026-06-26, 1d
     section QA
     Visual & responsive QA pass        :q1, 2026-07-04, 2d
 ```
@@ -35,6 +36,7 @@ gantt
 | [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
 | [US-E7-05](../user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
 | [US-E7-06](../user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
+| [US-E7-17](../user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | 📋 Backlog |
 
 ---
 
@@ -91,13 +93,16 @@ gantt
 - [ ] **ตัด** Popup หลังดูละครเสร็จ ("พบกันใหม่วันพรุ่งนี้") ออก → [US-E7-16](../user-stories/US-E7-16.md)
 - [ ] แก้ Popup เมื่อผู้เล่นเล่นจบของวันแล้วเข้ามาในวันเดิม → [US-E7-16](../user-stories/US-E7-16.md)
 
+**Boot Loading**
+- [ ] ปรับ boot loading ตอนเปิดเกมให้ใช้โลโก้เกมเหมือนหน้า Welcome และ dot progress จำนวน 5 จุด → [US-E7-17](../user-stories/US-E7-17.md)
+
 **ข้อมูลหลังบ้าน (coordination)**
 - [ ] ตกลงกับ **น้องเกม** เรื่องข้อมูลหลังบ้าน เช่น เงื่อนไข/ขั้นตอน **ลบข้อมูลผู้เล่นทั้งหมด** ให้ลบได้เลยโดยไม่ติดปัญหาทั้งฝั่ง SE และฝั่งเรา → เกี่ยวข้องกับ [US-E5-03](../user-stories/US-E5-03.md) และ [TD-DB-01](../user-stories/TD-DB-01.md) (Owner: ก้องไผ่ + น้องเกม)
 
 ---
 
 ## 📊 Sprint Summary & Velocity
-- **งานที่วางแผนไว้ (Planned):** 16 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2 + 3 จาก Owner Task Block ก้องไผ่) และบั๊ก BUG-004/005
+- **งานที่วางแผนไว้ (Planned):** 17 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2 + 4 จาก Owner Task Block ก้องไผ่) และบั๊ก BUG-004/005/006
 - **สถานะปัจจุบัน (Status):** 📋 Planned — เริ่มต้น Sprint
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 
@@ -108,6 +113,7 @@ gantt
   - หน้าจอ Leaderboard, Login, Sign-up, Player-Info และ Popup ใช้ art asset จากธีมเกม (ไม่ใช่ placeholder) และผ่านการตรวจบนมือถือจริง
   - art asset ทั้งหมดถูกจัดเก็บภายใต้ `public/assets/` ตาม convention และไม่ทำให้ bundle หลักโตเกินจำเป็น
   - ตัวบ่งชี้เวอร์ชันบน Game Hub อ่านค่ามาจากแหล่งความจริงเดียว (`package.json`) และหายไปเมื่อมินิเกม (Phaser) ทำงานอยู่
+  - boot loading overlay ใช้โลโก้เกมเดียวกับหน้า Welcome และ dot progress 5 จุด โดยยังปิดตาม first usable paint / `finishBootLoading()` เดิม
   - มินิเกมทุกเกมรองรับการยืดแนวตั้งบน viewport ที่สูง โดย element ภายในจัดตำแหน่ง/anchor ถูกต้อง ไม่มีพื้นที่ว่างผิดปกติหรือ asset ถูกตัด
   - ผ่าน visual QA และ responsive QA บนอัตราส่วนหน้าจอแนวตั้งหลายขนาด
 - **Risks & Blockers:**

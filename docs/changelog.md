@@ -30,6 +30,13 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-06-26] - Sprint 7 boot loading visual refresh task (docs)
+**Docs-only** (no `package.json` bump). Records a new Sprint 7 UI polish task; implementation not yet changed.
+
+### Added
+- Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
+- Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
 ## [0.13.1] - 2026-06-26
 **Version bump:** `0.13.0 → 0.13.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible bug fix to the boot overlay, no new functionality.
 
