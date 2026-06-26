@@ -1,4 +1,5 @@
 import { EventBus } from './EventBus.js';
+import { Howl } from 'howler';
 
 /**
  * VoiceService - Handles Text-to-Speech (TTS) for game instructions.
@@ -9,6 +10,8 @@ class VoiceService {
         this.synth = window.speechSynthesis;
         this.defaultVoice = null;
         this.enabled = true;
+        /** @type {Howl|null} Currently playing pre-recorded clip */
+        this._currentHowl = null;
         
         // Try to find a suitable Thai voice on initialization
         if (this.synth) {
@@ -71,9 +74,58 @@ class VoiceService {
     }
 
     stop() {
+        // Stop pre-recorded Howl clip (if any)
+        if (this._currentHowl) {
+            this._currentHowl.stop();
+            this._currentHowl = null;
+        }
+        // Stop Web Speech API (if any)
         if (this.synth) {
             this.synth.cancel();
         }
+    }
+
+    /**
+     * Play a pre-recorded TTS MP3 from a URL via Howler.
+     * Falls back to Web Speech API if the file fails to load (e.g. offline or missing).
+     *
+     * @param {string} url          - Relative or absolute URL to the MP3 file.
+     * @param {string} fallbackText - Text to speak via Web Speech API on load failure.
+     */
+    speakFromUrl(url, fallbackText) {
+        if (!this.enabled) return;
+
+        // Cancel anything currently playing
+        this.stop();
+
+        // Duck BGM while narration plays
+        EventBus.emit('audio:duck');
+
+        const howl = new Howl({
+            src:    [url],
+            format: ['mp3'],
+            html5:  true,  // stream instead of decode-all — better for mobile
+        });
+
+        this._currentHowl = howl;
+
+        howl.once('end', () => {
+            EventBus.emit('audio:unduck');
+            this._currentHowl = null;
+        });
+
+        howl.once('loaderror', (_id, err) => {
+            console.warn(
+                `[VoiceService] Failed to load MP3 at "${url}" (${err}).`,
+                'Falling back to Web Speech API.'
+            );
+            EventBus.emit('audio:unduck');
+            this._currentHowl = null;
+            // Graceful fallback — player still hears the text
+            this.speak(fallbackText);
+        });
+
+        howl.play();
     }
 
     setEnabled(value) {
