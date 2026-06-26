@@ -2,7 +2,7 @@
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
 **Status:** 🟢 Pre-beta (0.x) — Stabilization & Deployment Testing | **Current Sprint:** [Sprint 7 — Art, Versioning & Vertical Responsiveness](agile/sprint-backlogs/sprint-07.md)
-**Version:** 0.13.1 | **Last Updated:** 2026-06-26 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Version:** 0.14.0 | **Last Updated:** 2026-06-26 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -21,10 +21,8 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Media:** Embeddable `VideoPlayer` (loading overlay, buffering feedback, read-only progress, volume/mute sync, fullscreen with iOS pseudo-fullscreen fallback) used in the check-in short-video step and resting point; random video selection filters hidden entries from `game_video_list`.
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
-### Planned Task
-- **[US-E7-17](agile/user-stories/US-E7-17.md) — Boot loading visual refresh:** ปรับระบบ boot loading ตอนเปิดเกมให้แสดงโลโก้เกมแบบเดียวกับหน้า `src/ui/welcome-screen.js` (`/Logo.png`) แทน spinner/ข้อความโหลดแบบเดิม และใช้ dot progress แบบง่ายจำนวน **5 dots** สำหรับสถานะกำลังโหลด โดยอ้างอิงโครงสร้าง `.dotted-loader > span` และ animation `blink`/`fade` ที่ให้มา
-  - **Acceptance Criteria:** boot overlay แสดงโลโก้เกมชัดเจนตั้งแต่ช่วงแรกของการโหลด, dot progress มี 5 จุดและกระพริบไล่ delay ตามลำดับ, ไม่มีข้อความโหลดหรือ spinner เดิมเหลืออยู่, overlay ยังปิดตาม logic `finishBootLoading()`/first usable paint เดิมเพื่อไม่ให้กลับไปเกิดปัญหาโหลดค้างนาน
-  - **Implementation Notes:** reuse visual direction from `landing-screen__logo` / `landing-screen__logo-img`; CSS สามารถใช้ `.dotted-loader span:nth-child(1..5)` โดยเพิ่ม delay ต่อเนื่อง เช่น `0s`, `0.2s`, `0.4s`, `0.6s`, `0.8s`
+### Latest Sprint 7 UI Update
+- **[US-E7-17](agile/user-stories/US-E7-17.md) — Boot loading visual refresh:** boot loading ตอนเปิดเกมแสดงโลโก้เกมแบบเดียวกับหน้า `src/ui/welcome-screen.js` (`/Logo.png`) และใช้ dot progress แบบง่ายจำนวน **5 dots** แทน spinner/ข้อความโหลดเดิม โดย overlay ยังปิดผ่าน logic `finishBootLoading()`/first usable paint เดิม
 
 ---
 

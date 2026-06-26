@@ -26,16 +26,24 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.12.0` | 2026-06-25 | Sprint 7 polish: check-in celebration effect, rainbow sparkle, tree growth transition, app version badge |
 | `0.12.1` | 2026-06-26 | Fix BUG-005: stale async route handler bouncing user back to Game Hub (route-version guard) |
 | `0.13.0` | 2026-06-26 | Boot loading overlay (modal) that blocks interaction until the first screen is ready |
-| `0.13.1` | 2026-06-26 | **(current)** Fix boot overlay staying up ~10-20s — dismiss at first paint, not after full data load |
+| `0.13.1` | 2026-06-26 | Fix boot overlay staying up ~10-20s — dismiss at first paint, not after full data load |
+| `0.14.0` | 2026-06-26 | **(current)** Boot loading visual refresh: game logo + 5-dot progress indicator |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
 ## [2026-06-26] - Sprint 7 boot loading visual refresh task (docs)
-**Docs-only** (no `package.json` bump). Records a new Sprint 7 UI polish task; implementation not yet changed.
+**Docs-only** (no `package.json` bump). Records the initial Sprint 7 UI polish task; implementation is tracked in `0.14.0` below.
 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.14.0] - 2026-06-26
+**Version bump:** `0.13.1 → 0.14.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible boot loading presentation behavior.
+
+### Changed
+- **US-E7-17:** boot loading overlay now uses the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) and a 5-dot `.dotted-loader` progress indicator instead of the spinner + "กำลังโหลด..." text.
+- Kept the existing `finishBootLoading()` / first usable paint dismissal path unchanged, so the visual refresh does not reintroduce the long-loading issue from [PB-01-02](agile/problems/PB-01-02.md).
 
 ## [0.13.1] - 2026-06-26
 **Version bump:** `0.13.0 → 0.13.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible bug fix to the boot overlay, no new functionality.

@@ -60,9 +60,22 @@
          load and removed by main.js once the first screen has finished rendering. Critical inline
          styles so it paints before style.css / fonts arrive. -->
     <div id="app-loading" role="status" aria-live="polite" aria-label="กำลังโหลด"
-         style="position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(180deg,#8be298 0%,#6ed8ff 100%);">
-        <div class="app-loading__spinner"></div>
-        <div class="app-loading__text">กำลังโหลด...</div>
+         style="position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:linear-gradient(180deg,#8be298 0%,#6ed8ff 100%);">
+        <img
+            class="app-loading__logo"
+            src="/Logo.png"
+            alt="Game Logo"
+            width="360"
+            height="327"
+            decoding="async"
+        />
+        <div class="dotted-loader" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </div>
 
     <div id="app">
