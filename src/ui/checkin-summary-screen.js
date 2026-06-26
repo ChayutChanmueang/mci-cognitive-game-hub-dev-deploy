@@ -286,7 +286,10 @@ export function showCheckInPopup(options = {}) {
                         <div class="checkin-popup-success-layout">
                             <div class="app-popup__copy checkin-popup-success-copy">
                                 <h2 id="${titleId}" style="color: var(--md-sys-color-primary); font-size: 39px;">เก่งมาก !!!</h2>
-                                <img class="checkin-success-emoji checkin-success-image" src="${escapeHtml(state.cheerImageSrc)}" alt="" aria-hidden="true" />
+                                <div class="checkin-success-character">
+                                    <img class="checkin-success-emoji checkin-success-image" src="${escapeHtml(state.cheerImageSrc)}" alt="" aria-hidden="true" />
+                                    <span class="character-shadow checkin-success-character__shadow" aria-hidden="true"></span>
+                                </div>
                                 <p id="${messageId}" style="margin-top: 8px; font-size: 22px;">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อยแล้ว</p>
                             </div>
                         </div>

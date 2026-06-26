@@ -1197,9 +1197,19 @@ body.game-mode .app-version-badge {
     overflow-wrap: anywhere;
 }
 
+/* Figma Character_Shadow (node 3165:775) — the standard flat gray ground ellipse
+   placed under every คุณตา/คุณยาย figure (US-E7-14 #4). Natural 163.07 × 52.29 →
+   aspect-ratio ≈ 3.12; no blur / stroke / effects. Consumers set width + position. */
+.character-shadow {
+    aspect-ratio: 163.07 / 52.29;
+    border-radius: 50%;
+    background: rgba(121, 121, 121, 0.34);
+    pointer-events: none;
+}
+
 /* US-E7-16 AC#2 · same-day re-entry "วันนี้พักก่อน" rest popup ─────────────
-   Compact popup with the gender-based resting character (คุณตา/คุณยาย) and a
-   soft ground shadow (US-E7-14 #4). Confirm button is the default green
+   Compact popup with the gender-based resting character (คุณตา/คุณยาย) and the
+   standard Character_Shadow (US-E7-14 #4). Confirm button is the default green
    md-filled-button (--md-sys-color-primary #356859, US-E7-15 "เขียว = ยืนยัน"). */
 .app-popup__dialog--rest-day {
     width: min(100%, 400px);
@@ -1240,15 +1250,12 @@ body.game-mode .app-version-badge {
     -webkit-user-drag: none;
 }
 
+/* Positioning only — appearance comes from the shared .character-shadow. */
 .rest-day-popup-character__shadow {
     position: absolute;
-    bottom: 2px;
-    width: 140px;
-    max-width: 48%;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.18);
-    filter: blur(7px);
+    bottom: 35px;
+    width: 150px;
+    max-width: 52%;
     z-index: 0;
 }
 
@@ -1932,12 +1939,37 @@ body.game-mode .app-version-badge {
     line-height: 1;
 }
 
-/* Gender-specific celebration character replacing the success emoji. Adjust
-   width/height here to resize; object-fit keeps the square art undistorted. */
+/* Gender-specific celebration character replacing the success emoji, wrapped so the
+   standard Character_Shadow (US-E7-14 #4) sits under it. */
+.checkin-success-character {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: max-content;
+    margin: 58px auto 48px;
+}
+
+.checkin-popup-success-copy .checkin-success-character .checkin-success-emoji {
+    /* margin now lives on the wrapper above */
+    margin: 0;
+}
+
 .checkin-success-image {
-/*    width: clamp(150px, 40vw, 200px);
-    height: clamp(150px, 40vw, 200px);*/
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: clamp(150px, 40vw, 200px);
+    height: auto;
     object-fit: contain;
+}
+
+.checkin-success-character__shadow {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    transform: translateX(-50%);
+    width: 66%;
+    z-index: 0;
 }
 
 .checkin-success-message {

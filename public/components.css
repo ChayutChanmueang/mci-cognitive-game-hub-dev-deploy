@@ -715,11 +715,54 @@
 .gh-emoji-node__image {
   position: absolute;
   left: calc(6px * var(--gh-scale, 1));
-  top: calc(-30px * var(--gh-scale, 1));
+  top: calc(-55px * var(--gh-scale, 1));
   width: calc(246.9225px * var(--gh-scale, 1));
   height: calc(167.7806px * var(--gh-scale, 1));
   object-fit: contain;
   pointer-events: none;
+}
+
+/* rest node (คุณตา/คุณยายนั่งพัก) — tune position/size independently here. */
+.gh-emoji-node-rest__image {
+  position: absolute;
+  left: calc(6px * var(--gh-scale, 1));
+  top: calc(-45px * var(--gh-scale, 1));
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* check-in node (คุณตา/คุณยายยืนถือธง) — tune position/size independently here. */
+.gh-emoji-node-checkin__image {
+  position: absolute;
+  left: calc(6px * var(--gh-scale, 1));
+  top: calc(-55px * var(--gh-scale, 1));
+  width: calc(280px * var(--gh-scale, 1));
+  height: calc(185px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+/* standard Character_Shadow on the coin top, under the character's feet (US-E7-14 #4).
+   Appearance comes from .character-shadow; tune top/width here to seat it on the coin
+   (height is derived from the shared aspect-ratio). Paints behind the __image. */
+.gh-emoji-node__shadow {
+  position: absolute;
+  left: 50%;
+  top: calc(104px * var(--gh-scale, 1));
+  transform: translateX(-50%) translateY(-5px);
+  width: calc(150px * var(--gh-scale, 1));
+  z-index: 0;
+}
+/* per-type shadow tuning hooks (override top/width/transform to seat the shadow under
+   each character — rest sits, check-in stands). Base values come from the rule above. */
+.gh-emoji-node-rest__shadow {
+  top: calc(104px * var(--gh-scale, 1));
+  width: calc(150px * var(--gh-scale, 1));
+}
+.gh-emoji-node-checkin__shadow {
+  top: calc(104px * var(--gh-scale, 1));
+  width: calc(150px * var(--gh-scale, 1));
 }
 
 /* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill) */

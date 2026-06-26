@@ -30,7 +30,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.14.0` | 2026-06-26 | Boot loading visual refresh: game logo + 5-dot progress indicator |
 | `0.14.1` | 2026-06-26 | Fix BUG-006: Player-Info background + test FAB scrolled with content on short screens (scroll containment) |
 | `0.14.2` | 2026-06-26 | Fix BUG-007: Game Hub header not centered in some browsers (`justify-items` on a non-grid element) |
-| `0.15.0` | 2026-06-26 | **(current)** US-E7-16 AC#2: same-day re-entry "วันนี้พักก่อน" rest popup with gender-based resting character (คุณตา/คุณยาย) + ground shadow |
+| `0.15.0` | 2026-06-26 | US-E7-16 AC#2: same-day re-entry "วันนี้พักก่อน" rest popup with gender-based resting character (คุณตา/คุณยาย) + ground shadow |
+| `0.16.0` | 2026-06-26 | **(current)** Standardized Figma `Character_Shadow` (`.character-shadow`) applied under every คุณตา/คุณยาย figure (rest popup + check-in success + level-path nodes) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
@@ -40,6 +41,15 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.16.0] - 2026-06-26
+**Version bump:** `0.15.0 → 0.16.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (shared shadow component).
+
+### Added
+- **Standardized `Character_Shadow`.** Added a reusable `.character-shadow` CSS class in `public/style.css` reproducing Figma component `3165:775` as a flat gray ground ellipse (`background: rgba(121, 121, 121, 0.34)`, `aspect-ratio: 163.07 / 52.29`, `border-radius: 50%`, no blur/stroke — per the Figma export reference at `test figma export/src/components/CharacterShadow.vue`). Consumers set width + position only. Per the project's Figma-CSS-first rule, it is pure CSS (no image asset).
+
+### Changed
+- **Applied the standard shadow under every คุณตา/คุณยาย figure.** (1) The same-day re-entry rest popup (`day-completion-popup.js`) now uses `.character-shadow` instead of its ad-hoc blurred shadow. (2) Added the shadow under the check-in "เก่งมาก !!!" success character (`checkin-summary-screen.js`): the cheer image is wrapped in `.checkin-success-character` with the image given a controlled width (`clamp(150px, 40vw, 200px)`) and the shadow placed at its base. (3) Added the shadow under the Game Hub level-path character nodes (`level-path.js` `renderEmojiNode` → `.gh-emoji-node__shadow`), where the gender character stands on the rest/check-in coins; it paints behind the character image and is scaled via `--gh-scale`. The rest (sitting) and check-in (standing) nodes carry per-type modifier classes (`.gh-emoji-node-rest__image/__shadow`, `.gh-emoji-node-checkin__image/__shadow`) so each character + shadow can be positioned/sized independently. Only the header profile **avatar** (`Profile_OldMan/OldWoman.png`) is excluded — it is a cropped face in a circular frame, not a figure on a floor.
 
 ## [0.15.0] - 2026-06-26
 **Version bump:** `0.14.2 → 0.15.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality.

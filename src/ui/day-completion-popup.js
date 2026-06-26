@@ -73,7 +73,7 @@ export function showDayCompletionPopup(options = {}) {
                         alt="${escapeHtml(character.alt)}"
                         draggable="false"
                     />
-                    <span class="rest-day-popup-character__shadow" aria-hidden="true"></span>
+                    <span class="character-shadow rest-day-popup-character__shadow" aria-hidden="true"></span>
                 </div>
                 <p class="rest-day-popup-message">กลับมาเล่นใหม่วันพรุ่งนี้นะ</p>
                 <div class="app-popup__actions checkin-popup-success-actions rest-day-popup-actions">
