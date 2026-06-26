@@ -574,6 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
         document.body.classList.remove("landing-mode");
+        document.body.classList.add("game-hub-route"); // scopes the version badge to this page
         app?.classList.remove("game-mode");
         app?.classList.add("hub-mode");
         app?.classList.remove("landing-mode");
@@ -2135,6 +2136,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!uiRoot || !gameContainer) {
             return;
         }
+
+        // Version badge is scoped to the Game Hub only (US-E7-05). Clear the marker on every
+        // route change; `showHub()` re-adds it so the badge shows on the Game Hub and nowhere
+        // else (CSS gates `.app-version-badge` on `body.game-hub-route`).
+        document.body.classList.remove("game-hub-route");
 
         if (route.name === "unknown") {
             navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.home, { replace: true });

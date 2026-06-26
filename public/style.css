@@ -41,13 +41,13 @@ body.hub-mode {
     overflow: hidden;
 }
 
-/* App version badge (US-E7-05): shows on every DOM page, hidden while a minigame is active.
-   Sits in the bottom-right viewport corner with pointer-events disabled so it never blocks UI. */
+/* App version badge (US-E7-05): shown on every DOM page, hidden while a minigame is active.
+   Default anchor is the bottom-RIGHT corner; on the Game Hub it moves to the bottom-LEFT
+   (see override below). pointer-events disabled so it never blocks UI. */
 .app-version-badge {
     position: fixed;
     z-index: 2147483000;
-    padding-right: 8px;
-    padding-bottom: 2px;
+    padding: 2px 8px 2px 8px;
     right: 0px;
     bottom: 0px;
     border-top-left-radius: 10px;
@@ -62,6 +62,15 @@ body.hub-mode {
     user-select: none;
 }
 
+/* On the Game Hub page only, move the badge to the bottom-LEFT corner. */
+body.game-hub-route .app-version-badge {
+    right: auto;
+    left: 0px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 10px;
+}
+
+/* Hidden inside minigames. */
 body.game-mode .app-version-badge {
     display: none;
 }

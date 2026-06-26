@@ -38,7 +38,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Version badge shown on every DOM page (Game Hub, Login, Sign-up, Leaderboard, Player-Info, popups). Appended once as `.app-version-badge` to `document.body` in `src/main.js`, displaying `v<version>`.
 - Version comes from a **single source of truth** (`package.json`), injected at build time via Vite `define: { __APP_VERSION__ }` in both `vite/config.dev.mjs` and `vite/config.prod.mjs` (read with `readFileSync`). Verified `v0.12.0` is folded into the production bundle.
-- Auto show/hide tied to the existing `body.game-mode` class via CSS (`public/style.css`): hidden inside minigames, visible on all DOM shells — no per-route JS toggling. Badge is bottom-right, `pointer-events: none`, `user-select: none`.
+- Auto show/hide tied to the existing `body.game-mode` class via CSS (`public/style.css`): hidden inside minigames, visible on all DOM shells — no per-route JS toggling. `pointer-events: none`, `user-select: none`.
+- **Position is page-aware:** bottom-**left** on the Game Hub, bottom-**right** on every other DOM page. Driven by a `body.game-hub-route` class set in `showHub()` and cleared in `renderCurrentRoute()` on each route change; CSS overrides `right→left` under that class.
 
 ## [2026-06-25] - Thai minigame names in Game Hub (US-E7-07, data — partial)
 **No project version change (stays at `0.12.0`).** Database-data change, not a repo code change — `game-hub-screen.js` already renders `th_name || name`, so no code/version bump.
