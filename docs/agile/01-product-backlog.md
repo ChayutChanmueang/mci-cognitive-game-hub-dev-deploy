@@ -36,7 +36,7 @@
 | [US-E3-03](./user-stories/archives/US-E3-03.md) | เกม Context Clues (คำศัพท์/Language)                           | High     | ✅ Done  |
 | US-E3-04 | เกม Symmetry Decor (มิติสัมพันธ์/Visuospatial) — ดู [GDD](../gdd/minigames/gdd_symmetry_decor.md) | Med      | ✅ Done  |
 | US-E3-05 | เกม Postcard Reader (ความจำระยะสั้น/Memory) — ดู [GDD](../gdd/minigames/gdd_postcard_reader.md) | Med      | ✅ Done  |
-| [US-E3-06](./user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | Low      | 🏗 In-Progress |
+| [US-E3-06](./user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | Low      | ✅ Done  |
 | [US-E3-07](./user-stories/archives/US-E3-07.md) | เกม Fry Food (ทอดไข่/ทอดอาหาร) และการควบคุมด้วย Accelerometer | Med      | ✅ Done  |
 | [US-E3-08](./user-stories/archives/US-E3-08.md) | ระบบติดตั้งแอปพลิเคชันแบบ Progressive Web App (PWA)            | Low      | ✅ Done  |
 | [UX-RESP-01](./user-stories/archives/UX-RESP-01.md) | กรอบระบบรองรับมือถือและการวิจัยความละเอียดหน้าจอ (Responsive)   | High     | ✅ Done  |
@@ -63,9 +63,9 @@
 | --- | --- | --- | --- |
 | TD-E6-01 | ตรวจและแก้ branch/deploy drift ระหว่าง `staging`, `dev`, และ test VM | High | ✅ Done |
 | TD-E6-02 | ป้องกัน stale leaderboard implementation (`topObserver`) กลับเข้า production build | High | ✅ Done |
-| TD-E6-03 | อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน | Med | 🏗 In-Progress |
-| TD-E6-04 | Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง | High | 🔍 Review / Testing |
-| TD-E6-05 | ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง | Med | 📋 Backlog |
+| TD-E6-03 | อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน | Med | ✅ Done |
+| TD-E6-04 | Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง | High | ✅ Done |
+| TD-E6-05 | ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง | Med | ✅ Done |
 
 ### E7: Game Art Assets & UI/UX Polish (P1)
 | ID | User Story | Priority | Status |

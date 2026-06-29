@@ -24,20 +24,20 @@ kanban-plugin: board
 - [ ] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen
 - [ ] [BUG-005](reports/bugs/BUG-005.md) โหลดช้า → premature navigation ดีดกลับหน้า Game Hub
 - [ ] [BUG-006](reports/bugs/BUG-006.md) จอเล็ก: background ถูกตัด + FAB ไม่ float (scroll containment เสีย)
-- [ ] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
 
 ## 🔵 In Progress (WIP Limit: 3)
-- [ ] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 - [ ] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชีและลงชื่อออก
-- [ ] TD-E6-03 อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน
 
 
 ## 🔍 Review / Testing
-- [ ] TD-E6-04 Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง
 
 
 ## ✅ Done
+- [x] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา
+- [x] TD-E6-03 อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน
+- [x] TD-E6-04 Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง
+- [x] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
 - [x] TD-E6-01 ตรวจและแก้ branch/deploy drift ระหว่าง staging, dev และ test VM
 - [x] TD-E6-02 ป้องกัน stale leaderboard implementation (`topObserver`) กลับเข้า production build
 - [x] [US-E4-03](user-stories/archives/US-E4-03.md) บันทึกข้อมูลเชิงลึก (Accuracy, RT, Fatigue Effect)
