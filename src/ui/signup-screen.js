@@ -107,7 +107,7 @@ export function renderSignupScreen(root, options = {}) {
                 ${renderFrameFormPanel({
                     header: `
                         ${renderIconButtonBack({ id: "signup-back-button", ariaLabel: "กลับ" })}
-                        <h1 id="signup-title" class="gh-frame-form-panel__title">ข้อมูลผู้เล่น</h1>
+                        <h1 id="signup-title" class="gh-frame-form-panel__title">ลงทะเบียน</h1>
                     `,
                     body: `
                         <div class="gh-form__rows">

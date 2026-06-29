@@ -1021,11 +1021,13 @@
 
 /* 3161:739 blue top header bar */
 .gh-frame-form-panel__top {
+  height: 100px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
-  padding: clamp(14px, 3.2vw, 24px) clamp(16px, 4vw, 28px);
+  padding-left: 16px;
+  padding-right: 16px;
   background: rgb(137, 212, 239);
 }
 
@@ -1036,14 +1038,17 @@
   color: #ffffff;
   font-family: "Noto Sans Thai", sans-serif;
   font-weight: 700;
-  font-size: clamp(1.6rem, 6vw, 2.3rem);
+  font-size: 42px;
   line-height: 1.1;
 }
 
 .gh-frame-form-panel__body {
   display: grid;
   gap: clamp(16px, 3vh, 26px);
-  padding: clamp(22px, 5vw, 36px) clamp(20px, 5vw, 36px) clamp(24px, 5vw, 36px);
+  padding-left: 26px;
+  padding-right: 26px;
+  padding-bottom: 26px;
+  padding-top: 26px;
 }
 
 /* IconButtonBack (3161:652) — exact Figma SVG; SVG overflows its box (stroke + shadow). */
@@ -1060,7 +1065,7 @@
 }
 
 .gh-icon-button-back__svg {
-  width: 90%;
+  width: 54px;
   height: auto;
   overflow: visible;
 }
@@ -1155,7 +1160,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: 3.7%;
+  padding-bottom: 0.5%;
   color: #ffffff;
   font-family: "Noto Sans Thai Looped", "Noto Sans Thai", sans-serif;
   font-weight: 700;
