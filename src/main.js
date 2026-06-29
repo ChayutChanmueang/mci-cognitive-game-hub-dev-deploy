@@ -1,3 +1,4 @@
+import "../public/components.css";
 import db from "./core/database.js";
 import edgeFunction from "./core/edge-function.js";
 import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";

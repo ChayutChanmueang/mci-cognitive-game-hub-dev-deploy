@@ -834,3 +834,157 @@
 .gh-topbar-inflow {
   margin: 0 0 calc(8px * var(--gh-scale, 1)) calc(61px * var(--gh-scale, 1));
 }
+
+/* ── Login screens (US-E7-02) · Frame_Panel + Frame_TextFieldBox + Start-Game-Button ──
+ * Ported Figma surfaces composed into the player & admin login layouts. The
+ * Start-Game-Button is authored at Figma 1080 scale, so a local --gh-scale sizes it
+ * (and only it) down to fit the login column. The panel/field surfaces use responsive
+ * lengths so they reflow on phones. Exact Figma colors/strokes are preserved.
+ */
+.gh-login {
+  --gh-scale: 0.6;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+}
+
+.gh-login__stack {
+  display: grid;
+  justify-items: center;
+  gap: clamp(26px, 5vh, 46px);
+  width: min(100%, 460px);
+}
+
+/* Frame_Panel (3161:657) — white surface + blue OUTSIDE stroke 12 + drop shadow. */
+.gh-frame-panel {
+  position: relative;
+  background: #ffffff;
+  border-radius: 40px;
+  box-shadow:
+    0 0 0 6px rgb(138, 197, 219),
+    0 16px 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.gh-login__panel {
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  gap: clamp(9px, 3.4vh, 14px);
+}
+
+.gh-login-padding__panel {
+  padding-top: 32px;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.gh-admin-login-padding__panel {
+  padding-top: 32px;
+  padding-left: 2.2vh;
+  padding-right: 2.2vh;
+}
+
+.gh-login__title {
+  margin: 0;
+  text-align: center;
+  color: #151515;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 7vw, 2.6rem);
+  line-height: 1.1;
+  padding-bottom: 6px;
+  padding-top: 12px;
+}
+
+/* Frame_TextFieldBox (3161:646) — white box + light-blue OUTSIDE stroke 1.646. */
+.gh-frame-field-box {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  /* allow this grid/flex item to shrink below the native input's intrinsic
+     (size-attribute) min-content width so the field never overflows the panel */
+  min-width: 0;
+  background: #ffffff;
+  border-radius: 9px;
+  box-shadow: 0 0 0 0.825px rgb(173, 229, 249);
+  overflow: hidden;
+}
+
+.gh-frame-field-box--error {
+  box-shadow: 0 0 0 2px rgb(214, 80, 80);
+}
+
+.gh-frame-field-box__input {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: clamp(1rem, 4vw, 1.1rem);
+  color: #1f1f1f;
+  padding: clamp(14px, 2.4vh, 20px) clamp(18px, 4vw, 26px);
+}
+
+.gh-frame-field-box__input::placeholder {
+  color: #9aa3ab;
+  opacity: 1;
+}
+
+.gh-frame-field-box__input--center {
+  text-align: center;
+}
+
+/* admin: "label :" + field rows */
+.gh-login__row {
+  display: grid;
+  height: 54px;
+  align-items: center;
+}
+
+.gh-login-grid__row {
+  grid-template-columns: minmax(0, auto) minmax(0, 1.8fr);
+  gap: clamp(10px, 2.6vw, 18px);
+}
+
+.gh-login__row-label {
+  width: 80px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-self: right;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.gh-login-text-field{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: #305A69;
+  font-size: clamp(1rem, 3.6vw, 1.1rem);
+  font-family: "Noto Sans Thai", sans-serif;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.gh-login__feedback {
+  margin: 0;
+  min-height: 1.3em;
+  text-align: center;
+  color: var(--md-sys-color-error);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 360px) {
+  .gh-login {
+    --gh-scale: 0.5;
+  }
+}

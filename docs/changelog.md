@@ -31,7 +31,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.14.1` | 2026-06-26 | Fix BUG-006: Player-Info background + test FAB scrolled with content on short screens (scroll containment) |
 | `0.14.2` | 2026-06-26 | Fix BUG-007: Game Hub header not centered in some browsers (`justify-items` on a non-grid element) |
 | `0.15.0` | 2026-06-26 | US-E7-16 AC#2: same-day re-entry "วันนี้พักก่อน" rest popup with gender-based resting character (คุณตา/คุณยาย) + ground shadow |
-| `0.16.0` | 2026-06-26 | **(current)** Standardized Figma `Character_Shadow` (`.character-shadow`) applied under every คุณตา/คุณยาย figure (rest popup + check-in success + level-path nodes) |
+| `0.16.0` | 2026-06-26 | Standardized Figma `Character_Shadow` (`.character-shadow`) applied under every คุณตา/คุณยาย figure (rest popup + check-in success + level-path nodes) |
+| `0.17.0` | 2026-06-26 | **(current)** US-E7-02: Figma login art — Frame_Panel + Frame_TextFieldBox + Start-Game-Button applied to player & admin Login screens |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
@@ -41,6 +42,17 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.17.0] - 2026-06-26
+**Version bump:** `0.16.0 → 0.17.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (Figma login art).
+
+### Added
+- **US-E7-02 — Figma login art (Login only; Sign-up deferred per owner).** Ported two Figma components into `src/ui/components/`: `FramePanel` → `frame-panel.js` (`Frame_Panel` 3161:657 — white surface, blue OUTSIDE stroke 12 + drop shadow) and `FrameTextFieldBox` → `frame-text-field-box.js` (`Frame_BoxTextInformation` 3161:646 — white box, light-blue stroke, wrapping a borderless native `<input>`). The existing `start-game-button.js` (`Start-Game-Button` 3108:68) is reused. CSS (exact Figma colors/strokes) added to `public/components.css` under `.gh-login` / `.gh-frame-panel` / `.gh-frame-field-box`.
+
+### Changed
+- **Player & admin Login screens rebuilt with the Figma components.** `src/ui/login-screen.js` (HN entry — panel + centered `กรอกหมายเลข HN` field + green `เริ่มเล่นเกม` button) and `src/ui/admin-login-screen.js` (panel + `อีเมลผู้ดูแล :` / `รหัสผ่าน :` label+field rows + button) now compose `renderFramePanel` / `renderFrameTextFieldBox` / `renderStartGameButton` instead of `md-outlined-text-field` / `md-filled-button`. Validation/submit behavior preserved (digit normalization, enable-on-input, async submit, error state) — errors now show via a `.gh-frame-field-box--error` red stroke + feedback text; the button submits via `form.requestSubmit()` (Enter key also submits). The Start-Game-Button is authored at Figma 1080 scale, so a login-scoped `--gh-scale` (0.6, 0.5 ≤360px) sizes it to the column.
+- **`components.css` now loads globally** via `import "../public/components.css"` in `src/main.js` (previously imported only by `game-hub-screen.js`, so the login screens — rendered before the hub — were unstyled).
+- **Field overflow fix:** the native `<input>` carries an intrinsic (`size`-attribute) min-content width that, as a grid item with the default `min-width: auto`, made the admin email/password fields overflow the panel. Added `min-width: 0` to `.gh-frame-field-box` and `.gh-frame-field-box__input` so the field always shrinks to its column.
 
 ## [0.16.0] - 2026-06-26
 **Version bump:** `0.15.0 → 0.16.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (shared shadow component).

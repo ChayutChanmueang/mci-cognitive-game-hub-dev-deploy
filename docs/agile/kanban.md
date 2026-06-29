@@ -7,7 +7,7 @@ kanban-plugin: board
 ## 📋 Backlog (Prioritized)
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
 - [ ] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard
-- [ ] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up
+- [ ] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up *(Login เสร็จ v0.17.0; เหลือ Sign-up)*
 - [ ] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2)
 - [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
