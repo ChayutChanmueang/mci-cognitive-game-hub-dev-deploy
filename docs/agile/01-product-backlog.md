@@ -71,8 +71,8 @@
 | ID | User Story | Priority | Status |
 | --- | --- | --- | --- |
 | [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
-| [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 🏗 In-Progress |
-| [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 📋 Backlog |
+| [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 🔍 Review / Testing |
+| [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 🔍 Review / Testing |
 | [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
 | [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | ✅ Done |
 | [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |

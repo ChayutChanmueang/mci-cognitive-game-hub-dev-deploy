@@ -11,6 +11,10 @@ import {
 import { showRestingPointPopup } from "./resting-point-popup.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import { showDayCompletionPopup } from "./day-completion-popup.js";
+import { renderFrameFormPanel } from "./components/frame-form-panel.js";
+import { renderIconButtonBack } from "./components/icon-button-back.js";
+import { renderButtonOk } from "./components/button-ok.js";
+import { renderButtonClose } from "./components/button-close.js";
 import db from "../core/database.js";
 
 function createDateValue() {
@@ -241,79 +245,55 @@ export function renderPlayerInfoScreen(root, options = {}) {
     const endedProgram = programEndedAt || calculatedProgramEndDate || "";
 
     root.innerHTML = `
-        <section class="player-info-screen" aria-labelledby="player-info-title">
-            <div class="player-info-card">
-                <header class="player-info-card__header">
-                    <md-filled-tonal-icon-button id="player-info-back" class="player-info-back" aria-label="กลับไปหน้าเกม" type="button">
-                        <md-icon class="material-symbols-rounded">arrow_back</md-icon>
-                    </md-filled-tonal-icon-button>
-                    <h1 id="player-info-title">ข้อมูลผู้เล่น</h1>
-                    <span aria-hidden="true"></span>
-                </header>
+        <section class="gh-form" aria-labelledby="player-info-title">
+            <form id="player-info-form" class="gh-form__stack" novalidate>
+                ${renderFrameFormPanel({
+                    header: `
+                        ${renderIconButtonBack({ id: "player-info-back", ariaLabel: "กลับไปหน้าเกม" })}
+                        <h1 id="player-info-title" class="gh-frame-form-panel__title">ข้อมูลผู้เล่น</h1>
+                    `,
+                    body: `
+                        <div class="gh-form__rows">
+                            <span class="gh-form__label">หมายเลข ID :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-hn" class="gh-frame-field-box__value">${escapeHtml(hn)}</div></div>
 
-                <form id="player-info-form" class="player-info-form" novalidate>
-                    <label class="player-info-row">
-                        <span>หมายเลข ID :</span>
-                        <div id="player-info-hn" class="player-info-value">${escapeHtml(hn)}</div>
-                    </label>
+                            <span class="gh-form__label">ชื่อ :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-firstname" class="gh-frame-field-box__value">${escapeHtml(player.firstname || "")}</div></div>
 
-                    <label class="player-info-row">
-                        <span>ชื่อ :</span>
-                        <div id="player-info-firstname" class="player-info-value">${escapeHtml(player.firstname || "")}</div>
-                    </label>
+                            <span class="gh-form__label">นามสกุล :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-lastname" class="gh-frame-field-box__value">${escapeHtml(player.lastname || "")}</div></div>
 
-                    <label class="player-info-row">
-                        <span>นามสกุล :</span>
-                        <div id="player-info-lastname" class="player-info-value">${escapeHtml(player.lastname || "")}</div>
-                    </label>
+                            <span class="gh-form__label">เบอร์โทร :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-phone" class="gh-frame-field-box__value">${escapeHtml(phoneDisplay)}</div></div>
 
-                    <label class="player-info-row">
-                        <span>เบอร์โทร :</span>
-                        <div id="player-info-phone" class="player-info-value">${escapeHtml(phoneDisplay)}</div>
-                    </label>
+                            <span class="gh-form__label">เพศ :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-gender" class="gh-frame-field-box__value">${escapeHtml(formatGenderDisplay(player.gender))}</div></div>
 
-                    <label class="player-info-row">
-                        <span>เพศ :</span>
-                        <div id="player-info-gender" class="player-info-value">${escapeHtml(formatGenderDisplay(player.gender))}</div>
-                    </label>
+                            <span class="gh-form__label">วันเกิด :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-birth-date" class="gh-frame-field-box__value">${escapeHtml(formatDisplayDate(birthDate))}</div></div>
 
-                    <label class="player-info-row">
-                        <span>วันเกิด :</span>
-                        <div id="player-info-birth-date" class="player-info-value">${escapeHtml(formatDisplayDate(birthDate))}</div>
-                    </label>
+                            <span class="gh-form__label">อายุ :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-age" class="gh-frame-field-box__value">${escapeHtml(ageDisplay)}</div></div>
 
-                    <label class="player-info-row">
-                        <span>อายุ :</span>
-                        <div id="player-info-age" class="player-info-value">${escapeHtml(ageDisplay)}</div>
-                    </label>
+                            <span class="gh-form__label">การศึกษา :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-education" class="gh-frame-field-box__value">${escapeHtml(player.educationName || player.education_level || player.educationLevel || "")}</div></div>
 
-                    <label class="player-info-row">
-                        <span>การศึกษา :</span>
-                        <div id="player-info-education" class="player-info-value">${escapeHtml(player.educationName || player.education_level || player.educationLevel || "")}</div>
-                    </label>
+                            <span class="gh-form__label">วันที่เริ่มโปรแกรม :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-started" class="gh-frame-field-box__value">${escapeHtml(formatDisplayDate(startedProgram))}</div></div>
 
-                    <label class="player-info-row player-info-row--date">
-                        <span>วันที่เริ่มโปรแกรม :</span>
-                        <div id="player-info-started" class="player-info-value">${escapeHtml(formatDisplayDate(startedProgram))}</div>
-                    </label>
+                            <span class="gh-form__label">วันที่จบโปรแกรม :</span>
+                            <div class="gh-frame-field-box"><div id="player-info-ended" class="gh-frame-field-box__value">${escapeHtml(formatDisplayDate(endedProgram))}</div></div>
+                        </div>
 
-                    <label class="player-info-row player-info-row--date">
-                        <span>วันที่จบโปรแกรม :</span>
-                        <div id="player-info-ended" class="player-info-value">${escapeHtml(formatDisplayDate(endedProgram))}</div>
-                    </label>
+                        <p id="player-info-feedback" class="gh-form__feedback" aria-live="polite"></p>
 
-                    <p id="player-info-feedback" class="player-info-feedback" aria-live="polite"></p>
-
-                    <div class="player-info-actions">
-                        <md-filled-button id="player-info-export" type="button">
-                            ส่งออกข้อมูล
-                        </md-filled-button>
-                        <md-filled-button id="player-info-logout" type="button">
-                            ลงชื่อออก
-                        </md-filled-button>
-                    </div>
-                </form>
-            </div>
+                        <div class="gh-form__actions">
+                            ${renderButtonOk({ id: "player-info-export", label: "ส่งออกข้อมูล" })}
+                            ${renderButtonClose({ id: "player-info-logout", label: "ลงชื่อออก" })}
+                        </div>
+                    `,
+                })}
+            </form>
         </section>
         <div class="hub-clean-test-menu">
             <md-fab class="hub-clean-test-fab" data-test-menu-trigger variant="secondary" aria-label="เปิดเมนูทดสอบ">

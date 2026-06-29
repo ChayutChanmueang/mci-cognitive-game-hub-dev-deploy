@@ -31,8 +31,8 @@ gantt
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
 | [US-E7-01](../user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
-| [US-E7-02](../user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 🏗 In-Progress |
-| [US-E7-03](../user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 📋 Backlog |
+| [US-E7-02](../user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 🔍 Review / Testing |
+| [US-E7-03](../user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 🔍 Review / Testing |
 | [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
 | [US-E7-05](../user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
 | [US-E7-06](../user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
@@ -84,9 +84,9 @@ gantt
 - [ ] ปุ่มเขียว = "เริ่มเกม"/"ตกลง"/"ต่อไป", ปุ่มแดง = "ยกเลิก" → [US-E7-15](../user-stories/US-E7-15.md)
 
 **Art หน้าจอ DOM**
-- [~] หน้าลงชื่อเข้าใช้ (Login) **เสร็จ** (v0.17.0) + สมัครสมาชิก (Sign-up) **ยังไม่ทำ** → [US-E7-02](../user-stories/US-E7-02.md)
+- [x] หน้าลงชื่อเข้าใช้ (Login, v0.17.0) + สมัครสมาชิก (Sign-up, v0.18.0) → [US-E7-02](../user-stories/US-E7-02.md) *(รอ QA มือถือ)*
 - [x] หน้า Login ของ Admin → [US-E7-02](../user-stories/US-E7-02.md) (ขยายขอบเขตให้รวม Admin Login)
-- [ ] หน้าข้อมูลผู้เล่น (Player-Info) → [US-E7-03](../user-stories/US-E7-03.md)
+- [x] หน้าข้อมูลผู้เล่น (Player-Info, v0.18.0) → [US-E7-03](../user-stories/US-E7-03.md) *(รอ QA มือถือ)*
 - [ ] หน้า Leaderboard → [US-E7-01](../user-stories/US-E7-01.md)
 
 **Popup**

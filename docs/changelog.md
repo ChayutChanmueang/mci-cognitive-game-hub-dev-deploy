@@ -32,7 +32,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.14.2` | 2026-06-26 | Fix BUG-007: Game Hub header not centered in some browsers (`justify-items` on a non-grid element) |
 | `0.15.0` | 2026-06-26 | US-E7-16 AC#2: same-day re-entry "วันนี้พักก่อน" rest popup with gender-based resting character (คุณตา/คุณยาย) + ground shadow |
 | `0.16.0` | 2026-06-26 | Standardized Figma `Character_Shadow` (`.character-shadow`) applied under every คุณตา/คุณยาย figure (rest popup + check-in success + level-path nodes) |
-| `0.17.0` | 2026-06-26 | **(current)** US-E7-02: Figma login art — Frame_Panel + Frame_TextFieldBox + Start-Game-Button applied to player & admin Login screens |
+| `0.17.0` | 2026-06-26 | US-E7-02: Figma login art — Frame_Panel + Frame_TextFieldBox + Start-Game-Button applied to player & admin Login screens |
+| `0.18.0` | 2026-06-29 | US-E7-02/03: Figma form art — Frame_Form_Panel + Button_OK/Close + IconButtonBack applied to Sign-up & Player-Info screens |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
@@ -42,6 +43,17 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.18.0] - 2026-06-29
+**Version bump:** `0.17.0 → 0.18.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (Figma form art on Sign-up + Player-Info).
+
+### Added
+- **Three more ported Figma components** in `src/ui/components/`: `FrameFormPanel` → `frame-form-panel.js` (`Frame_Form_Panel` 3161:746 — white panel + blue stroke/shadow + blue top header bar), `ButtonOk` → `button-ok.js` (`Button_OK` 3161:643 — green gradient pill) and `ButtonClose` → `button-close.js` (`Button_Close` 3161:649 — red gradient pill), plus `IconButtonBack` → `icon-button-back.js` (`Icon_ButtonBack` 3161:652 — exact Figma SVG back arrow). CSS (exact Figma colors/strokes) in `public/components.css` under `.gh-form` / `.gh-frame-form-panel` / `.gh-button-ok` / `.gh-button-close` / `.gh-icon-button-back`, with read-only (`.gh-frame-field-box__value`) and native-select (`.gh-frame-field-box__select`) variants of the field box.
+
+### Changed
+- **Player-Info (US-E7-03)** rebuilt with the Figma art: `Frame_Form_Panel` (blue header with `IconButtonBack` + "ข้อมูลผู้เล่น" title), the 10 read-only fields shown in `Frame_TextFieldBox` value boxes (one shared grid so labels/fields align), and the two actions as `Button_OK` "ส่งออกข้อมูล" (green) + `Button_Close` "ลงชื่อออก" (red). The test FAB menu and all handlers/ids are unchanged.
+- **Sign-up (US-E7-02)** rebuilt the same way with one `Button_OK` "ยืนยันข้อมูลผู้เล่น". The Material `md-outlined-text-field` / `md-outlined-select` controls were replaced with native `<input>` / `<select>` inside `Frame_TextFieldBox` surfaces; validation/age/phone/draft/submit logic preserved, with errors now shown via the `.gh-frame-field-box--error` red stroke + the feedback line (button submits via `form.requestSubmit()`).
+- **`components.css` already loads globally** (via `src/main.js`, from 0.17.0), so these screens are styled before the hub loads. The former `.player-info-*` / `.signup-*` / `.login-*` rules in `public/style.css` are now unused (left in place, harmless).
 
 ## [0.17.0] - 2026-06-26
 **Version bump:** `0.16.0 → 0.17.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (Figma login art).

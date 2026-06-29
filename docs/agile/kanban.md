@@ -7,11 +7,11 @@ kanban-plugin: board
 ## 📋 Backlog (Prioritized)
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
 - [ ] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard
-- [ ] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up *(Login เสร็จ v0.17.0; เหลือ Sign-up)*
+- [ ] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up *(เสร็จ v0.17.0/0.18.0; รอ QA มือถือ)*
 - [ ] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2)
 - [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
-- [ ] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info
+- [ ] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info *(เสร็จ v0.18.0; รอ QA มือถือ)*
 - [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup
 - [ ] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก: เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ (Doctor FB #2)
 - [ ] [US-E7-10](user-stories/US-E7-10.md) ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (Doctor FB #2)
