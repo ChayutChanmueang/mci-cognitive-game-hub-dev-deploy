@@ -308,9 +308,11 @@
 /* Start-Game-Button · 3108:68 (rect bbox 540.3278 x 186.7422; white stroke overflows) */
 .gh-start-button {
   position: relative;
-  display: block;
-  width: calc(540.3278px * var(--gh-scale, 1));
-  height: calc(186.7422px * var(--gh-scale, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   padding: 0;
   border: 0;
   background: transparent;
@@ -325,33 +327,33 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(540.3278px * var(--gh-scale, 1));
-  height: calc(186.7422px * var(--gh-scale, 1));
+  width: 100%;
+  height: 100%;
   border-radius: calc(79.59504px * var(--gh-scale, 1));
   background: rgb(66, 134, 29);
-  box-shadow: 0 0 0 calc(10.714716px * var(--gh-scale, 1)) rgba(255, 255, 255, 1); /* white OUTSIDE stroke */
+  box-shadow: 0 0 0 calc(10.714716px * var(--gh-scale, 1)) rgba(255, 255, 255, 1);
+  z-index: 1;
 }
 .gh-start-button__fill { /* 3108:64 */
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(540.3278px * var(--gh-scale, 1));
-  height: calc(179.85416px * var(--gh-scale, 1));
+  width: 100%;
+  height: 100%;
   border-radius: calc(79.59504px * var(--gh-scale, 1));
   background: linear-gradient(to bottom, rgb(125, 215, 76) 0%, rgb(74, 157, 29) 100%);
+  z-index: 2;
 }
 .gh-start-button__label { /* 3108:66 */
-  position: absolute;
-  left: calc(107.570221px * var(--gh-scale, 1));
-  top: calc(36.707027px * var(--gh-scale, 1));
+  position: relative;
   width: calc(326px * var(--gh-scale, 1));
   height: calc(107px * var(--gh-scale, 1));
   font-family: "Noto Sans Thai Looped", sans-serif;
   font-weight: 700;
-  font-size: calc(66.71947px * var(--gh-scale, 1));
-  line-height: normal;
+  font-size: calc(59px * var(--gh-scale, 1));
+  text-align: center;
   color: #ffffff;
-  white-space: nowrap;
+  z-index: 3;
 }
 
 /* LessonCard · 3108:26 (658.1367 x 546.7422) */
@@ -405,6 +407,8 @@
   position: absolute;
   left: calc(81px * var(--gh-scale, 1));
   top: calc(360px * var(--gh-scale, 1));
+  width: 210px;
+  height: 72px;
 }
 
 /* ── Part 5 · Floating Action Buttons (Figma 3108:3 / 3108:4, 160 x 160) ──────*/

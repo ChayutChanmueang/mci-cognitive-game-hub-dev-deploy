@@ -45,7 +45,9 @@ export function renderAdminLoginScreen(root, options = {}) {
                         <p id="admin-login-feedback" class="gh-login__feedback" aria-live="polite"></p>
                     `,
                 })}
+                <div class="login-screen__actions">
                 ${renderStartGameButton({ label: "เข้าสู่ระบบ", disabled: true })}
+                </div>
             </form>
         </section>
     `;

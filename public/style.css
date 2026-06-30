@@ -295,7 +295,7 @@ body.game-mode .app-version-badge {
     width: 100%;
     min-height: 100vh;
     display: grid;
-    grid-template-rows: minmax(96px, 1fr) auto minmax(128px, 0.9fr) auto;
+    grid-template-rows: minmax(96px, 1fr) auto minmax(0px, 0.9fr) auto;
     justify-items: center;
     padding: clamp(32px, 6vh, 72px) clamp(20px, 6vw, 72px) clamp(36px, 8vh, 84px);
 }
@@ -320,13 +320,22 @@ body.game-mode .app-version-badge {
     grid-row: 4;
     display: grid;
     justify-items: center;
-    width: min(100%, clamp(280px, 44vw, 420px));
+    width: 280px;
+    height: 100px;
 }
 
 @media (max-width: 360px) {
     .landing-screen__actions {
         --gh-scale: 0.5;
     }
+}
+
+.login-screen__actions {
+    grid-row: 2;
+    display: grid;
+    justify-items: center;
+    width: 280px;
+    height: 100px;
 }
 
 .login-card h1,
