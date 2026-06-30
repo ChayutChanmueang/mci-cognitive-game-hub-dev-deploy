@@ -386,14 +386,16 @@ export function showCheckInPopup(options = {}) {
                     <div class="app-popup__backdrop"></div>
                     <div class="gh-video-popup" role="dialog" aria-modal="true" aria-label="${escapeHtml(videoTitle)}">
                         <div class="parent-gh-video-popup__frame">
-                            <h2 class="gh-video-popup__title">${escapeHtml(videoTitle)}</h2>
+                            <div class="gh-video-popup__title">
+                                <h2 class="gh-video-popup__title-text">${escapeHtml(videoTitle)}</h2>
+                            </div>
                             ${renderFramePanel({
                                 className: "gh-video-popup__frame",
                                 body: `<div class="video-popup-player" data-video-container></div>`,
                             })}
-                        </div>
-                        <div class="gh-popup__button gh-video-popup__button">
-                            ${renderStartGameButton({ label: "ต่อไป" })}
+                            <div class="gh-popup__button gh-video-popup__button">
+                                ${renderStartGameButton({ label: "ต่อไป" })}
+                            </div>
                         </div>
                     </div>
                 `;

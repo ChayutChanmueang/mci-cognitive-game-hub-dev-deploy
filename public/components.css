@@ -1296,28 +1296,34 @@
 
 .gh-video-popup__title {
   width: 100%;
-  align-self: start;
-  flex: 0 0 auto;
+  height: 75px;
   margin: 0;
-  text-align: center;
   color: #ffffff;
-  font-family: "Noto Sans Thai", sans-serif;
-  font-weight: 700;
-  font-size: clamp(1.8rem, 7vw, 2.6rem);
-  line-height: 1.15;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.gh-video-popup__title-text {
+  width: 100%;
+  font-weight: 700;
+  font-size: clamp(2.3rem, 15vw, 2.3rem);
+  text-align: center;
+  font-family: "Noto Sans Thai", sans-serif;
+  line-height: 2;
+  margin: 0;
 }
 
 /* the frame also carries .gh-frame-panel (blue stroke + radius + white bg) */
 .parent-gh-video-popup__frame{
   width: 100%;
-  height: 100vh;
+  height: 98vh;
   resize: both;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: start;
-  gap: 25px;
+  gap: 10px;
   align-items: start;
   container-type: size;
   padding: 10px;
@@ -1327,7 +1333,7 @@
   aspect-ratio: 9 / 16;
   display: flex;
   overflow: hidden;
-  width: min(100cqw, 100cqh * 9 / 16);
+  width: min(93cqw, 90cqh * 9 / 16);
   align-self: center;
 }
 
@@ -1340,7 +1346,13 @@
 }
 
 .gh-video-popup__button {
+  justify-self: center;
+  align-self: center;
   display: none;
+  grid-row: 2;
+  justify-items: center;
+  width: 240px;
+  height: 80px;
 }
 
 /* On end, revealing the button reduces the space left for the frame; the frame is
@@ -1348,4 +1360,9 @@
    still fits — no fixed height needed. */
 .gh-video-popup.is-ended .gh-video-popup__button {
   display: block;
+}
+
+.gh-video-popup.is-ended .gh-video-popup__frame {
+  width: min(65cqw, 80cqh * 9 / 16);
+  margin-bottom: 25px;
 }
