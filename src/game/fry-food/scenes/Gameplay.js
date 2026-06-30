@@ -92,7 +92,7 @@ export default class GameplayScene extends Phaser.Scene {
         // -- Environment ----------------------------------------------------
         const mortar = this.add.image(-180, -180, 'fry-food-mortar').setOrigin(0, 0);
         mortar.setScale(3.25);
-        
+
         const plant = this.add.image(width + 205, -220, 'fry-food-plant').setOrigin(1, 0);
         plant.setScale(3);
 
@@ -178,15 +178,21 @@ export default class GameplayScene extends Phaser.Scene {
             // Exit fullscreen if running in a browser
             const isBrowser = !window.matchMedia('(display-mode: standalone)').matches;
             if (isBrowser) {
-                if (this.scale && this.scale.isFullscreen) {
-                    this.scale.stopFullscreen();
-                }
+                try {
+                    if (this.scale && this.scale.isFullscreen) {
+                        this.scale.stopFullscreen();
+                    }
+                } catch (e) { /* scale may be partially destroyed */ }
+                
                 if (document.fullscreenElement && document.exitFullscreen) {
-                    document.exitFullscreen().catch(() => {});
+                    document.exitFullscreen().catch(() => { });
                 }
-                if (screen.orientation && typeof screen.orientation.unlock === 'function') {
-                    screen.orientation.unlock();
-                }
+                
+                try {
+                    if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+                        screen.orientation.unlock();
+                    }
+                } catch (e) { /* orientation unlock can throw if not in fullscreen */ }
             }
         });
     }
@@ -310,14 +316,14 @@ export default class GameplayScene extends Phaser.Scene {
         if (this._food) {
             const TILT_MAX_PX = 600;      // max offset from center
             const ACCEL_SCALE = 0.012;    // tilt-to-acceleration factor
-            const FRICTION    = 0.92;     // velocity damping per frame
+            const FRICTION = 0.92;     // velocity damping per frame
             const RETURN_LERP = 0.08;     // speed of return-to-center
 
             if (this._foodBaseX === undefined) {
                 this._foodBaseX = this._food.x;
                 this._foodBaseY = this._food.y;
-                this._foodVelX  = 0;
-                this._foodVelY  = 0;
+                this._foodVelX = 0;
+                this._foodVelY = 0;
             }
 
             if (this._gameState === 'COOKING') {
@@ -355,7 +361,7 @@ export default class GameplayScene extends Phaser.Scene {
                 let offsetX = (this._food.x - limitCenterX) + this._foodVelX;
                 let offsetY = (this._food.y - limitCenterY) + this._foodVelY;
                 const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-                
+
                 if (dist > effectiveMaxRadius) {
                     const scale = effectiveMaxRadius / dist;
                     offsetX *= scale;
@@ -536,13 +542,13 @@ export default class GameplayScene extends Phaser.Scene {
         if (this.countdownTimer) {
             this.countdownTimer.remove();
         }
-        
+
         // Stop sizzling sound
         EventBus.emit('audio:stop', 'fry-food:sizzling');
 
         // Trigger the premium DOM effect
         EventBus.emit('audio:play', 'fry-food:endgame');
-        
+
         this.replayLogger.addEvent(ReplayEvent.FryFood.FINAL_SCORE, { data: this._cookLevel * 20 });
 
         const remainingFlips = Math.max(0, 5 - this._cookLevel);
@@ -551,7 +557,7 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         this.replayLogger.pushToDatabase();
-        
+
         showLevelCompleteEffect();
 
         // Wait for the effect to finish before showing the game over panel
@@ -596,7 +602,7 @@ export default class GameplayScene extends Phaser.Scene {
         const initialFrame = cfg.levelToFrame(1);
         this._foodSprite = this.add.sprite(0, 0, `${cfg.name}-${initialFrame}`);
         this._foodSprite.setScale(1.5);
-        
+
         this._food.add(this._foodSprite);
 
         if (this._panContainer) {
@@ -827,7 +833,7 @@ export default class GameplayScene extends Phaser.Scene {
             bottom: '15px',
             left: '0%',
             transform: 'translate(-50%, 50%)',
-            width: '56px', 
+            width: '56px',
             height: '56px',
             objectFit: 'contain',
             pointerEvents: 'none',
@@ -974,35 +980,8 @@ export default class GameplayScene extends Phaser.Scene {
             }
         }, { once: true });
 
-        // -- Skip button -------------------------------------------------------
-        // Lets the player exit the game cleanly if the permission dialog cannot
-        // be shown (e.g. iOS on HTTP dev server, or user wants to skip for today).
-        const skipBtn = document.createElement('button');
-        skipBtn.id = 'accel-skip-btn';
-        skipBtn.textContent = 'ข้ามเกมนี้';
-        Object.assign(skipBtn.style, {
-            zIndex: '9999',
-            padding: '12px 32px',
-            fontSize: '18px',
-            fontFamily: 'sans-serif',
-            color: 'rgba(255,255,255,0.8)',
-            backgroundColor: 'transparent',
-            border: '2px solid rgba(255,255,255,0.4)',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            marginTop: '8px',
-        });
-
-        skipBtn.addEventListener('click', () => {
-            // Exit the game without saving a score.
-            // minigame:exit-confirmed is handled in main.js → cleanup() + navigateTo(exitRoute)
-            this._removeIOSButton();
-            EventBus.emit('minigame:exit-confirmed');
-        }, { once: true });
-
         this._iosBackdrop.appendChild(label);
         this._iosBackdrop.appendChild(this._iosButton);
-        this._iosBackdrop.appendChild(skipBtn);
         uiRoot.appendChild(this._iosBackdrop);
     }
 
@@ -1050,7 +1029,10 @@ export default class GameplayScene extends Phaser.Scene {
                 await screen.orientation.lock('portrait-primary');
                 console.log('[FryFood] Screen orientation locked to portrait-primary.');
             } catch (error) {
-                console.warn('[FryFood] Could not lock screen orientation:', error);
+                // NotSupportedError is expected on desktop/unsupported devices
+                if (error.name !== 'NotSupportedError') {
+                    console.warn('[FryFood] Could not lock screen orientation:', error);
+                }
             }
         }
     }

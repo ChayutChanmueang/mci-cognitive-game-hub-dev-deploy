@@ -152,25 +152,38 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const destroyActiveGame = () => {
+        // Unregister game sounds IMMEDIATELY, before any Phaser destroy logic can potentially throw an error
+        if (currentGameSlug) {
+            EventBus.emit('audio:unregister', currentGameSlug);
+        }
+
+        // Global nuclear fallback: immediately stop minigame BGM and all actively playing sounds
+        EventBus.emit('audio:bgm-stop');
+        EventBus.emit('audio:stop-all');
+
         if (activeGameInstance) {
             if (activeGameInstance.scale && activeGameInstance.scale.isFullscreen) {
                 try {
                     activeGameInstance.scale.stopFullscreen();
-                } catch (e) {}
+                } catch (e) { }
             }
-            if (typeof activeGameInstance.destroy === "function") {
-                activeGameInstance.destroy(true);
+            try {
+                if (typeof activeGameInstance.destroy === "function") {
+                    activeGameInstance.destroy(true);
+                }
+            } catch (e) {
+                console.error("[Main] Error during game destruction:", e);
             }
         }
 
         // Native exit fullscreen and orientation unlock as fallback
         if (document.fullscreenElement && document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
+            document.exitFullscreen().catch(() => { });
         }
         if (screen.orientation && typeof screen.orientation.unlock === 'function') {
             try {
                 screen.orientation.unlock();
-            } catch (e) {}
+            } catch (e) { }
         }
 
         activeGameInstance = null;
@@ -181,15 +194,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.documentElement.style.removeProperty("--game-mode-background");
-        
+
         // Clear any inline styles that might have been set by Phaser Fullscreen
         document.body.style.backgroundColor = "";
         document.body.style.backgroundImage = "";
         document.documentElement.style.backgroundColor = "";
         document.documentElement.style.backgroundImage = "";
 
-        // Unregister any game-specific sounds to free memory
-        EventBus.emit('audio:unregister', currentGameSlug);
+
     };
 
     const showUiRoot = () => {
@@ -232,10 +244,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const getGameDisplayName = (selectedGame, fallback = "นี้") =>
         String(
             selectedGame?.displayName
-                || selectedGame?.th_name
-                || selectedGame?.thName
-                || selectedGame?.name
-                || fallback,
+            || selectedGame?.th_name
+            || selectedGame?.thName
+            || selectedGame?.name
+            || fallback,
         ).trim();
 
     const getGameHistoryNodeKey = (selectedGame) => {
@@ -577,7 +589,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         EventBus.emit("minigame:hide-hud");
-        // EventBus.emit('audio:bgm', 'hub'); // Temporarily disabled
 
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
@@ -586,6 +597,10 @@ document.addEventListener("DOMContentLoaded", () => {
         app?.classList.add("hub-mode");
         app?.classList.remove("landing-mode");
         destroyActiveGame();
+        
+        // Start hub BGM AFTER destroying the active game (which kills all previous audio)
+        // EventBus.emit('audio:bgm', 'hub'); // Temporarily disabled
+        
         gameContainer.classList.add("game-container--hidden");
         showUiRoot();
 
@@ -607,7 +622,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!gameOpenedLogged && patientCode) {
             gameOpenedLogged = true;
-            edgeFunction.logUserEvent(patientCode, "game.opened").catch(() => {});
+            edgeFunction.logUserEvent(patientCode, "game.opened").catch(() => { });
         }
 
         await renderGameHubScreen(uiRoot, {
@@ -1284,7 +1299,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
-            
+
             // Mount Minigame HUD
             uiRoot.innerHTML = "";
             uiRoot.hidden = false;
@@ -1510,7 +1525,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (patient) {
                     await rememberPatientSession(patient);
                     SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
-                    edgeFunction.logUserEvent(acceptedId, "user.login").catch(() => {});
+                    edgeFunction.logUserEvent(acceptedId, "user.login").catch(() => { });
                     navigateTo(ROUTES.hub);
                     return;
                 }
@@ -2408,7 +2423,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.state && e.state.__backGuard) {
             return;
         }
-        
+
         // Re-push sentinel immediately so the URL stays locked.
         window.history.pushState({ __backGuard: true }, "", window.location.href);
         void handleBackGuardIntercept();

@@ -117,6 +117,11 @@ const AudioManager = {
             this.stopBgm();
         });
 
+        EventBus.on('audio:stop-all', () => {
+            // Master kill-switch: Stop every single playing sound across all groups immediately.
+            Howler.stop();
+        });
+
         // Dynamic sound registration (game-specific SFX)
         EventBus.on('audio:register', (namespace, soundDefs) => {
             this.registerGameSounds(namespace, soundDefs);
@@ -249,6 +254,12 @@ const AudioManager = {
         const prefix = `${namespace}:`;
         for (const [key, howl] of this._sounds.entries()) {
             if (key.startsWith(prefix)) {
+                // FAIL-SAFE: Force volume to 0 and mute so even if Howler orphans the WebAudio node, it's silent.
+                howl.volume(0);
+                howl.mute(true);
+                howl.stop();
+                // FIX: Howler race condition. Clear queue before unload so pending plays don't fire.
+                howl._queue = [];
                 howl.unload();
                 this._sounds.delete(key);
             }
@@ -437,6 +448,7 @@ const AudioManager = {
         EventBus.off('audio:play');
         EventBus.off('audio:bgm');
         EventBus.off('audio:bgm-stop');
+        EventBus.off('audio:stop-all');
         EventBus.off('audio:register');
         EventBus.off('audio:unregister');
         EventBus.off('audio:set-volume');
