@@ -1278,3 +1278,74 @@
     --gh-scale: 0.5;
   }
 }
+
+/* US-E7-04 · check-in video step. Title sits on the gradient backdrop; the clip is in a
+   plain Frame_Panel (no header). The frame is large while playing and collapses once the
+   clip ends, revealing the Start-Game-Button below it. */
+.gh-video-popup {
+  --gh-scale: 0.62;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.6vh, 22px);
+  height: 100%;
+  width: 100%;
+}
+
+.gh-video-popup__title {
+  width: 100%;
+  align-self: start;
+  flex: 0 0 auto;
+  margin: 0;
+  text-align: center;
+  color: #ffffff;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  line-height: 1.15;
+  z-index: 2;
+}
+
+/* the frame also carries .gh-frame-panel (blue stroke + radius + white bg) */
+.parent-gh-video-popup__frame{
+  width: 100%;
+  height: 100vh;
+  resize: both;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 25px;
+  align-items: start;
+  container-type: size;
+  padding: 10px;
+}
+
+.gh-video-popup__frame {
+  aspect-ratio: 9 / 16;
+  display: flex;
+  overflow: hidden;
+  width: min(100cqw, 100cqh * 9 / 16);
+  align-self: center;
+}
+
+.gh-video-popup__frame .video-popup-player {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: #000;
+  object-fit: cover;
+}
+
+.gh-video-popup__button {
+  display: none;
+}
+
+/* On end, revealing the button reduces the space left for the frame; the frame is
+   `flex: 1` + `aspect-ratio: 9/16`, so it simply shrinks to the largest 9:16 box that
+   still fits — no fixed height needed. */
+.gh-video-popup.is-ended .gh-video-popup__button {
+  display: block;
+}

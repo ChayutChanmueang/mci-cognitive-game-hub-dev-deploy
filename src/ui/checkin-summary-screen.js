@@ -8,6 +8,8 @@ import VideoManager from "../core/video-manager.js";
 import { showCelebrationEffect } from "./components/effects/celebration-effect.js";
 import { showSparkleEffect } from "./components/effects/sparkle-effect.js";
 import { renderFramePopupMarkup } from "./components/frame-popup.js";
+import { renderFramePanel } from "./components/frame-panel.js";
+import { renderStartGameButton } from "./components/start-game-button.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -377,18 +379,27 @@ export function showCheckInPopup(options = {}) {
                     render();
                 });
             } else if (state.step === "video") {
-                // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
-                overlay.innerHTML = renderFramePopupMarkup({
-                    title: videoTitle,
-                    ariaLabel: videoTitle,
-                    buttonLabel: "กลับสู่หน้าหลัก",
-                    body: `<div class="video-popup-player" data-video-container></div>`,
-                });
+                // US-E7-04: video step uses Frame_Panel (no header) with the title above it.
+                // The clip frame is large while playing, then collapses and reveals the
+                // Start-Game-Button when it ends.
+                overlay.innerHTML = `
+                    <div class="app-popup__backdrop"></div>
+                    <div class="gh-video-popup" role="dialog" aria-modal="true" aria-label="${escapeHtml(videoTitle)}">
+                        <div class="parent-gh-video-popup__frame">
+                            <h2 class="gh-video-popup__title">${escapeHtml(videoTitle)}</h2>
+                            ${renderFramePanel({
+                                className: "gh-video-popup__frame",
+                                body: `<div class="video-popup-player" data-video-container></div>`,
+                            })}
+                        </div>
+                        <div class="gh-popup__button gh-video-popup__button">
+                            ${renderStartGameButton({ label: "ต่อไป" })}
+                        </div>
+                    </div>
+                `;
 
+                const videoPopupEl = overlay.querySelector(".gh-video-popup");
                 const videoContainer = overlay.querySelector("[data-video-container]");
-                // Hide the button until the video finishes (then reveal it).
-                const videoActions = overlay.querySelector(".gh-popup__button");
-                if (videoActions) videoActions.style.display = "none";
                 if (videoContainer) {
                     state.videoPlayerInstance?.destroy();
                     state.videoPlayerInstance = VideoPlayer.mount(videoContainer, {
@@ -396,8 +407,9 @@ export function showCheckInPopup(options = {}) {
                         label: escapeHtml(videoTitle),
                     });
                     VideoManager.register(state.videoPlayerInstance);
+                    // When the clip ends, collapse the frame + reveal the button.
                     state.videoPlayerInstance.on("ended", () => {
-                        if (videoActions) videoActions.style.display = "";
+                        videoPopupEl?.classList.add("is-ended");
                     });
                 }
 

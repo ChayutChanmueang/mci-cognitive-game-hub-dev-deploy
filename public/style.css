@@ -659,7 +659,8 @@ body.game-mode .app-version-badge {
 /* Frame popups (check-in / resting / completion — `.gh-popup`) use the app background
    gradient as their backdrop instead of the dim blur, so they read as a full-screen
    takeover. Shares `--app-bg-gradient` with body. (Dialog popups keep the dim blur.) */
-.app-popup:has(.gh-popup) .app-popup__backdrop {
+.app-popup:has(.gh-popup) .app-popup__backdrop,
+.app-popup:has(.gh-video-popup) .app-popup__backdrop {
     background: var(--app-bg-gradient);
     background-attachment: fixed;
     backdrop-filter: none;
