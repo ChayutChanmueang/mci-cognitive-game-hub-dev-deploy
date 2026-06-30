@@ -144,6 +144,9 @@
     --md-sys-color-error: #ba1a1a;
     --app-shadow: 0 24px 60px rgba(53, 104, 89, 0.14);
     --game-mode-background: #028af8;
+    /* Shared app background — used by body and by the frame popups' backdrop, so changing
+       it here updates both (US-E7-04 follow-up). */
+    --app-bg-gradient: linear-gradient(180deg, #8be298 0%, #6ed8ff 100%);
 }
 
 * {
@@ -158,7 +161,7 @@ body {
 
 body {
     color: var(--md-sys-color-on-surface);
-    background: linear-gradient(180deg, #8be298 0%, #6ed8ff 100%);
+    background: var(--app-bg-gradient);
     background-attachment: fixed;
     font-family: "Noto Sans Thai", sans-serif;
 }
@@ -651,6 +654,15 @@ body.game-mode .app-version-badge {
     inset: 0;
     background: rgba(16, 18, 20, 0.36);
     backdrop-filter: blur(4px);
+}
+
+/* Frame popups (check-in / resting / completion — `.gh-popup`) use the app background
+   gradient as their backdrop instead of the dim blur, so they read as a full-screen
+   takeover. Shares `--app-bg-gradient` with body. (Dialog popups keep the dim blur.) */
+.app-popup:has(.gh-popup) .app-popup__backdrop {
+    background: var(--app-bg-gradient);
+    background-attachment: fixed;
+    backdrop-filter: none;
 }
 
 .app-popup__dialog {

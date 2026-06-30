@@ -33,7 +33,7 @@ gantt
 | [US-E7-01](../user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
 | [US-E7-02](../user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
 | [US-E7-03](../user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
-| [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
+| [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 🔍 Review / Testing |
 | [US-E7-05](../user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
 | [US-E7-06](../user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
 | [US-E7-17](../user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
@@ -93,7 +93,7 @@ gantt
 - [x] หน้า Welcome: ปุ่มเข้าเกมใช้ art Start-Game-Button ("เริ่มเล่นเกม") → [US-E7-19](../user-stories/US-E7-19.md) *(v0.19.0, รอ QA มือถือ)*
 
 **Popup**
-- [ ] กรอบ Popup + นำไปใส่ Popup ต่าง ๆ ที่มีในเกม → [US-E7-04](../user-stories/US-E7-04.md)
+- [x] กรอบ Popup (Frame_Form_Panel + Start-Game-Button) → check-in success / resting / day+program completion → [US-E7-04](../user-stories/US-E7-04.md) *(v0.20.0, รอ QA; popup-dialog.js เป็นดีไซน์อื่น ยังไม่แตะ)*
 - [x] **ตัด** Popup หลังดูละครเสร็จ ("พบกันใหม่วันพรุ่งนี้") ออก → [US-E7-16](../user-stories/US-E7-16.md) *(ยืนยันด้วยโค้ด/grep 2026-06-26: ไม่มี popup นี้ในระบบ)*
 - [x] แก้ Popup เมื่อผู้เล่นเล่นจบของวันแล้วเข้ามาในวันเดิม ("วันนี้พักก่อน" + คุณตา/คุณยายนั่งพัก) → [US-E7-16](../user-stories/US-E7-16.md) *(v0.15.0, ✅ ยืนยันบนมือถือ 2026-06-26)*
 - [ ] เปลี่ยน emoji บน popup "ยินดีด้วย จบโปรแกรม 14 วัน" เป็นคุณตา/คุณยายตามเพศ + layout แบบ "วันนี้พักก่อน" → [US-E7-16](../user-stories/US-E7-16.md) AC#6 *(เพิ่มขอบเขต 2026-06-26)*

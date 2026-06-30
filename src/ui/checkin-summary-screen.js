@@ -7,6 +7,7 @@ import { VideoPlayer } from "../util/video-player/index.js";
 import VideoManager from "../core/video-manager.js";
 import { showCelebrationEffect } from "./components/effects/celebration-effect.js";
 import { showSparkleEffect } from "./components/effects/sparkle-effect.js";
+import { renderFramePopupMarkup } from "./components/frame-popup.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -274,34 +275,21 @@ export function showCheckInPopup(options = {}) {
 
         const render = () => {
             if (state.step === "success") {
-                overlay.innerHTML = `
-                    <div class="app-popup__backdrop"></div>
-                    <div
-                        class="app-popup__dialog app-popup__dialog--success"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="${titleId}"
-                        aria-describedby="${messageId}"
-                    >
-                        <div class="checkin-popup-success-layout">
-                            <div class="app-popup__copy checkin-popup-success-copy">
-                                <h2 id="${titleId}" style="color: var(--md-sys-color-primary); font-size: 39px;">เก่งมาก !!!</h2>
-                                <div class="checkin-success-character">
-                                    <img class="checkin-success-emoji checkin-success-image" src="${escapeHtml(state.cheerImageSrc)}" alt="" aria-hidden="true" />
-                                    <span class="character-shadow checkin-success-character__shadow" aria-hidden="true"></span>
-                                </div>
-                                <p id="${messageId}" style="margin-top: 8px; font-size: 22px;">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อยแล้ว</p>
-                            </div>
+                // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
+                overlay.innerHTML = renderFramePopupMarkup({
+                    title: "เก่งมาก !!!",
+                    ariaLabel: "เก่งมาก",
+                    buttonLabel: "ต่อไป",
+                    body: `
+                        <div class="gh-popup__character">
+                            <img class="gh-popup__character-img" src="${escapeHtml(state.cheerImageSrc)}" alt="" aria-hidden="true" />
+                            <span class="character-shadow gh-popup__character-shadow" aria-hidden="true"></span>
                         </div>
-                        <div class="app-popup__actions checkin-popup-success-actions">
-                            <md-filled-button type="button" data-checkin-next style="width: 100%;">
-                                ต่อไป
-                            </md-filled-button>
-                        </div>
-                    </div>
-                `;
+                        <p class="gh-popup__message">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อย</p>
+                    `,
+                });
 
-                overlay.querySelector("[data-checkin-next]")?.addEventListener("click", () => {
+                overlay.querySelector(".gh-start-button")?.addEventListener("click", () => {
                     state.step = "calendar";
                     render();
                 });
@@ -316,18 +304,13 @@ export function showCheckInPopup(options = {}) {
                 const fillPercent = Math.max(12, percent);
                 const displayDone = String(completedDays).padStart(2, "0");
 
-                overlay.innerHTML = `
-                    <div class="app-popup__backdrop"></div>
-                    <div
-                        class="app-popup__dialog"
-                        role="dialog"
-                        aria-modal="true"
-                    >
-                        <div class="tree-progress-header">
-                            <h2 class="tree-progress-title">เป้าหมายของฉัน</h2>
-                            <p class="tree-progress-subtitle">เล่นเกมติดต่อกัน ${escapeHtml(String(state.dayCount))} วัน</p>
-                            <div class="tree-progress-divider"></div>
-                        </div>
+                // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
+                overlay.innerHTML = renderFramePopupMarkup({
+                    title: "เป้าหมายของฉัน",
+                    ariaLabel: "เป้าหมายของฉัน",
+                    buttonLabel: "ต่อไป",
+                    body: `
+                        <p class="tree-progress-subtitle">เล่นเกมติดต่อกัน ${escapeHtml(String(state.dayCount))} วัน</p>
                         <div class="tree-progress-body">
                             <div class="tree-progress-frame">
                                 <img
@@ -349,13 +332,8 @@ export function showCheckInPopup(options = {}) {
                                 <span class="tree-progress-bar__text">${displayDone}/${escapeHtml(String(state.dayCount))}</span>
                             </div>
                         </div>
-                        <div class="app-popup__actions checkin-popup-success-actions">
-                            <md-filled-button type="button" data-back-home style="width: 100%;">
-                                ต่อไป
-                            </md-filled-button>
-                        </div>
-                    </div>
-                `;
+                    `,
+                });
 
                 // Grow the tree on the progression page: show the previous stage, collapse it,
                 // then pop the current stage up — firing the rainbow sparkle burst at the exact
@@ -379,7 +357,7 @@ export function showCheckInPopup(options = {}) {
                     });
                 });
 
-                overlay.querySelector("[data-back-home]")?.addEventListener("click", async (event) => {
+                overlay.querySelector(".gh-start-button")?.addEventListener("click", async (event) => {
                     if (!loadVideoSrc) {
                         cleanup(true);
                         return;
@@ -399,26 +377,18 @@ export function showCheckInPopup(options = {}) {
                     render();
                 });
             } else if (state.step === "video") {
-                overlay.innerHTML = `
-                    <div class="app-popup__backdrop"></div>
-                    <div
-                        class="app-popup__dialog app-popup__dialog--video"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label="${escapeHtml(videoTitle)}"
-                    >
-                        <h2 class="video-popup-title">${escapeHtml(videoTitle)}</h2>
-                        <div class="video-popup-player" data-video-container></div>
-                        <div class="app-popup__actions checkin-popup-success-actions" data-video-actions style="display: none;">
-                            <md-filled-button type="button" data-video-close style="width: 100%;">
-                                กลับสู่หน้าหลัก
-                            </md-filled-button>
-                        </div>
-                    </div>
-                `;
+                // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
+                overlay.innerHTML = renderFramePopupMarkup({
+                    title: videoTitle,
+                    ariaLabel: videoTitle,
+                    buttonLabel: "กลับสู่หน้าหลัก",
+                    body: `<div class="video-popup-player" data-video-container></div>`,
+                });
 
                 const videoContainer = overlay.querySelector("[data-video-container]");
-                const videoActions = overlay.querySelector("[data-video-actions]");
+                // Hide the button until the video finishes (then reveal it).
+                const videoActions = overlay.querySelector(".gh-popup__button");
+                if (videoActions) videoActions.style.display = "none";
                 if (videoContainer) {
                     state.videoPlayerInstance?.destroy();
                     state.videoPlayerInstance = VideoPlayer.mount(videoContainer, {
@@ -431,7 +401,7 @@ export function showCheckInPopup(options = {}) {
                     });
                 }
 
-                overlay.querySelector("[data-video-close]")?.addEventListener("click", () => {
+                overlay.querySelector(".gh-start-button")?.addEventListener("click", () => {
                     cleanup(true);
                 });
             }

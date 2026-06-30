@@ -1,3 +1,5 @@
+import { renderFramePopupMarkup } from "./components/frame-popup.js";
+
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -7,9 +9,10 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
-// Gender-specific resting character for the same-day re-entry popup (US-E7-16 AC#2).
-// DB gender is "male"/"female" (see signup-screen.js); anything else falls back to the man.
+// Gender-specific characters. DB gender is "male"/"female" (see signup-screen.js);
+// anything else falls back to the man.
 const CHARACTER_IMAGE_BASE = "/assets/common/character";
+
 function getRestingCharacter(gender) {
     const isFemale = String(gender || "").trim().toLowerCase() === "female";
     return {
@@ -18,32 +21,40 @@ function getRestingCharacter(gender) {
     };
 }
 
-function buildPopup({ title, message } = {}) {
-    const overlay = document.createElement("div");
-    overlay.className = "app-popup";
-    overlay.innerHTML = `
-        <div class="app-popup__backdrop"></div>
-        <div
-            class="app-popup__dialog app-popup__dialog--success"
-            role="dialog"
-            aria-modal="true"
-        >
-            <div class="completion-popup-layout">
-                <h2 style="margin: 0; color: var(--md-sys-color-primary); font-size: 39px;">${title}</h2>
-                <div class="completion-popup-emoji" aria-hidden="true">🧓</div>
-                <p class="completion-popup-message">${message}</p>
-            </div>
-            <div class="app-popup__actions checkin-popup-success-actions">
-                <md-filled-button type="button" data-completion-confirm style="width: 100%;">ตกลง</md-filled-button>
-            </div>
-        </div>
-    `;
-    return overlay;
+function getFinishCharacter(gender) {
+    const isFemale = String(gender || "").trim().toLowerCase() === "female";
+    return {
+        src: `${CHARACTER_IMAGE_BASE}/${isFemale ? "female/OldWoman" : "man/OldMan"}_finish-line.png`,
+        alt: isFemale ? "คุณยายเข้าเส้นชัย" : "คุณตาเข้าเส้นชัย",
+    };
 }
 
-// US-E7-16 AC#2: shown when the player has already completed today's goal and re-enters
-// the game on the same day. Compact "วันนี้พักก่อน" rest popup with the gender-based
-// resting character (คุณตา/คุณยาย) and a soft ground shadow (US-E7-14 #4).
+function mountFramePopup({ overlay, dismissible, resolve }) {
+    let settled = false;
+    const cleanup = (result) => {
+        if (settled) return;
+        settled = true;
+        overlay.remove();
+        document.removeEventListener("keydown", onKeyDown);
+        resolve(result);
+    };
+
+    function onKeyDown(event) {
+        if (event.key === "Escape" && dismissible) cleanup(false);
+    }
+
+    overlay.querySelector(".gh-start-button")?.addEventListener("click", () => cleanup(true));
+    if (dismissible) {
+        overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(false));
+    }
+
+    document.body.appendChild(overlay);
+    document.addEventListener("keydown", onKeyDown);
+}
+
+// US-E7-16 AC#2 + US-E7-04: shown when the player has already completed today's goal and
+// re-enters on the same day. "วันนี้พักก่อน" with the gender resting character (คุณตา/คุณยาย)
+// inside the Figma Frame_Form_Panel + a single green Start-Game-Button.
 export function showDayCompletionPopup(options = {}) {
     if (typeof document === "undefined") {
         return Promise.resolve(false);
@@ -58,53 +69,25 @@ export function showDayCompletionPopup(options = {}) {
         const character = getRestingCharacter(gender);
         const overlay = document.createElement("div");
         overlay.className = "app-popup";
-        overlay.innerHTML = `
-            <div class="app-popup__backdrop"></div>
-            <div
-                class="app-popup__dialog app-popup__dialog--rest-day"
-                role="dialog"
-                aria-modal="true"
-            >
-                <h2 class="rest-day-popup-title">วันนี้พักก่อน</h2>
-                <div class="rest-day-popup-character">
-                    <img
-                        class="rest-day-popup-character__img"
-                        src="${character.src}"
-                        alt="${escapeHtml(character.alt)}"
-                        draggable="false"
-                    />
-                    <span class="character-shadow rest-day-popup-character__shadow" aria-hidden="true"></span>
+        overlay.innerHTML = renderFramePopupMarkup({
+            title: "วันนี้พักก่อน",
+            ariaLabel: "วันนี้พักก่อน",
+            buttonLabel: "กลับหน้าหลัก",
+            body: `
+                <div class="gh-popup__character">
+                    <img class="gh-popup__character-img" src="${character.src}" alt="${escapeHtml(character.alt)}" draggable="false" />
+                    <span class="character-shadow gh-popup__character-shadow" aria-hidden="true"></span>
                 </div>
-                <p class="rest-day-popup-message">กลับมาเล่นใหม่วันพรุ่งนี้นะ</p>
-                <div class="app-popup__actions checkin-popup-success-actions rest-day-popup-actions">
-                    <md-filled-button type="button" data-completion-confirm style="width: 100%;">กลับหน้าหลัก</md-filled-button>
-                </div>
-            </div>
-        `;
+                <p class="gh-popup__message">กลับมาเล่นใหม่วันพรุ่งนี้นะ</p>
+            `,
+        });
 
-        let settled = false;
-        const cleanup = (result) => {
-            if (settled) return;
-            settled = true;
-            overlay.remove();
-            document.removeEventListener("keydown", onKeyDown);
-            resolve(result);
-        };
-
-        const onKeyDown = (event) => {
-            if (event.key === "Escape" && dismissible) cleanup(false);
-        };
-
-        overlay.querySelector("[data-completion-confirm]")?.addEventListener("click", () => cleanup(true));
-        if (dismissible) {
-            overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(false));
-        }
-
-        document.body.appendChild(overlay);
-        document.addEventListener("keydown", onKeyDown);
+        mountFramePopup({ overlay, dismissible, resolve });
     });
 }
 
+// US-E7-04: shown when the player finishes the whole program. "ยินดีด้วย" with the gender
+// finish-line character, in the same Frame_Form_Panel + Start-Game-Button art.
 export function showProgramCompletionPopup(options = {}) {
     if (typeof document === "undefined") {
         return Promise.resolve(false);
@@ -112,34 +95,27 @@ export function showProgramCompletionPopup(options = {}) {
 
     const {
         programDayCount = 14,
+        gender = "",
         dismissible = false,
     } = options;
 
     return new Promise((resolve) => {
-        const overlay = buildPopup({
+        const character = getFinishCharacter(gender);
+        const overlay = document.createElement("div");
+        overlay.className = "app-popup";
+        overlay.innerHTML = renderFramePopupMarkup({
             title: "ยินดีด้วย",
-            message: `คุณเล่นจบโปรแกรมพัฒนาสมองทั้งหมด ${escapeHtml(String(programDayCount))} วันแล้ว`,
+            ariaLabel: "ยินดีด้วย",
+            buttonLabel: "กลับหน้าหลัก",
+            body: `
+                <div class="gh-popup__character">
+                    <img class="gh-popup__character-img" src="${character.src}" alt="${escapeHtml(character.alt)}" draggable="false" />
+                    <span class="character-shadow gh-popup__character-shadow" aria-hidden="true"></span>
+                </div>
+                <p class="gh-popup__message">คุณเล่นจบโปรแกรมพัฒนาสมองทั้งหมด ${escapeHtml(String(programDayCount))} วันแล้ว</p>
+            `,
         });
 
-        let settled = false;
-        const cleanup = (result) => {
-            if (settled) return;
-            settled = true;
-            overlay.remove();
-            document.removeEventListener("keydown", onKeyDown);
-            resolve(result);
-        };
-
-        const onKeyDown = (event) => {
-            if (event.key === "Escape" && dismissible) cleanup(false);
-        };
-
-        overlay.querySelector("[data-completion-confirm]")?.addEventListener("click", () => cleanup(true));
-        if (dismissible) {
-            overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(false));
-        }
-
-        document.body.appendChild(overlay);
-        document.addEventListener("keydown", onKeyDown);
+        mountFramePopup({ overlay, dismissible, resolve });
     });
 }

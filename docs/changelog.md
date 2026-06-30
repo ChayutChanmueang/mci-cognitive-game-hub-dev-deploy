@@ -34,7 +34,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.16.0` | 2026-06-26 | Standardized Figma `Character_Shadow` (`.character-shadow`) applied under every คุณตา/คุณยาย figure (rest popup + check-in success + level-path nodes) |
 | `0.17.0` | 2026-06-26 | US-E7-02: Figma login art — Frame_Panel + Frame_TextFieldBox + Start-Game-Button applied to player & admin Login screens |
 | `0.18.0` | 2026-06-29 | US-E7-02/03: Figma form art — Frame_Form_Panel + Button_OK/Close + IconButtonBack applied to Sign-up & Player-Info screens |
-| `0.19.0` | 2026-06-29 | **(current)** US-E7-19: Welcome screen entry button uses the `Start-Game-Button` art (green "เริ่มเล่นเกม") instead of `md-filled-button` |
+| `0.19.0` | 2026-06-29 | US-E7-19: Welcome screen entry button uses the `Start-Game-Button` art (green "เริ่มเล่นเกม") instead of `md-filled-button` |
+| `0.20.0` | 2026-06-29 | **(current)** US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button on check-in success, resting, day/program-completion popups (also US-E7-16 AC#6 gender char) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
@@ -52,6 +53,17 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.20.0] - 2026-06-29
+**Version bump:** `0.19.0 → 0.20.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (Figma popup art).
+
+### Added
+- **`renderFramePopupMarkup`** (`src/ui/components/frame-popup.js`) — a shared popup skeleton composing the existing `Frame_Form_Panel` (white panel + blue header bar) with a single green `Start-Game-Button` below it. Since `.gh-start-button` is `width/height: 100%`, the button is wrapped in a sizing div **`.gh-popup__button`** (fixed `280×100`, `--gh-scale` on `.gh-popup` scales its radius + label). CSS `.gh-popup` / `.gh-popup__button` / `.gh-popup__character` / `.gh-popup__message` in `public/components.css`.
+
+### Changed
+- **US-E7-04 — popup art.** Reskinned the info/celebration popups with the Figma frame + green button (single button, per owner): (1) **all three check-in steps** in `checkin-summary-screen.js` — the "เก่งมาก !!!" success page, the **progress-tree** page ("เป้าหมายของฉัน"; tree-grow + sparkle animation preserved by keeping `.tree-progress-frame`/`.tree-progress-plant`), and the **video** page (button hidden until the clip ends); (2) the **resting** popup (`resting-point-popup.js`, title "คุณทำได้ดีมาก"; timer/cat/skip logic preserved, button label flips to "กลับสู่หน้าหลัก" via `.gh-start-button__label`); (3) **day-completion** "วันนี้พักก่อน" and **program-completion** "ยินดีด้วย" (`day-completion-popup.js`). Each character shows the standard `Character_Shadow`. The generic `popup-dialog.js` (`showPopup`) is intentionally **not** changed (different design).
+- **Frame-popup backdrop** = the app background gradient instead of the dim blur, via `.app-popup:has(.gh-popup) .app-popup__backdrop`. Introduced a shared `--app-bg-gradient` token (`:root`) used by both `body` and this backdrop, so recoloring the body background recolors the popup backdrop too. Dialog popups keep the dim-blur backdrop.
+- **US-E7-16 AC#6** — `showProgramCompletionPopup` now uses a gender finish-line character (คุณตา/คุณยาย) instead of the 🧓 emoji; `game-hub-screen.js` passes `gender: options.patientGender`.
 
 ## [0.19.0] - 2026-06-29
 **Version bump:** `0.18.0 → 0.19.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality.

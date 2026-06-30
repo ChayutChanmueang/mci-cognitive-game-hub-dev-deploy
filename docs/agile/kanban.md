@@ -10,7 +10,7 @@ kanban-plugin: board
 - [ ] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2)
 - [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
-- [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup
+- [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup *(เสร็จ v0.20.0; รอ QA มือถือ)*
 - [ ] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก: เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ (Doctor FB #2)
 - [ ] [US-E7-10](user-stories/US-E7-10.md) ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (Doctor FB #2)
 - [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)
