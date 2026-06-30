@@ -866,7 +866,7 @@
   border-radius: 40px;
   box-shadow:
     0 0 0 6px rgb(138, 197, 219),
-    0 16px 8px 12px rgba(0, 0, 0, 0.15);
+    0 6px 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 .gh-login__panel {
@@ -1018,7 +1018,7 @@
   background: #ffffff;
   box-shadow:
     0 0 0 6px rgb(138, 197, 219),
-    0 16px 8px 12px rgba(0, 0, 0, 0.15);
+    0 6px 4px 6px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   margin-bottom: 76px;
 }
@@ -1069,9 +1069,10 @@
 }
 
 .gh-icon-button-back__svg {
-  width: 54px;
+  width: 50px;
   height: auto;
   overflow: visible;
+  bottom: 5px;
 }
 
 /* read-only value display + native select inside a Frame_TextFieldBox */
