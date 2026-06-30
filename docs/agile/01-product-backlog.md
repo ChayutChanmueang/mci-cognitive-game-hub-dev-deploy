@@ -71,8 +71,8 @@
 | ID | User Story | Priority | Status |
 | --- | --- | --- | --- |
 | [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
-| [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 🔍 Review / Testing |
-| [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 🔍 Review / Testing |
+| [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
+| [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
 | [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
 | [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | ✅ Done |
 | [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
@@ -87,8 +87,10 @@
 | [US-E7-15](./user-stories/US-E7-15.md) | ระบบสีปุ่มมาตรฐาน (เขียว = ยืนยัน, แดง = ยกเลิก) | Med | 📋 Backlog |
 | [US-E7-16](./user-stories/US-E7-16.md) | แก้ Popup (ตัด popup หลังดูละคร + เข้าเกมซ้ำในวันที่เล่นจบแล้ว + เปลี่ยน emoji popup จบโปรแกรมเป็นคุณตา/ยาย) | Med | 🏗 In-Progress |
 | [US-E7-17](./user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
+| [US-E7-18](./user-stories/US-E7-18.md) | ย้าย feedback ข้อความ (error/สถานะ) → Toast component แบบ Android | Med | 📋 Backlog |
+| [US-E7-19](./user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | 🔍 Review / Testing |
 
-> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..17 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
+> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..19 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 
 ---

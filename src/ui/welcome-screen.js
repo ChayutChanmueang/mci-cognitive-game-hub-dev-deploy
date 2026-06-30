@@ -1,3 +1,5 @@
+import { renderStartGameButton } from "./components/start-game-button.js";
+
 export function renderWelcomeScreen(root, options = {}) {
     if (!root) {
         return;
@@ -7,6 +9,7 @@ export function renderWelcomeScreen(root, options = {}) {
         onLogin = () => {},
     } = options;
 
+    // US-E7-19: entry button uses the game's Start-Game-Button art (green pill).
     root.innerHTML = `
         <section class="landing-screen" aria-labelledby="landing-title">
             <div class="landing-screen__logo">
@@ -19,14 +22,12 @@ export function renderWelcomeScreen(root, options = {}) {
             </div>
 
             <div class="landing-screen__actions">
-                <md-filled-button id="landing-login-button" class="landing-login-button" type="button">
-                    ลงชื่อเข้าใช้
-                </md-filled-button>
+                ${renderStartGameButton({ label: "เริ่มเล่นเกม" })}
             </div>
         </section>
     `;
 
-    root.querySelector("#landing-login-button")?.addEventListener("click", () => {
+    root.querySelector(".gh-start-button")?.addEventListener("click", () => {
         onLogin();
     });
 }

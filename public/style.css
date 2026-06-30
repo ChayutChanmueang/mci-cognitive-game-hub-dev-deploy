@@ -315,8 +315,18 @@ body.game-mode .app-version-badge {
 }
 
 .landing-screen__actions {
+    /* US-E7-19: size the Start-Game-Button art (authored at Figma 1080) to the column. */
+    --gh-scale: 0.62;
     grid-row: 4;
+    display: grid;
+    justify-items: center;
     width: min(100%, clamp(280px, 44vw, 420px));
+}
+
+@media (max-width: 360px) {
+    .landing-screen__actions {
+        --gh-scale: 0.5;
+    }
 }
 
 .login-card h1,

@@ -39,7 +39,7 @@ export function renderLoginScreen(root, options = {}) {
                         <p id="patient-login-feedback" class="gh-login__feedback" aria-live="polite"></p>
                     `,
                 })}
-                ${renderStartGameButton({ label: "เริ่มเล่นเกม", disabled: true })}
+                ${renderStartGameButton({ label: "เข้าสู่ระบบ", disabled: true })}
             </form>
         </section>
     `;

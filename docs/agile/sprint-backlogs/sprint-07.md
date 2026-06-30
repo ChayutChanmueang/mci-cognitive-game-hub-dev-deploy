@@ -31,12 +31,14 @@ gantt
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
 | [US-E7-01](../user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
-| [US-E7-02](../user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | 🔍 Review / Testing |
-| [US-E7-03](../user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | 🔍 Review / Testing |
+| [US-E7-02](../user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
+| [US-E7-03](../user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
 | [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 📋 Backlog |
 | [US-E7-05](../user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
 | [US-E7-06](../user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
 | [US-E7-17](../user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
+| [US-E7-18](../user-stories/US-E7-18.md) | ย้าย feedback ข้อความ → Toast component แบบ Android | Med | 📋 Backlog |
+| [US-E7-19](../user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | 🔍 Review / Testing |
 
 ---
 
@@ -84,10 +86,11 @@ gantt
 - [ ] ปุ่มเขียว = "เริ่มเกม"/"ตกลง"/"ต่อไป", ปุ่มแดง = "ยกเลิก" → [US-E7-15](../user-stories/US-E7-15.md)
 
 **Art หน้าจอ DOM**
-- [x] หน้าลงชื่อเข้าใช้ (Login, v0.17.0) + สมัครสมาชิก (Sign-up, v0.18.0) → [US-E7-02](../user-stories/US-E7-02.md) *(รอ QA มือถือ)*
+- [x] หน้าลงชื่อเข้าใช้ (Login, v0.17.0) + สมัครสมาชิก (Sign-up, v0.18.0) → [US-E7-02](../user-stories/US-E7-02.md) *(✅ ยืนยันมือถือ 2026-06-29)*
 - [x] หน้า Login ของ Admin → [US-E7-02](../user-stories/US-E7-02.md) (ขยายขอบเขตให้รวม Admin Login)
-- [x] หน้าข้อมูลผู้เล่น (Player-Info, v0.18.0) → [US-E7-03](../user-stories/US-E7-03.md) *(รอ QA มือถือ)*
+- [x] หน้าข้อมูลผู้เล่น (Player-Info, v0.18.0) → [US-E7-03](../user-stories/US-E7-03.md) *(✅ ยืนยันมือถือ 2026-06-29)*
 - [ ] หน้า Leaderboard → [US-E7-01](../user-stories/US-E7-01.md)
+- [x] หน้า Welcome: ปุ่มเข้าเกมใช้ art Start-Game-Button ("เริ่มเล่นเกม") → [US-E7-19](../user-stories/US-E7-19.md) *(v0.19.0, รอ QA มือถือ)*
 
 **Popup**
 - [ ] กรอบ Popup + นำไปใส่ Popup ต่าง ๆ ที่มีในเกม → [US-E7-04](../user-stories/US-E7-04.md)
@@ -97,6 +100,9 @@ gantt
 
 **Boot Loading**
 - [x] ปรับ boot loading ตอนเปิดเกมให้ใช้โลโก้เกมเหมือนหน้า Welcome และ dot progress จำนวน 5 จุด → [US-E7-17](../user-stories/US-E7-17.md)
+
+**Feedback / Toast**
+- [ ] ย้าย feedback ข้อความ (error/สถานะกำลังทำงาน) ใต้ช่องกรอกใน Login/Sign-up/Player-Info ฯลฯ → **Toast แบบ Android** (component แยกใน `src/ui/components/`) → [US-E7-18](../user-stories/US-E7-18.md) *(requirement ใหม่ 2026-06-29)*
 
 **ข้อมูลหลังบ้าน (coordination)**
 - [ ] ตกลงกับ **น้องเกม** เรื่องข้อมูลหลังบ้าน เช่น เงื่อนไข/ขั้นตอน **ลบข้อมูลผู้เล่นทั้งหมด** ให้ลบได้เลยโดยไม่ติดปัญหาทั้งฝั่ง SE และฝั่งเรา → เกี่ยวข้องกับ [US-E5-03](../user-stories/US-E5-03.md) และ [TD-DB-01](../user-stories/TD-DB-01.md) (Owner: ก้องไผ่ + น้องเกม)

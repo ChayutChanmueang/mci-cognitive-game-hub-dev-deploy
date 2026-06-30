@@ -7,11 +7,9 @@ kanban-plugin: board
 ## 📋 Backlog (Prioritized)
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
 - [ ] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard
-- [ ] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up *(เสร็จ v0.17.0/0.18.0; รอ QA มือถือ)*
 - [ ] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2)
 - [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
-- [ ] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info *(เสร็จ v0.18.0; รอ QA มือถือ)*
 - [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup
 - [ ] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก: เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ (Doctor FB #2)
 - [ ] [US-E7-10](user-stories/US-E7-10.md) ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (Doctor FB #2)
@@ -20,6 +18,8 @@ kanban-plugin: board
 - [ ] [US-E7-13](user-stories/US-E7-13.md) เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + คนแก่ดีใจ) (Doctor FB #2)
 - [ ] [US-E7-14](user-stories/US-E7-14.md) ปรับ Layout หน้าหลัก Game Hub (ระยะเลเวล/สลับชื่อ/เงาตัวละคร) (ก้องไผ่)
 - [ ] [US-E7-15](user-stories/US-E7-15.md) ระบบสีปุ่มมาตรฐาน เขียว=ยืนยัน/แดง=ยกเลิก (ก้องไผ่)
+- [ ] [US-E7-18](user-stories/US-E7-18.md) ย้าย feedback ข้อความ → Toast component แบบ Android (ก้องไผ่)
+- [ ] [US-E7-19](user-stories/US-E7-19.md) หน้า Welcome: ปุ่มเข้าเกมเป็น art Start-Game-Button (ก้องไผ่)
 - [ ] [US-E7-16](user-stories/US-E7-16.md) แก้ Popup หลังดูละคร + เข้าเกมซ้ำในวันเดิม (ก้องไผ่)
 - [ ] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen
 - [ ] [BUG-005](reports/bugs/BUG-005.md) โหลดช้า → premature navigation ดีดกลับหน้า Game Hub
@@ -34,6 +34,8 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up (+ Admin) — Figma components (v0.17.0/0.18.0)
+- [x] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info — Figma form panel (v0.18.0)
 - [x] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา
 - [x] TD-E6-03 อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน
 - [x] TD-E6-04 Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง

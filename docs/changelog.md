@@ -34,8 +34,17 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.16.0` | 2026-06-26 | Standardized Figma `Character_Shadow` (`.character-shadow`) applied under every คุณตา/คุณยาย figure (rest popup + check-in success + level-path nodes) |
 | `0.17.0` | 2026-06-26 | US-E7-02: Figma login art — Frame_Panel + Frame_TextFieldBox + Start-Game-Button applied to player & admin Login screens |
 | `0.18.0` | 2026-06-29 | US-E7-02/03: Figma form art — Frame_Form_Panel + Button_OK/Close + IconButtonBack applied to Sign-up & Player-Info screens |
+| `0.19.0` | 2026-06-29 | **(current)** US-E7-19: Welcome screen entry button uses the `Start-Game-Button` art (green "เริ่มเล่นเกม") instead of `md-filled-button` |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [2026-06-29] - New requirement: Toast component (US-E7-18, docs)
+**Docs-only** (no `package.json` bump). Records a new owner requirement.
+
+### Added
+- Created `US-E7-18` — move the inline feedback messages (errors + "กำลังทำงาน..." status) below the input fields on **Login, Admin Login, Sign-up, Player-Info** (and other feedback spots) into an **Android-style Toast**: a reusable class/module under `src/ui/components/` (e.g. `toast.js`), floating bottom-center, auto-dismiss, with `role`/`aria-live` and CSS in `public/components.css`. Saved the reference image under `docs/agile/user-stories/assets/us-e7-18-toast.jpg`.
+- Registered `US-E7-18` in `01-product-backlog.md` (E7), `sprint-07.md` (Owner Task Block → new "Feedback / Toast" group), and `kanban.md` (Backlog).
+- Created `US-E7-19` — the **Welcome screen** entry button still uses `md-filled-button` ("ลงชื่อเข้าใช้"), not the ported `Start-Game-Button` art; story tracks swapping it to `renderStartGameButton`. Registered in `01-product-backlog.md`, `sprint-07.md` (Art หน้าจอ DOM group), and `kanban.md`.
 
 ## [2026-06-26] - Sprint 7 boot loading visual refresh task (docs)
 **Docs-only** (no `package.json` bump). Records the initial Sprint 7 UI polish task; implementation is tracked in `0.14.0` below.
@@ -43,6 +52,12 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 ### Added
 - Created `US-E7-17` for refreshing the boot loading screen to use the game logo (`/Logo.png`, matching `src/ui/welcome-screen.js`) plus a 5-dot `.dotted-loader` progress indicator.
 - Added `US-E7-17` to `01-product-backlog.md`, `sprint-07.md`, and linked it from `docs/index.md`.
+
+## [0.19.0] - 2026-06-29
+**Version bump:** `0.18.0 → 0.19.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality.
+
+### Changed
+- **US-E7-19 — Welcome screen entry button.** `src/ui/welcome-screen.js` now renders the ported `Start-Game-Button` art (`renderStartGameButton`, green gradient pill) with the label **"เริ่มเล่นเกม"** instead of the `md-filled-button` "ลงชื่อเข้าใช้". Click still calls `onLogin()` (now wired via `.gh-start-button`). The button is sized to the Welcome column via a local `--gh-scale` (0.62, 0.5 ≤360px) on `.landing-screen__actions` in `public/style.css`.
 
 ## [0.18.0] - 2026-06-29
 **Version bump:** `0.17.0 → 0.18.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (Figma form art on Sign-up + Player-Info).
