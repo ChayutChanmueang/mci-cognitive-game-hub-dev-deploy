@@ -7,7 +7,7 @@
 // (and may update `.gh-start-button__label` to change the text). The Start-Game-Button is
 // rendered with its full base/fill/label divs so its size is defined by `--gh-scale`
 // (set on `.gh-popup`).
-import { renderFrameFormPanel } from "./frame-form-panel.js";
+import {renderFrameFormPanel, renderFramePopupPanel} from "./frame-form-panel.js";
 import { renderStartGameButton } from "./start-game-button.js";
 import { escapeText, escapeAttr } from "./escape.js";
 
@@ -22,7 +22,7 @@ export function renderFramePopupMarkup({ title = "", body = "", buttonLabel = "à
   return `
     <div class="app-popup__backdrop"></div>
     <div class="gh-popup" role="dialog" aria-modal="true"${ariaLabel ? ` aria-label="${escapeAttr(ariaLabel)}"` : ""}>
-      ${renderFrameFormPanel({
+      ${renderFramePopupPanel({
         className: "gh-popup__panel",
         header: `<h2 class="gh-frame-form-panel__title">${escapeText(title)}</h2>`,
         body,

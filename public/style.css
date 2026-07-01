@@ -972,7 +972,6 @@ body.game-mode .app-version-badge {
     position: relative;
     min-height: 0;
     display: grid;
-    align-content: center;
     justify-items: center;
     padding: 20px 0 16px;
 }
@@ -1069,11 +1068,11 @@ body.game-mode .app-version-badge {
 
 @keyframes resting-cat-center {
     0% {
-        transform: translateY(0) scale(1);
+        transform: translateY(25px) scale(1);
     }
 
     100% {
-        transform: translateY(18px) scale(1.05);
+        transform: translateY(clamp(25px, 11vh, 110px)) scale(1.05);
     }
 }
 

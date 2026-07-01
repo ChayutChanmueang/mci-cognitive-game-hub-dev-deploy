@@ -19,3 +19,11 @@ export function renderFrameFormPanel({ header = "", body = "", className = "" } 
       <div class="gh-frame-form-panel__body">${body}</div>
     </div>`;
 }
+
+export function renderFramePopupPanel({ header = "", body = "", className = "" } = {}) {
+  const cls = `gh-frame-form-panel${className ? ` ${className}` : ""}`;
+  return `<div class="${cls}">
+      <div class="gh-frame-form-panel__top">${header}</div>
+      <div class="gh-frame-popup-panel__body">${body}</div>
+    </div>`;
+}
