@@ -1108,12 +1108,25 @@ body.game-mode .app-version-badge {
     margin-top: 16px;
 }
 
+/* Tree-progression body: pin the subtitle ("เล่นเกมติดต่อกัน N วัน") to the top and
+   the tree + label + progress bar group to the bottom. `minmax(0, …)` on the bottom row
+   + `min-height: 0` lets the tree shrink instead of overflowing the panel when the
+   viewport is short. Scoped with :has so the success popup (character + message) keeps
+   its own centered layout. */
+.gh-frame-popup-panel__body:has(.tree-progress-body) {
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: stretch;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
 .tree-progress-body {
     display: flex;
     gap: 16px;
     justify-items: center;
     align-items: center;
-    height: fit-content;
+    height: 100%;
+    min-height: 0;
     padding: 0;
     flex-direction: column;
     justify-content: flex-end;
@@ -1127,15 +1140,26 @@ body.game-mode .app-version-badge {
     margin: 0 auto;
     display: flex;
     align-items: flex-end;
+    /* Shrinks (never grows) as the free space in the body changes; min-height:0 lets it
+       go below the image's intrinsic size so a short panel doesn't overflow. */
+    height: clamp(140px, 34vh, 300px);
+    flex: 0 1 auto;
+    min-height: 0;
+}
+
+/* Label + bar keep their size; the frame above absorbs all the shrinking. */
+.tree-progress-plant-label,
+.tree-progress-bar {
+    flex-shrink: 0;
 }
 
 .tree-progress-plant {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center;
+    object-fit: contain;
+    object-position: bottom center;
     display: block;
-    transform: 1.2;
 }
 
 .tree-progress-plant-label {
