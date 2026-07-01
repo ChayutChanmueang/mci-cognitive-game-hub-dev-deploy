@@ -1,3 +1,21 @@
+// US-E7-04 · popup-dialog.js — Figma popup art.
+// The generic confirm/prompt dialog now renders with the verified Figma components:
+//   • Frame_Panel (3161:657)        -> the white blue-stroke frame around title + message
+//   • Button_Close_Stroke (3204:28) -> the red "cancel" button (below the panel)
+//   • Button_OK_Stroke (3204:29)    -> the green "confirm" button (below the panel)
+// Layout follows the confirm mock (title + message inside the panel, two stroke
+// buttons below it). Acknowledge-only calls (no cancelText) show a single green button.
+//
+// The multi-choice mode (`actions: [...]`, e.g. the launch-with/without-history
+// picker) is a different, list-style page — per the design note we only swap its
+// FRAME to the Frame_Panel look and keep its existing Material button list intact.
+//
+// Behaviour is unchanged: returns a Promise resolving true (confirm), false
+// (cancel / dismiss / Escape / backdrop), or the chosen action value.
+import { renderFramePanel } from "./components/frame-panel.js";
+import { renderButtonOkStroke } from "./components/button-ok-stroke.js";
+import { renderButtonCloseStroke } from "./components/button-close-stroke.js";
+
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -37,57 +55,84 @@ export function showPopup(options = {}) {
                 }))
                 .filter((action) => action.label)
             : [];
-        const actionMarkup = customActions.length
-            ? customActions.map((action, index) => {
-                const tagName = action.variant === "filled" ? "md-filled-button" : "md-outlined-button";
-                return `
-                    <${tagName} type="button" data-popup-action="custom" data-popup-action-index="${index}">
-                        ${escapeHtml(action.label)}
-                    </${tagName}>
-                `;
-            }).join("")
-            : `
-                ${
-                    hasCancel
-                        ? `
-                            <md-outlined-button type="button" data-popup-action="cancel">
-                                ${escapeHtml(cancelText)}
-                            </md-outlined-button>
-                        `
-                        : ""
-                }
-                <md-filled-button type="button" data-popup-action="confirm">
-                    ${escapeHtml(confirmText)}
-                </md-filled-button>
-            `;
 
         overlay.className = "app-popup";
-        overlay.innerHTML = `
-            <div class="app-popup__backdrop"></div>
-            <div
-                class="app-popup__dialog app-popup__dialog--prompt app-popup__dialog--${escapeHtml(tone)}"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="${titleId}"
-                aria-describedby="${messageId}"
-            >
-                <div class="app-popup__header">
-                    <div class="app-popup__icon-wrap">
-                        <span class="material-symbols-rounded app-popup__icon">${escapeHtml(icon)}</span>
-                    </div>
-                    <div class="app-popup__copy">
-                        <h2 id="${titleId}">${escapeHtml(title)}</h2>
-                        <p id="${messageId}">${escapeHtml(message)}</p>
-                    </div>
-                </div>
-                <div class="app-popup__actions">
-                    ${actionMarkup}
-                </div>
-            </div>
-        `;
 
-        const confirmButton = overlay.querySelector('[data-popup-action="confirm"]');
-        const cancelButton = overlay.querySelector('[data-popup-action="cancel"]');
+        if (customActions.length) {
+            // ── Multi-choice (list) mode — Image #10 style: change only the frame.
+            // Keep the existing header + Material button list; wrap it in the
+            // Frame_Panel look via the `gh-dialog--framed` class.
+            const actionMarkup = customActions
+                .map((action, index) => {
+                    const tagName = action.variant === "filled" ? "md-filled-button" : "md-outlined-button";
+                    return `
+                        <${tagName} type="button" data-popup-action="custom" data-popup-action-index="${index}">
+                            ${escapeHtml(action.label)}
+                        </${tagName}>
+                    `;
+                })
+                .join("");
+
+            overlay.innerHTML = `
+                <div class="app-popup__backdrop"></div>
+                <div
+                    class="app-popup__dialog app-popup__dialog--prompt app-popup__dialog--${escapeHtml(tone)} gh-dialog--framed"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="${titleId}"
+                    aria-describedby="${messageId}"
+                >
+                    <div class="app-popup__header">
+                        <div class="app-popup__icon-wrap">
+                            <span class="material-symbols-rounded app-popup__icon">${escapeHtml(icon)}</span>
+                        </div>
+                        <div class="app-popup__copy">
+                            <h2 id="${titleId}">${escapeHtml(title)}</h2>
+                            <p id="${messageId}">${escapeHtml(message)}</p>
+                        </div>
+                    </div>
+                    <div class="app-popup__actions">
+                        ${actionMarkup}
+                    </div>
+                </div>
+            `;
+        } else {
+            // ── Confirm / acknowledge mode — Image #9 style: Frame_Panel holds the
+            // centered title + message; stroke buttons sit below it.
+            const actionsMarkup = hasCancel
+                ? `<div class="gh-dialog-popup__button">
+                    ${renderButtonCloseStroke({ label: cancelText })}
+                </div>
+                <div class="gh-dialog-popup__button">
+                ${renderButtonOkStroke({ label: confirmText })}
+                </div>`
+                : renderButtonOkStroke({ label: confirmText });
+
+            overlay.innerHTML = `
+                <div class="app-popup__backdrop"></div>
+                <div
+                    class="gh-dialog"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="${titleId}"
+                    ${message ? `aria-describedby="${messageId}"` : ""}
+                >
+                    ${renderFramePanel({
+                        className: "gh-dialog__panel",
+                        body: `
+                            <h2 id="${titleId}" class="gh-dialog__title">${escapeHtml(title)}</h2>
+                            ${message ? `<p id="${messageId}" class="gh-dialog__message">${escapeHtml(message)}</p>` : ""}
+                        `,
+                    })}
+                    <div class="gh-dialog__actions">
+                        ${actionsMarkup}
+                    </div>
+                </div>
+            `;
+        }
+
+        const confirmButton = overlay.querySelector(".gh-button-ok-stroke");
+        const cancelButton = overlay.querySelector(".gh-button-close-stroke");
         const customActionButtons = overlay.querySelectorAll('[data-popup-action="custom"]');
         const backdrop = overlay.querySelector(".app-popup__backdrop");
         const previousOverflow = document.body.style.overflow;
@@ -103,7 +148,7 @@ export function showPopup(options = {}) {
             overlay.remove();
             document.body.style.overflow = previousOverflow;
             document.removeEventListener("keydown", onKeyDown);
-resolve(result);
+            resolve(result);
         };
 
         const onKeyDown = (event) => {

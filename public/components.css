@@ -23,6 +23,8 @@
   --main-gh-scale: 0.48;
   --main-gh-width: 240px;
   --main-gh-height: 90px;
+  --bt-dialog-gh-width: 150px;
+  --bt-dialog-height: 75px;
   --main-font: "Noto Sans Thai Looped";
   --main-font-type: sans-serif;
 }
@@ -1055,7 +1057,7 @@
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: 42px;
-  line-height: 1.1;
+  transform: translateY(-5px);
 }
 
 .gh-frame-form-panel__body {
@@ -1090,7 +1092,7 @@
 }
 
 .gh-icon-button-back__svg {
-  width: 50px;
+  width: 48px;
   height: auto;
   overflow: visible;
   bottom: 5px;
@@ -1195,6 +1197,138 @@
   pointer-events: none;
 }
 
+/* Button_OK_Stroke · 3204:29  /  Button_Close_Stroke · 3204:28
+ * Stroke variants: white OUTSIDE stroke (box-shadow spread) + baked-in Thai label.
+ * Exact Figma bbox 353.75 x 182.32984924316406, scaled by --gh-scale.
+ * Follows the start-game-button pattern; label centered + hidden Figma text stroke
+ * omitted (Figma had it visible:false). */
+.gh-button-ok-stroke,
+.gh-button-close-stroke {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gh-button-ok-stroke[disabled],
+.gh-button-close-stroke[disabled] {
+  cursor: default;
+  opacity: 0.5; /* non-Figma affordance for the disabled state */
+}
+
+.gh-button-ok-stroke__base,
+.gh-button-close-stroke__base { /* 3204:21 / 3204:14 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(65px * var(--gh-scale, 1));
+  box-shadow: 0 0 0 calc(10.4615478515625px * var(--gh-scale, 1)) rgba(255, 255, 255, 1);
+  z-index: 1;
+}
+
+.gh-button-ok-stroke__fill,
+.gh-button-close-stroke__fill { /* 3204:22 / 3204:15 (top-aligned; dark base shows a lip below) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 95%;
+  border-radius: calc(65px * var(--gh-scale, 1));
+  z-index: 2;
+}
+
+.gh-button-ok-stroke__base { background: rgb(65, 134, 29); }
+.gh-button-ok-stroke__fill { background: linear-gradient(to bottom, rgb(125, 215, 76) 0%, rgb(74, 157, 29) 100%); }
+.gh-button-close-stroke__base { background: rgb(201, 45, 45); }
+.gh-button-close-stroke__fill { background: linear-gradient(to bottom, rgb(252, 106, 106) 0%, rgb(242, 50, 50) 100%); }
+
+.gh-button-ok-stroke__label,
+.gh-button-close-stroke__label { /* 3204:24 / 3204:17 (orange stroke hidden -> plain #fff) */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: calc(48px * var(--gh-scale, 1));
+  line-height: normal;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* US-E7-04 · popup-dialog.js confirm/prompt (Frame 1257 layout).
+ * Frame_Panel holds centered title + message; Button_Close_Stroke +
+ * Button_OK_Stroke sit below it. --gh-scale here sizes the stroke buttons. */
+.gh-dialog {
+  --gh-scale: var(--main-gh-scale);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 4vh, 34px);
+  width: min(100%, 520px);
+}
+
+.gh-dialog__panel { /* extends .gh-frame-panel */
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  gap: clamp(10px, 2.4vh, 18px);
+  padding: clamp(28px, 6vw, 52px) clamp(24px, 6vw, 56px);
+  text-align: center;
+}
+
+.gh-dialog__title {
+  margin: 0;
+  color: #1c1c1c;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.gh-dialog__message {
+  margin: 0;
+  color: #333333;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 400;
+  font-size: clamp(1.15rem, 4.4vw, 1.6rem);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.gh-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 5vw, 40px);
+}
+
+/* Multi-choice (list) mode — Image #10: keep the existing prompt dialog layout +
+ * Material buttons, only swap the frame to the Frame_Panel look (3161:658 values).
+ * Two-class selector so it overrides the base .app-popup__dialog frame regardless
+ * of stylesheet order. */
+.app-popup__dialog.gh-dialog--framed {
+  background: #ffffff;
+  border: 0;
+  border-radius: 40px;
+  box-shadow:
+    0 0 0 6px rgb(138, 197, 219),
+    0 6px 4px 6px rgba(0, 0, 0, 0.15);
+}
+
 /* Player-Info / Sign-up shared field rows (one grid so labels + fields align across rows) */
 .gh-form__rows {
   display: grid;
@@ -1275,6 +1409,11 @@
 .gh-popup__button {
   width: var(--main-gh-width);
   height: var(--main-gh-height);
+}
+
+.gh-dialog-popup__button {
+  width: var(--bt-dialog-gh-width);
+  height: var(--bt-dialog-height);
 }
 
 .gh-popup__character {
