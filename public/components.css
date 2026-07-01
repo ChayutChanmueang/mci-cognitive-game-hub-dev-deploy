@@ -1257,6 +1257,7 @@
   width: 100%;
   max-width: 100%;
   margin-top: 12px;
+  align-items: end;
 }
 
 .gh-popup__character-img {
@@ -1267,6 +1268,7 @@
   width: 100%;
   height: auto;
   user-select: none;
+  padding-bottom: 5px;
   -webkit-user-drag: none;
 }
 

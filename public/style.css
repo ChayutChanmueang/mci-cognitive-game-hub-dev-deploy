@@ -1072,7 +1072,7 @@ body.game-mode .app-version-badge {
     }
 
     100% {
-        transform: translateY(clamp(25px, 1vh, 110px)) scale(1.05);
+        transform: translateY(-25px) scale(1.05);
     }
 }
 
@@ -1109,23 +1109,24 @@ body.game-mode .app-version-badge {
 }
 
 .tree-progress-body {
-    display: grid;
+    display: flex;
     gap: 16px;
-    align-content: center;
     justify-items: center;
+    align-items: center;
     height: fit-content;
     padding: 0;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 .tree-progress-frame {
     align-content: center;
-    justify-items: center;
+    justify-content: center;
     width: auto;
-    height: 300px;
     padding: 0;
     margin: 0 auto;
-    overflow: hidden;
     display: flex;
+    align-items: flex-end;
 }
 
 .tree-progress-plant {
