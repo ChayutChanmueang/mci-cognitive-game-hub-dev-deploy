@@ -1068,11 +1068,11 @@ body.game-mode .app-version-badge {
 
 @keyframes resting-cat-center {
     0% {
-        transform: translateY(25px) scale(1);
+        transform: translateY(-25px) scale(1);
     }
 
     100% {
-        transform: translateY(clamp(25px, 11vh, 110px)) scale(1.05);
+        transform: translateY(clamp(25px, 1vh, 110px)) scale(1.05);
     }
 }
 
