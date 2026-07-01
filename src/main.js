@@ -805,7 +805,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการลบประวัติ",
                     message: "ต้องการลบประวัติการเล่นทั้งหมดของวันนี้ใช่หรือไม่",
-                    confirmText: "ลบข้อมูลวันนี้",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "delete",
                     tone: "error",
@@ -861,7 +861,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "บันทึกว่าเล่นครบทั้งหมด",
                     message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพัก โดยไม่บันทึกเช็คชื่อ",
-                    confirmText: "บันทึกข้อมูลทดสอบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "checklist",
                 });
@@ -941,7 +941,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "logout",
                     tone: "error",
@@ -1360,7 +1360,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const handleExit = async () => {
                 const colors = GAME_COLORS[slug] || {};
                 const confirmed = await showGameExitPopup({
-                    confirmText: "ออกจากการแข่งขัน",
+                    confirmText: "ออก",
                     panelBorderColor: colors.border,
                     panelHeaderColor: colors.header,
                     primaryFontColor: colors.textPrimary,
@@ -1550,7 +1550,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const shouldCreatePatient = await showPopup({
                     title: "ไม่พบเลข ID",
                     message: `ไม่พบข้อมูลผู้เล่นเลข ${patientCodeLabel} ต้องการลงทะเบียนผู้เล่นใหม่หรือไม่`,
-                    confirmText: "สร้างผู้เล่นใหม่",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "person_add",
                 });
@@ -1705,7 +1705,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "กลับไปหน้าเกม",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปหน้าเกมของผู้เล่นใช่หรือไม่",
-                    confirmText: "ออกจากระบบผู้ดูแล",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "arrow_back",
                     tone: "error",
@@ -1744,7 +1744,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและผู้เล่น แล้วกลับไปหน้าเข้าสู่ระบบใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "logout",
                     tone: "error",
@@ -1855,7 +1855,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการลบประวัติ",
                     message: "ต้องการลบประวัติการเล่นทั้งหมดของวันนี้ใช่หรือไม่",
-                    confirmText: "ลบข้อมูลวันนี้",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "delete",
                     tone: "error",
@@ -1937,7 +1937,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "บันทึกว่าเล่นครบทั้งหมด",
                     message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพัก โดยไม่บันทึกเช็คชื่อ",
-                    confirmText: "บันทึกข้อมูลทดสอบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "checklist",
                 });
@@ -1986,7 +1986,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "logout",
                     tone: "error",
@@ -2342,7 +2342,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 await showPopup({
                     title: "ไม่พบข้อมูลเกม",
                     message: "ระบบไม่พบเกมที่ระบุในฐานข้อมูล จึงไม่สามารถเปิดเกมนี้ได้",
-                    confirmText: "กลับไปหน้าเกม",
+                    confirmText: "รับทราบ",
                     icon: "warning",
                     tone: "error",
                 });
