@@ -1,3 +1,18 @@
+// US-E7-04 · game-exit-popup.js — Figma popup art (same system as popup-dialog.js).
+// Renders with the verified Figma components:
+//   • Frame_Panel (3161:657)        -> the white blue-stroke frame around title + message
+//   • Button_Close_Stroke (3204:28) -> the red "cancel" button (keep playing, resolves false)
+//   • Button_OK_Stroke (3204:29)    -> the green "confirm" button (exit, resolves true)
+//
+// Layout follows the confirm mock (title + message inside the panel, two stroke
+// buttons below it), matching popup-dialog.js confirm mode.
+//
+// Behaviour is unchanged: returns a Promise resolving true (confirm/exit) or
+// false (cancel/keep playing / dismiss / Escape / backdrop).
+import { renderFramePanel } from "./components/frame-panel.js";
+import { renderButtonOkStroke } from "./components/button-ok-stroke.js";
+import { renderButtonCloseStroke } from "./components/button-close-stroke.js";
+
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -12,55 +27,53 @@ export function showGameExitPopup(options = {}) {
         return Promise.resolve(false);
     }
 
-        const {
+    const {
         title = "ออกจากเกม",
         message = "คุณต้องการออกจากเกมที่กำลังเล่นอยู่ใช่หรือไม่? ความก้าวหน้าในรอบนี้อาจจะไม่ถูกบันทึก",
-        confirmText = "ออกจากเกม",
+        confirmText = "ออก",
         cancelText = "เล่นต่อ",
-        icon = "logout",
-        tone = "error",
         dismissible = false,
-        panelBorderColor = null,
-        panelHeaderColor = null,
-        primaryFontColor = null,
-        secondaryFontColor = null,
+        // Retained for call-site compatibility (main.js passes per-game colors);
+        // the shared popup-dialog art is neutral (fixed Frame_Panel), so they are unused.
+        // eslint-disable-next-line no-unused-vars
+        icon, tone, panelBorderColor, panelHeaderColor, primaryFontColor, secondaryFontColor,
     } = options;
 
     return new Promise((resolve) => {
         const overlay = document.createElement("div");
         const titleId = `popup-title-${Date.now()}`;
         const messageId = `popup-message-${Date.now()}`;
-        
+
         overlay.className = "app-popup";
         overlay.innerHTML = `
             <div class="app-popup__backdrop"></div>
             <div
-                class="app-popup__dialog"
+                class="gh-dialog"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="${titleId}"
-                aria-describedby="${messageId}"
-                style="width: min(100%, 500px); padding: 0; gap: 0; border-radius: 64px; border: 6px solid ${escapeHtml(panelBorderColor || '#54AC24')}; overflow: hidden; background: #FFFFFF; display: flex; flex-direction: column;"
+                ${message ? `aria-describedby="${messageId}"` : ""}
             >
-                <div style="background-color: ${escapeHtml(panelHeaderColor || '#65BD35')}; padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <h2 id="${titleId}" style="margin: 0; font-size: 32px; color: #FFFFFF; font-weight: 700; line-height: 1.2;">${escapeHtml(title)}</h2>
-                </div>
-                <div style="padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 32px; text-align: left;">
-                    <p id="${messageId}" style="margin: 0; font-size: 22px; line-height: 1.6; color: ${escapeHtml(primaryFontColor || '#4A4A4A')};">${escapeHtml(message)}</p>
-                    <div class="app-popup__actions">
-                        <md-outlined-button type="button" data-popup-action="confirm" style="--md-sys-color-primary: ${escapeHtml(secondaryFontColor || '#65BD35')}; --md-sys-color-outline: ${escapeHtml(secondaryFontColor || '#65BD35')};">
-                            ${escapeHtml(confirmText)}
-                        </md-outlined-button>
-                        <md-filled-button type="button" data-popup-action="cancel" style="--md-sys-color-primary: ${escapeHtml(panelHeaderColor || '#65BD35')}; --md-sys-color-on-primary: #FFFFFF;">
-                            ${escapeHtml(cancelText)}
-                        </md-filled-button>
+                ${renderFramePanel({
+                    className: "gh-dialog__panel",
+                    body: `
+                        <h2 id="${titleId}" class="gh-dialog__title">${escapeHtml(title)}</h2>
+                        ${message ? `<p id="${messageId}" class="gh-dialog__message">${escapeHtml(message)}</p>` : ""}
+                    `,
+                })}
+                <div class="gh-dialog__actions">
+                    <div class="gh-dialog-popup__button">
+                        ${renderButtonCloseStroke({ label: cancelText })}
+                    </div>
+                    <div class="gh-dialog-popup__button">
+                        ${renderButtonOkStroke({ label: confirmText })}
                     </div>
                 </div>
             </div>
         `;
 
-        const confirmButton = overlay.querySelector('[data-popup-action="confirm"]');
-        const cancelButton = overlay.querySelector('[data-popup-action="cancel"]');
+        const confirmButton = overlay.querySelector(".gh-button-ok-stroke");
+        const cancelButton = overlay.querySelector(".gh-button-close-stroke");
         const backdrop = overlay.querySelector(".app-popup__backdrop");
         const previousOverflow = document.body.style.overflow;
 
@@ -106,3 +119,5 @@ export function showGameExitPopup(options = {}) {
         });
     });
 }
+
+export default showGameExitPopup;
