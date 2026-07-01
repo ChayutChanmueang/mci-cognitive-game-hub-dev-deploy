@@ -32,3 +32,18 @@ export function renderFramePopupMarkup({ title = "", body = "", buttonLabel = "�
       </div>
     </div>`;
 }
+
+export function renderFramePopupShortMarkup({ title = "", body = "", buttonLabel = "ต่อไป", ariaLabel } = {}) {
+    return `
+    <div class="app-popup__backdrop"></div>
+    <div class="gh-popup-short" role="dialog" aria-modal="true"${ariaLabel ? ` aria-label="${escapeAttr(ariaLabel)}"` : ""}>
+      ${renderFramePopupPanel({
+        className: "gh-popup__panel",
+        header: `<h2 class="gh-frame-form-panel__title">${escapeText(title)}</h2>`,
+        body,
+    })}
+      <div class="gh-popup__button">
+        ${renderStartGameButton({ label: buttonLabel })}
+      </div>
+    </div>`;
+}

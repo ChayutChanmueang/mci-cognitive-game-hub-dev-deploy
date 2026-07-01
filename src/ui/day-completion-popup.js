@@ -1,4 +1,4 @@
-import { renderFramePopupMarkup } from "./components/frame-popup.js";
+import {renderFramePopupMarkup, renderFramePopupShortMarkup} from "./components/frame-popup.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -69,7 +69,7 @@ export function showDayCompletionPopup(options = {}) {
         const character = getRestingCharacter(gender);
         const overlay = document.createElement("div");
         overlay.className = "app-popup";
-        overlay.innerHTML = renderFramePopupMarkup({
+        overlay.innerHTML = renderFramePopupShortMarkup({
             title: "วันนี้พักก่อน",
             ariaLabel: "วันนี้พักก่อน",
             buttonLabel: "กลับหน้าหลัก",

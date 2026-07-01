@@ -19,6 +19,14 @@
   --gh-scale: calc(420 / 1080);
 }
 
+:root {
+  --main-gh-scale: 0.48;
+  --main-gh-width: 240px;
+  --main-gh-height: 90px;
+  --main-font: "Noto Sans Thai Looped";
+  --main-font-type: sans-serif;
+}
+
 /* ── Part 1 · Node states (Pass / Current / Next + fryfood variant) ─────────
  * Coordinates are at the Figma 1080x1920 frame scale (px). Sizing/scaling into
  * the production .hub-clean-level__node container is reconciled in Part 8.
@@ -217,7 +225,7 @@
   position: absolute;
 }
 .gh-node-num text {
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: 80px;
 }
@@ -287,7 +295,7 @@
   width: calc(259px * var(--gh-scale, 1));
   height: calc(69px * var(--gh-scale, 1));
   text-align: center;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: calc(43px * var(--gh-scale, 1));
   line-height: normal;
@@ -346,13 +354,13 @@
 }
 .gh-start-button__label { /* 3108:66 */
   position: relative;
-  width: calc(326px * var(--gh-scale, 1));
+  width: 100%;
   height: calc(107px * var(--gh-scale, 1));
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
-  font-size: calc(48px * var(--gh-scale, 1));
+  font-size: calc(56px * var(--gh-scale, 1));
   text-align: center;
-  transform: translateY(6px);
+  transform: translateY(0px);
   color: #ffffff;
   z-index: 3;
 }
@@ -374,7 +382,7 @@
   position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: 0;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: calc(78.55112px * var(--gh-scale, 1));
   line-height: normal;
@@ -385,7 +393,7 @@
   position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: calc(101.65625px * var(--gh-scale, 1));
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 500;
   font-size: calc(51.98235px * var(--gh-scale, 1));
   line-height: normal;
@@ -398,7 +406,7 @@
   top: calc(184.828125px * var(--gh-scale, 1));
   width: calc(515.2029px * var(--gh-scale, 1));
   margin: 0;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 500;
   font-size: calc(36.96523px * var(--gh-scale, 1));
   line-height: normal;
@@ -494,7 +502,7 @@
 }
 .gh-header-bar span {
   position: absolute;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   line-height: normal;
   white-space: nowrap;
 }
@@ -779,7 +787,7 @@
   border-radius: calc(40px * var(--gh-scale, 1));
   background: rgba(255, 255, 255, 0.9);
   /*border: calc(3px * var(--gh-scale, 1)) solid rgba(183, 176, 168, 0.62);*/
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: calc(44px * var(--gh-scale, 1));
   line-height: 1.15;
@@ -847,7 +855,7 @@
  * lengths so they reflow on phones. Exact Figma colors/strokes are preserved.
  */
 .gh-login {
-  --gh-scale: 0.6;
+  --gh-scale: var(--main-gh-scale);
   width: 100%;
   display: grid;
   justify-items: center;
@@ -893,7 +901,7 @@
   margin: 0;
   text-align: center;
   color: #151515;
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: clamp(2rem, 7vw, 2.6rem);
   line-height: 1.1;
@@ -929,7 +937,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-size: clamp(1rem, 4vw, 1.1rem);
   color: #1f1f1f;
   padding: clamp(14px, 2.4vh, 20px) clamp(18px, 4vw, 26px);
@@ -973,7 +981,7 @@
   padding: 0;
   color: #305A69;
   font-size: clamp(1rem, 3.6vw, 1.1rem);
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 600;
   text-align: right;
   white-space: nowrap;
@@ -990,7 +998,7 @@
 
 @media (max-width: 360px) {
   .gh-login {
-    --gh-scale: 0.5;
+    --gh-scale: var(--main-gh-scale);
   }
 }
 
@@ -1006,6 +1014,7 @@
 
 .gh-form__stack {
   width: min(100%, 520px);
+  margin-bottom: 75px;
 }
 
 /* Frame_Form_Panel (3161:746) — white panel + blue stroke 12 + drop shadow + blue header. */
@@ -1043,7 +1052,7 @@
   margin: 0;
   text-align: center;
   color: #ffffff;
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: 42px;
   line-height: 1.1;
@@ -1093,7 +1102,7 @@
   width: 100%;
   min-width: 0;
   padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 24px);
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-size: clamp(1rem, 4vw, 1.3rem);
   color: #1f1f1f;
   line-height: 1.3;
@@ -1110,7 +1119,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-size: clamp(1.05rem, 4.4vw, 1.4rem);
   color: #1f1f1f;
   padding: clamp(14px, 2.4vh, 20px) clamp(40px, 9vw, 48px) clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 24px);
@@ -1179,7 +1188,7 @@
   justify-content: center;
   padding-bottom: 0.5%;
   color: #ffffff;
-  font-family: "Noto Sans Thai Looped", "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: clamp(1.2rem, 4.6vw, 1.7rem);
   white-space: nowrap;
@@ -1196,7 +1205,7 @@
 
 .gh-form__label {
   color: #1f1f1f;
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 600;
   font-size: clamp(1rem, 3.6vw, 1.3rem);
   text-align: right;
@@ -1224,7 +1233,7 @@
  * Shared by check-in success, resting, and day/program-completion popups.
  */
 .gh-popup {
-  --gh-scale: 0.62;
+  --gh-scale: var(--main-gh-scale);
   position: relative;
   z-index: 1;
   display: grid;
@@ -1242,11 +1251,30 @@
   grid-template-rows: auto minmax(0, 1fr);
 }
 
+.gh-popup-short {
+  --gh-scale: var(--main-gh-scale);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: clamp(16px, 3vh, 26px);
+  width: min(100%, 420px);
+}
+
+.gh-popup-short .gh-frame-form-panel {
+  width: 100%;
+  height: clamp(320px, 75vh, 520px);
+  /* Header takes its own height; the body fills the rest. Without this the body's
+     `height: 100%` resolves against the full panel height and overflows past the
+     header by the header's height. `minmax(0, …)` lets the body shrink/scroll. */
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
 /* Sizing wrapper for the Start-Game-Button (the button itself is width/height:100%,
    so its box size is defined here; --gh-scale on .gh-popup scales radius + label). */
 .gh-popup__button {
-  width: 240px;
-  height: 90px;
+  width: var(--main-gh-width);
+  height: var(--main-gh-height);
 }
 
 .gh-popup__character {
@@ -1285,17 +1313,18 @@
   margin: 0;
   text-align: center;
   color: #7a5a39;
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: clamp(1.3rem, 5.4vw, 1.85rem);
   line-height: 1.35;
   max-width: 24ch;
   overflow-wrap: anywhere;
+  align-self: anchor-center;
 }
 
 @media (max-width: 380px) {
   .gh-popup {
-    --gh-scale: 0.5;
+    --gh-scale: var(--main-gh-scale);
   }
 }
 
@@ -1303,7 +1332,7 @@
    plain Frame_Panel (no header). The frame is large while playing and collapses once the
    clip ends, revealing the Start-Game-Button below it. */
 .gh-video-popup {
-  --gh-scale: 0.62;
+  --gh-scale: var(--main-gh-scale);
   position: relative;
   z-index: 1;
   display: flex;
@@ -1330,7 +1359,7 @@
   font-weight: 700;
   font-size: clamp(2.3rem, 15vw, 2.3rem);
   text-align: center;
-  font-family: "Noto Sans Thai", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   line-height: 2;
   margin: 0;
 }
@@ -1366,13 +1395,14 @@
 }
 
 .gh-video-popup__button {
+  --gh-scale: var(--main-gh-scale);
   justify-self: center;
   align-self: center;
   display: none;
   grid-row: 2;
   justify-items: center;
-  width: 280px;
-  height: 100px;
+  width: var(--main-gh-width);
+  height: var(--main-gh-height);
 }
 
 /* On end, revealing the button reduces the space left for the frame; the frame is
