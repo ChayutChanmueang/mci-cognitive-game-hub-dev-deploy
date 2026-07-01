@@ -1333,7 +1333,7 @@
   aspect-ratio: 9 / 16;
   display: flex;
   overflow: hidden;
-  width: min(93cqw, 90cqh * 9 / 16);
+  width: min(45vh, 80cqh * 9 / 16);
   align-self: center;
 }
 
@@ -1363,6 +1363,6 @@
 }
 
 .gh-video-popup.is-ended .gh-video-popup__frame {
-  width: min(65cqw, 80cqh * 9 / 16);
+  width: min(40vh, 80cqh * 9 / 16);
   margin-bottom: 25px;
 }
