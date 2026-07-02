@@ -1,6 +1,7 @@
 import { RollingCountdownTimer } from "../util/Odometer/odometer.js";
 import "../util/Odometer/odometer.css";
 import { renderFramePopupMarkup } from "./components/frame-popup.js";
+import { dismissPopup } from "./transition/popup-transition.js";
 
 const CAT_SLEEPING_GIF = "/assets/resting-point/resting-cat/cat-sleep.gif";
 const CAT_JUMPING_GIF = "/assets/resting-point/resting-cat/cat-jump.gif";
@@ -34,9 +35,9 @@ export function showRestingPointPopup(options = {}) {
                 intervalId = null;
             }
             timerDisplay?.destroy();
-            overlay.remove();
             document.removeEventListener("keydown", onKeyDown);
-            resolve(result);
+            // Play the leave animation, then remove + resolve (US-E7-20).
+            dismissPopup(overlay).then(() => resolve(result));
         };
 
         const onKeyDown = (event) => {

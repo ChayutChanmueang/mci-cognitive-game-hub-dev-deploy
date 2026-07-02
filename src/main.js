@@ -11,6 +11,8 @@ import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { showGameExitPopup } from "./ui/game-exit-popup.js";
+import { showLoadingOverlay, hideLoadingOverlay } from "./ui/loading-overlay.js";
+import { renderWithFade } from "./ui/transition/screen-transition.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
 import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
@@ -2210,19 +2212,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (route.name === "home") {
-            showLanding();
+            await renderWithFade(uiRoot, () => showLanding());
             return;
         }
 
         if (route.name === "login") {
-            showLogin({
+            await renderWithFade(uiRoot, () => showLogin({
                 patientCode: SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "",
-            });
+            }));
             return;
         }
 
         if (route.name === "admin-login") {
-            showAdminLogin();
+            await renderWithFade(uiRoot, () => showAdminLogin());
             return;
         }
 
@@ -2240,12 +2242,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 return navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
             }
 
-            await showPlayerInfo();
+            await renderWithFade(uiRoot, () => showPlayerInfo());
             return;
         }
 
         if (route.name === "leaderboard") {
-            await showLeaderboard();
+            await renderWithFade(uiRoot, () => showLeaderboard());
             return;
         }
 
@@ -2255,24 +2257,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 return navigateTo(ROUTES.login, { replace: true });
             }
 
-            await showSignup({
+            await renderWithFade(uiRoot, () => showSignup({
                 patientCode: pendingPatientCode,
-            });
+            }));
             return;
         }
 
         if (route.name === "checkin-summary") {
-            await showCheckInSummary();
+            await renderWithFade(uiRoot, () => showCheckInSummary());
             return;
         }
 
         if (route.name === "daily-preset-tool") {
-            showDailyPresetTool();
+            await renderWithFade(uiRoot, () => showDailyPresetTool());
             return;
         }
 
         if (route.name === "daily-preset-editor") {
-            showDailyPresetEditor(route.presetId);
+            await renderWithFade(uiRoot, () => showDailyPresetEditor(route.presetId));
             return;
         }
 
@@ -2286,10 +2288,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 return navigateTo(canonicalTestHubRoute, { replace: true });
             }
 
-            await showTestGameHub({
-                initialScene: route.scene,
-                initialCategory: route.category,
-            });
+            // US-E7-20: Game Hub entry shows the loading overlay (not a fade).
+            showLoadingOverlay();
+            try {
+                await showTestGameHub({
+                    initialScene: route.scene,
+                    initialCategory: route.category,
+                });
+            } finally {
+                hideLoadingOverlay();
+            }
             return;
         }
 
@@ -2303,77 +2311,90 @@ document.addEventListener("DOMContentLoaded", () => {
                 return navigateTo(canonicalHubRoute, { replace: true });
             }
 
-            await showHub({
-                initialScene: route.scene,
-                initialCategory: route.category,
-            });
+            // US-E7-20: Game Hub entry shows the loading overlay (not a fade).
+            showLoadingOverlay();
+            try {
+                await showHub({
+                    initialScene: route.scene,
+                    initialCategory: route.category,
+                });
+            } finally {
+                hideLoadingOverlay();
+            }
             return;
         }
 
         if (route.name === "game") {
-            let selectedGame = null;
-
+            // US-E7-20: minigame entry shows the loading overlay while the game module
+            // + Phaser boot; hidden in `finally` once the game is up (or on any exit).
+            showLoadingOverlay();
             try {
-                selectedGame = await db.getGameByGid(route.gid);
-            } catch (error) {
-                console.error(`Unable to fetch game by gid ${route.gid}:`, error);
-            }
+                let selectedGame = null;
 
-            const persistedGame = getPersistedSelectedGameByGid(route.gid);
-            selectedGame = selectedGame || persistedGame;
-            if (selectedGame && persistedGame) {
-                selectedGame = {
-                    ...selectedGame,
-                    stage: persistedGame.stage,
-                    level: persistedGame.level,
-                    day: persistedGame.day,
-                    presetDataId: persistedGame.presetDataId,
-                    displayName: persistedGame.displayName || selectedGame.displayName,
-                    th_name: persistedGame.th_name || selectedGame.th_name,
-                };
-            }
+                try {
+                    selectedGame = await db.getGameByGid(route.gid);
+                } catch (error) {
+                    console.error(`Unable to fetch game by gid ${route.gid}:`, error);
+                }
 
-            if (currentRenderVersion !== routeRenderVersion) {
-                return;
-            }
+                const persistedGame = getPersistedSelectedGameByGid(route.gid);
+                selectedGame = selectedGame || persistedGame;
+                if (selectedGame && persistedGame) {
+                    selectedGame = {
+                        ...selectedGame,
+                        stage: persistedGame.stage,
+                        level: persistedGame.level,
+                        day: persistedGame.day,
+                        presetDataId: persistedGame.presetDataId,
+                        displayName: persistedGame.displayName || selectedGame.displayName,
+                        th_name: persistedGame.th_name || selectedGame.th_name,
+                    };
+                }
 
-            if (!selectedGame) {
-                clearSelectedGameState();
-                await showPopup({
-                    title: "ไม่พบข้อมูลเกม",
-                    message: "ระบบไม่พบเกมที่ระบุในฐานข้อมูล จึงไม่สามารถเปิดเกมนี้ได้",
-                    confirmText: "รับทราบ",
-                    icon: "warning",
-                    tone: "error",
-                });
-                navigateTo(ROUTES.hub, { replace: true });
-                return;
-            }
+                if (currentRenderVersion !== routeRenderVersion) {
+                    return;
+                }
 
-            const canonicalRoute = getGameRouteHash(selectedGame);
-            if (window.location.hash !== canonicalRoute) {
-                navigateTo(canonicalRoute, { replace: true });
-                return;
-            }
+                if (!selectedGame) {
+                    clearSelectedGameState();
+                    await showPopup({
+                        title: "ไม่พบข้อมูลเกม",
+                        message: "ระบบไม่พบเกมที่ระบุในฐานข้อมูล จึงไม่สามารถเปิดเกมนี้ได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                        tone: "error",
+                    });
+                    navigateTo(ROUTES.hub, { replace: true });
+                    return;
+                }
 
-            persistSelectedGame(selectedGame);
-            const hasStarted = await showGame(selectedGame);
+                const canonicalRoute = getGameRouteHash(selectedGame);
+                if (window.location.hash !== canonicalRoute) {
+                    navigateTo(canonicalRoute, { replace: true });
+                    return;
+                }
 
-            if (currentRenderVersion !== routeRenderVersion) {
-                return;
-            }
+                persistSelectedGame(selectedGame);
+                const hasStarted = await showGame(selectedGame);
 
-            const pendingLaunchKey = SessionStorageManager.get(PENDING_GAME_LAUNCH_KEY, "") || "";
-            const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
-            if (hasStarted && pendingLaunchKey === selectedNodeKey) {
+                if (currentRenderVersion !== routeRenderVersion) {
+                    return;
+                }
+
+                const pendingLaunchKey = SessionStorageManager.get(PENDING_GAME_LAUNCH_KEY, "") || "";
+                const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+                if (hasStarted && pendingLaunchKey === selectedNodeKey) {
+                    SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+                    return;
+                }
+
                 SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
-                return;
-            }
-
-            SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
-            if (!hasStarted) {
-                removePendingGameHistoryByKey(selectedNodeKey);
-                navigateTo(getGameExitRoute(selectedGame), { replace: true });
+                if (!hasStarted) {
+                    removePendingGameHistoryByKey(selectedNodeKey);
+                    navigateTo(getGameExitRoute(selectedGame), { replace: true });
+                }
+            } finally {
+                hideLoadingOverlay();
             }
         }
     };

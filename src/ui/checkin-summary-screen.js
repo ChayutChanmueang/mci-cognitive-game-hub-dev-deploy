@@ -10,6 +10,7 @@ import { showSparkleEffect } from "./components/effects/sparkle-effect.js";
 import { renderFramePopupMarkup } from "./components/frame-popup.js";
 import { renderFramePanel } from "./components/frame-panel.js";
 import { renderStartGameButton } from "./components/start-game-button.js";
+import { dismissPopup } from "./transition/popup-transition.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -264,9 +265,9 @@ export function showCheckInPopup(options = {}) {
             treeGrow = null;
             state.videoPlayerInstance?.destroy();
             state.videoPlayerInstance = null;
-            overlay.remove();
             document.removeEventListener("keydown", onKeyDown);
-            resolve(result);
+            // Play the leave animation, then remove + resolve (US-E7-20).
+            dismissPopup(overlay).then(() => resolve(result));
         };
 
         const onKeyDown = (event) => {
@@ -275,10 +276,36 @@ export function showCheckInPopup(options = {}) {
             }
         };
 
-        const render = () => {
+        // US-E7-20: the check-in popup is multi-step (success → calendar → video). The OPEN and
+        // CLOSE of the whole popup keep the shared fade+scale (played on the persistent
+        // `.checkin-popup` wrapper), but moving BETWEEN steps is a plain content crossfade on
+        // `.checkin-popup__stage` — no scale, and the backdrop stays put (it is persistent, so it
+        // never re-fades between pages). Only the stage's inner content is swapped per step.
+        overlay.innerHTML = `
+            <div class="app-popup__backdrop"></div>
+            <div class="checkin-popup">
+                <div class="checkin-popup__stage"></div>
+            </div>
+        `;
+        const stageEl = overlay.querySelector(".checkin-popup__stage");
+        overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => {
+            if (dismissible) {
+                cleanup(false);
+            }
+        });
+
+        const STEP_FADE_MS = 220;
+        const prefersReducedMotion = () => typeof window !== "undefined"
+            && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        let firstStep = true;
+
+        // Build the markup + post-mount wiring for the current step. The markup is the dialog
+        // only; any `.app-popup__backdrop` from the shared helpers is stripped in mountStep()
+        // because the backdrop is persistent.
+        const buildStep = () => {
             if (state.step === "success") {
                 // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
-                overlay.innerHTML = renderFramePopupMarkup({
+                const markup = renderFramePopupMarkup({
                     title: "เก่งมาก !!!",
                     ariaLabel: "เก่งมาก",
                     buttonLabel: "ต่อไป",
@@ -290,12 +317,16 @@ export function showCheckInPopup(options = {}) {
                         <p class="gh-popup__message">วันนี้คุณได้ออกกำลังกายสมองเรียบร้อย</p>
                     `,
                 });
+                const wire = () => {
+                    stageEl.querySelector(".gh-start-button")?.addEventListener("click", () => {
+                        state.step = "calendar";
+                        render();
+                    });
+                };
+                return { markup, wire };
+            }
 
-                overlay.querySelector(".gh-start-button")?.addEventListener("click", () => {
-                    state.step = "calendar";
-                    render();
-                });
-            } else if (state.step === "calendar") {
+            if (state.step === "calendar") {
                 const dayItems = buildDayItems(state.dayCount, checkInDates, programStartedAt);
                 const completedDays = dayItems.filter((item) => item.done).length;
                 const stage = getTreeStage(completedDays, state.dayCount);
@@ -307,7 +338,7 @@ export function showCheckInPopup(options = {}) {
                 const displayDone = String(completedDays).padStart(2, "0");
 
                 // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
-                overlay.innerHTML = renderFramePopupMarkup({
+                const markup = renderFramePopupMarkup({
                     title: "เป้าหมายของฉัน",
                     ariaLabel: "เป้าหมายของฉัน",
                     buttonLabel: "ต่อไป",
@@ -336,72 +367,74 @@ export function showCheckInPopup(options = {}) {
                         </div>
                     `,
                 });
-
-                // Grow the tree on the progression page: show the previous stage, collapse it,
-                // then pop the current stage up — firing the rainbow sparkle burst at the exact
-                // moment the new tree appears. Day 1 already maps to a previous stage (tree_01),
-                // so there is always a "previous tree" and no empty case to handle.
-                // Wait one frame so the tree element has layout for anchoring.
-                treeGrow?.cancel();
-                sparkle?.cancel();
-                requestAnimationFrame(() => {
-                    if (settled || state.step !== "calendar") {
-                        return;
-                    }
-                    const plant = overlay.querySelector(".tree-progress-plant");
-                    const frame = overlay.querySelector(".tree-progress-frame");
-                    const prevStage = getTreeStage(Math.max(0, completedDays - 1), state.dayCount);
-                    treeGrow = growTreeTransition(plant, prevStage, stage, () => {
+                const wire = () => {
+                    // Grow the tree on the progression page: show the previous stage, collapse it,
+                    // then pop the current stage up — firing the rainbow sparkle burst at the exact
+                    // moment the new tree appears. Day 1 already maps to a previous stage (tree_01),
+                    // so there is always a "previous tree" and no empty case to handle.
+                    // Wait one frame so the tree element has layout for anchoring.
+                    treeGrow?.cancel();
+                    sparkle?.cancel();
+                    requestAnimationFrame(() => {
                         if (settled || state.step !== "calendar") {
                             return;
                         }
-                        sparkle = showSparkleEffect({ anchor: frame });
+                        const plant = stageEl.querySelector(".tree-progress-plant");
+                        const frame = stageEl.querySelector(".tree-progress-frame");
+                        const prevStage = getTreeStage(Math.max(0, completedDays - 1), state.dayCount);
+                        treeGrow = growTreeTransition(plant, prevStage, stage, () => {
+                            if (settled || state.step !== "calendar") {
+                                return;
+                            }
+                            sparkle = showSparkleEffect({ anchor: frame });
+                        });
                     });
-                });
 
-                overlay.querySelector(".gh-start-button")?.addEventListener("click", async (event) => {
-                    if (!loadVideoSrc) {
-                        cleanup(true);
-                        return;
-                    }
-                    const btn = event.currentTarget;
-                    btn.disabled = true;
-                    try {
-                        state.videoSrc = await loadVideoSrc() || "";
-                    } catch {
-                        state.videoSrc = "";
-                    }
-                    if (!state.videoSrc) {
-                        cleanup(true);
-                        return;
-                    }
-                    state.step = "video";
-                    render();
-                });
-            } else if (state.step === "video") {
-                // US-E7-04: video step uses Frame_Panel (no header) with the title above it.
-                // The clip frame is large while playing, then collapses and reveals the
-                // Start-Game-Button when it ends.
-                overlay.innerHTML = `
-                    <div class="app-popup__backdrop"></div>
-                    <div class="gh-video-popup" role="dialog" aria-modal="true" aria-label="${escapeHtml(videoTitle)}">
-                        <div class="parent-gh-video-popup__frame">
-                            <div class="gh-video-popup__title">
-                                <h2 class="gh-video-popup__title-text">${escapeHtml(videoTitle)}</h2>
-                            </div>
-                            ${renderFramePanel({
-                                className: "gh-video-popup__frame",
-                                body: `<div class="video-popup-player" data-video-container></div>`,
-                            })}
-                            <div class="gh-popup__button gh-video-popup__button">
-                                ${renderStartGameButton({ label: "ต่อไป" })}
-                            </div>
+                    stageEl.querySelector(".gh-start-button")?.addEventListener("click", async (event) => {
+                        if (!loadVideoSrc) {
+                            cleanup(true);
+                            return;
+                        }
+                        const btn = event.currentTarget;
+                        btn.disabled = true;
+                        try {
+                            state.videoSrc = await loadVideoSrc() || "";
+                        } catch {
+                            state.videoSrc = "";
+                        }
+                        if (!state.videoSrc) {
+                            cleanup(true);
+                            return;
+                        }
+                        state.step = "video";
+                        render();
+                    });
+                };
+                return { markup, wire };
+            }
+
+            // US-E7-04: video step uses Frame_Panel (no header) with the title above it.
+            // The clip frame is large while playing, then collapses and reveals the
+            // Start-Game-Button when it ends.
+            const markup = `
+                <div class="gh-video-popup" role="dialog" aria-modal="true" aria-label="${escapeHtml(videoTitle)}">
+                    <div class="parent-gh-video-popup__frame">
+                        <div class="gh-video-popup__title">
+                            <h2 class="gh-video-popup__title-text">${escapeHtml(videoTitle)}</h2>
+                        </div>
+                        ${renderFramePanel({
+                            className: "gh-video-popup__frame",
+                            body: `<div class="video-popup-player" data-video-container></div>`,
+                        })}
+                        <div class="gh-popup__button gh-video-popup__button">
+                            ${renderStartGameButton({ label: "ต่อไป" })}
                         </div>
                     </div>
-                `;
-
-                const videoPopupEl = overlay.querySelector(".gh-video-popup");
-                const videoContainer = overlay.querySelector("[data-video-container]");
+                </div>
+            `;
+            const wire = () => {
+                const videoPopupEl = stageEl.querySelector(".gh-video-popup");
+                const videoContainer = stageEl.querySelector("[data-video-container]");
                 if (videoContainer) {
                     state.videoPlayerInstance?.destroy();
                     state.videoPlayerInstance = VideoPlayer.mount(videoContainer, {
@@ -415,17 +448,40 @@ export function showCheckInPopup(options = {}) {
                     });
                 }
 
-                overlay.querySelector(".gh-start-button")?.addEventListener("click", () => {
+                stageEl.querySelector(".gh-start-button")?.addEventListener("click", () => {
                     cleanup(true);
                 });
-            }
+            };
+            return { markup, wire };
+        };
 
-            const backdrop = overlay.querySelector(".app-popup__backdrop");
-            backdrop?.addEventListener("click", () => {
-                if (dismissible) {
-                    cleanup(false);
+        const mountStep = () => {
+            const { markup, wire } = buildStep();
+            stageEl.innerHTML = markup;
+            // Shared markup helpers include a backdrop; drop it — the backdrop is persistent.
+            stageEl.querySelector(".app-popup__backdrop")?.remove();
+            wire();
+        };
+
+        const render = () => {
+            // First paint: no crossfade — the whole popup's open animation (fade+scale on
+            // `.checkin-popup`) is playing already.
+            if (firstStep || prefersReducedMotion()) {
+                firstStep = false;
+                mountStep();
+                return;
+            }
+            // Step change: fade the stage out, swap content, fade it back in (opacity only).
+            stageEl.classList.add("checkin-popup__stage--fading");
+            setTimeout(() => {
+                if (settled) {
+                    return;
                 }
-            });
+                mountStep();
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    stageEl.classList.remove("checkin-popup__stage--fading");
+                }));
+            }, STEP_FADE_MS);
         };
 
         render();

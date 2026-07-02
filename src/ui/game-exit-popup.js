@@ -12,6 +12,7 @@
 import { renderFramePanel } from "./components/frame-panel.js";
 import { renderButtonOkStroke } from "./components/button-ok-stroke.js";
 import { renderButtonCloseStroke } from "./components/button-close-stroke.js";
+import { dismissPopup } from "./transition/popup-transition.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -85,10 +86,10 @@ export function showGameExitPopup(options = {}) {
             }
 
             settled = true;
-            overlay.remove();
             document.body.style.overflow = previousOverflow;
             document.removeEventListener("keydown", onKeyDown);
-            resolve(result);
+            // Play the leave animation, then remove + resolve (US-E7-20).
+            dismissPopup(overlay).then(() => resolve(result));
         };
 
         const onKeyDown = (event) => {

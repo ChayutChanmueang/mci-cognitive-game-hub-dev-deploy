@@ -1,4 +1,5 @@
 import {renderFramePopupMarkup, renderFramePopupShortMarkup} from "./components/frame-popup.js";
+import { dismissPopup } from "./transition/popup-transition.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -34,9 +35,9 @@ function mountFramePopup({ overlay, dismissible, resolve }) {
     const cleanup = (result) => {
         if (settled) return;
         settled = true;
-        overlay.remove();
         document.removeEventListener("keydown", onKeyDown);
-        resolve(result);
+        // Play the leave animation, then remove + resolve (US-E7-20).
+        dismissPopup(overlay).then(() => resolve(result));
     };
 
     function onKeyDown(event) {

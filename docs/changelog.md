@@ -35,7 +35,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.17.0` | 2026-06-26 | US-E7-02: Figma login art — Frame_Panel + Frame_TextFieldBox + Start-Game-Button applied to player & admin Login screens |
 | `0.18.0` | 2026-06-29 | US-E7-02/03: Figma form art — Frame_Form_Panel + Button_OK/Close + IconButtonBack applied to Sign-up & Player-Info screens |
 | `0.19.0` | 2026-06-29 | US-E7-19: Welcome screen entry button uses the `Start-Game-Button` art (green "เริ่มเล่นเกม") instead of `md-filled-button` |
-| `0.20.0` | 2026-06-29 | **(current)** US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button on check-in success, resting, day/program-completion popups (also US-E7-16 AC#6 gender char) |
+| `0.20.0` | 2026-06-29 | US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button on check-in success, resting, day/program-completion popups (also US-E7-16 AC#6 gender char) |
+| `0.21.0` | 2026-07-02 | **(current)** US-E7-20: transition system — popup fade+scale (0.5s) on all popups, page fade between DOM screens, loading overlay on Game Hub/minigame entry; boot loading extracted to reusable JS component (`src/ui/loading-overlay.js`, second copy of the inline boot overlay) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 

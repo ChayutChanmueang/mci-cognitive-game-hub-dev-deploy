@@ -10,6 +10,46 @@
     pointer-events: none;
 }
 
+/* US-E7-20 · JS loading-overlay component (src/ui/loading-overlay.js) — the reusable
+   twin of the inline boot overlay above, shown when entering the Game Hub / a minigame.
+   The inline boot overlay sets its box via inline styles; this class provides the same
+   full-screen gradient box. z-index sits above page content but BELOW popups (2000) so
+   dialogs stay visible, and below the boot overlay (max) so cold-start hands off seamlessly. */
+.app-loading--component {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: linear-gradient(180deg, #8be298 0%, #6ed8ff 100%);
+    transition: opacity 0.35s ease;
+}
+
+.app-loading--component.app-loading--hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* US-E7-20 · page fade for DOM screens rendered into #ui-root (see
+   src/ui/transition/screen-transition.js). Hub/minigame use the loading overlay instead. */
+#ui-root {
+    transition: opacity 0.22s ease;
+}
+
+#ui-root.ui-root--leaving,
+#ui-root.ui-root--entering {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #ui-root {
+        transition: none;
+    }
+}
+
 .app-loading__logo {
     width: min(72vw, 360px);
     height: auto;
@@ -665,10 +705,69 @@ body.game-mode .app-version-badge {
     backdrop-filter: blur(4px);
 }
 
+/* US-E7-20 · popup enter/leave (fade + scale, 0.5s). ENTER runs automatically on mount
+   (CSS only). LEAVE is triggered by JS adding `.app-popup--closing`; the popup's Promise
+   resolves only after this finishes — see src/ui/transition/popup-transition.js. The
+   backdrop just fades; the dialog (any direct child that isn't the backdrop) fades + scales. */
+@keyframes app-popup-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes app-popup-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes app-popup-content-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+@keyframes app-popup-content-out {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.9); }
+}
+
+.app-popup__backdrop { animation: app-popup-backdrop-in 0.5s ease both; }
+.app-popup > :not(.app-popup__backdrop) { animation: app-popup-content-in 0.5s ease both; }
+
+.app-popup--closing .app-popup__backdrop { animation: app-popup-backdrop-out 0.5s ease both; }
+.app-popup--closing > :not(.app-popup__backdrop) { animation: app-popup-content-out 0.5s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+    .app-popup__backdrop,
+    .app-popup > :not(.app-popup__backdrop),
+    .app-popup--closing .app-popup__backdrop,
+    .app-popup--closing > :not(.app-popup__backdrop) {
+        animation: none;
+    }
+}
+
+/* US-E7-20 · check-in popup step crossfade. `.checkin-popup` is the animated direct child of
+   `.app-popup` (gets the open/close fade+scale above); `.checkin-popup__stage` holds the swapped
+   per-step content and only OPACITY-fades between steps — no scale, and the backdrop is
+   persistent so it never re-fades between pages. Both wrappers fill + center like `.app-popup`
+   so the inner `.gh-popup` / `.gh-video-popup` keep their original centered layout. */
+.checkin-popup,
+.checkin-popup__stage {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.checkin-popup__stage {
+    transition: opacity 0.22s ease;
+}
+
+.checkin-popup__stage.checkin-popup__stage--fading {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .checkin-popup__stage {
+        transition: none;
+    }
+}
+
 /* Frame popups (check-in / resting / completion — `.gh-popup`) use the app background
    gradient as their backdrop instead of the dim blur, so they read as a full-screen
    takeover. Shares `--app-bg-gradient` with body. (Dialog popups keep the dim blur.) */
 .app-popup:has(.gh-popup) .app-popup__backdrop,
+.app-popup:has(.gh-popup-short) .app-popup__backdrop,
 .app-popup:has(.gh-video-popup) .app-popup__backdrop {
     background: var(--app-bg-gradient);
     background-attachment: fixed;
