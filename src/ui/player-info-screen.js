@@ -15,6 +15,7 @@ import { renderFrameFormPanel } from "./components/frame-form-panel.js";
 import { renderIconButtonBack } from "./components/icon-button-back.js";
 import { renderButtonOk } from "./components/button-ok.js";
 import { renderButtonClose } from "./components/button-close.js";
+import { showToast, clearToast } from "./components/toast.js";
 import db from "../core/database.js";
 
 function createDateValue() {
@@ -285,8 +286,6 @@ export function renderPlayerInfoScreen(root, options = {}) {
                             <div class="gh-frame-field-box"><div id="player-info-ended" class="gh-frame-field-box__value">${escapeHtml(formatDisplayDate(endedProgram))}</div></div>
                         </div>
 
-                        <p id="player-info-feedback" class="gh-form__feedback" aria-live="polite"></p>
-
                         <div class="gh-form__actions">
                             ${renderButtonOk({ id: "player-info-export", label: "ส่งออกข้อมูล" })}
                             ${renderButtonClose({ id: "player-info-logout", label: "ลงชื่อออก" })}
@@ -357,7 +356,6 @@ export function renderPlayerInfoScreen(root, options = {}) {
     const backButton = root.querySelector("#player-info-back");
     const exportButton = root.querySelector("#player-info-export");
     const logoutButton = root.querySelector("#player-info-logout");
-    const feedback = root.querySelector("#player-info-feedback");
     const bindTestControls = () => {
         const testTrigger = root.querySelector("[data-test-menu-trigger]");
         const testMenu = root.querySelector("[data-test-menu]");
@@ -466,7 +464,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
         });
     };
 
-    if (!form || !backButton || !exportButton || !logoutButton || !feedback) {
+    if (!form || !backButton || !exportButton || !logoutButton) {
         return;
     }
 
@@ -491,25 +489,25 @@ export function renderPlayerInfoScreen(root, options = {}) {
         const exportSelection = await showExportOptionsPopup();
 
         if (!exportSelection?.exportTypes?.length) {
-            feedback.textContent = "";
+            clearToast();
             return;
         }
 
-        feedback.textContent = "กำลังเตรียมข้อมูลสำหรับส่งออก...";
+        showToast("กำลังเตรียมข้อมูลสำหรับส่งออก...", { type: "info", duration: 0 });
 
         try {
             const exported = await onExport(player, exportSelection);
             if (exported === false) {
-                feedback.textContent = "";
+                clearToast();
                 return;
             }
         } catch (error) {
             console.error("Player info export failed:", error);
-            feedback.textContent = error?.message || "ไม่สามารถส่งออกข้อมูลได้";
+            showToast(error?.message || "ไม่สามารถส่งออกข้อมูลได้", { type: "error" });
             return;
         }
 
-        feedback.textContent = "";
+        showToast("ส่งออกข้อมูลเรียบร้อย", { type: "success" });
     };
 
     exportButton.addEventListener("click", handleExport);

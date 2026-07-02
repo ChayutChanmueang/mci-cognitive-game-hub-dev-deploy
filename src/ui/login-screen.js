@@ -1,6 +1,7 @@
 import { renderFramePanel } from "./components/frame-panel.js";
 import { renderFrameTextFieldBox } from "./components/frame-text-field-box.js";
 import { renderStartGameButton } from "./components/start-game-button.js";
+import { showToast, clearToast } from "./components/toast.js";
 
 function normalizePatientId(value) {
     return String(value || "").replaceAll(/\D/g, "");
@@ -36,7 +37,6 @@ export function renderLoginScreen(root, options = {}) {
                                 className: "gh-login__field",
                             })}
                         </div>
-                        <p id="patient-login-feedback" class="gh-login__feedback" aria-live="polite"></p>
                     `,
                 })}
                 <div class="login-screen__actions">
@@ -50,9 +50,8 @@ export function renderLoginScreen(root, options = {}) {
     const input = root.querySelector("#patient-id-input");
     const submitButton = root.querySelector(".gh-start-button");
     const fieldBox = input?.closest(".gh-frame-field-box");
-    const feedback = root.querySelector("#patient-login-feedback");
 
-    if (!form || !input || !submitButton || !feedback) {
+    if (!form || !input || !submitButton) {
         return;
     }
 
@@ -67,7 +66,7 @@ export function renderLoginScreen(root, options = {}) {
     const updateState = () => {
         input.value = normalizePatientId(input.value);
         submitButton.disabled = input.value.length === 0;
-        feedback.textContent = "";
+        clearToast();
         setError(false);
     };
 
@@ -90,7 +89,7 @@ export function renderLoginScreen(root, options = {}) {
         const patientId = normalizePatientId(input.value);
         if (!patientId) {
             setError(true);
-            feedback.textContent = "กรุณากรอกรหัสผู้เล่น";
+            showToast("กรุณากรอกรหัสผู้เล่น", { type: "error" });
             submitButton.disabled = true;
             return;
         }
@@ -98,18 +97,20 @@ export function renderLoginScreen(root, options = {}) {
         sessionStorage.setItem("patient_login_id", patientId);
         submitButton.disabled = true;
         input.disabled = true;
-        feedback.textContent = "กำลังตรวจสอบข้อมูล...";
+        showToast("กำลังตรวจสอบข้อมูล...", { type: "info", duration: 0 });
 
         try {
             const accepted = await onAccept({ patientId });
             if (accepted === false) {
                 input.disabled = false;
                 updateState();
+            } else {
+                clearToast();
             }
         } catch (error) {
             console.error("Patient login flow failed:", error);
             setError(true);
-            feedback.textContent = error?.message || "ไม่สามารถตรวจสอบรหัสผู้เล่นได้";
+            showToast(error?.message || "ไม่สามารถตรวจสอบรหัสผู้เล่นได้", { type: "error" });
             input.disabled = false;
             submitButton.disabled = false;
         }

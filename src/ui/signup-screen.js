@@ -7,6 +7,7 @@ import {
 import { renderFrameFormPanel } from "./components/frame-form-panel.js";
 import { renderIconButtonBack } from "./components/icon-button-back.js";
 import { renderButtonOk } from "./components/button-ok.js";
+import { showToast, clearToast } from "./components/toast.js";
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -155,8 +156,6 @@ export function renderSignupScreen(root, options = {}) {
                             ${fieldInput({ id: "signup-started-program", type: "date", value: createDateValue(), extra: 'lang="en-GB"' })}
                         </div>
 
-                        <p id="signup-feedback" class="gh-form__feedback" aria-live="polite">${escapeHtml(initialFeedback)}</p>
-
                         <div class="gh-form__actions">
                             ${renderButtonOk({ id: "signup-submit-button", label: "ยืนยันข้อมูลผู้เล่น", disabled: !isEducationLevelAvailable })}
                         </div>
@@ -169,7 +168,6 @@ export function renderSignupScreen(root, options = {}) {
     const form = root.querySelector("#patient-signup-form");
     const backButton = root.querySelector("#signup-back-button");
     const submitButton = root.querySelector("#signup-submit-button");
-    const feedback = root.querySelector("#signup-feedback");
     const firstnameField = root.querySelector("#signup-firstname");
     const lastnameField = root.querySelector("#signup-lastname");
     const phoneField = root.querySelector("#signup-phone");
@@ -179,8 +177,13 @@ export function renderSignupScreen(root, options = {}) {
     const startedProgramField = root.querySelector("#signup-started-program");
     const ageValue = root.querySelector("#signup-age-value");
 
-    if (!form || !backButton || !submitButton || !feedback) {
+    if (!form || !backButton || !submitButton) {
         return;
+    }
+
+    // US-E7-18: surface a failed education-levels load (blocks submit) as a toast.
+    if (initialFeedback) {
+        showToast(initialFeedback, { type: "error", duration: 6000 });
     }
 
     const updateAgeDisplay = () => {
@@ -293,18 +296,18 @@ export function renderSignupScreen(root, options = {}) {
         }
 
         if (hasInvalidField) {
-            feedback.textContent = firstErrorMessage;
+            showToast(firstErrorMessage, { type: "error" });
             return;
         }
 
         sessionStorage.setItem("patient_signup_draft", JSON.stringify(formData));
         submitButton.disabled = true;
-        feedback.textContent = "กำลังบันทึกข้อมูลผู้ป่วย...";
+        showToast("กำลังบันทึกข้อมูลผู้ป่วย...", { type: "info", duration: 0 });
 
         try {
             const submitted = await onSubmit(formData);
             if (submitted === false) {
-                feedback.textContent = "";
+                clearToast();
                 submitButton.disabled = false;
                 return;
             }
@@ -318,11 +321,11 @@ export function renderSignupScreen(root, options = {}) {
                 setFieldError(phoneField);
             }
 
-            feedback.textContent = message;
+            showToast(message, { type: "error" });
             submitButton.disabled = false;
             return;
         }
 
-        feedback.textContent = "";
+        clearToast();
     });
 }

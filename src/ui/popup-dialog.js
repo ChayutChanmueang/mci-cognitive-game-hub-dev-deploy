@@ -105,9 +105,11 @@ export function showPopup(options = {}) {
                     ${renderButtonCloseStroke({ label: cancelText })}
                 </div>
                 <div class="gh-dialog-popup__button">
-                ${renderButtonOkStroke({ label: confirmText })}
+                    ${renderButtonOkStroke({ label: confirmText })}
                 </div>`
-                : renderButtonOkStroke({ label: confirmText });
+                : `<div class="gh-dialog-popup__button">
+                    ${renderButtonOkStroke({ label: confirmText })}
+                </div>`;
 
             overlay.innerHTML = `
                 <div class="app-popup__backdrop"></div>

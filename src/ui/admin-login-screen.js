@@ -1,6 +1,7 @@
 import { renderFramePanel } from "./components/frame-panel.js";
 import { renderFrameTextFieldBox } from "./components/frame-text-field-box.js";
 import { renderStartGameButton } from "./components/start-game-button.js";
+import { showToast, clearToast } from "./components/toast.js";
 
 function normalizeEmail(value) {
     return String(value || "").trim().toLowerCase();
@@ -42,7 +43,6 @@ export function renderAdminLoginScreen(root, options = {}) {
                                 autocomplete: "current-password",
                             })}
                         </div>
-                        <p id="admin-login-feedback" class="gh-login__feedback" aria-live="polite"></p>
                     `,
                 })}
                 <div class="login-screen__actions">
@@ -56,9 +56,8 @@ export function renderAdminLoginScreen(root, options = {}) {
     const emailInput = root.querySelector("#admin-email-input");
     const passwordInput = root.querySelector("#admin-password-input");
     const submitButton = root.querySelector(".gh-start-button");
-    const feedback = root.querySelector("#admin-login-feedback");
 
-    if (!form || !emailInput || !passwordInput || !submitButton || !feedback) {
+    if (!form || !emailInput || !passwordInput || !submitButton) {
         return;
     }
 
@@ -71,7 +70,7 @@ export function renderAdminLoginScreen(root, options = {}) {
         const hasPassword = String(passwordInput.value || "").trim().length > 0;
 
         submitButton.disabled = !(hasEmail && hasPassword);
-        feedback.textContent = "";
+        clearToast();
         setError(emailInput, false);
         setError(passwordInput, false);
     };
@@ -102,14 +101,14 @@ export function renderAdminLoginScreen(root, options = {}) {
         if (!email || !password) {
             setError(emailInput, !email);
             setError(passwordInput, !password);
-            feedback.textContent = "";
+            clearToast();
             return;
         }
 
         submitButton.disabled = true;
         emailInput.disabled = true;
         passwordInput.disabled = true;
-        feedback.textContent = "กำลังตรวจสอบข้อมูลผู้ดูแล...";
+        showToast("กำลังตรวจสอบข้อมูลผู้ดูแล...", { type: "info", duration: 0 });
 
         try {
             const accepted = await onSubmit({ email, password });
@@ -117,10 +116,12 @@ export function renderAdminLoginScreen(root, options = {}) {
                 emailInput.disabled = false;
                 passwordInput.disabled = false;
                 updateState();
+            } else {
+                clearToast();
             }
         } catch (error) {
             console.error("Admin login flow failed:", error);
-            feedback.textContent = error?.message || "";
+            showToast(error?.message || "เข้าสู่ระบบไม่สำเร็จ", { type: "error" });
             emailInput.disabled = false;
             passwordInput.disabled = false;
             submitButton.disabled = false;
