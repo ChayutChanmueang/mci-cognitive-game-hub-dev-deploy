@@ -355,7 +355,7 @@ body.game-mode .app-version-badge {
 
 .landing-screen__logo {
     grid-row: 2;
-    width: min(72vw, 420px);
+    width: min(72vw, 40vh);
     aspect-ratio: 1.1;
     display: grid;
     place-items: center;
@@ -393,6 +393,7 @@ body.game-mode .app-version-badge {
     display: flex;
     align-items: center;
     justify-content: center;
+    justify-self: anchor-center;
     gap: clamp(12px, 3.5vw, 30px);
 }
 
