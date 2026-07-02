@@ -355,14 +355,16 @@ export function showCheckInPopup(options = {}) {
                             <p class="tree-progress-plant-label">${escapeHtml(label)}</p>
                             <div
                                 class="tree-progress-bar"
+                                style="--tree-fill: ${fillPercent}%;"
                                 role="progressbar"
                                 aria-valuenow="${completedDays}"
                                 aria-valuemin="0"
                                 aria-valuemax="${state.dayCount}"
                                 aria-label="ความคืบหน้า ${completedDays} จาก ${state.dayCount} วัน"
                             >
-                                <div class="tree-progress-bar__fill" style="width: ${fillPercent}%;"></div>
+                                <div class="tree-progress-bar__fill"></div>
                                 <span class="tree-progress-bar__text">${displayDone}/${escapeHtml(String(state.dayCount))}</span>
+                                <span class="tree-progress-bar__text tree-progress-bar__text--filled" aria-hidden="true">${displayDone}/${escapeHtml(String(state.dayCount))}</span>
                             </div>
                         </div>
                     `,

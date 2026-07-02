@@ -1290,18 +1290,39 @@ body.game-mode .app-version-badge {
 .tree-progress-bar__fill {
     position: absolute;
     inset: 0 auto 0 0;
+    width: var(--tree-fill, 0%);
     background: #FDCB34;
     border-radius: 24px;
     transition: width 0.4s ease;
 }
 
+/* US-E7-21 · two-layer number so it stays readable over BOTH the cream track and the
+   yellow fill at every fill level (not just a hard switch at 50%). Both spans are
+   overlaid + centered; the base reads on the track, and `--filled` is a high-contrast
+   copy clipped to exactly the filled width (`--tree-fill`, set inline on the bar). */
 .tree-progress-bar__text {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 22px;
     font-weight: 600;
-    color: #5a5a5a;
+    color: #B59638;
     letter-spacing: 0.03em;
+}
+
+.tree-progress-bar__text--filled {
+    /* dark, high-contrast on the yellow fill (white fails AA on this yellow) */
+    color: #ffffff;
+    clip-path: inset(0 calc(100% - var(--tree-fill, 0%)) 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tree-progress-bar__fill {
+        transition: none;
+    }
 }
 
 .app-popup__dialog--video {
