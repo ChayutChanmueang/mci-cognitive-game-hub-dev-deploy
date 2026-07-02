@@ -1103,13 +1103,7 @@ body.game-mode .app-version-badge {
 }
 
 .tree-progress-subtitle {
-    margin: 0;
-    font-size: 20px;
-    font-family: var(--main-font), var(--main-font-type);
-    color: #305A69;
-    line-height: 1.4;
-    justify-self: center;
-    color: var(--md-sys-color-on-surface-variant);
+
 }
 
 .tree-progress-divider {
@@ -1176,8 +1170,8 @@ body.game-mode .app-version-badge {
 .tree-progress-plant-label {
     margin: 0;
     font-size: 26px;
-    font-weight: 700;
-    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
+    color: #945E17;
     line-height: 1.3;
 }
 

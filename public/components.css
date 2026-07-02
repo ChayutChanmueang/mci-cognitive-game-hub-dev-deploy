@@ -1056,8 +1056,7 @@
   color: #ffffff;
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
-  font-size: 42px;
-  transform: translateY(-5px);
+  font-size: 2.5rem;
 }
 
 .gh-frame-form-panel__body {
@@ -1339,7 +1338,7 @@
 }
 
 .gh-form__label {
-  color: #1f1f1f;
+  color: #305A69;
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 600;
   font-size: clamp(1rem, 3.6vw, 1.3rem);
@@ -1386,6 +1385,18 @@
   grid-template-rows: auto minmax(0, 1fr);
 }
 
+.gh-popup-short__message {
+  margin: 0;
+  text-align: center;
+  color: #945E17;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 500;
+  font-size: clamp(1.3rem, 5.4vw, 1.85rem);
+  line-height: 2.5;
+  max-width: 24ch;
+  overflow-wrap: anywhere;
+}
+
 .gh-popup-short {
   --gh-scale: var(--main-gh-scale);
   position: relative;
@@ -1398,7 +1409,7 @@
 
 .gh-popup-short .gh-frame-form-panel {
   width: 100%;
-  height: clamp(320px, 75vh, 520px);
+  height: clamp(400px, 75vh, 530px);
   /* Header takes its own height; the body fills the rest. Without this the body's
      `height: 100%` resolves against the full panel height and overflows past the
      header by the header's height. `minmax(0, …)` lets the body shrink/scroll. */
@@ -1452,14 +1463,23 @@
 .gh-popup__message {
   margin: 0;
   text-align: center;
-  color: #7a5a39;
+  color: #945E17;
   font-family: var(--main-font), var(--main-font-type);
-  font-weight: 700;
+  font-weight: 500;
   font-size: clamp(1.3rem, 5.4vw, 1.85rem);
   line-height: 1.35;
   max-width: 24ch;
   overflow-wrap: anywhere;
   align-self: anchor-center;
+}
+
+.ph-popup-subtitle {
+  margin: 0;
+  font-size: 20px;
+  font-family: var(--main-font), var(--main-font-type);
+  color: #305A69;
+  line-height: 1.4;
+  justify-self: center;
 }
 
 @media (max-width: 380px) {
@@ -1499,6 +1519,7 @@
   font-weight: 700;
   font-size: clamp(2.3rem, 15vw, 2.3rem);
   text-align: center;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
   font-family: var(--main-font), var(--main-font-type);
   line-height: 2;
   margin: 0;

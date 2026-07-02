@@ -312,7 +312,7 @@ export function showCheckInPopup(options = {}) {
                     ariaLabel: "เป้าหมายของฉัน",
                     buttonLabel: "ต่อไป",
                     body: `
-                        <p class="tree-progress-subtitle">เล่นเกมติดต่อกัน ${escapeHtml(String(state.dayCount))} วัน</p>
+                        <p class="tree-progress-subtitle ph-popup-subtitle">เล่นเกมติดต่อกัน ${escapeHtml(String(state.dayCount))} วัน</p>
                         <div class="tree-progress-body">
                             <div class="tree-progress-frame">
                                 <img

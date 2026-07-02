@@ -53,7 +53,7 @@ export function showRestingPointPopup(options = {}) {
             body: `
                 <div class="resting-popup-layout">
                     <div class="resting-popup-copy">
-                        <p>พักสักครู่ก่อนกลับไปเล่นเกม</p>
+                        <span class="ph-popup-subtitle">พักสักครู่ก่อนกลับไปเล่นเกม</span>
                     </div>
                     <img
                         class="resting-popup-cat"

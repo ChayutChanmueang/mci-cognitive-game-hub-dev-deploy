@@ -78,7 +78,7 @@ export function showDayCompletionPopup(options = {}) {
                     <img class="gh-popup__character-img" src="${character.src}" alt="${escapeHtml(character.alt)}" draggable="false" />
                     <span class="character-shadow gh-popup__character-shadow" aria-hidden="true"></span>
                 </div>
-                <p class="gh-popup__message">กลับมาเล่นใหม่วันพรุ่งนี้นะ</p>
+                <p class="gh-popup-short__message">กลับมาเล่นใหม่วันพรุ่งนี้นะ</p>
             `,
         });
 
