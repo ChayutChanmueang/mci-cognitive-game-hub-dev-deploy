@@ -110,7 +110,14 @@ export class StartMenuPanel {
             backBtn.addEventListener("click", () => {
                 EventBus.emit('audio:play', 'ui:click');
                 // Emitting this will trigger the main.js confirmation popup
-                EventBus.emit("minigame:exit-request");
+                EventBus.emit("minigame:exit-request", {
+                    colors: {
+                        border: panelBorderColor,
+                        header: panelHeaderColor,
+                        textPrimary: primaryFontColor,
+                        textSecondary: secondaryFontColor
+                    }
+                });
             });
         }
 

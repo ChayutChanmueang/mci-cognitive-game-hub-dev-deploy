@@ -28,6 +28,13 @@ export const ReceiverSetting = Object.freeze(activeTheme.ReceiverSetting);
 // ---------------------------------------------------------------------------
 export const GameplayMessages = Object.freeze(activeTheme.GameplayMessages);
 
+import { EventBus } from '../../core/EventBus.js';
+EventBus.emit("minigame:theme-ready", {
+    border: activeTheme.StartMenuSetting.panelBorderColor,
+    header: activeTheme.StartMenuSetting.panelHeaderColor,
+    textPrimary: activeTheme.StartMenuSetting.primaryFontColor,
+    textSecondary: activeTheme.StartMenuSetting.secondaryFontColor,
+});
 // ---------------------------------------------------------------------------
 // Theme Assets
 // ---------------------------------------------------------------------------

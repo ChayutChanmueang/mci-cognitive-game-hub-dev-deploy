@@ -91,6 +91,10 @@ const GAME_COLORS = Object.freeze({
     "context-clues": { border: "#C73969", header: "#E34F81", textPrimary: "#8F2448", textSecondary: "#C8577C" },
     "fry-food": { border: "#DE8D23", header: "#FEA837", textPrimary: "#945E17", textSecondary: "#DE8519" },
 });
+let activeThemeColors = null;
+EventBus.on("minigame:theme-ready", (colors) => {
+    activeThemeColors = colors;
+});
 const TEST_GAME_HUB_LAUNCH_GID_KEY = "test_game_hub_launch_gid";
 const PENDING_GAME_HISTORY_STORAGE = Object.freeze({
     map: "pending_game_history_by_gid",
@@ -1341,8 +1345,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-            const handleExit = async () => {
-                const colors = GAME_COLORS[slug] || {};
+            const handleExit = async (eventData = {}) => {
+                const colors = eventData?.colors || activeThemeColors || GAME_COLORS[slug] || {};
                 const confirmed = await showGameExitPopup({
                     confirmText: "ออกจากการแข่งขัน",
                     panelBorderColor: colors.border,
@@ -2382,7 +2386,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const guardedGame = backGuardSelectedGame;
         const guardedCleanup = backGuardCleanup;
         const slug = guardedGame ? String(guardedGame.name || "").toLowerCase().replace(/\s+/g, "-") : "";
-        const colors = GAME_COLORS[slug] || {};
+        const colors = activeThemeColors || GAME_COLORS[slug] || {};
 
         const confirmed = await showGameExitPopup({
             panelBorderColor: colors.border,
