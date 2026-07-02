@@ -2652,3 +2652,83 @@ z-index: 2 !important;
     margin-right: 12px;
     /* Visual offset to center the text relative to the box */
 }
+
+/* Dynamic Panel (Flex Layout) */
+.dynamic-panel {
+    height: auto !important;
+    min-height: 1319px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 40px; /* Some padding at bottom of content */
+}
+
+/* Ensure absolute elements are relative inside dynamic-panel */
+.dynamic-panel .result-picture {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: 40px;
+}
+
+.dynamic-panel .result-description {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: 40px;
+}
+
+.dynamic-panel .result-how-to-play-title {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-start;
+    margin-top: 60px;
+    margin-left: 90px;
+}
+
+.dynamic-panel .result-how-to-play-text {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    align-self: flex-start;
+    margin-top: 20px;
+    margin-left: 90px;
+    margin-right: 90px;
+}
+
+.dynamic-panel .result-divider {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: 20px;
+}
+
+.dynamic-panel .result-level-info {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-start;
+    margin-top: 40px;
+    margin-left: 90px;
+}
+
+.dynamic-panel .result-level-detail {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-start;
+    margin-top: 20px;
+    margin-left: 90px;
+    margin-bottom: 10px;
+}
+
+/* Let the button remain absolute at the bottom, pinned to the very end of the auto-height panel */
+.dynamic-panel .result-btn-home {
+    top: auto;
+    bottom: -268px; /* 40px gap + 228px height */
+}

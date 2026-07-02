@@ -11,7 +11,8 @@ export class TutorialPanel {
     render() {
         const overlay = document.createElement("div");
         overlay.className = "result-overlay";
-        overlay.style.paddingTop = "25px";
+        overlay.style.alignItems = "flex-start";
+        overlay.style.paddingTop = "0";
 
         const title            = this.options.title            || "วิธีการเล่น";
         const description      = this.options.description      || "";
@@ -66,7 +67,7 @@ export class TutorialPanel {
             { bg: '#FBF7FF', border: '#A67CD4', labelColor: '#7B4CC7', badgeFill: '#9A6AE0' },
         ];
 
-        const buildCategoryCard = (catData, index, topOffset) => {
+        const buildCategoryCard = (catData, index) => {
             const pal = cardPalettes[index % cardPalettes.length];
             const iconHtml = catData.icons
                 .map(iconKey => themeAssets[iconKey] || iconKey)
@@ -79,10 +80,7 @@ export class TutorialPanel {
 
             return `
                 <div style="
-                    position: absolute;
-                    top: ${topOffset}px;
-                    left: 50%;
-                    transform: translateX(-50%);
+                    position: relative;
                     width: 774px;
                     height: 386px;
                     background-color: ${pal.bg};
@@ -120,16 +118,13 @@ export class TutorialPanel {
                 </div>`;
         };
 
-        const buildRejectCard = (itemPaths, topOffset) => {
+        const buildRejectCard = (itemPaths) => {
             const itemImgs = itemPaths
                 .map(src => src ? `<img src="${src}" style="width: 170px; height: 170px; object-fit: contain;" />` : "")
                 .join("");
             return `
                 <div style="
-                    position: absolute;
-                    top: ${topOffset}px;
-                    left: 50%;
-                    transform: translateX(-50%);
+                    position: relative;
                     width: 774px;
                     height: 300px;
                     background-color: #FFF9F9;
@@ -172,55 +167,58 @@ export class TutorialPanel {
         // Assemble the full HTML
         // -------------------------------------------------------------------
         const cardEntries = Object.values(categoryCardMap);
-        const CARD_HEIGHT = 386;
-        const CARD_GAP    = 30;
-        const CARDS_START = 434;
 
         let cardsHtml = "";
         cardEntries.forEach((cardData, i) => {
-            cardsHtml += buildCategoryCard(cardData, i, CARDS_START + i * (CARD_HEIGHT + CARD_GAP));
+            cardsHtml += buildCategoryCard(cardData, i);
         });
 
-        const rejectTopOffset  = CARDS_START + cardEntries.length * (CARD_HEIGHT + CARD_GAP);
-        const rejectHtml       = rejectItems.length > 0 ? buildRejectCard(rejectItems, rejectTopOffset) : "";
-        const totalRejectHeight = rejectItems.length > 0 ? 300 + CARD_GAP : 0;
-        const totalPanelHeight  = rejectTopOffset + totalRejectHeight + 228; // 228 = button area
+        const rejectHtml = rejectItems.length > 0 ? buildRejectCard(rejectItems) : "";
 
         overlay.innerHTML = `
             <div class="result-backdrop"></div>
-            <div class="result-panel result-panel--tutorial" id="tutorial-result-panel">
+            <div class="result-panel dynamic-panel result-panel--tutorial" id="tutorial-result-panel">
                 <div class="result-header">
                     <h2>${title}</h2>
                 </div>
                 <div style="
-                    position: absolute;
-                    top: 280px;
-                    left: 50%;
-                    transform: translateX(-50%);
+                    position: relative;
+                    width: 90%;
+                    text-align: center;
                     font-family: 'Noto Looped Thai', sans-serif;
                     font-size: 52px;
                     color: ${primaryFontColor};
                     font-weight: 500;
-                    white-space: nowrap;
+                    white-space: normal;
+                    line-height: 1.2;
+                    margin-top: 35px;
                 ">${description}</div>
                 <div style="
-                    position: absolute;
-                    top: 352px;
-                    left: 50%;
-                    transform: translateX(-50%);
+                    position: relative;
+                    width: 90%;
+                    text-align: center;
                     font-family: 'Noto Looped Thai', sans-serif;
                     font-size: 32px;
                     color: ${secondaryFontColor};
                     font-weight: 500;
-                    white-space: nowrap;
+                    white-space: normal;
+                    line-height: 1.3;
+                    margin-top: 18px;
                 ">${this.options.subdescription || ""}</div>
-                ${cardsHtml}
-                ${rejectHtml}
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 30px;
+                    margin-top: 40px;
+                    align-items: center;
+                    width: 100%;
+                ">
+                    ${cardsHtml}
+                    ${rejectHtml}
+                </div>
                 <button id="tutorial-start-button" class="result-btn-home result-btn-home--start result-btn-home--tutorial">เริ่มเล่นเกม</button>
             </div>
         `;
-
-        this._totalPanelHeight = totalPanelHeight;
         this.element = overlay;
         this.root.appendChild(overlay);
 
@@ -257,13 +255,30 @@ export class TutorialPanel {
         const panel = this.element.querySelector("#tutorial-result-panel");
         if (!panel) return;
 
+        // Briefly remove transform to measure true layout dimensions
+        panel.style.transform = 'none';
+
+        const actualWidth = panel.offsetWidth || 876;
+        const actualPanelHeight = panel.offsetHeight || 1700;
+
+        // Total height includes the panel itself + 40px gap + 228px exit button
+        const totalContentHeight = actualPanelHeight + 40 + 228;
+
         const availableWidth  = window.innerWidth * 0.9;
         const availableHeight = window.innerHeight - 25 - 40;
 
-        const scaleX = availableWidth  / 876;
-        const scaleY = availableHeight / (this._totalPanelHeight || 1968);
+        const scaleX = availableWidth  / actualWidth;
+        const scaleY = availableHeight / totalContentHeight;
 
         const scale = Math.min(0.85, scaleX, scaleY);
+        
+        // Manually calculate the exact top margin needed to perfectly center the SCALED panel
+        const scaledHeight = totalContentHeight * scale;
+        const emptyVerticalSpace = window.innerHeight - scaledHeight;
+        const marginTop = Math.max(0, emptyVerticalSpace / 2);
+
+        panel.style.transformOrigin = "top center";
+        panel.style.marginTop = `${marginTop}px`;
         panel.style.transform = `scale(${scale})`;
     }
 

@@ -56,7 +56,7 @@ export class StartMenuPanel {
                     <md-icon class="material-symbols-rounded">arrow_back</md-icon>
                 </md-icon-button>
             </div>
-            <div class="result-panel${panelClass ? ` ${panelClass}` : ''}" id="gameover-result-panel">
+            <div class="result-panel dynamic-panel${panelClass ? ` ${panelClass}` : ''}" id="gameover-result-panel">
                 <div class="result-header">
                     <h2 style="${titleFontSize ? `font-size: ${titleFontSize};` : ''}">${title}</h2>
                 </div>
@@ -134,13 +134,21 @@ export class StartMenuPanel {
         const panel = this.element.querySelector("#gameover-result-panel");
         if (!panel) return;
 
+        // Briefly remove transform to measure true layout dimensions
+        panel.style.transform = 'none';
+        
+        const actualWidth = panel.offsetWidth || 876;
+        const actualPanelHeight = panel.offsetHeight || 1319;
+        
+        // Total height includes the panel itself + 40px gap + 228px exit button
+        const totalContentHeight = actualPanelHeight + 40 + 228;
+
         const availableWidth = window.innerWidth * 0.9;
-        // Total height of panel (1319) + gap (40) + button (228) = 1587px.
         // It sits 112px from top. Leave a small gap at the bottom of the screen.
         const availableHeight = window.innerHeight - 112 - 40;
 
-        const scaleX = availableWidth / 876;
-        const scaleY = availableHeight / 1587;
+        const scaleX = availableWidth / actualWidth;
+        const scaleY = availableHeight / totalContentHeight;
 
         // Scale down to a maximum of 85% of original size
         const scale = Math.min(0.85, scaleX, scaleY);
