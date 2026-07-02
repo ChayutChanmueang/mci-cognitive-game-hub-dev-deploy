@@ -25,6 +25,15 @@ export function renderWelcomeScreen(root, options = {}) {
                 ${renderStartGameButton({ label: "เริ่มเล่นเกม" })}
             </div>
         </section>
+        
+        <!-- US-E7-22: partner/supporter logos, bottom row -->
+        <div class="landing-screen__partners" aria-label="หน่วยงานที่เกี่ยวข้อง">
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/CAMT.png" alt="วิทยาลัยศิลปะ สื่อ และเทคโนโลยี มหาวิทยาลัยเชียงใหม่ (CAMT)" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/NAPLAB.png" alt="NAPLAB Game Studio" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/CMU-Logo.png" alt="มหาวิทยาลัยเชียงใหม่ (Chiang Mai University)" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/MedCMU.png" alt="คณะแพทยศาสตร์ มหาวิทยาลัยเชียงใหม่ (MedCMU)" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/NRCT.png" alt="สำนักงานการวิจัยแห่งชาติ (วช. / NRCT)" />
+        </div>
     `;
 
     root.querySelector(".gh-start-button")?.addEventListener("click", () => {

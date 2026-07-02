@@ -347,7 +347,8 @@ body.game-mode .app-version-badge {
     width: 100%;
     min-height: 100vh;
     display: grid;
-    grid-template-rows: minmax(96px, 1fr) auto minmax(0px, 0.9fr) auto;
+    /* US-E7-22: added a flexible spacer (row 5) + partner-logos row (row 6) at the bottom. */
+    grid-template-rows: minmax(72px, 0.8fr) auto minmax(0px, 0.9fr) auto minmax(24px, 0.7fr) auto;
     justify-items: center;
     padding: clamp(32px, 6vh, 72px) clamp(20px, 6vw, 72px) clamp(36px, 8vh, 84px);
 }
@@ -380,6 +381,25 @@ body.game-mode .app-version-badge {
     .landing-screen__actions {
         --gh-scale: var(--main-gh-scale);
     }
+}
+
+/* US-E7-22: partner / supporter logo row at the bottom of the landing screen. */
+.landing-screen__partners {
+    position: absolute;
+    bottom: 15px;
+    align-self: end;
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 3.5vw, 30px);
+}
+
+.landing-screen__partner-logo {
+    height: clamp(30px, 8vw, 46px);
+    width: auto;
+    object-fit: contain;
 }
 
 .login-screen__actions {

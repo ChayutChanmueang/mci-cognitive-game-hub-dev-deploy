@@ -38,7 +38,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.20.0` | 2026-06-29 | US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button on check-in success, resting, day/program-completion popups (also US-E7-16 AC#6 gender char) |
 | `0.21.0` | 2026-07-02 | US-E7-20: transition system — popup fade+scale (0.5s) on all popups, page fade between DOM screens, loading overlay on Game Hub/minigame entry; boot loading extracted to reusable JS component (`src/ui/loading-overlay.js`, second copy of the inline boot overlay) |
 | `0.22.0` | 2026-07-02 | US-E7-21: progress-tree number stays readable at any fill — two-layer clipped text (base on cream track + high-contrast dark copy clipped to the yellow fill via `--tree-fill`) |
-| `0.23.0` | 2026-07-02 | **(current)** US-E7-18: Android-style Toast component (`src/ui/components/toast.js`, `showToast`/`clearToast`) — replaces inline `<p>` feedback on Login/Admin-Login/Sign-up/Player-Info; bottom-center pill, info/success/error, a11y + reduced-motion |
+| `0.23.0` | 2026-07-02 | US-E7-18: Android-style Toast component (`src/ui/components/toast.js`, `showToast`/`clearToast`) — replaces inline `<p>` feedback on Login/Admin-Login/Sign-up/Player-Info; bottom-center pill, info/success/error, a11y + reduced-motion |
+| `0.24.0` | 2026-07-02 | **(current)** US-E7-22: partner/supporter logo row (CAMT, NAPLAB, CMU, MedCMU, NRCT) at the bottom of the Welcome screen |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 

@@ -91,8 +91,9 @@
 | [US-E7-19](./user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | ✅ Done |
 | [US-E7-20](./user-stories/US-E7-20.md) | ระบบทรานสิชั่น: Popup fade+scale / เปลี่ยนหน้า fade + แยก Loading component | Med | ✅ Done |
 | [US-E7-21](./user-stories/US-E7-21.md) | Progress-tree: เปลี่ยนสีตัวเลขความคืบหน้าอัตโนมัติเมื่อหลอดเกินครึ่ง (contrast) | Med | ✅ Done |
+| [US-E7-22](./user-stories/US-E7-22.md) | หน้าแรก: เพิ่มโลโก้คณะแพทย์ + หน่วยงานที่เกี่ยวข้อง | Med | 🏗 In-Progress |
 
-> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..21 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
+> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..22 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 
 ---
