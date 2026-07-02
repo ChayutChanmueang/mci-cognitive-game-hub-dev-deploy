@@ -1,4 +1,4 @@
-import activeTheme from './themes/zoo-theme.json';
+import activeTheme from './themes/medicine-theme.json';
 
 // ---------------------------------------------------------------------------
 // Start Menu Panel Settings
@@ -27,6 +27,13 @@ export const ReceiverSetting = Object.freeze(activeTheme.ReceiverSetting);
 // Gameplay Messages
 // ---------------------------------------------------------------------------
 export const GameplayMessages = Object.freeze(activeTheme.GameplayMessages);
+
+// ---------------------------------------------------------------------------
+// Theme Assets
+// ---------------------------------------------------------------------------
+/** Flat map of { spriteKey: filePath } for all assets this theme uses.
+ *  UITestScene iterates this to load only what the active theme needs. */
+export const ThemeAssets = Object.freeze(activeTheme.assets);
 
 // ---------------------------------------------------------------------------
 // Difficulty Mapping

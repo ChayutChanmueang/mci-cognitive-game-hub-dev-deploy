@@ -10,7 +10,7 @@ import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import DebugMenu from "./DebugMenu.js";
-import { GameOverSetting, StartMenuSetting, GameplaySetting, ConveyerDifficultyLevel, DifficultyLabel } from '../constants.js';
+import { GameOverSetting, StartMenuSetting, GameplaySetting, ConveyerDifficultyLevel, DifficultyLabel, ThemeAssets, ReceiverSetting, ItemSpriteLibrary } from '../constants.js';
 import { TutorialPanel } from '../../../ui/tutorial-panel.js';
 const GAME_ID = "ATTN001";
 
@@ -22,40 +22,18 @@ export default class UITestScene extends Phaser.Scene {
   preload() {
     // rexUI is loaded via main.js global config
 
+    // Shared UI assets (not theme-specific)
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
-    //BG
-    this.load.image('background', 'assets/zoo-feeder/etc/BG.png')
-    //Food Sprite
-    this.load.image('apple_sprite', 'assets/zoo-feeder/food/Apple.png')
-    this.load.image('battery_sprite', 'assets/zoo-feeder/food/Battery.png')
-    this.load.image('beef_sprite', 'assets/zoo-feeder/food/Beef.png')
-    this.load.image('boot_sprite', 'assets/zoo-feeder/food/Boot.png')
-    this.load.image('bottle_sprite', 'assets/zoo-feeder/food/Bottle.png')
-    this.load.image('chicken_sprite', 'assets/zoo-feeder/food/Chick.png')
-    this.load.image('corn_sprite', 'assets/zoo-feeder/food/Corn.png')
-    this.load.image('fish_sprite', 'assets/zoo-feeder/food/Fish.png')
-    // this.load.image('garbage_sprite', 'assets/zoo-feeder/food/Garbage.png')
-    this.load.image('plant_sprite', 'assets/zoo-feeder/food/Plant.png')
-    // this.load.image('soda_sprite', 'assets/zoo-feeder/food/Soda.png')
-    //Animal Sprite
-    this.load.image('bear_sprite', 'assets/zoo-feeder/animal/B_Bear.png')
-    this.load.image('cow_sprite', 'assets/zoo-feeder/animal/B_Cow.png')
-    this.load.image('elephant_sprite', 'assets/zoo-feeder/animal/B_Ele.png')
-    this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.png')
-    this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.png')
-    this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.png')
-    //Animal Icon
-    this.load.image("bear_icon", "assets/zoo-feeder/animal/icons/H_Bear.png");
-    this.load.image("cow_icon", "assets/zoo-feeder/animal/icons/H_Cow.png");
-    this.load.image("elephant_icon", "assets/zoo-feeder/animal/icons/H_ele.png");
-    this.load.image("fox_icon", "assets/zoo-feeder/animal/icons/H_Fox.png");
-    this.load.image("lion_icon", "assets/zoo-feeder/animal/icons/H_Li.png");
-    this.load.image("panda_icon", "assets/zoo-feeder/animal/icons/H_Pan.png");
-    //Emote
+    // Shared emote assets (not theme-specific)
     this.load.image("popup_emote", "assets/zoo-feeder/etc/Popup.png");
-    this.load.image("emote_sad", "assets/zoo-feeder/etc/Emoji_None.png");
+    this.load.image("emote_sad",   "assets/zoo-feeder/etc/Emoji_None.png");
     this.load.image("emote_happy", "assets/zoo-feeder/etc/Emoji_Smile.png");
+
+    // Theme-specific assets: loaded dynamically from the active theme JSON
+    for (const [key, path] of Object.entries(ThemeAssets)) {
+      this.load.image(key, path);
+    }
   }
 
   create(data) {
@@ -151,11 +129,16 @@ export default class UITestScene extends Phaser.Scene {
     // Show DOM Tutorial Panel
     const uiRoot = document.getElementById('ui-root');
     this.tutorialPanel = new TutorialPanel(uiRoot, {
-      title: "คู่มือการเล่น",
-      description: StartMenuSetting.instructions,
-      panelBorderColor: StartMenuSetting.panelBorderColor,
-      panelHeaderColor: StartMenuSetting.panelHeaderColor,
-      primaryFontColor: StartMenuSetting.primaryFontColor,
+      title:              StartMenuSetting.tutorialTitle,
+      description:        StartMenuSetting.description,
+      subdescription:     StartMenuSetting.instructions,
+      panelBorderColor:   StartMenuSetting.panelBorderColor,
+      panelHeaderColor:   StartMenuSetting.panelHeaderColor,
+      primaryFontColor:   StartMenuSetting.primaryFontColor,
+      secondaryFontColor: StartMenuSetting.secondaryFontColor,
+      receiverSetting:    ReceiverSetting,
+      itemSpriteLibrary:  ItemSpriteLibrary,
+      themeAssets:        ThemeAssets,
       onStart: () => {
         this.physics.resume();
         this.spawnItem();

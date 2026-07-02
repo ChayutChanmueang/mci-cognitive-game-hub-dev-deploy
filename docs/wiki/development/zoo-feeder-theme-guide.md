@@ -60,7 +60,8 @@ Copy the structure below as your starting template and fill in your values:
   "StartMenuSetting": {
     "title": "Your Game Title",
     "description": "A short game description",
-    "instructions": "The player instructions shown on the tutorial panel",
+    "instructions": "The player instructions shown on the tutorial panel body",
+    "tutorialTitle": "The header text shown on the tutorial panel",
     "coverImage": "assets/common/cover/your_cover_image.png",
     "defaultLevel": 1,
     "panelBorderColor": "#HEX_COLOR",
@@ -102,6 +103,17 @@ Copy the structure below as your starting template and fill in your values:
   "GameplayMessages": {
     "wrongCategory": "Your wrong-category popup message",
     "itemDropped": "Your item-dropped popup message"
+  },
+  "assets": {
+    "background":        "assets/your-theme/BG.png",
+    "item_a1_sprite":    "assets/your-theme/items/ItemA1.png",
+    "item_a2_sprite":    "assets/your-theme/items/ItemA2.png",
+    "item_b1_sprite":    "assets/your-theme/items/ItemB1.png",
+    "item_b2_sprite":    "assets/your-theme/items/ItemB2.png",
+    "receiver_one_sprite": "assets/your-theme/receivers/ReceiverOne.png",
+    "receiver_one_icon":   "assets/your-theme/receivers/icons/ReceiverOne_icon.png",
+    "receiver_two_sprite": "assets/your-theme/receivers/ReceiverTwo.png",
+    "receiver_two_icon":   "assets/your-theme/receivers/icons/ReceiverTwo_icon.png"
   }
 }
 ```
@@ -138,8 +150,9 @@ Defines the entities waiting at the end of each conveyor. Each receiver only acc
 | Property | Required | Description |
 |---|---|---|
 | `AcceptableCategory` | ✅ | Must match a **value** from `ItemCategory` |
+| `Label` | ✅ | Display name shown in the HUD (e.g. `"ยากิน"`, `"สัตว์กินพืช"`) |
 | `Sprite` | ✅ | The sprite key for the receiver's body |
-| `Icon` | ✅ | The sprite key for the receiver's HUD icon |
+| `Icon` | ✅ | The sprite key for the receiver's HUD icon (can reuse an item sprite) |
 | `OffsetY` | ❌ | Vertical offset in pixels for visual alignment (default: `0`) |
 | `ShadowOffset` | ❌ | Shadow vertical offset (default: `-60`) |
 | `ScaleMulti` | ❌ | Scale multiplier for oversized sprites (default: `1.0`) |
@@ -159,28 +172,27 @@ The Thai (or any language) popup strings shown when a player makes a wrong actio
 
 ---
 
-## Step 3: Register Your Assets in `UITestScene.js`
+## Step 3: Register Your Assets in the Theme JSON
 
-Open [`src/game/zoo-feeder/scenes/UITestScene.js`](file:///c:/work/mci-cognitive-games/src/game/zoo-feeder/scenes/UITestScene.js) and add `this.load.image()` calls inside the `preload()` method for every new sprite key you defined in the JSON.
+The `assets` block in your theme JSON is the complete list of images the game will load. **The keys must exactly match the sprite keys used in `ItemSpriteLibrary` and `ReceiverSetting`**.
 
-```javascript
-preload() {
-    // ... existing assets ...
+`UITestScene.js` automatically iterates `ThemeAssets` at startup and loads only those images — no manual edits to the scene file needed.
 
-    // YOUR NEW THEME ASSETS
-    // Background
-    this.load.image('background', 'assets/your-theme/BG.png');
-    // Item sprites (keys must match your ItemSpriteLibrary values)
-    this.load.image('bottle_sprite', 'assets/your-theme/items/Bottle.png');
-    this.load.image('can_sprite',    'assets/your-theme/items/Can.png');
-    // Receiver sprites (keys must match your ReceiverSetting values)
-    this.load.image('receiver_one_sprite', 'assets/your-theme/receivers/ReceiverOne.png');
-    this.load.image('receiver_one_icon',   'assets/your-theme/receivers/icons/ReceiverOne_icon.png');
+```json
+"assets": {
+  "background":      "assets/your-theme/BG.png",
+  "bottle_sprite":   "assets/your-theme/items/Bottle.png",
+  "can_sprite":      "assets/your-theme/items/Can.png",
+  "bin_one_sprite":  "assets/your-theme/receivers/BinOne.png",
+  "bin_one_icon":    "assets/your-theme/receivers/icons/BinOne_icon.png"
 }
 ```
 
-> [!WARNING]
-> If a sprite key referenced in your JSON does not have a matching `this.load.image()` call, Phaser will throw a texture error and the item or receiver will render as a grey box.
+> [!IMPORTANT]
+> Every sprite key referenced in `ItemSpriteLibrary` or `ReceiverSetting` must have a matching entry in `assets`. Missing entries will cause Phaser to render grey boxes at runtime.
+
+> [!NOTE]
+> Shared assets that are **not theme-specific** (emote popups, UI buttons) are always loaded by the scene and do **not** need to be in the `assets` block.
 
 ---
 
@@ -218,6 +230,6 @@ Use this checklist when creating a new theme:
 - `[ ]` Created `src/game/zoo-feeder/themes/my-theme.json` with all required fields
 - `[ ]` `ItemSpriteLibrary` keys match the **values** (not keys) of `ItemCategory`
 - `[ ]` `ReceiverSetting` entries each have a valid `AcceptableCategory` that matches an `ItemCategory` value
-- `[ ]` All sprite keys in the JSON are registered with `this.load.image()` in `UITestScene.preload()`
+- `[ ]` All sprite keys in the JSON are listed in the `assets` block with their correct file paths
 - `[ ]` Updated the import line in `constants.js` to point to the new theme file
 - `[ ]` Tested the game with at least 1, 2, and 3 conveyors (Easy, Normal, Hard)
