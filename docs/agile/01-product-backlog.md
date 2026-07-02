@@ -89,7 +89,7 @@
 | [US-E7-17](./user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
 | [US-E7-18](./user-stories/US-E7-18.md) | ย้าย feedback ข้อความ (error/สถานะ) → Toast component แบบ Android | Med | 📋 Backlog |
 | [US-E7-19](./user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | ✅ Done |
-| [US-E7-20](./user-stories/US-E7-20.md) | ระบบทรานสิชั่น: Popup fade+scale / เปลี่ยนหน้า fade + แยก Loading component | Med | 🏗 In-Progress |
+| [US-E7-20](./user-stories/US-E7-20.md) | ระบบทรานสิชั่น: Popup fade+scale / เปลี่ยนหน้า fade + แยก Loading component | Med | ✅ Done |
 | [US-E7-21](./user-stories/US-E7-21.md) | Progress-tree: เปลี่ยนสีตัวเลขความคืบหน้าอัตโนมัติเมื่อหลอดเกินครึ่ง (contrast) | Med | 📋 Backlog |
 
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..21 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
