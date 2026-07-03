@@ -1,40 +1,14 @@
-function escapeHtml(value) {
-    return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-}
+// US-E7-01 · leaderboard-screen.js — composes the Figma leaderboard art (node 3231:15)
+// from the ported components in src/ui/components/. This file owns only data loading,
+// scroll scaffold, and back-button wiring; all visuals live in the components + CSS.
+import { renderIconButtonBack } from "./components/icon-button-back.js";
+import { renderBgRoundedLeaderboard } from "./components/bg-rounded-leaderboard.js";
+import { renderLeaderboardTopBar } from "./components/leaderboard-top-bar.js";
+import { renderLeaderboardRow, variantForRank } from "./components/leaderboard-row.js";
+import { renderLeaderboardBottomStatus } from "./components/leaderboard-bottom-status.js";
 
 function formatScore(value) {
     return new Intl.NumberFormat("en-US").format(Number(value) || 0);
-}
-
-function renderRankBadge(player) {
-    if (player.rank > 3) {
-        return `<span class="leaderboard-rank-number">${escapeHtml(player.rank)}</span>`;
-    }
-
-    return `
-        <span class="leaderboard-medal leaderboard-medal--${escapeHtml(player.rank)}" aria-label="อันดับ ${escapeHtml(player.rank)}">
-            <span>${escapeHtml(player.rank)}</span>
-        </span>
-    `;
-}
-
-function renderLeaderboardRow(player) {
-    const classes = ["leaderboard-row", player.current ? "is-current" : ""]
-        .filter(Boolean)
-        .join(" ");
-
-    return `
-        <article class="${classes}" data-leaderboard-row data-rank="${escapeHtml(player.rank)}">
-            <div class="leaderboard-rank">${renderRankBadge(player)}</div>
-            <div class="leaderboard-player-name">${escapeHtml(player.name)}</div>
-            <div class="leaderboard-score">${escapeHtml(formatScore(player.score))}</div>
-        </article>
-    `;
 }
 
 export function renderLeaderboardScreen(root, options = {}) {
@@ -62,70 +36,72 @@ export function renderLeaderboardScreen(root, options = {}) {
         activeCleanup.push(() => target.removeEventListener(eventName, handler, listenerOptions));
     };
 
+    const renderRows = (players) =>
+        players
+            .map((player) =>
+                renderLeaderboardRow({
+                    rank: player.rank,
+                    playerName: player.name,
+                    score: formatScore(player.score),
+                    variant: variantForRank(Number(player.rank)),
+                    current: Boolean(player.current),
+                }),
+            )
+            .join("");
+
     const renderContent = ({ players = [], currentRankInfo = null, loading = false } = {}) => {
         cleanup();
+
+        const listMarkup = loading
+            ? `
+                <div class="gh-leaderboard-empty">
+                    <md-circular-progress indeterminate aria-label="กำลังโหลดคะแนน"></md-circular-progress>
+                    <p>กำลังโหลดคะแนน</p>
+                </div>
+            `
+            : players.length
+                ? `<div class="gh-leaderboard-list">${renderRows(players)}</div>`
+                : `<div class="gh-leaderboard-empty"><p>ยังไม่มีข้อมูลคะแนน</p></div>`;
+
+        const bottomMarkup = !loading && currentRankInfo?.rank
+            ? renderLeaderboardBottomStatus({
+                rank: currentRankInfo.rank,
+                playerName: currentRankInfo.name || patientLabel,
+                score: formatScore(currentRankInfo.score || 0),
+            })
+            : "";
 
         root.innerHTML = `
             <section class="hub-clean-screen leaderboard-screen" aria-labelledby="leaderboard-title">
                 <div class="hub-clean-shell leaderboard-shell">
-                    <header class="leaderboard-clean-topbar leaderboard-topbar">
-                        <div class="hub-clean-profile leaderboard-back" role="button" tabindex="0" aria-label="กลับไปหน้าเกม">
-                            <md-filled-tonal-icon-button aria-label="กลับไปหน้าเกม">
-                                <md-icon class="material-symbols-rounded">arrow_back</md-icon>
-                            </md-filled-tonal-icon-button>
-                            <strong>กลับ</strong>
-                        </div>
-                        <div class="hub-clean-goal">
-                            <p class="hub-clean-eyebrow">${escapeHtml(patientLabel)}</p>
-                            <h1 id="leaderboard-title">ชุมชนพัฒนาสมอง</h1>
-                            <p>อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
-                        </div>
-                    </header>
-                    <section class="hub-clean-stage leaderboard-stage">
-                        <div class="hub-clean-scroll leaderboard-scroll" data-leaderboard-scroll>
-                            <div class="hub-clean-content leaderboard-content" data-leaderboard-section>
-                                <div class="leaderboard-table-head" aria-hidden="true">
-                                    <span>อันดับ</span>
-                                    <span>ชื่อ</span>
-                                    <span>คะแนน</span>
+                    ${renderBgRoundedLeaderboard({
+                        body: `
+                            <div class="gh-leaderboard-stage">
+                                <div class="gh-leaderboard-scroll" data-leaderboard-scroll>
+                                    <div class="gh-leaderboard-content" data-leaderboard-section>
+                                        ${listMarkup}
+                                    </div>
                                 </div>
-                                ${loading ? `
-                                    <div class="hub-clean-empty">
-                                        <md-circular-progress indeterminate aria-label="กำลังโหลดคะแนน"></md-circular-progress>
-                                        <p>กำลังโหลดคะแนน</p>
-                                    </div>
-                                ` : players.length ? `
-                                    <div class="leaderboard-list">
-                                        ${players.map(renderLeaderboardRow).join("")}
-                                    </div>
-                                ` : `
-                                    <div class="hub-clean-empty">
-                                        <p>ยังไม่มีข้อมูลคะแนน</p>
-                                    </div>
-                                `}
                             </div>
-                        </div>
-                    </section>
-                    ${!loading && currentRankInfo?.rank ? `
-                        <aside class="leaderboard-bottom-bar" aria-label="อันดับของผู้เล่นคนนี้">
-                            ${renderLeaderboardRow({
-                                rank: currentRankInfo.rank,
-                                name: currentRankInfo.name || patientLabel,
-                                score: currentRankInfo.score || 0,
-                                current: false,
-                            })}
-                        </aside>
-                    ` : ""}
+                        `,
+                    })}
+
+                    <header class="gh-leaderboard-header">
+                        ${renderIconButtonBack({ className: "gh-leaderboard-back", ariaLabel: "กลับ" })}
+                        <h1 id="leaderboard-title" class="gh-leaderboard-header__title">ชุมชนพัฒนาสมอง</h1>
+                        <p class="gh-leaderboard-header__subtitle">อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
+                        <img class="gh-leaderboard-header__flower gh-leaderboard-header__flower--1" src="/assets/leaderboard/flower-1.png" alt="" aria-hidden="true" />
+                        <img class="gh-leaderboard-header__flower gh-leaderboard-header__flower--2" src="/assets/leaderboard/flower-2.png" alt="" aria-hidden="true" />
+                    </header>
+
+                    ${renderLeaderboardTopBar()}
+
+                    ${bottomMarkup}
                 </div>
             </section>
         `;
 
-        on(root.querySelector(".leaderboard-back"), "click", () => onBack());
-        on(root.querySelector(".leaderboard-back"), "keydown", (event) => {
-            if (event.key !== "Enter" && event.key !== " ") return;
-            event.preventDefault();
-            onBack();
-        });
+        on(root.querySelector(".gh-leaderboard-back"), "click", () => onBack());
     };
 
     renderContent({ loading: true });

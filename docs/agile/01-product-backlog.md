@@ -70,7 +70,7 @@
 ### E7: Game Art Assets & UI/UX Polish (P1)
 | ID | User Story | Priority | Status |
 | --- | --- | --- | --- |
-| [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
+| [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 🏗 In-Progress |
 | [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
 | [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
 | [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | ✅ Done |

@@ -1508,24 +1508,6 @@ body.game-mode .app-version-badge {
     backdrop-filter: blur(10px);
 }
 
-.leaderboard-clean-topbar {
-    position: absolute;
-    z-index: 20;
-    top: 14px;
-    left: 14px;
-    right: 14px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 82px;
-    gap: 12px;
-    min-height: 112px;
-    padding: 16px 14px 14px 20px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.78);
-    border: 1px solid rgba(183, 176, 168, 0.6);
-    box-shadow: none;
-    backdrop-filter: blur(10px);
-}
-
 .hub-clean-goal {
     display: grid;
     align-content: center;
@@ -1882,225 +1864,8 @@ body.game-mode .app-version-badge {
     font-size: 30px;
 }
 
-.leaderboard-screen {
-}
-
-.leaderboard-topbar {
-    grid-template-columns: 76px minmax(0, 1fr);
-}
-
-.leaderboard-topbar .hub-clean-goal h1 {
-    font-size: 25px;
-    letter-spacing: 0;
-}
-
-.leaderboard-summary {
-    width: min(100%, 210px);
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-    padding: 7px 10px;
-    border-radius: 999px;
-    background: rgba(53, 104, 89, 0.12);
-    color: var(--md-sys-color-on-surface);
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.leaderboard-summary strong {
-    font-size: 15px;
-}
-
-.leaderboard-back md-icon {
-    --md-icon-font: "Material Symbols Rounded";
-    font-family: "Material Symbols Rounded";
-}
-
-.leaderboard-back {
-    border-left: 0;
-    border-right: 0;
-    max-width: 75px;
-}
-
-.leaderboard-content {
-    padding: 135px 16px 185px;
-}
-
-.leaderboard-table-head {
-    display: grid;
-    grid-template-columns: 72px minmax(0, 1fr) 104px;
-    align-items: end;
-    gap: 10px;
-    padding: 0 8px 8px;
-    color: var(--md-sys-color-on-surface);
-    font-size: 23px;
-    font-weight: 800;
-    line-height: 2.25;
-}
-
-.leaderboard-table-head span:last-child {
-    text-align: center;
-}
-
-.leaderboard-list {
-    display: grid;
-    gap: 14px;
-    padding-bottom: 12px;
-}
-
-.leaderboard-row {
-    display: grid;
-    grid-template-columns: 72px minmax(0, 1fr) 88px;
-    align-items: center;
-    gap: 10px;
-    min-height: 66px;
-    padding: 8px 8px 8px 12px;
-    border-radius: 10px;
-    background: #d8d8d8;
-    border: 1px solid rgba(255, 255, 255, 0.58);
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.26);
-    color: #111827;
-}
-
-.leaderboard-row.is-current {
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(53, 104, 89, 0.18), 4px 4px 4px rgba(0, 0, 0, 0.22);
-}
-
-.leaderboard-rank {
-    min-width: 0;
-    display: grid;
-    place-items: center;
-    font-size: 24px;
-    font-weight: 800;
-}
-
-.leaderboard-rank-number {
-    min-width: 44px;
-    text-align: center;
-}
-
-.leaderboard-medal {
-    position: relative;
-    width: 54px;
-    height: 54px;
-    display: grid;
-    place-items: center;
-    border-radius: 999px;
-    color: #ffffff;
-    font-size: 21px;
-    font-weight: 900;
-    box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.12);
-}
-
-.leaderboard-medal::before,
-.leaderboard-medal::after {
-    content: "";
-    position: absolute;
-    top: -14px;
-    width: 14px;
-    height: 22px;
-    border-radius: 3px 3px 8px 8px;
-    background: #8a7adf;
-    z-index: 0;
-}
-
-.leaderboard-medal::before {
-    left: 13px;
-    transform: rotate(-18deg);
-}
-
-.leaderboard-medal::after {
-    right: 13px;
-    transform: rotate(18deg);
-}
-
-.leaderboard-medal--1 {
-    background: linear-gradient(135deg, #ffe36f, #f4b935);
-    border: 3px solid #fff2a8;
-}
-
-.leaderboard-medal--1::before,
-.leaderboard-medal--1::after {
-    background: #f47fa3;
-}
-
-.leaderboard-medal--2 {
-    background: linear-gradient(135deg, #f8fbff, #b9c8cd);
-    border: 3px solid #e9f1f4;
-    color: #8da1a8;
-}
-
-.leaderboard-medal--3 {
-    background: linear-gradient(135deg, #e8a875, #bc7042);
-    border: 3px solid #f0bf9b;
-}
-
-.leaderboard-medal span {
-    position: relative;
-    z-index: 1;
-    width: 32px;
-    height: 32px;
-    display: grid;
-    place-items: center;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.58);
-}
-
-.leaderboard-player-name {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 21px;
-    font-weight: 800;
-    line-height: 1.1;
-}
-
-.leaderboard-score {
-    min-width: 0;
-    padding: 10px 8px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    text-align: center;
-    font-size: 22px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.leaderboard-row.is-current .leaderboard-score {
-    background: #d8d8d8;
-}
-
-.leaderboard-fab {
-    right: 20px;
-    bottom: 115px; !important;
-}
-
-.leaderboard-bottom-bar {
-    position: absolute;
-    z-index: 35;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    padding: 9px 8px calc(9px + env(safe-area-inset-bottom));
-    border-radius: 10px 10px 0 0;
-    background: #8f8f8f;
-    box-shadow: 0 -10px 26px rgba(0, 0, 0, 0.12);
-}
-
-.leaderboard-bottom-bar .leaderboard-row {
-    min-height: 72px;
-    background: #ffffff;
-    box-shadow: none;
-}
-
-.leaderboard-bottom-bar .leaderboard-score {
-    background: #d8d8d8;
-}
+/* US-E7-01 · Leaderboard styling moved to public/components.css (Figma art port,
+   gh-leaderboard-* components). The old placeholder rules were removed here. */
 
 .checkin-summary-screen {
     min-height: 100svh;
@@ -2291,13 +2056,6 @@ body.game-mode .app-version-badge {
         padding: 0;
     }
 
-    .leaderboard-clean-topbar {
-        left: 10px;
-        right: 10px;
-        grid-template-columns: minmax(0, 1fr) 250px;
-        padding-left: 16px;
-    }
-
     .signup-screen,
     .player-info-screen {
         padding-inline: 0;
@@ -2389,13 +2147,6 @@ body.game-mode .app-version-badge {
         gap: 28px;
     }
 
-    .leaderboard-clean-topbar {
-        left: 10px;
-        right: 10px;
-        grid-template-columns: minmax(0, 1fr) 275px;
-        padding-left: 16px;
-    }
-
     .signup-fields {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         column-gap: clamp(24px, 4vw, 52px);
@@ -2441,24 +2192,11 @@ body.game-mode .app-version-badge {
         padding-inline: clamp(44px, 5vw, 72px);
     }
 
-    .leaderboard-clean-topbar {
-        left: 10px;
-        right: 10px;
-        grid-template-columns: minmax(0, 1fr) 290px;
-        padding-left: 16px;
-    }
 }
 
 @media (max-width: 720px) {
     .app-popup {
         padding: 16px;
-    }
-
-    .leaderboard-clean-topbar {
-        left: 10px;
-        right: 10px;
-        grid-template-columns: minmax(0, 1fr) 270px;
-        padding-left: 16px;
     }
 
     .app-popup__dialog {
@@ -2487,13 +2225,6 @@ body.game-mode .app-version-badge {
         left: 10px;
         right: 10px;
         grid-template-columns: minmax(0, 1fr) 76px;
-        padding-left: 16px;
-    }
-
-    .leaderboard-clean-topbar {
-        left: 10px;
-        right: 10px;
-        grid-template-columns: minmax(0, 1fr) 250px;
         padding-left: 16px;
     }
 

@@ -1628,3 +1628,469 @@
   width: min(36vh, 80cqh * 9 / 16);
   margin-bottom: 25px;
 }
+
+/* ============================================================
+   US-E7-01 · Leaderboard (Figma 3231:15). Ported components:
+   leaderboard-row.js, leaderboard-top-bar.js,
+   leaderboard-bottom-status.js, bg-rounded-leaderboard.js.
+   Every length is authored at the 1080px Figma frame and scaled
+   by --gh-scale (set on .hub-clean-shell = calc(420 / 1080)),
+   the same convention as the gh-*-node components above.
+   ============================================================ */
+.leaderboard-screen {
+  background: #8ee39a;
+  color: #305a69;
+}
+
+/* cream rounded body surface behind the rows (BG-Rounded-Leaderboard 3231:253) */
+.gh-bg-rounded-leaderboard {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  top: calc(305px * var(--gh-scale, 1));
+  bottom: 0;
+  background: #fcf7ed;
+  overflow: hidden;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+/* ── Header · title + subtitle + flowers + back (3231:15) ───── */
+.gh-leaderboard-header {
+  position: absolute;
+  z-index: 4;
+  inset: 0 0 auto;
+  height: calc(304px * var(--gh-scale, 1));
+  overflow: hidden;
+  text-align: center;
+}
+
+.gh-leaderboard-header__title,
+.gh-leaderboard-header__subtitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-family: var(--main-font), var(--main-font-type);
+  line-height: normal;
+}
+
+.gh-leaderboard-header__title {
+  top: calc(38px * var(--gh-scale, 1));
+  color: #305a69;
+  font-size: calc(84px * var(--gh-scale, 1));
+  font-weight: 700;
+}
+
+.gh-leaderboard-header__subtitle {
+  top: calc(177px * var(--gh-scale, 1));
+  color: #3690b1;
+  font-size: calc(52px * var(--gh-scale, 1));
+  font-weight: 500;
+}
+
+.gh-leaderboard-back {
+  position: absolute;
+  z-index: 6;
+  left: calc(32px * var(--gh-scale, 1));
+  top: calc(40px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-header__flower {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.gh-leaderboard-header__flower--1 {
+  left: calc(51px * var(--gh-scale, 1));
+  top: calc(196px * var(--gh-scale, 1));
+  width: calc(84px * var(--gh-scale, 1));
+  height: calc(230px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-header__flower--2 {
+  left: calc(936px * var(--gh-scale, 1));
+  top: calc(211.5px * var(--gh-scale, 1));
+  width: calc(93px * var(--gh-scale, 1));
+  height: calc(119px * var(--gh-scale, 1));
+}
+
+/* ── Floating top bar · column headings (3231:246) ──────────── */
+.gh-leaderboard-top-bar {
+  position: absolute;
+  z-index: 3;
+  top: calc(305px * var(--gh-scale, 1));
+  width: 100%;
+  height: calc(144px * var(--gh-scale, 1));
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.gh-leaderboard-top-bar__bg {
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  background: rgb(101, 168, 186);
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__content {
+  width: 100%;
+  height: 100%;
+  padding: 0 28px;
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  justify-content: center;
+}
+
+.gh-leaderboard-top-bar__label {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(64px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.gh-leaderboard-top-bar__label--rank {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__label--name {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__score-head {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__score-head {
+  width: 100%;
+  left: 0;
+  top: 0;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  justify-content: center;
+}
+
+.gh-leaderboard-top-bar__trophy {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.gh-leaderboard-top-bar__trophy-image {
+  width: calc(78px * var(--gh-scale, 1));
+  height: calc(68px * var(--gh-scale, 1));
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.gh-leaderboard-top-bar__score-head-label {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* ── Scrolling rows region ──────────────────────────────────── */
+.gh-leaderboard-stage {
+  position: absolute;
+  margin-top: calc(144px * var(--gh-scale, 1));
+  z-index: 2;
+  inset: 0;
+}
+
+.gh-leaderboard-scroll {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(48, 90, 105, 0.34) transparent;
+}
+
+.gh-leaderboard-content {
+  padding-top: calc(35px * var(--gh-scale, 1));
+  padding-bottom: calc(250px * var(--gh-scale, 1) + env(safe-area-inset-bottom));
+}
+
+.gh-leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(42px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-empty {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  padding: 48px 20px;
+  color: #305a69;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  text-align: center;
+}
+
+.gh-leaderboard-empty p {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* ── Leaderboard row card (3231:179..223) ───────────────────── */
+.gh-leaderboard-row {
+  position: relative;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: calc(1016px * var(--gh-scale, 1));
+  height: calc(192px * var(--gh-scale, 1));
+  overflow: hidden;
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: #ffffff;
+  box-shadow: 0 calc(8px * var(--gh-scale, 1)) 0 0 rgba(0, 0, 0, 0.25);
+}
+
+.gh-leaderboard-row[data-variant~="gold"] {
+  --lb-rank-stroke: #d88e1f;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #c3801d;
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #fef4e2;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) #f4e4c7;
+  --lb-score-color: #d29c5f;
+}
+
+.gh-leaderboard-row[data-variant~="silver"] {
+  --lb-rank-stroke: #888cac;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #c2bdbf;
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #eef1f5;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) rgba(0, 0, 0, 0.11);
+  --lb-score-color: #7a8594;
+}
+
+.gh-leaderboard-row[data-variant~="bronze"] {
+  --lb-rank-stroke: #ca6631;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #bd6434;
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #ffedda;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) rgba(255, 208, 183, 0.5);
+  --lb-score-color: #f0a881;
+}
+
+.gh-leaderboard-row[data-variant~="other"] {
+  --lb-rank-stroke: #309aa5;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) rgba(109, 143, 205, 0.74);
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #e9faff;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) #d1e1e5;
+  --lb-score-color: #41aac7;
+}
+
+/* current player — orange ring highlight (Top-3-You 3231:212) */
+.gh-leaderboard-row[data-variant~="you"] {
+  border: calc(12px * var(--gh-scale, 1)) solid #ffbf7f;
+  --lb-name-color: #a85c26;
+}
+
+.gh-leaderboard-row__content {
+  position: absolute;
+  left: calc(32px * var(--gh-scale, 1));
+  top: calc(28px * var(--gh-scale, 1));
+  width: calc(952px * var(--gh-scale, 1));
+  height: calc(136px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-row__rank-cell {
+  position: absolute;
+  left: 0;
+  top: calc(-4px * var(--gh-scale, 1));
+  width: calc(142px * var(--gh-scale, 1));
+  height: calc(144px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-row__medal {
+  position: absolute;
+  inset: 0;
+  width: calc(142px * var(--gh-scale, 1));
+  height: calc(144px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.gh-leaderboard-row__rank {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  -webkit-text-stroke: calc(4px * var(--gh-scale, 1)) var(--lb-rank-stroke, transparent);
+  paint-order: stroke fill;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(76px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  text-shadow: var(--lb-rank-shadow, none);
+  white-space: nowrap;
+}
+
+.gh-leaderboard-row__name {
+  position: absolute;
+  left: calc(174px * var(--gh-scale, 1));
+  top: calc(20px * var(--gh-scale, 1));
+  width: calc(423px * var(--gh-scale, 1));
+  height: calc(96px * var(--gh-scale, 1));
+  margin: 0;
+  overflow: hidden;
+  color: var(--lb-name-color, #268ca8);
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gh-leaderboard-row__score-cell {
+  position: absolute;
+  left: calc(629px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(324px * var(--gh-scale, 1));
+  height: calc(136px * var(--gh-scale, 1));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: calc(28px * var(--gh-scale, 1));
+  background: var(--lb-score-bg, transparent);
+  box-shadow: var(--lb-score-shadow, none);
+}
+
+.gh-leaderboard-row__score {
+  color: var(--lb-score-color, currentColor);
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: calc(6px * var(--gh-scale, 1));
+  white-space: nowrap;
+}
+
+/* ── Pinned "your rank" bar (Bottom-Status-Player 3231:236) ──── */
+.gh-leaderboard-bottom {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: calc(1057px * var(--gh-scale, 1));
+  height: calc(203px * var(--gh-scale, 1));
+  color: #ca6631;
+}
+
+.gh-leaderboard-bottom__panel {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(52px * var(--gh-scale, 1)) calc(52px * var(--gh-scale, 1)) 0 0;
+  background: #fbe5c3;
+  box-shadow: 0 0 0 calc(12px * var(--gh-scale, 1)) #ffbf80;
+}
+
+.gh-leaderboard-bottom__content {
+  position: absolute;
+  left: calc(56px * var(--gh-scale, 1));
+  top: calc(31px * var(--gh-scale, 1));
+  width: calc(946px * var(--gh-scale, 1));
+  height: calc(142px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-bottom__rank-cell {
+  position: absolute;
+  left: 0;
+  top: calc(5.5px * var(--gh-scale, 1));
+  width: calc(129px * var(--gh-scale, 1));
+  height: calc(131px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-bottom__medal {
+  position: absolute;
+  inset: 0;
+  width: calc(129px * var(--gh-scale, 1));
+  height: calc(129px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.gh-leaderboard-bottom__rank {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  -webkit-text-stroke: calc(4px * var(--gh-scale, 1)) #ca6631;
+  paint-order: stroke fill;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(76px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  text-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #bd6434;
+  white-space: nowrap;
+}
+
+.gh-leaderboard-bottom__name {
+  position: absolute;
+  left: calc(193px * var(--gh-scale, 1));
+  top: calc(23px * var(--gh-scale, 1));
+  width: calc(363px * var(--gh-scale, 1));
+  height: calc(96px * var(--gh-scale, 1));
+  margin: 0;
+  overflow: hidden;
+  color: #ca6631;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gh-leaderboard-bottom__score-cell {
+  position: absolute;
+  left: calc(620px * var(--gh-scale, 1));
+  top: 0;
+  width: calc(326px * var(--gh-scale, 1));
+  height: calc(142px * var(--gh-scale, 1));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: #ffedda;
+  box-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) rgba(255, 208, 183, 0.5);
+}
+
+.gh-leaderboard-bottom__score {
+  color: #f0821d;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: calc(6px * var(--gh-scale, 1));
+  white-space: nowrap;
+}
