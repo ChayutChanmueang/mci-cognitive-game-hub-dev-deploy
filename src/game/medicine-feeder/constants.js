@@ -1,4 +1,4 @@
-import activeTheme from './themes/zoo-theme.json';
+import activeTheme from './themes/medicine-theme.json';
 
 // ---------------------------------------------------------------------------
 // Start Menu Panel Settings

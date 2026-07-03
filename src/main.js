@@ -77,6 +77,7 @@ const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
 const BACK_BUTTON_PROTECTED_SLUGS = new Set([
     "zoo-feeder",
+    "medicine-feeder",
     "postcard-reader",
     "symmetry-decor",
     "context-clues",
@@ -85,6 +86,7 @@ const BACK_BUTTON_PROTECTED_SLUGS = new Set([
 ]);
 const GAME_COLORS = Object.freeze({
     "zoo-feeder": { border: "#DE8D23", header: "#FEA837", textPrimary: "#945E17", textSecondary: "#DE8519" },
+    "medicine-feeder": { border: "#2A7CC7", header: "#4A9FE0", textPrimary: "#1A4F82", textSecondary: "#2A7CC7" },
     "zoo-detective": { border: "#2D8FBA", header: "#45A9D4", textPrimary: "#235B75", textSecondary: "#3D86A8" },
     "symmetry-decor": { border: "#DB4670", header: "#FF5585", textPrimary: "#A83855", textSecondary: "#F26A8D" },
     "postcard-reader": { border: "#54AC24", header: "#65BD35", textPrimary: "#446930", textSecondary: "#6F9F55" },

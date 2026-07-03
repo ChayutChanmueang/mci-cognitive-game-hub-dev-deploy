@@ -1,0 +1,64 @@
+{
+  "StartMenuSetting": {
+    "title": "จัดยา",
+    "description": "เกมคัดแยกยาและสิ่งของให้ถูกประเภท",
+    "instructions": "แตะสิ่งของที่เป็นอันตรายหรือไม่ใช่ยาออกจากสายพาน และปล่อยให้ยาที่ถูกต้องผ่านไปให้ถูกช่อง",
+    "tutorialTitle": "คู่มือการเล่น",
+    "coverImage": "assets/common/cover/cover_zoo_feeder.png",
+    "defaultLevel": 1,
+    "panelBorderColor": "#2A7CC7",
+    "panelHeaderColor": "#4A9FE0",
+    "primaryFontColor": "#1A4F82",
+    "secondaryFontColor": "#2A7CC7"
+  },
+  "GameOverSetting": {
+    "panelBorderColor": "#2A7CC7",
+    "panelHeaderColor": "#4A9FE0",
+    "primaryFontColor": "#1A4F82",
+    "secondaryFontColor": "#2A7CC7"
+  },
+  "ItemCategory": {
+    "ORAL_MEDICATION":     "OralMedication",
+    "EXTERIOR_MEDICATION": "ExteriorMedication",
+    "DANGEROUS_CHEMICAL":  "DangerousChemical"
+  },
+  "ItemSpriteLibrary": {
+    "OralMedication":     ["capsule_pill_sprite", "pill1_sprite", "pill2_sprite"],
+    "ExteriorMedication": ["counterpain_sprite", "inhaler_sprite", "plaster_sprite"],
+    "DangerousChemical":  ["chemical_sprite", "dishwasher_sprite", "pesticide_sprite"]
+  },
+  "ReceiverSetting": {
+    "ORAL_RECEIVER": {
+      "AcceptableCategory": "OralMedication",
+      "Label": "ยากิน",
+      "Sprite": "bear_sprite",
+      "Icon": "bear_icon"
+    },
+    "EXTERIOR_RECEIVER": {
+      "AcceptableCategory": "ExteriorMedication",
+      "Label": "ยาทา",
+      "Sprite": "panda_sprite",
+      "Icon": "panda_icon"
+    }
+  },
+  "GameplayMessages": {
+    "wrongCategory": "ผิดประเภทยา",
+    "itemDropped":   "อย่าทิ้งยาสิ"
+  },
+  "assets": {
+    "background":          "assets/zoo-feeder/etc/BG.png",
+    "capsule_pill_sprite": "assets/zoo-feeder/medicine/CapsulePill.png",
+    "pill1_sprite":        "assets/zoo-feeder/medicine/Pill1.png",
+    "pill2_sprite":        "assets/zoo-feeder/medicine/Pill2.png",
+    "counterpain_sprite":  "assets/zoo-feeder/medicine/Counterpain.png",
+    "inhaler_sprite":      "assets/zoo-feeder/medicine/Inhaler.png",
+    "plaster_sprite":      "assets/zoo-feeder/medicine/Plaster.png",
+    "chemical_sprite":     "assets/zoo-feeder/medicine/Chemical.png",
+    "dishwasher_sprite":   "assets/zoo-feeder/medicine/DishWasher.png",
+    "pesticide_sprite":    "assets/zoo-feeder/medicine/Pesticide.png",
+    "bear_sprite":         "assets/zoo-feeder/animal/B_Bear.png",
+    "panda_sprite":        "assets/zoo-feeder/animal/B_Pan.png",
+    "bear_icon":           "assets/zoo-feeder/animal/icons/H_Bear.png",
+    "panda_icon":          "assets/zoo-feeder/animal/icons/H_Pan.png"
+  }
+}

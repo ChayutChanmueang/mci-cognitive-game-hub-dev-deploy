@@ -1,0 +1,99 @@
+{
+  "StartMenuSetting": {
+    "title": "สายพานอาหาร",
+    "description": "เกมคัดเลือกอาหารให้ถูกต้อง",
+    "instructions": "แตะอาหารที่สัตว์ชนิดนั้นไม่สามารถกินได้ออกจากสายพาน",
+    "tutorialTitle": "คู่มือการเล่น",
+    "coverImage": "assets/common/cover/cover_zoo_feeder.png",
+    "defaultLevel": 1,
+    "panelBorderColor": "#DE8D23",
+    "panelHeaderColor": "#FEA837",
+    "primaryFontColor": "#945E17",
+    "secondaryFontColor": "#DE8519"
+  },
+  "GameOverSetting": {
+    "panelBorderColor": "#DE8D23",
+    "panelHeaderColor": "#FEA837",
+    "primaryFontColor": "#945E17",
+    "secondaryFontColor": "#DE8519"
+  },
+  "ItemCategory": {
+    "VEGETABLE": "Vegetable",
+    "MEAT": "Meat",
+    "JUNK": "Junk"
+  },
+  "ItemSpriteLibrary": {
+    "Vegetable": ["apple_sprite", "corn_sprite", "plant_sprite"],
+    "Meat": ["beef_sprite", "chicken_sprite", "fish_sprite"],
+    "Junk": ["battery_sprite", "boot_sprite", "bottle_sprite"]
+  },
+  "ReceiverSetting": {
+    "BEAR": {
+      "AcceptableCategory": "Meat",
+      "Label": "สัตว์กินเนื้อ",
+      "Sprite": "bear_sprite",
+      "Icon": "bear_icon"
+    },
+    "COW": {
+      "AcceptableCategory": "Vegetable",
+      "Label": "สัตว์กินพืช",
+      "Sprite": "cow_sprite",
+      "Icon": "cow_icon"
+    },
+    "ELEPHANT": {
+      "AcceptableCategory": "Vegetable",
+      "Label": "สัตว์กินพืช",
+      "Sprite": "elephant_sprite",
+      "Icon": "elephant_icon"
+    },
+    "FOX": {
+      "AcceptableCategory": "Meat",
+      "Label": "สัตว์กินเนื้อ",
+      "Sprite": "fox_sprite",
+      "Icon": "fox_icon"
+    },
+    "LION": {
+      "AcceptableCategory": "Meat",
+      "Label": "สัตว์กินเนื้อ",
+      "Sprite": "lion_sprite",
+      "Icon": "lion_icon",
+      "OffsetY": 45,
+      "ShadowOffset": -30,
+      "ScaleMulti": 0.85
+    },
+    "PANDA": {
+      "AcceptableCategory": "Vegetable",
+      "Label": "สัตว์กินพืช",
+      "Sprite": "panda_sprite",
+      "Icon": "panda_icon"
+    }
+  },
+  "GameplayMessages": {
+    "wrongCategory": "กินไม่ได้นะ",
+    "itemDropped": "ทิ้งทำไม"
+  },
+  "assets": {
+    "background":       "assets/zoo-feeder/etc/BG.png",
+    "apple_sprite":     "assets/zoo-feeder/food/Apple.png",
+    "battery_sprite":   "assets/zoo-feeder/food/Battery.png",
+    "beef_sprite":      "assets/zoo-feeder/food/Beef.png",
+    "boot_sprite":      "assets/zoo-feeder/food/Boot.png",
+    "bottle_sprite":    "assets/zoo-feeder/food/Bottle.png",
+    "chicken_sprite":   "assets/zoo-feeder/food/Chick.png",
+    "corn_sprite":      "assets/zoo-feeder/food/Corn.png",
+    "fish_sprite":      "assets/zoo-feeder/food/Fish.png",
+    "plant_sprite":     "assets/zoo-feeder/food/Plant.png",
+    "bear_sprite":      "assets/zoo-feeder/animal/B_Bear.png",
+    "cow_sprite":       "assets/zoo-feeder/animal/B_Cow.png",
+    "elephant_sprite":  "assets/zoo-feeder/animal/B_Ele.png",
+    "fox_sprite":       "assets/zoo-feeder/animal/B_Fox.png",
+    "lion_sprite":      "assets/zoo-feeder/animal/B_Li.png",
+    "panda_sprite":     "assets/zoo-feeder/animal/B_Pan.png",
+    "bear_icon":        "assets/zoo-feeder/animal/icons/H_Bear.png",
+    "cow_icon":         "assets/zoo-feeder/animal/icons/H_Cow.png",
+    "elephant_icon":    "assets/zoo-feeder/animal/icons/H_ele.png",
+    "fox_icon":         "assets/zoo-feeder/animal/icons/H_Fox.png",
+    "lion_icon":        "assets/zoo-feeder/animal/icons/H_Li.png",
+    "panda_icon":       "assets/zoo-feeder/animal/icons/H_Pan.png"
+  }
+}

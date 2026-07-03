@@ -55,6 +55,7 @@ export class MinigameHUD {
         container.classList.add(`minigame-hud--${this.options.gameSlug}`);
         const topbarStyleGames = [
             "zoo-feeder",
+            "medicine-feeder",
             "zoo-detective",
             "context-clues",
             "symmetry-decor",
