@@ -27,7 +27,8 @@ export function renderLeaderboardBottomStatus({ rank = "", playerName = "", scor
           ${medalSrc ? `<img class="gh-leaderboard-bottom__medal" src="${escapeAttr(medalSrc)}" alt="" aria-hidden="true" />` : ""}
           <span class="gh-leaderboard-bottom__rank">${escapeText(rank)}</span>
         </div>
-        <p class="gh-leaderboard-bottom__name" title="${escapeAttr(playerName)}">${escapeText(playerName)}</p>
+        <div class="gh-leaderboard-bottom__name"></div>
+        <p class="gh-leaderboard-bottom__name-text" title="${escapeAttr(playerName)}">${escapeText(playerName)}</p>
         <div class="gh-leaderboard-bottom__score-cell">
           <span class="gh-leaderboard-bottom__score">${escapeText(score)}</span>
         </div>

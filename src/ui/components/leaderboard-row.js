@@ -46,7 +46,9 @@ export function renderLeaderboardRow({
           ${medalSrc ? `<img class="gh-leaderboard-row__medal" src="${escapeAttr(medalSrc)}" alt="" aria-hidden="true" />` : ""}
           <span class="gh-leaderboard-row__rank">${escapeText(rank)}</span>
         </div>
-        <p class="gh-leaderboard-row__name" title="${escapeAttr(playerName)}">${escapeText(playerName)}</p>
+        <div class="gh-leaderboard-row__name">
+            <p class="gh-leaderboard-row__name-text" title="${escapeAttr(playerName)}">${escapeText(playerName)}</p>
+        </div>
         <div class="gh-leaderboard-row__score-cell">
           <span class="gh-leaderboard-row__score">${escapeText(score)}</span>
         </div>
