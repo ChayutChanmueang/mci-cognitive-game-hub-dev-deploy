@@ -2527,9 +2527,7 @@ md-linear-progress.no-transition::part(bar) {
 
 /* Custom Green Score Box for Zoo Feeder */
 .minigame-hud--zoo-feeder .minigame-hud__score-box {
-    position: absolute;
-    left: 60px;
-    top: 28.5px;
+    position: relative;
     width: 150px;
     height: 42.5px;
     background: #56AC2E !important;
@@ -2596,9 +2594,7 @@ md-linear-progress.no-transition::part(bar) {
 
 /* Custom Orange Time Box for Zoo Feeder */
 .minigame-hud--zoo-feeder .minigame-hud__time-box {
-    position: absolute;
-    right: 35px;
-    top: 28.5px;
+    position: relative;
     width: 150px;
     height: 42.5px;
     background: #FFEDDF !important;
@@ -2731,4 +2727,34 @@ z-index: 2 !important;
 .dynamic-panel .result-btn-home {
     top: auto;
     bottom: -268px; /* 40px gap + 228px height */
+}
+
+/* Exit Button for Zoo Feeder style HUD */
+.minigame-hud--zoo-feeder .minigame-hud__exit-btn {
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    pointer-events: auto;
+    --md-icon-button-icon-color: #ffffff;
+    color: #ffffff;
+}
+
+/* Centered Group for Score and Timer */
+.minigame-hud--zoo-feeder .minigame-hud__center-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+.minigame-hud--zoo-feeder .minigame-hud__score-box,
+.minigame-hud--zoo-feeder .minigame-hud__time-box {
+    pointer-events: auto;
 }

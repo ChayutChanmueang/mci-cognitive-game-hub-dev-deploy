@@ -71,13 +71,18 @@ export class MinigameHUD {
             const iconSrc = "assets/icon_star.png";
 
             topbarHtml = `
-                <div class="minigame-hud__score-box">
-                    <img src="${iconSrc}" class="minigame-hud__score-star" alt="icon" />
-                    <span class="minigame-hud__score-text"><span id="hud-score">${scoreLabelText}</span></span>
-                </div>
-                <div class="minigame-hud__time-box">
-                    <img src="assets/icon_time.png" class="minigame-hud__time-icon" alt="time" />
-                    <span class="minigame-hud__time-text"><span id="hud-time-display">${formatTime(timeLeft)}</span></span>
+                <md-icon-button id="hud-exit-button" aria-label="ออกจากเกม" class="minigame-hud__exit-btn">
+                    <md-icon class="material-symbols-rounded">arrow_back</md-icon>
+                </md-icon-button>
+                <div class="minigame-hud__center-group">
+                    <div class="minigame-hud__score-box">
+                        <img src="${iconSrc}" class="minigame-hud__score-star" alt="icon" />
+                        <span class="minigame-hud__score-text"><span id="hud-score">${scoreLabelText}</span></span>
+                    </div>
+                    <div class="minigame-hud__time-box">
+                        <img src="assets/icon_time.png" class="minigame-hud__time-icon" alt="time" />
+                        <span class="minigame-hud__time-text"><span id="hud-time-display">${formatTime(timeLeft)}</span></span>
+                    </div>
                 </div>
             `;
         } else {
@@ -135,6 +140,30 @@ export class MinigameHUD {
 
         this.root.appendChild(container);
         this.initEvents();
+
+        this.resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                const topbar = this.element.querySelector(".minigame-hud__topbar");
+                const centerGroup = this.element.querySelector(".minigame-hud__center-group");
+                
+                if (topbar && centerGroup) {
+                    // Center group is 330px wide (150 + 30 + 150). Exit button needs ~70px on left.
+                    // For perfect centering with a 25px safe space, we need (width - 330)/2 >= 78 => width >= 486px.
+                    const minWidth = 486;
+                    if (width < minWidth && width > 0) {
+                        const ratio = width / minWidth;
+                        centerGroup.style.transform = `scale(${ratio})`;
+                        centerGroup.style.transformOrigin = "center center";
+                    } else {
+                        centerGroup.style.transform = "";
+                    }
+                }
+            }
+        });
+        if (this.root) {
+            this.resizeObserver.observe(this.root);
+        }
     }
 
     initEvents() {
@@ -296,6 +325,12 @@ export class MinigameHUD {
         EventBus.off("minigame:menu-mode", this.boundOnMenuMode);
         EventBus.off("minigame:show-timer", this.boundOnShowTimer);
         EventBus.off("minigame:hide-timer", this.boundOnHideTimer);
+        
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
+
         this.element?.remove();
     }
 

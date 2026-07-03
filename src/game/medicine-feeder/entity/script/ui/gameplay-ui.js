@@ -1,6 +1,7 @@
 import StorageManager from "../../../../../core/storage-manager.js";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 import Entity from "../../entity.js";
+import { autoScaleText } from "../../../../../util/ui-utils.js";
 
 export default class GameplayUI extends Entity {
     constructor(scene, x, y) {
@@ -37,13 +38,19 @@ export default class GameplayUI extends Entity {
             { fontSize: "64px" }
         ).setOrigin(1, 0).setDepth(1001);
 
+        this.maxTextWidth = (scene.scale.width / 2) - padding * 2;
+        autoScaleText(this.currentScore, this.maxTextWidth);
+        autoScaleText(this.currentLives, this.maxTextWidth);
+
         this.gameoverPanel = new GameOverPanel(scene);
     }
     setScore(newScore) {
         this.currentScore.text = this.scorePreText + newScore;
+        autoScaleText(this.currentScore, this.maxTextWidth);
     }
     setLives(newLives) {
         this.currentLives.text = this.livesPreText + newLives;
+        autoScaleText(this.currentLives, this.maxTextWidth);
     }
     setGameOverHighscore(score) {
         this.gameoverPanel.setHighscore(score);

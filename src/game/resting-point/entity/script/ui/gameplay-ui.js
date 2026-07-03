@@ -3,6 +3,7 @@ import GameEndPanel from "../../../ui-elements/scripts/gameend-panel";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel";
 import TemplatePanel from "../../../ui-elements/scripts/template-panel";
 import Entity from "../../entity";
+import { autoScaleText } from "../../../../../util/ui-utils.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y){
@@ -39,6 +40,11 @@ export default class GameplayUI extends Entity{
             {fontSize: "64px"}
         ).setOrigin(1,0);
 
+        this.maxTextWidth = (scene.scale.width / 2) - padding * 2;
+        autoScaleText(this.currentScore, this.maxTextWidth);
+        autoScaleText(this.currentLives, this.maxTextWidth);
+
+
         //this.TemplatePanel = new TemplatePanel(scene);
         //this.TemplatePanel.show();
         this.gameoverPanel = new GameOverPanel(scene);
@@ -48,9 +54,11 @@ export default class GameplayUI extends Entity{
     }
     setScore(newScore){
         this.currentScore.text = this.scorePreText + newScore;
+        autoScaleText(this.currentScore, this.maxTextWidth);
     }
     setLives(newLives){
         this.currentLives.text = this.livesPreText + newLives;
+        autoScaleText(this.currentLives, this.maxTextWidth);
     }
     resetGameOverPanel(){
         this.gameoverPanel.reset();
