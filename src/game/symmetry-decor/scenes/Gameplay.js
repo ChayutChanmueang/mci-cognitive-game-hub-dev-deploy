@@ -5,7 +5,7 @@ import DraggableComponent from "../components/scripts/draggable";
 import SocketComponent from "../components/scripts/socket";
 import EntityGrid from "../entity/entityGrid";
 import NonDraggableComponent from "../components/scripts/non-draggable";
-import { Difficulty, GameLevels, Config, DifficultyLevelNumber } from "../constants";
+import { Difficulty, GameLevels, Config, DifficultyLevelNumber, getDifficultyLevelNumber } from "../constants";
 import SolutionSocketComponent from "../components/scripts/solutionSocket";
 import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
@@ -112,21 +112,27 @@ export default class GameplayScene extends Phaser.Scene {
     this.events.on('socketFilled', (socketComponent, entity) => {
       if (this.isGameEnded) return;
 
+      // Ignore non-draggable entities (blockers) — they have no DraggableDataComponent
+      const draggableData = entity.getComponent(DraggableDataComponent);
+      if (!draggableData) return;
+
       console.log(`Locked into ${socketComponent.name}`);
       if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
         var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
         this.totalMove++;
-        if (socketChecker.checkEntity(entity.getComponent(DraggableDataComponent))) {
+        if (socketChecker.checkEntity(draggableData)) {
           console.log("Correct Socket");
-          this.correctSlotMove++;
-          this.replayLogger.addAnswerEvent(
-            GlobalReplayEvent.ANSWER_SUBMITTED,
-            entity.getComponent(DraggableDataComponent).animal,
-            true,
-          );
           EventBus.emit('audio:play', 'symmetry-decor:correct');
           if (!socketComponent.hasAwardedPoints) {
             socketComponent.hasAwardedPoints = true;
+            this.correctSlotMove++;
+            this.replayLogger.addAnswerEvent(
+              GlobalReplayEvent.ANSWER_SUBMITTED,
+              draggableData.animal,
+              true,
+            );
+            console.log("Correct Slot Logged");
+            console.log("Current Correct Log : " + this.correctSlotMove);
             this.allScore += 5;
             EventBus.emit('minigame:score', { score: this.allScore });
           }
@@ -136,14 +142,23 @@ export default class GameplayScene extends Phaser.Scene {
           }
         }
         else {
-          this.wrongSlotMove++;
-          this.replayLogger.addAnswerEvent(
-            GlobalReplayEvent.ANSWER_SUBMITTED,
-            entity.getComponent(DraggableDataComponent).animal,
-            false,
-          );
-          EventBus.emit('audio:play', 'symmetry-decor:wrong');
+          // During a swap, only count one wrong answer for the whole action
+          if (this._swapInProgress && this._swapWrongLogged) {
+            // Skip — already logged one wrong for this swap
+          } else {
+            if (this._swapInProgress) this._swapWrongLogged = true;
+            this.wrongSlotMove++;
+            console.log("Current Wrong Slot : " + this.wrongSlotMove);
+            this.replayLogger.addAnswerEvent(
+              GlobalReplayEvent.ANSWER_SUBMITTED,
+              draggableData.animal,
+              false,
+            );
+            EventBus.emit('audio:play', 'symmetry-decor:wrong');
+          }
         }
+      } else {
+        // Dropped onto a socket that shouldn't have any piece at all — silently ignore
       }
     });
 
@@ -151,7 +166,7 @@ export default class GameplayScene extends Phaser.Scene {
     this.levelIsActive = true;
 
     // Debug menu (bottom-left toggle button)
-    this.debugMenu = new DebugMenu(this);
+    // this.debugMenu = new DebugMenu(this);
   }
 
   handleRoundComplete() {
@@ -188,11 +203,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.isGameEnded = true;
     this.levelIsActive = false;
     this.gameEndedAt = new Date();
-    this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_COMPLETED, true);
+    this.replayLogger.addTimestampEvent(GlobalReplayEvent.ROUND_COMPLETED);
     this.replayLogger.pushToDatabase();
+    console.log("Game Over — Final Wrong Slot Move : " + this.wrongSlotMove);
 
     //Save game data to database
-    game_db.pushGameData(this.allScore, DifficultyLevelNumber[this.level], this.gameStartedAt, this.gameEndedAt).then(() => {
+    const levelNumber = getDifficultyLevelNumber(this.level);
+    game_db.pushGameData(this.allScore, levelNumber, this.gameStartedAt, this.gameEndedAt).then(() => {
       console.log("Game data saved to database.");
     }).catch((error) => {
       console.error("Failed to save game data:", error);
@@ -208,7 +225,7 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit('audio:play', 'symmetry-decor:endgame');
     EventBus.emit('minigame:game-over', {
       score: this.allScore,
-      level: this.level,
+      level: levelNumber,
       panelBorderColor: GameOverSetting.panelBorderColor,
       panelHeaderColor: GameOverSetting.panelHeaderColor,
       resultImage: 'assets/common/result/result_symmetry_decor.png',

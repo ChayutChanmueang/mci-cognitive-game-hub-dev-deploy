@@ -1,6 +1,6 @@
 import Entity from "../entity";
-import Animal from "./animal";
-import Fruit from "./fruit";
+import Receiver from "./receiver";
+import FallingItem from "./falling-item";
 import { GameplaySetting } from "../../constants.js";
 
 export default class Conveyer extends Entity {
@@ -53,9 +53,9 @@ export default class Conveyer extends Entity {
         );
         this.conveyerArrows.setDepth(-1);
 
-        // Position the animal near the bottom
-        this.animal = new Animal(scene, x, y + _beltHeight + 200, 0.9);
-        this.foods = [];
+        // Position the receiver near the bottom
+        this.receiver = new Receiver(scene, x, y + _beltHeight + 200, 0.9);
+        this.items = [];
     }
 
     update(time, delta) {
@@ -70,20 +70,20 @@ export default class Conveyer extends Entity {
 
     setSpeed(newSpeed) {
         this.speed = newSpeed;
-        for (const _food of this.foods) {
+        for (const _item of this.items) {
             // In Phaser, positive Y velocity moves the physics body DOWN the screen
-            _food.setVelocityY(Math.abs(this.speed));
+            _item.setVelocityY(Math.abs(this.speed));
         }
     }
 
-    spawnFoods() {
-        // Spawns fruit at the top (this.y)
-        const _fruit = new Fruit(this.scene, this.x, this.y + 200, this, 0.75);
+    spawnItems() {
+        // Spawns item at the top (this.y)
+        const _item = new FallingItem(this.scene, this.x, this.y + 200, this, 0.75);
 
         // Ensure initial velocity is pointing downwards
-        _fruit.setVelocityY(Math.abs(this.speed));
+        _item.setVelocityY(Math.abs(this.speed));
 
-        this.foods.push(_fruit);
+        this.items.push(_item);
         this.spawnCooldown = 0;
 
         if (this.spawnTimer != null) {
@@ -92,11 +92,11 @@ export default class Conveyer extends Entity {
             this.spawnTimer.delay = this.randomSpawnTime(cooldowns.min, cooldowns.max) * 100;
         }
 
-        _fruit.once('destroy', () => {
-            this.removeFoodFromList(_fruit);
+        _item.once('destroy', () => {
+            this.removeItemFromList(_item);
         });
-        _fruit.once('itemSorted', () => {
-            this.removeFoodFromList(_fruit);
+        _item.once('itemSorted', () => {
+            this.removeItemFromList(_item);
         });
     }
 
@@ -106,15 +106,15 @@ export default class Conveyer extends Entity {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    removeFoodFromList(fruit) {
-        const index = this.foods.indexOf(fruit);
+    removeItemFromList(item) {
+        const index = this.items.indexOf(item);
         if (index > -1) {
-            this.foods.splice(index, 1);
+            this.items.splice(index, 1);
         }
     }
 
-    onRemoveFood(foodType) {
-        if (foodType == this.animal.currentAnimal.AcceptableFoodType) {
+    onRemoveItem(itemCategory) {
+        if (itemCategory == this.receiver.currentReceiver.AcceptableCategory) {
             this.scene.onRemoveEatableFood();
             return false;
         } else {
@@ -127,17 +127,17 @@ export default class Conveyer extends Entity {
         this.setSpeed(this.speed + addedSpeed);
     }
 
-    disableFoodsInput() {
-        this.foods.forEach(food => {
-            if (food.active) {
-                food.disableInteractive();
+    disableItemsInput() {
+        this.items.forEach(item => {
+            if (item.active) {
+                item.disableInteractive();
             }
         });
     }
 
     stop() {
         this.isMoving = false;
-        this.disableFoodsInput();
+        this.disableItemsInput();
         if (this.spawnTimer) this.spawnTimer.paused = true;
     }
 }

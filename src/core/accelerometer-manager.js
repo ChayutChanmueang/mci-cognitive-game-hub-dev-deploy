@@ -46,7 +46,12 @@ class _AccelerometerManager {
         /** @type {boolean} */
         this._listening = false;
 
-        /** @type {boolean} */
+        /**
+         * Whether the user has granted motion/orientation permission.
+         * Intentionally NOT reset by stop() so that iOS doesn't demand a
+         * second permission button when the gameplay scene restarts.
+         * @type {boolean}
+         */
         this._permissionGranted = false;
 
         /** @type {'idle'|'requesting'|'granted'|'denied'|'unsupported'} */
@@ -62,6 +67,22 @@ class _AccelerometerManager {
     // -----------------------------------------------------------------------
 
     /**
+     * Returns true if running on an iOS device (iPhone, iPad, iPod).
+     *
+     * Uses user-agent detection because the iOS sensor permission API
+     * (DeviceOrientationEvent.requestPermission) only exists on secure origins
+     * (HTTPS). On plain HTTP dev servers that API is absent even on iOS, so
+     * we cannot rely on its presence to detect iOS.
+     */
+    isIOS() {
+        return (
+            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            // iPad Pro in desktop mode reports "MacIntel" but has touch points
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+        );
+    }
+
+    /**
      * Returns true if the browser exposes at least one of the device sensor APIs.
      */
     isSupported() {
@@ -72,22 +93,36 @@ class _AccelerometerManager {
     }
 
     /**
-     * Returns true if iOS 13+ permission-gated flow is required.
-     * Checks both DeviceMotionEvent and DeviceOrientationEvent.
+     * Returns true when a user-gesture-gated permission prompt is needed.
+     *
+     * On iOS, DeviceOrientationEvent.requestPermission() must be called from
+     * a direct user gesture (tap/click). Critically, this API only exists on
+     * HTTPS secure contexts — on a plain HTTP dev server it is absent even
+     * though the device is still iOS and still needs the gesture.
+     *
+     * We therefore detect iOS via user-agent instead of checking for the API,
+     * and skip the prompt only once permission has already been granted this
+     * session (tracked by _permissionGranted).
      */
     requiresPermissionRequest() {
-        const motionNeedsPermission =
-            typeof DeviceMotionEvent !== 'undefined' &&
-            typeof DeviceMotionEvent.requestPermission === 'function';
-        const orientationNeedsPermission =
-            typeof DeviceOrientationEvent !== 'undefined' &&
-            typeof DeviceOrientationEvent.requestPermission === 'function';
-        return motionNeedsPermission || orientationNeedsPermission;
+        // Already granted this session — no button needed.
+        if (this._permissionGranted) return false;
+
+        // iOS always needs to start sensor access from a user gesture,
+        // regardless of whether the requestPermission API is available.
+        return this.isIOS();
     }
 
     /**
      * Start listening for device orientation + motion events.
-     * On iOS 13+ this will request permission (must be called from a user gesture).
+     *
+     * On iOS this MUST be called from a direct user gesture (tap/click):
+     *   - On HTTPS: calls DeviceOrientationEvent.requestPermission() which shows
+     *     the native iOS "Allow motion & orientation" system dialog.
+     *   - On HTTP (dev server): requestPermission doesn't exist, but starting
+     *     from a user gesture still works — we skip the API call and go straight
+     *     to adding event listeners.
+     * On Android / desktop browsers no gesture is required.
      *
      * @returns {Promise<'granted'|'denied'|'unsupported'>}
      */
@@ -100,7 +135,8 @@ class _AccelerometerManager {
             return this._status;
         }
 
-        // iOS 13+ permission flow — request for both APIs
+        // iOS: must be called from a user gesture.
+        // The inner guards check for the API presence to handle both HTTP and HTTPS.
         if (this.requiresPermissionRequest()) {
             this._status = 'requesting';
             try {
@@ -144,7 +180,10 @@ class _AccelerometerManager {
     }
 
     /**
-     * Stop listening and reset values.
+     * Stop listening and reset sensor values.
+     * NOTE: _permissionGranted and _status are intentionally preserved so
+     * that iOS does not require a second permission tap when the scene
+     * restarts within the same browser session.
      */
     stop() {
         if (this._listening) {
@@ -156,6 +195,18 @@ class _AccelerometerManager {
         this._acceleration = { x: 0, y: 0, z: 0 };
         this._linearAcceleration = { x: 0, y: 0, z: 0 };
         this._orientation = { alpha: 0, beta: 0, gamma: 0 };
+    }
+
+    /**
+     * Full reset — clears permission state as well.
+     * Use only when you need to re-trigger the iOS permission dialog
+     * (e.g., the user explicitly denied and wants to retry).
+     */
+    reset() {
+        this.stop();
+        this._permissionGranted = false;
+        this._status = 'idle';
+        console.log('[AccelerometerManager] Full reset (permission state cleared).');
     }
 
     /**

@@ -94,6 +94,10 @@ const GAME_COLORS = Object.freeze({
     "context-clues": { border: "#C73969", header: "#E34F81", textPrimary: "#8F2448", textSecondary: "#C8577C" },
     "fry-food": { border: "#DE8D23", header: "#FEA837", textPrimary: "#945E17", textSecondary: "#DE8519" },
 });
+let activeThemeColors = null;
+EventBus.on("minigame:theme-ready", (colors) => {
+    activeThemeColors = colors;
+});
 const TEST_GAME_HUB_LAUNCH_GID_KEY = "test_game_hub_launch_gid";
 const PENDING_GAME_HISTORY_STORAGE = Object.freeze({
     map: "pending_game_history_by_gid",
@@ -188,8 +192,38 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const destroyActiveGame = () => {
-        if (activeGameInstance && typeof activeGameInstance.destroy === "function") {
-            activeGameInstance.destroy(true);
+        // Unregister game sounds IMMEDIATELY, before any Phaser destroy logic can potentially throw an error
+        if (currentGameSlug) {
+            EventBus.emit('audio:unregister', currentGameSlug);
+        }
+
+        // Global nuclear fallback: immediately stop minigame BGM and all actively playing sounds
+        EventBus.emit('audio:bgm-stop');
+        EventBus.emit('audio:stop-all');
+
+        if (activeGameInstance) {
+            if (activeGameInstance.scale && activeGameInstance.scale.isFullscreen) {
+                try {
+                    activeGameInstance.scale.stopFullscreen();
+                } catch (e) { }
+            }
+            try {
+                if (typeof activeGameInstance.destroy === "function") {
+                    activeGameInstance.destroy(true);
+                }
+            } catch (e) {
+                console.error("[Main] Error during game destruction:", e);
+            }
+        }
+
+        // Native exit fullscreen and orientation unlock as fallback
+        if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => { });
+        }
+        if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+            try {
+                screen.orientation.unlock();
+            } catch (e) { }
         }
 
         activeGameInstance = null;
@@ -201,8 +235,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.documentElement.style.removeProperty("--game-mode-background");
 
-        // Unregister any game-specific sounds to free memory
-        EventBus.emit('audio:unregister', currentGameSlug);
+        // Clear any inline styles that might have been set by Phaser Fullscreen
+        document.body.style.backgroundColor = "";
+        document.body.style.backgroundImage = "";
+        document.documentElement.style.backgroundColor = "";
+        document.documentElement.style.backgroundImage = "";
+
+
     };
 
     const showUiRoot = () => {
@@ -245,10 +284,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const getGameDisplayName = (selectedGame, fallback = "นี้") =>
         String(
             selectedGame?.displayName
-                || selectedGame?.th_name
-                || selectedGame?.thName
-                || selectedGame?.name
-                || fallback,
+            || selectedGame?.th_name
+            || selectedGame?.thName
+            || selectedGame?.name
+            || fallback,
         ).trim();
 
     const getGameHistoryNodeKey = (selectedGame) => {
@@ -598,7 +637,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const renderVersion = routeRenderVersion;
 
         EventBus.emit("minigame:hide-hud");
-        // EventBus.emit('audio:bgm', 'hub'); // Temporarily disabled
 
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
@@ -608,6 +646,10 @@ document.addEventListener("DOMContentLoaded", () => {
         app?.classList.add("hub-mode");
         app?.classList.remove("landing-mode");
         destroyActiveGame();
+        
+        // Start hub BGM AFTER destroying the active game (which kills all previous audio)
+        // EventBus.emit('audio:bgm', 'hub'); // Temporarily disabled
+        
         gameContainer.classList.add("game-container--hidden");
         showUiRoot();
 
@@ -634,7 +676,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!gameOpenedLogged && patientCode) {
             gameOpenedLogged = true;
-            edgeFunction.logUserEvent(patientCode, "game.opened").catch(() => {});
+            edgeFunction.logUserEvent(patientCode, "game.opened").catch(() => { });
         }
 
         await renderGameHubScreen(uiRoot, {
@@ -1317,7 +1359,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
-            
+
             // Mount Minigame HUD
             uiRoot.innerHTML = "";
             uiRoot.hidden = false;
@@ -1359,8 +1401,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-            const handleExit = async () => {
-                const colors = GAME_COLORS[slug] || {};
+            const handleExit = async (eventData = {}) => {
+                const colors = eventData?.colors || activeThemeColors || GAME_COLORS[slug] || {};
                 const confirmed = await showGameExitPopup({
                     confirmText: "ออก",
                     panelBorderColor: colors.border,
@@ -1543,7 +1585,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (patient) {
                     await rememberPatientSession(patient);
                     SessionStorageManager.delete(PATIENT_SIGNUP_DRAFT_KEY);
-                    edgeFunction.logUserEvent(acceptedId, "user.login").catch(() => {});
+                    edgeFunction.logUserEvent(acceptedId, "user.login").catch(() => { });
                     navigateTo(ROUTES.hub);
                     return;
                 }
@@ -2417,7 +2459,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const guardedGame = backGuardSelectedGame;
         const guardedCleanup = backGuardCleanup;
         const slug = guardedGame ? String(guardedGame.name || "").toLowerCase().replace(/\s+/g, "-") : "";
-        const colors = GAME_COLORS[slug] || {};
+        const colors = activeThemeColors || GAME_COLORS[slug] || {};
 
         const confirmed = await showGameExitPopup({
             panelBorderColor: colors.border,
@@ -2458,7 +2500,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.state && e.state.__backGuard) {
             return;
         }
-        
+
         // Re-push sentinel immediately so the URL stays locked.
         window.history.pushState({ __backGuard: true }, "", window.location.href);
         void handleBackGuardIntercept();

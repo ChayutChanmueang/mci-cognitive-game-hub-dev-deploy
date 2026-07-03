@@ -2,40 +2,31 @@ import Entity from "../entity";
 import EmojiRenderer from "../../components/scripts/emoji-renderer";
 import Clickable from "../../components/scripts/clickable";
 import TriggerListener from "../../components/scripts/trigger-listener";
-import { FoodTypes, FoodSpriteLibrary } from "../../constants";
+import { ItemCategory, ItemSpriteLibrary, GameplayMessages } from "../../constants";
 import SpriteRenderer from "../../components/scripts/sprite-renderer";
 import ShadowComponent from "../../components/scripts/shadow";
 import TextPopup from "./popup-text";
 
-export default class Fruit extends Entity {
+export default class FallingItem extends Entity {
     constructor(scene, x, y, converyerBelt = null, sizeScale = 1) {
         super(scene, x, y, null);
 
-        //this.setScale(1.5);
-        //this.refreshBody();
-
         this.converyerBelt = converyerBelt;
 
-        //Random Food Type
-        const _typeValues = Object.values(FoodTypes);
-        this.currentFoodType = Phaser.Math.RND.pick(_typeValues);
-        //console.log(this.currentFoodType);
+        //Random Item Type
+        const _typeValues = Object.values(ItemCategory);
+        this.currentItemCategory = Phaser.Math.RND.pick(_typeValues);
 
-        //Random Food Sprite
-        const _spriteOptions = FoodSpriteLibrary[this.currentFoodType];
-        this.foodSprite = Phaser.Math.RND.pick(_spriteOptions);
+        //Random Item Sprite
+        const _spriteOptions = ItemSpriteLibrary[this.currentItemCategory];
+        this.itemSprite = Phaser.Math.RND.pick(_spriteOptions);
 
-        // this.addComponent(EmojiRenderer,{
-        //     emojiSprite: this.foodSprite,
-        //     sizeScale:sizeScale
-        // });
         this.addComponent(SpriteRenderer, {
-            textureKey: this.foodSprite,
+            textureKey: this.itemSprite,
             sizeScale: sizeScale
         })
         this.addComponent(Clickable, {
             onClickAction: (entity) => {
-                //console.log("You clicked the food!");
                 entity.emit('itemSorted');
                 entity.disableInteractive();
                 entity.setCollideWorldBounds(false);
@@ -51,20 +42,20 @@ export default class Fruit extends Entity {
                     callbackScope: this,
                     loop: false
                 })
-                if(!this.converyerBelt.onRemoveFood(this.currentFoodType)){
-                    new TextPopup(this.scene,this.x,this.y,"ทิ้งทำไม","#ff0000");
+                if (!this.converyerBelt.onRemoveItem(this.currentItemCategory)) {
+                    new TextPopup(this.scene, this.x, this.y, GameplayMessages.itemDropped, "#ff0000");
                 }
             }
         })
 
-        this.addComponent(TriggerListener, converyerBelt.animal, (other) => {
-            if (other.onEat) {
-                other.onEat(this.currentFoodType);
+        this.addComponent(TriggerListener, converyerBelt.receiver, (other) => {
+            if (other.onReceive) {
+                other.onReceive(this.currentItemCategory);
             }
             this.destroy();
         })
 
-        this.addComponent(ShadowComponent,{radius: 100,alpha: 0.2,offset: - 25});
+        this.addComponent(ShadowComponent, { radius: 100, alpha: 0.2, offset: - 25 });
 
         this.setCollideWorldBounds(true);
     }

@@ -2875,13 +2875,49 @@ body.game-mode .app-version-badge {
     font-weight: 500;
 }
 
+/* =====================================================
+   DEBUG: text container bounds — REMOVE WHEN DONE
+   ===================================================== */
+/* .result-how-to-play-title  { outline: 2px dashed #e91e63; } */   /* pink   – "วิธีการเล่น" label */
+/* .result-how-to-play-text   { outline: 2px dashed #2196f3; } */   /* blue   – instruction text   */
+/* .result-level-info         { outline: 2px dashed #ff9800; } */   /* orange – level row          */
+/* .result-level-detail       { outline: 2px dashed #4caf50; } */   /* green  – level detail text  */
+
 /* Tutorial Panel specific styles */
 .result-panel--tutorial {
     height: 1700px;
 }
 
 .result-btn-home--tutorial {
-    top: 1740px; /* 1700 + 40 */
+    top: 1740px;
+    /* 1700 + 40 */
+}
+
+/* Context Clues & Zoo Detective: taller panel (+60px) with level indicator anchored to the bottom */
+.result-panel--context-clues,
+.result-panel--zoo-detective {
+    height: 1379px; /* 1319 + 60 */
+    margin-top: -60px; /* shift panel up so start button matches other games */
+}
+
+.result-panel--context-clues .result-btn-home,
+.result-panel--zoo-detective .result-btn-home {
+    top: 1419px; /* 1379 + 40 */
+}
+
+.result-panel--context-clues .result-divider,
+.result-panel--zoo-detective .result-divider {
+    top: 1140px; /* after 2-line how-to-play text (~1064px) + gap */
+}
+
+.result-panel--context-clues .result-level-info,
+.result-panel--zoo-detective .result-level-info {
+    top: 1165px; /* 40px below divider */
+}
+
+.result-panel--context-clues .result-level-detail,
+.result-panel--zoo-detective .result-level-detail {
+    top: 1265px; /* below level-info row */
 }
 
 /* Zoo Feeder Custom DOM Top UI */
@@ -3072,4 +3108,96 @@ md-linear-progress.no-transition::part(bar) {
     line-height: 1 !important;
     margin-right: 12px;
     /* Visual offset to center the text relative to the box */
+}
+
+.minigame-hud--zoo-feeder .minigame-hud__time-text {
+    flex-grow: 1;
+    text-align: center;
+    color: #743D14 !important;
+    font-family: 'Noto Sans Thai', sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-right: 12px;
+    /* Visual offset to center the text relative to the box */
+}
+
+/* Dynamic Panel (Flex Layout) */
+.dynamic-panel {
+    height: auto !important;
+    min-height: 1319px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 40px; /* Some padding at bottom of content */
+}
+
+/* Ensure absolute elements are relative inside dynamic-panel */
+.dynamic-panel .result-picture {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: 40px;
+}
+
+.dynamic-panel .result-description {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: 40px;
+}
+
+.dynamic-panel .result-how-to-play-title {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-start;
+    margin-top: 60px;
+    margin-left: 90px;
+}
+
+.dynamic-panel .result-how-to-play-text {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    align-self: flex-start;
+    margin-top: 20px;
+    margin-left: 90px;
+    margin-right: 90px;
+}
+
+.dynamic-panel .result-divider {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: 20px;
+}
+
+.dynamic-panel .result-level-info {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-start;
+    margin-top: 40px;
+    margin-left: 90px;
+}
+
+.dynamic-panel .result-level-detail {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: flex-start;
+    margin-top: 20px;
+    margin-left: 90px;
+    margin-bottom: 10px;
+}
+
+/* Let the button remain absolute at the bottom, pinned to the very end of the auto-height panel */
+.dynamic-panel .result-btn-home {
+    top: auto;
+    bottom: -268px; /* 40px gap + 228px height */
 }

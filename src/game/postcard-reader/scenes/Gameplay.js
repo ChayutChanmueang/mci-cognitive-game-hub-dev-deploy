@@ -37,12 +37,13 @@ export default class GameplayScene extends Phaser.Scene {
     this.background.setDepth(-10);
 
     //Initialize Logging
-    if (this.replayLogger == null) {
-      this.replayLogger = new ReplayLogBuffer();
-    }
-    else {
-      this.replayLogger.clearEvents();
-    }
+    this.replayLogger = new ReplayLogBuffer();
+    // if (this.replayLogger == null) {
+    //   this.replayLogger = new ReplayLogBuffer();
+    // }
+    // else {
+    //   this.replayLogger.clearEvents();
+    // }
 
     this.correctAnswer = 0;
     this.wrongAnswer = 0;
@@ -94,7 +95,7 @@ export default class GameplayScene extends Phaser.Scene {
     });
 
     // Debug menu
-    this.debugMenu = new DebugMenu(this);
+    // this.debugMenu = new DebugMenu(this);
   }
 
   update(time, delta) {
@@ -120,6 +121,10 @@ export default class GameplayScene extends Phaser.Scene {
 
     let options = GameLevelsByTopic[this.currentTopic][difficultyKey];
     let newIndex = this.postcardsPlayed % options.length;
+
+    // Stored on scene so PostcardPanel can build the TTS audio URL deterministically
+    this.currentDifficultyKey   = difficultyKey;
+    this.currentPostcardIndex   = newIndex;
 
     this.currentPostcard = options[newIndex];
     this.postcardText = this.currentPostcard.text || this.currentPostcard.Postcard;

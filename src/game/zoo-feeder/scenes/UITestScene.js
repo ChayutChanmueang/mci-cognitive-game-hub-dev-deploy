@@ -10,7 +10,7 @@ import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import DebugMenu from "./DebugMenu.js";
-import { GameOverSetting, StartMenuSetting, GameplaySetting } from '../constants.js';
+import { GameOverSetting, StartMenuSetting, GameplaySetting, ConveyerDifficultyLevel, DifficultyLabel, ThemeAssets, ReceiverSetting, ItemSpriteLibrary } from '../constants.js';
 import { TutorialPanel } from '../../../ui/tutorial-panel.js';
 const GAME_ID = "ATTN001";
 
@@ -22,40 +22,18 @@ export default class UITestScene extends Phaser.Scene {
   preload() {
     // rexUI is loaded via main.js global config
 
+    // Shared UI assets (not theme-specific)
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
-    //BG
-    this.load.image('background', 'assets/zoo-feeder/etc/BG.png')
-    //Food Sprite
-    this.load.image('apple_sprite', 'assets/zoo-feeder/food/Apple.png')
-    this.load.image('battery_sprite', 'assets/zoo-feeder/food/Battery.png')
-    this.load.image('beef_sprite', 'assets/zoo-feeder/food/Beef.png')
-    this.load.image('boot_sprite', 'assets/zoo-feeder/food/Boot.png')
-    this.load.image('bottle_sprite', 'assets/zoo-feeder/food/Bottle.png')
-    this.load.image('chicken_sprite', 'assets/zoo-feeder/food/Chick.png')
-    this.load.image('corn_sprite', 'assets/zoo-feeder/food/Corn.png')
-    this.load.image('fish_sprite', 'assets/zoo-feeder/food/Fish.png')
-    // this.load.image('garbage_sprite', 'assets/zoo-feeder/food/Garbage.png')
-    this.load.image('plant_sprite', 'assets/zoo-feeder/food/Plant.png')
-    // this.load.image('soda_sprite', 'assets/zoo-feeder/food/Soda.png')
-    //Animal Sprite
-    this.load.image('bear_sprite', 'assets/zoo-feeder/animal/B_Bear.png')
-    this.load.image('cow_sprite', 'assets/zoo-feeder/animal/B_Cow.png')
-    this.load.image('elephant_sprite', 'assets/zoo-feeder/animal/B_Ele.png')
-    this.load.image('fox_sprite', 'assets/zoo-feeder/animal/B_Fox.png')
-    this.load.image('lion_sprite', 'assets/zoo-feeder/animal/B_Li.png')
-    this.load.image('panda_sprite', 'assets/zoo-feeder/animal/B_Pan.png')
-    //Animal Icon
-    this.load.image("bear_icon", "assets/zoo-feeder/animal/icons/H_Bear.png");
-    this.load.image("cow_icon", "assets/zoo-feeder/animal/icons/H_Cow.png");
-    this.load.image("elephant_icon", "assets/zoo-feeder/animal/icons/H_ele.png");
-    this.load.image("fox_icon", "assets/zoo-feeder/animal/icons/H_Fox.png");
-    this.load.image("lion_icon", "assets/zoo-feeder/animal/icons/H_Li.png");
-    this.load.image("panda_icon", "assets/zoo-feeder/animal/icons/H_Pan.png");
-    //Emote
+    // Shared emote assets (not theme-specific)
     this.load.image("popup_emote", "assets/zoo-feeder/etc/Popup.png");
-    this.load.image("emote_sad", "assets/zoo-feeder/etc/Emoji_None.png");
+    this.load.image("emote_sad",   "assets/zoo-feeder/etc/Emoji_None.png");
     this.load.image("emote_happy", "assets/zoo-feeder/etc/Emoji_Smile.png");
+
+    // Theme-specific assets: loaded dynamically from the active theme JSON
+    for (const [key, path] of Object.entries(ThemeAssets)) {
+      this.load.image(key, path);
+    }
   }
 
   create(data) {
@@ -90,7 +68,7 @@ export default class UITestScene extends Phaser.Scene {
     this.gameStartedAt = new Date();
     this.replayLogger.addCorrectEvent(GlobalReplayEvent.ROUND_START, true);
     this.gameEndedAt = new Date();
-    this.spawnFruitTimer = null;
+    this.spawnItemTimer = null;
 
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.gameplayUI.resetGameOverPanel();
@@ -108,8 +86,17 @@ export default class UITestScene extends Phaser.Scene {
     this.conveyerNums = Number(SessionStorageManager.get("selected_game_level")) || data.conveyerNums || 3;
     this.conveyers = [];
 
-    // 1. Define the exact pixel gap you want between each conveyor belt
-    const _conveyerSpacing = 325;
+    // 1. Define the exact pixel gap based on conveyerNums
+    const maxSpacing = 325;
+    const availableWidth = this.scale.width - 200; // Leave some padding
+    let _conveyerSpacing = maxSpacing;
+    let _conveyerScale = 1;
+
+    // If spacing is too wide for screen, scale down
+    if (_conveyerSpacing * (this.conveyerNums - 1) > availableWidth) {
+        _conveyerSpacing = availableWidth / Math.max(1, (this.conveyerNums - 1));
+        _conveyerScale = _conveyerSpacing / maxSpacing;
+    }
 
     // 2. Calculate the starting X position so the group remains perfectly centered
     const _totalWidth = _conveyerSpacing * (this.conveyerNums - 1);
@@ -126,7 +113,7 @@ export default class UITestScene extends Phaser.Scene {
         _xPos,
         (this.scale.height / 2) - 1050,
         150,
-        2.15
+        2.15 * _conveyerScale
       );
 
       this.conveyers.push(_newConveyer);
@@ -137,19 +124,24 @@ export default class UITestScene extends Phaser.Scene {
     this.physics.pause();
 
     // Debug menu
-    this.debugMenu = new DebugMenu(this);
+    // this.debugMenu = new DebugMenu(this);
 
     // Show DOM Tutorial Panel
     const uiRoot = document.getElementById('ui-root');
     this.tutorialPanel = new TutorialPanel(uiRoot, {
-      title: "คู่มือการเล่น",
-      description: StartMenuSetting.instructions,
-      panelBorderColor: StartMenuSetting.panelBorderColor,
-      panelHeaderColor: StartMenuSetting.panelHeaderColor,
-      primaryFontColor: StartMenuSetting.primaryFontColor,
+      title:              StartMenuSetting.tutorialTitle,
+      description:        StartMenuSetting.description,
+      subdescription:     StartMenuSetting.instructions,
+      panelBorderColor:   StartMenuSetting.panelBorderColor,
+      panelHeaderColor:   StartMenuSetting.panelHeaderColor,
+      primaryFontColor:   StartMenuSetting.primaryFontColor,
+      secondaryFontColor: StartMenuSetting.secondaryFontColor,
+      receiverSetting:    ReceiverSetting,
+      itemSpriteLibrary:  ItemSpriteLibrary,
+      themeAssets:        ThemeAssets,
       onStart: () => {
         this.physics.resume();
-        this.spawnFruit();
+        this.spawnItem();
         this.startTimer();
       }
     });
@@ -214,9 +206,9 @@ export default class UITestScene extends Phaser.Scene {
 
     if (this.level % 10 == 0 && this.level != this.lastLevel) {
       for (const _conveyer of this.conveyers) {
-        _conveyer.animal.changeAnimal();
+        _conveyer.receiver.changeReceiver();
       }
-      console.log("change animal");
+      console.log("change receiver");
       //this.lastLevel = this.level;
     }
     if (this.level % 5 == 0 && this.level != this.lastLevel) {
@@ -255,9 +247,9 @@ export default class UITestScene extends Phaser.Scene {
         _conveyer.spawnTimer.paused = true;
       }
     }
-    if (this.spawnFruitTimer) {
-      this.time.removeEvent(this.spawnFruitTimer);
-      this.spawnFruitTimer = undefined;
+    if (this.spawnItemTimer) {
+      this.time.removeEvent(this.spawnItemTimer);
+      this.spawnItemTimer = undefined;
     }
 
     // Wait for the effect to finish before showing the game over panel
@@ -272,7 +264,7 @@ export default class UITestScene extends Phaser.Scene {
       this.gameEndedAt = new Date();
 
       //Save game data to database
-      game_db.pushGameData(this.allScore, this.conveyerNums, this.gameStartedAt, this.gameEndedAt).then(() => {
+      game_db.pushGameData(this.score, ConveyerDifficultyLevel[this.conveyerNums], this.gameStartedAt, this.gameEndedAt).then(() => {
         console.log("Game data saved to database.");
       }).catch((error) => {
         console.error("Failed to save game data:", error);
@@ -286,7 +278,7 @@ export default class UITestScene extends Phaser.Scene {
       EventBus.emit('audio:play', 'zoo-feeder:endgame');
       EventBus.emit('minigame:game-over', {
         score: this.score,
-        level: this.level,
+        level: ConveyerDifficultyLevel[this.conveyerNums],
         panelBorderColor: GameOverSetting.panelBorderColor,
         panelHeaderColor: GameOverSetting.panelHeaderColor,
         resultImage: 'assets/common/result/result_zoo_feeder.png',
@@ -311,24 +303,24 @@ export default class UITestScene extends Phaser.Scene {
 
     this.scene.restart();
   }
-  spawnFruit() {
-    this.randomSpawnFruit();
-    console.log(this.spawnFruitTimer);
-    if (this.spawnFruitTimer == null) {
+  spawnItem() {
+    this.randomSpawnItem();
+    console.log(this.spawnItemTimer);
+    if (this.spawnItemTimer == null) {
       const cooldowns = GameplaySetting.spawnCooldowns[this.conveyerNums] || GameplaySetting.spawnCooldowns[1];
-      this.spawnFruitTimer = this.time.addEvent({
+      this.spawnItemTimer = this.time.addEvent({
         delay: this.randomChooseNum(cooldowns.min, cooldowns.max) * 100, //ms
-        callback: this.randomSpawnFruit,
+        callback: this.randomSpawnItem,
         callbackScope: this,
         loop: true
       });
     }
   }
-  randomSpawnFruit() {
-    this.conveyers[this.randomChooseNum(0, this.conveyers.length - 1)].spawnFoods();
-    if (this.spawnFruitTimer) {
+  randomSpawnItem() {
+    this.conveyers[this.randomChooseNum(0, this.conveyers.length - 1)].spawnItems();
+    if (this.spawnItemTimer) {
       const cooldowns = GameplaySetting.spawnCooldowns[this.conveyerNums] || GameplaySetting.spawnCooldowns[1];
-      this.spawnFruitTimer.delay = this.randomChooseNum(cooldowns.min, cooldowns.max) * 100;
+      this.spawnItemTimer.delay = this.randomChooseNum(cooldowns.min, cooldowns.max) * 100;
     }
   }
   randomChooseNum(min, max) {

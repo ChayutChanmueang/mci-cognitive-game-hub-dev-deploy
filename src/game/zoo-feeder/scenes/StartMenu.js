@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { EventBus } from '../../../core/EventBus.js';
 import { StartMenuPanel } from '../../../ui/start-menu-panel.js';
 import SessionStorageManager from '../../../core/session-storage-manager.js';
-import { StartMenuSetting } from '../constants.js';
+import { StartMenuSetting, ThemeAssets } from '../constants.js';
 
 export default class StartMenuScene extends Phaser.Scene {
     constructor() {
@@ -10,8 +10,10 @@ export default class StartMenuScene extends Phaser.Scene {
     }
 
     preload() {
-        // Preload start menu specific assets here
-        this.load.image('background', 'assets/zoo-feeder/etc/BG.png');
+        // Load background from the active theme
+        if (ThemeAssets.background) {
+            this.load.image('background', ThemeAssets.background);
+        }
     }
 
     create(data) {

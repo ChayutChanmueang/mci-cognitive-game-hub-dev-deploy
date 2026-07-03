@@ -1,79 +1,62 @@
+import activeTheme from './themes/medicine-theme.json';
+
 // ---------------------------------------------------------------------------
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'สายพานอาหาร',
-    description: 'เกมคัดเลือกอาหารให้ถูกต้อง',
-    instructions: 'แตะอาหารที่สัตว์ชนิดนั้นไม่สามารถกินได้ออกจากสายพาน',
-    coverImage: 'assets/common/cover/cover_zoo_feeder.png',
-    /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
-    defaultLevel: 1,
+    ...activeTheme.StartMenuSetting,
     /** Callback-style template for the level detail string; receives `level` at render time */
     levelDetailTemplate: (level) => `${level} สายพาน`,
-    // Panel colour tokens — override the shared CSS defaults for this game
-    panelBorderColor: '#DE8D23',
-    panelHeaderColor: '#FEA837',
-    // Font colour tokens
-    primaryFontColor: '#945E17',
-    secondaryFontColor: '#DE8519',
 });
 
 // ---------------------------------------------------------------------------
 // Game Over Panel Settings
 // ---------------------------------------------------------------------------
 export const GameOverSetting = Object.freeze({
-    // Panel colour tokens for the game-over result panel
-    panelBorderColor: '#DE8D23',
-    panelHeaderColor: '#FEA837',
-    // Font colour tokens
-    primaryFontColor: '#945E17',
-    secondaryFontColor: '#DE8519',
+    ...activeTheme.GameOverSetting,
 });
 
 // ---------------------------------------------------------------------------
-// Food & Animal constants
+// Item & Receiver constants
 // ---------------------------------------------------------------------------
-export const FoodTypes = Object.freeze({
-    VEGETABLE: 'Vegetable',
-    MEAT: 'Meat',
-    JUNK: 'Junk'
+export const ItemCategory = Object.freeze(activeTheme.ItemCategory);
+export const ItemSpriteLibrary = activeTheme.ItemSpriteLibrary;
+export const ReceiverSetting = Object.freeze(activeTheme.ReceiverSetting);
+
+// ---------------------------------------------------------------------------
+// Gameplay Messages
+// ---------------------------------------------------------------------------
+export const GameplayMessages = Object.freeze(activeTheme.GameplayMessages);
+
+import { EventBus } from '../../core/EventBus.js';
+EventBus.emit("minigame:theme-ready", {
+    border: activeTheme.StartMenuSetting.panelBorderColor,
+    header: activeTheme.StartMenuSetting.panelHeaderColor,
+    textPrimary: activeTheme.StartMenuSetting.primaryFontColor,
+    textSecondary: activeTheme.StartMenuSetting.secondaryFontColor,
 });
-export const FoodSpriteLibrary = {
-    [FoodTypes.VEGETABLE]: ['apple_sprite', 'corn_sprite', 'plant_sprite'],
-    [FoodTypes.MEAT]: ['beef_sprite', 'chicken_sprite', 'fish_sprite'],
-    [FoodTypes.JUNK]: ['battery_sprite', 'boot_sprite', 'bottle_sprite']
-}
-export const AnimalSetting = Object.freeze({
-    BEAR: {
-        AcceptableFoodType: FoodTypes.MEAT,
-        Sprite: 'bear_sprite',
-        Icon: 'bear_icon'
-    },
-    COW: {
-        AcceptableFoodType: FoodTypes.VEGETABLE,
-        Sprite: 'cow_sprite',
-        Icon: 'cow_icon'
-    },
-    ELEPHANT: {
-        AcceptableFoodType: FoodTypes.VEGETABLE,
-        Sprite: 'elephant_sprite',
-        Icon: 'elephant_icon'
-    },
-    FOX: {
-        AcceptableFoodType: FoodTypes.MEAT,
-        Sprite: 'fox_sprite',
-        Icon: 'fox_icon'
-    },
-    LION: {
-        AcceptableFoodType: FoodTypes.MEAT,
-        Sprite: 'lion_sprite',
-        Icon: 'lion_icon'
-    },
-    PANDA: {
-        AcceptableFoodType: FoodTypes.VEGETABLE,
-        Sprite: 'panda_sprite',
-        Icon: 'panda_icon'
-    }
+// ---------------------------------------------------------------------------
+// Theme Assets
+// ---------------------------------------------------------------------------
+/** Flat map of { spriteKey: filePath } for all assets this theme uses.
+ *  UITestScene iterates this to load only what the active theme needs. */
+export const ThemeAssets = Object.freeze(activeTheme.assets);
+
+// ---------------------------------------------------------------------------
+// Difficulty Mapping
+// ---------------------------------------------------------------------------
+/** Maps conveyor-belt count → numeric level stored in the database (1 = ง่าย, 2 = ปานกลาง, 3 = ยาก) */
+export const ConveyerDifficultyLevel = Object.freeze({
+    1: 1,
+    2: 2,
+    3: 3,
+});
+
+/** Maps numeric level → Thai difficulty label */
+export const DifficultyLabel = Object.freeze({
+    1: 'ง่าย',
+    2: 'ปานกลาง',
+    3: 'ยาก',
 });
 
 // ---------------------------------------------------------------------------

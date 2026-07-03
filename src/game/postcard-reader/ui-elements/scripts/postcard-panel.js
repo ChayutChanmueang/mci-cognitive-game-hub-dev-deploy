@@ -5,6 +5,23 @@ import { createThaiText } from "../../../../util/thai-text.js";
 import { EventBus } from "../../../../core/EventBus.js";
 import VoiceService from "../../../../core/voice-service.js";
 
+/**
+ * Builds the relative URL to a pre-recorded TTS MP3 for the current postcard.
+ * Path: assets/audio/postcard-reader/tts/{topic}/{difficulty}/{index}.mp3
+ *
+ * Phase 2 (Supabase CDN): swap the base string to
+ *   `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/postcard-tts`
+ *
+ * @param {Phaser.Scene} scene
+ * @returns {string}
+ */
+function getTtsUrl(scene) {
+    const topic   = scene.currentTopic        ?? 'farm';
+    const diffKey = scene.currentDifficultyKey ?? 'easy';
+    const index   = scene.currentPostcardIndex ?? 0;
+    return `assets/audio/postcard-reader/tts/${topic}/${diffKey}/${index}.mp3`;
+}
+
 export default class PostcardPanel extends UIPage {
     constructor(scene) {
         super(scene, scene.scale.width / 2, scene.scale.height / 2, {
@@ -31,8 +48,9 @@ export default class PostcardPanel extends UIPage {
 
         this.startMemoryCountdown();
 
-        // Accessibility: Read text aloud
-        VoiceService.speak(scene.postcardText);
+        // Accessibility: Read postcard text aloud using pre-recorded TTS MP3
+        // Falls back to Web Speech API automatically if the file is missing
+        VoiceService.speakFromUrl(getTtsUrl(scene), scene.postcardText);
     }
 
     startMemoryCountdown() {
@@ -55,8 +73,8 @@ export default class PostcardPanel extends UIPage {
         this.titleText.setText(this.scene.postcardText);
         this.startMemoryCountdown();
 
-        // Accessibility: Read text aloud
-        VoiceService.speak(this.scene.postcardText);
+        // Accessibility: Read postcard text aloud using pre-recorded TTS MP3
+        VoiceService.speakFromUrl(getTtsUrl(this.scene), this.scene.postcardText);
     }
 
     update() {

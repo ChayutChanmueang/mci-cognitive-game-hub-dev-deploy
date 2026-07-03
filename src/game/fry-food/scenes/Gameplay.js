@@ -92,7 +92,7 @@ export default class GameplayScene extends Phaser.Scene {
         // -- Environment ----------------------------------------------------
         const mortar = this.add.image(-180, -180, 'fry-food-mortar').setOrigin(0, 0);
         mortar.setScale(3.25);
-        
+
         const plant = this.add.image(width + 205, -220, 'fry-food-plant').setOrigin(1, 0);
         plant.setScale(3);
 
@@ -178,15 +178,21 @@ export default class GameplayScene extends Phaser.Scene {
             // Exit fullscreen if running in a browser
             const isBrowser = !window.matchMedia('(display-mode: standalone)').matches;
             if (isBrowser) {
-                if (this.scale && this.scale.isFullscreen) {
-                    this.scale.stopFullscreen();
-                }
+                try {
+                    if (this.scale && this.scale.isFullscreen) {
+                        this.scale.stopFullscreen();
+                    }
+                } catch (e) { /* scale may be partially destroyed */ }
+                
                 if (document.fullscreenElement && document.exitFullscreen) {
-                    document.exitFullscreen().catch(() => {});
+                    document.exitFullscreen().catch(() => { });
                 }
-                if (screen.orientation && typeof screen.orientation.unlock === 'function') {
-                    screen.orientation.unlock();
-                }
+                
+                try {
+                    if (screen.orientation && typeof screen.orientation.unlock === 'function') {
+                        screen.orientation.unlock();
+                    }
+                } catch (e) { /* orientation unlock can throw if not in fullscreen */ }
             }
         });
     }
@@ -310,14 +316,14 @@ export default class GameplayScene extends Phaser.Scene {
         if (this._food) {
             const TILT_MAX_PX = 600;      // max offset from center
             const ACCEL_SCALE = 0.012;    // tilt-to-acceleration factor
-            const FRICTION    = 0.92;     // velocity damping per frame
+            const FRICTION = 0.92;     // velocity damping per frame
             const RETURN_LERP = 0.08;     // speed of return-to-center
 
             if (this._foodBaseX === undefined) {
                 this._foodBaseX = this._food.x;
                 this._foodBaseY = this._food.y;
-                this._foodVelX  = 0;
-                this._foodVelY  = 0;
+                this._foodVelX = 0;
+                this._foodVelY = 0;
             }
 
             if (this._gameState === 'COOKING') {
@@ -355,7 +361,7 @@ export default class GameplayScene extends Phaser.Scene {
                 let offsetX = (this._food.x - limitCenterX) + this._foodVelX;
                 let offsetY = (this._food.y - limitCenterY) + this._foodVelY;
                 const dist = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-                
+
                 if (dist > effectiveMaxRadius) {
                     const scale = effectiveMaxRadius / dist;
                     offsetX *= scale;
@@ -489,6 +495,7 @@ export default class GameplayScene extends Phaser.Scene {
 
         const flipDurationMs = this.time.now - this._readyToFlipTime;
         this.replayLogger.addEvent(ReplayEvent.FryFood.FLIP_DURATION, { data: flipDurationMs });
+        this.replayLogger.addAnswerEvent(ReplayEvent.Global.ANSWER_SUBMITTED, "flip", true);
 
         // Visual change to food
         const cfg = this._foodConfig;
@@ -535,23 +542,29 @@ export default class GameplayScene extends Phaser.Scene {
         if (this.countdownTimer) {
             this.countdownTimer.remove();
         }
-        
+
         // Stop sizzling sound
         EventBus.emit('audio:stop', 'fry-food:sizzling');
 
         // Trigger the premium DOM effect
         EventBus.emit('audio:play', 'fry-food:endgame');
-        
+
         this.replayLogger.addEvent(ReplayEvent.FryFood.FINAL_SCORE, { data: this._cookLevel * 20 });
+
+        const remainingFlips = Math.max(0, 5 - this._cookLevel);
+        for (let i = 0; i < remainingFlips; i++) {
+            this.replayLogger.addAnswerEvent(ReplayEvent.Global.ANSWER_SUBMITTED, "missed_flip", false);
+        }
+
         this.replayLogger.pushToDatabase();
-        
+
         showLevelCompleteEffect();
 
         // Wait for the effect to finish before showing the game over panel
         this.time.delayedCall(1500, () => {
             EventBus.emit('minigame:game-over', {
                 score: this._cookLevel * 20,
-                level: this._cookLevel,
+                level: "",
                 panelBorderColor: GameOverSetting.panelBorderColor,
                 panelHeaderColor: GameOverSetting.panelHeaderColor,
                 resultImage: 'assets/common/result/result_fry_food.png',
@@ -589,7 +602,7 @@ export default class GameplayScene extends Phaser.Scene {
         const initialFrame = cfg.levelToFrame(1);
         this._foodSprite = this.add.sprite(0, 0, `${cfg.name}-${initialFrame}`);
         this._foodSprite.setScale(1.5);
-        
+
         this._food.add(this._foodSprite);
 
         if (this._panContainer) {
@@ -820,7 +833,7 @@ export default class GameplayScene extends Phaser.Scene {
             bottom: '15px',
             left: '0%',
             transform: 'translate(-50%, 50%)',
-            width: '56px', 
+            width: '56px',
             height: '56px',
             objectFit: 'contain',
             pointerEvents: 'none',
@@ -895,14 +908,41 @@ export default class GameplayScene extends Phaser.Scene {
         const uiRoot = document.getElementById('ui-root');
         if (!uiRoot) return;
 
+        // Semi-transparent backdrop so the player knows to tap before playing
+        this._iosBackdrop = document.createElement('div');
+        Object.assign(this._iosBackdrop.style, {
+            position: 'absolute',
+            inset: '0',
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            zIndex: '9998',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '20px',
+            // The #ui-root element has pointer-events:none in game mode (style.css)
+            // so that the HUD doesn't accidentally swallow Phaser touch events.
+            // We must explicitly re-enable pointer events on this overlay so the
+            // permission button and skip button are actually tappable.
+            pointerEvents: 'auto',
+        });
+
+        // Instruction text above the button
+        const label = document.createElement('p');
+        label.textContent = 'เกมนี้ต้องการสิทธิ์เซ็นเซอร์การเคลื่อนไหว';
+        Object.assign(label.style, {
+            color: '#fff',
+            fontSize: '22px',
+            fontFamily: 'sans-serif',
+            textAlign: 'center',
+            margin: '0 24px',
+            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+        });
+
         this._iosButton = document.createElement('button');
         this._iosButton.id = 'accel-permission-btn';
-        this._iosButton.textContent = '🎮 Enable Motion Control';
+        this._iosButton.textContent = '🎮 เปิดใช้งานการควบคุมด้วยการเอียง';
         Object.assign(this._iosButton.style, {
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
             zIndex: '9999',
             padding: '20px 40px',
             fontSize: '24px',
@@ -917,31 +957,57 @@ export default class GameplayScene extends Phaser.Scene {
         });
 
         this._iosButton.addEventListener('click', async () => {
-            this._tryLockOrientation();
+            // IMPORTANT: requestPermission() MUST be the first gesture-consuming
+            // call in this handler. Do NOT call _tryLockOrientation() before it
+            // because startFullscreen() spends the user activation token on iOS,
+            // leaving requestPermission() without a valid gesture and silently
+            // returning 'denied' without ever showing the system dialog.
             const status = await AccelerometerManager.start();
             console.log('[FryFood] iOS accelerometer status:', status);
-            this._removeIOSButton();
+
+            if (status === 'denied') {
+                // Show a denied message — user must go to iOS Settings to re-enable
+                label.textContent = '⚠️ สิทธิ์ถูกปฏิเสธ กรุณาเปิดการตั้งค่า → Safari → การเคลื่อนไหวและการวางแนว';
+                label.style.color = '#FFCC00';
+                this._iosButton.textContent = '❌ ไม่ได้รับสิทธิ์';
+                this._iosButton.style.backgroundColor = '#cc4444';
+                this._iosButton.style.border = '3px solid #aa2222';
+                this._iosButton.disabled = true;
+            } else {
+                this._removeIOSButton();
+                // Lock orientation only after permission is secured
+                this._tryLockOrientation();
+            }
         }, { once: true });
 
-        uiRoot.appendChild(this._iosButton);
+        this._iosBackdrop.appendChild(label);
+        this._iosBackdrop.appendChild(this._iosButton);
+        uiRoot.appendChild(this._iosBackdrop);
     }
 
     /**
-     * Remove the iOS permission button from the DOM.
+     * Remove the iOS permission button and backdrop from the DOM.
      */
     _removeIOSButton() {
-        if (this._iosButton && this._iosButton.parentNode) {
-            this._iosButton.parentNode.removeChild(this._iosButton);
-            this._iosButton = null;
+        if (this._iosBackdrop && this._iosBackdrop.parentNode) {
+            this._iosBackdrop.parentNode.removeChild(this._iosBackdrop);
+            this._iosBackdrop = null;
         }
+        // Nullify button reference (it was inside the backdrop)
+        this._iosButton = null;
     }
 
     /**
      * Attempt to lock the screen orientation to portrait and enter fullscreen.
-     * Note: This usually requires a user gesture or fullscreen mode on mobile browsers.
+     * Note: iOS Safari does not support the Fullscreen API — skip it there to
+     * avoid wasting the user activation token that requestPermission() needs.
      */
     async _tryLockOrientation() {
-        if (this.scale && !this.scale.isFullscreen) {
+        const isIOS = AccelerometerManager.isIOS();
+
+        // Skip fullscreen on iOS: requestFullscreen() is unsupported and the
+        // failed attempt still consumes the user gesture on some iOS versions.
+        if (!isIOS && this.scale && !this.scale.isFullscreen) {
             try {
                 const fsPromise = this.scale.startFullscreen();
                 if (fsPromise && typeof fsPromise.catch === 'function') {
@@ -963,7 +1029,10 @@ export default class GameplayScene extends Phaser.Scene {
                 await screen.orientation.lock('portrait-primary');
                 console.log('[FryFood] Screen orientation locked to portrait-primary.');
             } catch (error) {
-                console.warn('[FryFood] Could not lock screen orientation:', error);
+                // NotSupportedError is expected on desktop/unsupported devices
+                if (error.name !== 'NotSupportedError') {
+                    console.warn('[FryFood] Could not lock screen orientation:', error);
+                }
             }
         }
     }

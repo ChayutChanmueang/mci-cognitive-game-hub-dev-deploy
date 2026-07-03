@@ -74,6 +74,10 @@ export default class DraggableComponent extends Component {
                     originalSocket.detach();
                     targetSocket.detach();
 
+                    // Flag the scene so the socketFilled handler treats both attaches as one move
+                    this.scene._swapInProgress = true;
+                    this.scene._swapWrongLogged = false;
+
                     // 2. Put the dragged entity into the target socket
                     targetSocket.attach(this.entity);
                     this.currentSocket = targetSocket;
@@ -82,6 +86,9 @@ export default class DraggableComponent extends Component {
                     originalSocket.attach(targetOccupant);
                     occupantDragComponent.currentSocket = originalSocket;
 
+                    // Swap complete — clear the flag
+                    this.scene._swapInProgress = false;
+
                     // 4. Update the displaced occupant's start coordinates so it tweens properly if dragged later
                     occupantDragComponent.startX = originalSocket.entity.x;
                     occupantDragComponent.startY = originalSocket.entity.y;
@@ -89,13 +96,6 @@ export default class DraggableComponent extends Component {
                 } else {
                     // SCENARIO 3: The occupant is Locked, or the swap is invalid. Bounce back!
                     this.snapBack();
-                }
-                if (this.scene.replayLogger) {
-                    this.scene.replayLogger.addAnswerEvent(
-                        GlobalReplayEvent.ANSWER_SUBMITTED,
-                        this.entity.getComponent(DraggableDataComponent).animal,
-                        true,
-                    );
                 }
             }
         });
