@@ -98,8 +98,8 @@ export function showPopup(options = {}) {
                 </div>
             `;
         } else {
-            // ── Confirm / acknowledge mode — Image #9 style: Frame_Panel holds the
-            // centered title + message; stroke buttons sit below it.
+            // ── Confirm / acknowledge mode — Frame 1257 layout: Frame_Panel holds the
+            // centered title + message AND the stroke buttons, all inside the frame.
             const actionsMarkup = hasCancel
                 ? `<div class="gh-dialog-popup__button">
                     ${renderButtonCloseStroke({ label: cancelText })}
@@ -125,11 +125,11 @@ export function showPopup(options = {}) {
                         body: `
                             <h2 id="${titleId}" class="gh-dialog__title">${escapeHtml(title)}</h2>
                             ${message ? `<p id="${messageId}" class="gh-dialog__message">${escapeHtml(message)}</p>` : ""}
+                            <div class="gh-dialog__actions">
+                                ${actionsMarkup}
+                            </div>
                         `,
                     })}
-                    <div class="gh-dialog__actions">
-                        ${actionsMarkup}
-                    </div>
                 </div>
             `;
         }

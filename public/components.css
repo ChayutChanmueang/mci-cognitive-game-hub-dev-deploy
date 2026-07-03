@@ -23,7 +23,7 @@
   --main-gh-scale: 0.48;
   --main-gh-width: 240px;
   --main-gh-height: 90px;
-  --bt-dialog-gh-width: 150px;
+  --bt-dialog-gh-width: 140px;
   --bt-dialog-height: 75px;
   --main-font: "Noto Sans Thai Looped";
   --main-font-type: sans-serif;
@@ -1269,7 +1269,7 @@
   display: grid;
   justify-items: center;
   gap: clamp(18px, 4vh, 34px);
-  width: min(100%, 520px);
+  width: min(100%, 480px);
 }
 
 .gh-dialog__panel { /* extends .gh-frame-panel */
@@ -1277,36 +1277,39 @@
   width: 100%;
   display: grid;
   gap: clamp(10px, 2.4vh, 18px);
-  padding: clamp(28px, 6vw, 52px) clamp(24px, 6vw, 56px);
+  padding-top: 28px;
+  padding-bottom: 28px;
   text-align: center;
 }
 
 .gh-dialog__title {
-  margin: 0;
+  margin: 0 25px;
   color: #1c1c1c;
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
-  font-size: clamp(1.9rem, 6vw, 2.6rem);
-  line-height: 1.12;
+  font-size: 2.6rem;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
 .gh-dialog__message {
-  margin: 0;
+  margin: 0 25px;
   color: #333333;
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 400;
-  font-size: clamp(1.15rem, 4.4vw, 1.6rem);
+  font-size: clamp(1rem, 4.6vw, 1.4rem);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
+/* Buttons now sit INSIDE the Frame_Panel (Frame 1257), below the message. */
 .gh-dialog__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: clamp(16px, 5vw, 40px);
+  gap: clamp(12px, 3.5vw, 38px);
+  margin-top: 10px;
 }
 
 /* Multi-choice (list) mode — Image #10: keep the existing prompt dialog layout +
