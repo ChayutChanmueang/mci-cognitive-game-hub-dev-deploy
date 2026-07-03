@@ -90,8 +90,10 @@ export function renderLeaderboardScreen(root, options = {}) {
                         ${renderIconButtonBack({ className: "gh-leaderboard-back", ariaLabel: "กลับ" })}
                         <h1 id="leaderboard-title" class="gh-leaderboard-header__title">ชุมชนพัฒนาสมอง</h1>
                         <p class="gh-leaderboard-header__subtitle">อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
-                        <img class="gh-leaderboard-header__flower gh-leaderboard-header__flower--1" src="/assets/leaderboard/flower-1.png" alt="" aria-hidden="true" />
-                        <img class="gh-leaderboard-header__flower gh-leaderboard-header__flower--2" src="/assets/leaderboard/flower-2.png" alt="" aria-hidden="true" />
+                        <div class="gh-leaderboard-header__flower-clamp">
+                            <img class="gh-leaderboard-header__flower gh-leaderboard-header__flower--1" src="/assets/leaderboard/flower-1.png" alt="" aria-hidden="true" />
+                            <img class="gh-leaderboard-header__flower gh-leaderboard-header__flower--2" src="/assets/leaderboard/flower-2.png" alt="" aria-hidden="true" />
+                        </div>
                     </header>
 
                     ${renderLeaderboardTopBar()}

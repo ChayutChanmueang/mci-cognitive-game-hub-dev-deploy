@@ -22,15 +22,17 @@ export function renderLeaderboardBottomStatus({ rank = "", playerName = "", scor
   return `
     <aside class="gh-leaderboard-bottom" aria-label="อันดับของคุณ">
       <div class="gh-leaderboard-bottom__panel"></div>
-      <div class="gh-leaderboard-bottom__content">
-        <div class="gh-leaderboard-bottom__rank-cell">
-          ${medalSrc ? `<img class="gh-leaderboard-bottom__medal" src="${escapeAttr(medalSrc)}" alt="" aria-hidden="true" />` : ""}
-          <span class="gh-leaderboard-bottom__rank">${escapeText(rank)}</span>
-        </div>
-        <div class="gh-leaderboard-bottom__name"></div>
-        <p class="gh-leaderboard-bottom__name-text" title="${escapeAttr(playerName)}">${escapeText(playerName)}</p>
-        <div class="gh-leaderboard-bottom__score-cell">
-          <span class="gh-leaderboard-bottom__score">${escapeText(score)}</span>
+      <div class="gh-leaderboard-bottom-clamp">
+        <div class="gh-leaderboard-bottom__content">
+          <div class="gh-leaderboard-bottom__rank-cell">
+            ${medalSrc ? `<img class="gh-leaderboard-bottom__medal" src="${escapeAttr(medalSrc)}" alt="" aria-hidden="true" />` : ""}
+            <span class="gh-leaderboard-bottom__rank">${escapeText(rank)}</span>
+          </div>
+          <div class="gh-leaderboard-bottom__name"></div>
+          <p class="gh-leaderboard-bottom__name-text" title="${escapeAttr(playerName)}">${escapeText(playerName)}</p>
+          <div class="gh-leaderboard-bottom__score-cell">
+            <span class="gh-leaderboard-bottom__score">${escapeText(score)}</span>
+          </div>
         </div>
       </div>
     </aside>`;
