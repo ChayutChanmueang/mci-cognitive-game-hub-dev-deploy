@@ -1,5 +1,6 @@
 import {renderFramePopupMarkup, renderFramePopupShortMarkup} from "./components/frame-popup.js";
 import { dismissPopup } from "./transition/popup-transition.js";
+import { getProgramEndDate, formatThaiProgramDate } from "../util/program-date-util.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -22,11 +23,13 @@ function getRestingCharacter(gender) {
     };
 }
 
-function getFinishCharacter(gender) {
+// US-E7-28: the program-complete popup uses the floor-seated figure (OldMan/OldWoman_resting.png),
+// gender-based, matching the owner's reference design.
+function getThankYouCharacter(gender) {
     const isFemale = String(gender || "").trim().toLowerCase() === "female";
     return {
-        src: `${CHARACTER_IMAGE_BASE}/${isFemale ? "female/OldWoman" : "man/OldMan"}_finish-line.png`,
-        alt: isFemale ? "คุณยายเข้าเส้นชัย" : "คุณตาเข้าเส้นชัย",
+        src: `${CHARACTER_IMAGE_BASE}/${isFemale ? "female/OldWoman" : "man/OldMan"}_resting.png`,
+        alt: isFemale ? "คุณยาย" : "คุณตา",
     };
 }
 
@@ -89,8 +92,9 @@ export function showDayCompletionPopup(options = {}) {
     });
 }
 
-// US-E7-04: shown when the player finishes the whole program. "ยินดีด้วย" with the gender
-// finish-line character, in the same Frame_Form_Panel + Start-Game-Button art.
+// US-E7-04 / US-E7-28: shown when the player finishes the whole program. "โปรแกรมจบแล้ว"
+// with the gender finish-line character, a thank-you line, and the program start/end dates
+// (DD/MM/YY พ.ศ.), in the same Frame_Form_Panel + Start-Game-Button art.
 export function showProgramCompletionPopup(options = {}) {
     if (typeof document === "undefined") {
         return Promise.resolve(false);
@@ -100,23 +104,45 @@ export function showProgramCompletionPopup(options = {}) {
         programDayCount = 14,
         gender = "",
         dismissible = false,
+        startedProgram = "",
+        programEndDate = "",
     } = options;
 
     return new Promise((resolve) => {
-        const character = getFinishCharacter(gender);
+        const character = getThankYouCharacter(gender);
+
+        // Program date range (US-E7-28): start from the player's program start date; end
+        // from the stored end date, else computed as start + programDayCount. Formatted as
+        // DD/MM/YY พ.ศ. via the shared util. Hide the lines entirely if there's no valid
+        // start date, so we never render an empty/NaN row.
+        const startText = startedProgram ? formatThaiProgramDate(startedProgram) : "";
+        const endSource = programEndDate || getProgramEndDate(startedProgram, programDayCount);
+        const endText = endSource ? formatThaiProgramDate(endSource) : "";
+        const datesMarkup = startText && endText
+            ? `
+                <div class="gh-popup__dates" aria-label="ช่วงเวลาของโปรแกรม">
+                    <p class="gh-popup__date-line">เริ่มต้น <span class="gh-popup__date-value">${escapeHtml(startText)}</span></p>
+                    <p class="gh-popup__date-line">สิ้นสุด <span class="gh-popup__date-value">${escapeHtml(endText)}</span></p>
+                </div>
+            `
+            : "";
+
         const overlay = document.createElement("div");
         overlay.className = "app-popup";
         overlay.innerHTML = renderFramePopupMarkup({
             variant: "program-complete",
-            title: "ยินดีด้วย",
-            ariaLabel: "ยินดีด้วย",
-            buttonLabel: "กลับหน้าหลัก",
+            title: "โปรแกรมจบแล้ว",
+            ariaLabel: "โปรแกรมจบแล้ว",
+            buttonLabel: "ตกลง",
             body: `
                 <div class="gh-popup__character">
                     <img class="gh-popup__character-img" src="${character.src}" alt="${escapeHtml(character.alt)}" draggable="false" />
                     <span class="character-shadow gh-popup__character-shadow" aria-hidden="true"></span>
                 </div>
-                <p class="gh-popup__message">คุณเล่นจบโปรแกรมพัฒนาสมองทั้งหมด ${escapeHtml(String(programDayCount))} วันแล้ว</p>
+                <div class="gh-popup__complete-text">
+                    <p class="gh-popup__message">ขอบคุณสำหรับการร่วมมือนะ</p>
+                    ${datesMarkup}
+                </div>
             `,
         });
 

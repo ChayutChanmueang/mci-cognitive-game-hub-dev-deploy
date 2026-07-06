@@ -964,7 +964,12 @@ export async function renderGameHubScreen(root, options = {}) {
 
         if (isProgramEnded) {
             state.completionPopupShown = true;
-            await showProgramCompletionPopup({ programDayCount: getProgramDayCount(), gender: options.patientGender });
+            await showProgramCompletionPopup({
+                programDayCount: getProgramDayCount(),
+                gender: options.patientGender,
+                startedProgram: getStartedProgram(),
+                programEndDate: state.dailyProgram?.programEndDate || "",
+            });
             return;
         }
 

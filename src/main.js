@@ -49,6 +49,7 @@ import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
 import { EventBus } from "./core/EventBus.js";
 import AudioManager from "./core/audio-manager.js";
+import internetManager from "./core/internet-manager.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
 import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
@@ -171,6 +172,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize the global audio system
     AudioManager.init();
+
+    // US-E7-27: watch connectivity and show the "อินเทอร์เน็ตหายไปแล้ว" popup when the
+    // connection drops (auto-closes when it returns). On reconnect, re-render the current
+    // route so any data that failed to load while offline is refreshed.
+    internetManager
+        .configure({
+            onReconnect: () => {
+                void renderCurrentRoute();
+            },
+        })
+        .start();
 
     const handleBeforeUnload = () => {
         if (exitLogHn) {
@@ -662,6 +674,9 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 const patient = await db.getPatientByHn(patientCode);
                 patientGender = String(patient?.gender || "").trim();
+                // Cache gender so the offline popup can show the right character even
+                // once the connection drops (can't hit the DB then). US-E7-27.
+                internetManager.setGender(patientGender);
             } catch (error) {
                 console.warn("Unable to load patient gender for avatar:", error);
             }

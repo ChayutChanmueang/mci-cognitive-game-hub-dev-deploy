@@ -44,9 +44,25 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.26.0` | 2026-07-06 | US-E7-25: "วันนี้พักก่อน" rest popup uses the reclining beanbag character art (`OldMan/OldWoman_resting_02.png`, gender-based) + widened/seated ground shadow scoped to the short popup |
 | `0.26.1` | 2026-07-06 | Popup style isolation — per-popup `gh-popup--<variant>` scope + `--popup-*` CSS variables so rest / program-completion / check-in / resting-point popups tune independently; Sprint 7 verification pass (US-E7-01/07/10/22/25 confirmed by owner → Done) |
 | `0.27.0` | 2026-07-06 | US-E7-26: additional Leaderboard layout pass — refined row / top-bar / bottom-status spacing & alignment and constrained page content to a centered `max 720px` wrapper (built on the US-E7-01 `gh-leaderboard-*` art); scales via `--gh-scale` |
-| `0.28.0` | 2026-07-06 | **(current)** US-E7-23: Context Clues easier answer placement — larger, independently tunable answer-box / blank-slot hit areas (`answerBox.hitArea`/`hitOffset`) + overlap-based drop in `DragDropManager` (`overlapDrop`: a word snaps in when its box overlaps an accepting zone, no pixel-perfect pointer aim) |
+| `0.28.0` | 2026-07-06 | US-E7-23: Context Clues easier answer placement — larger, independently tunable answer-box / blank-slot hit areas (`answerBox.hitArea`/`hitOffset`) + overlap-based drop in `DragDropManager` (`overlapDrop`: a word snaps in when its box overlaps an accepting zone, no pixel-perfect pointer aim) |
+| `0.29.0` | 2026-07-06 | **(current)** US-E7-24 (Fry Food → **Physical** category on Game Hub), US-E7-27 (offline "อินเทอร์เน็ตหายไปแล้ว" popup + `InternetManager`, gender art buffered as data URLs for offline render), US-E7-28 (program-complete popup shows Thai-era **start/end dates**) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.29.0] - 2026-07-06
+**Version bump:** `0.28.0 → 0.29.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — three new backward-compatible features (offline popup, program-complete dates, Physical category) verified by the owner; the highest applicable part (MINOR) wins and they share one version.
+
+### Added
+- **US-E7-27 — offline / no-internet notification popup.** New `src/ui/offline-popup.js` (`showOfflinePopup` / `dismissOfflinePopup` / `isOfflinePopupOpen`) and `src/core/internet-manager.js` (`InternetManager` singleton). Watches `online`/`offline` events (started at bootstrap in `src/main.js`) + an active `HEAD` probe; shows the "อินเทอร์เน็ตหายไปแล้ว" popup with the gender-based คุณตา/คุณยาย climbing-tree art ("ตรวจสอบอินเทอร์เน็ต แล้วลองปิดเปิดเกมใหม่นะ") when the connection drops and auto-dismisses when it returns. On reconnect (auto or the "ลองอีกครั้ง" button) it re-renders the current route via `onReconnect`.
+  - **Offline art survives the disconnect:** the character images are fetched + encoded as `data:` URLs **while online** (`preloadOfflineArt`, buffered in a `Map`) and rendered from that buffer offline, so the image isn't a broken network request. `public/sw.js` (bumped to `CACHE_VERSION v2`) additionally precaches the art and serves a cache fallback on network failure as a safety net.
+  - Styling isolated behind the `gh-popup--offline` variant (`--popup-*` overrides + `align-content: start` so the figure hugs the top per the design), so the base popups are untouched.
+- **US-E7-28 — program-complete popup shows start/end dates.** `showProgramCompletionPopup()` (`src/ui/day-completion-popup.js`) now renders two Thai-era (`DD/MM/YY`, พ.ศ.) date lines — "เริ่มต้น …" / "สิ้นสุด …" — computed from `startedProgram` + `getProgramEndDate()` and formatted with `formatThaiProgramDate()` (`src/util/program-date-util.js`); date lines are hidden gracefully when no start date is available. New `gh-popup__complete-text` / `gh-popup__dates` / `gh-popup__date-line` styles scoped under the `gh-popup--program-complete` variant.
+
+### Changed
+- **US-E7-24 — Fry Food categorized as Physical on the Game Hub.** The เจียวไข่/ทอดอาหาร game (`PHY001`) is now grouped as **`Physical`** instead of `Executive`: added a `Physical` entry to `CATEGORY_META` (Thai label + description) and switched `DAILY_REQUIRED_GAME_FALLBACK.mci_group` to `"Physical"` in `src/ui/game-hub-screen.js`, so the hub shows the correct category label.
+
+### Docs
+- Marked **US-E7-24, US-E7-27, US-E7-28 Done** (owner-confirmed 2026-07-06 — แสดงผลถูกต้อง). Synced `01-product-backlog.md`, `sprint-07.md`, `kanban.md`, and user-story files.
 
 ## [0.28.0] - 2026-07-06
 **Version bump:** `0.27.0 → 0.28.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible input functionality (overlap-based drop + configurable hit areas) completing a distinct user story.

@@ -1552,6 +1552,40 @@
   align-self: anchor-center;
 }
 
+/* US-E7-28: program-complete text group — thank-you line + program start/end dates,
+   kept together (tighter than the body grid gap) and centered under the character. */
+.gh-popup__complete-text {
+  display: grid;
+  justify-items: center;
+  gap: clamp(10px, 2vh, 18px);
+  align-self: anchor-center;
+}
+
+.gh-popup__complete-text .gh-popup__message {
+  align-self: auto;
+}
+
+.gh-popup__dates {
+  display: grid;
+  justify-items: center;
+  gap: clamp(2px, 0.8vh, 8px);
+}
+
+.gh-popup__date-line {
+  margin: 0;
+  text-align: center;
+  color: #945E17;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 500;
+  font-size: clamp(1.15rem, 4.6vw, 1.55rem);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.gh-popup__date-value {
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Per-popup overrides ──────────────────────────────────────────────────────
  * Each popup carries a `gh-popup--<variant>` class on its root (set via the
  * `variant` option of renderFramePopupMarkup / renderFramePopupShortMarkup). Only
@@ -1563,6 +1597,7 @@
  *   checkin-success  → check-in "เก่งมาก !!!" step (cheer art)
  *   resting-point    → rest-node break popup (own .resting-popup-* body)
  *   checkin-calendar → check-in tree/progress step (own .tree-progress-* body)
+ *   offline          → "อินเทอร์เน็ตหายไปแล้ว" no-internet popup (US-E7-27)
  */
 
 /* "วันนี้พักก่อน" — reclining beanbag figure: smaller image, wider ground shadow
@@ -1573,11 +1608,12 @@
   --popup-shadow-bottom: -10px;
 }
 
-/* "ยินดีด้วย" 14-day completion — finish-line figure (independent of rest-day). */
+/* "โปรแกรมจบแล้ว" completion (US-E7-28) — seated beanbag figure + start/end dates.
+   Smaller figure so the two date lines fit without crowding (independent of rest-day). */
 .gh-popup--program-complete {
   --popup-char-img-width: 100%;
-  --popup-shadow-width: 64%;
-  --popup-shadow-bottom: -17px;
+  --popup-shadow-width: 90%;
+  --popup-shadow-bottom: -10px;
 }
 
 /* Check-in "เก่งมาก !!!" success — cheer figure (independent of the others). */
@@ -1585,6 +1621,22 @@
   --popup-char-img-width: 70%;
   --popup-shadow-width: 54%;
   --popup-shadow-bottom: -17px;
+}
+
+/* "อินเทอร์เน็ตหายไปแล้ว" no-internet popup (US-E7-27) — standing/climbing figure.
+   Independent knobs; retune when the dedicated `*_no-internet.png` art is added. */
+.gh-popup--offline {
+  --popup-char-img-width: 90%;
+  --popup-shadow-width: 0;
+  --popup-shadow-bottom: -6px;
+}
+
+/* Design shows the character hugging the TOP of the panel (message right below it,
+   empty space at the bottom). The shared body grid stretches its rows to fill the
+   panel — which bottom-weights this popup — so pack the content to the top instead.
+   Scoped to the offline variant so the other popups keep their centered layout. */
+.gh-popup--offline .gh-frame-popup-panel__body {
+  align-content: start;
 }
 
 .ph-popup-subtitle {
