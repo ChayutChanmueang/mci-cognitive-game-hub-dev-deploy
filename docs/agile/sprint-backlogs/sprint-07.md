@@ -30,7 +30,7 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E7-01](../user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 📋 Backlog |
+| [US-E7-01](../user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | ✅ Done |
 | [US-E7-02](../user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
 | [US-E7-03](../user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
 | [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 🔍 Review / Testing |
@@ -47,13 +47,15 @@ gantt
 
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E7-07](../user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | 📋 Backlog |
+| [US-E7-07](../user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | ✅ Done |
 | [US-E7-08](../user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
 | [US-E7-09](../user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
-| [US-E7-10](../user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | 📋 Backlog |
+| [US-E7-10](../user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | ✅ Done* |
 | [US-E7-11](../user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
 | [US-E7-12](../user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
 | [US-E7-13](../user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | ✅ Done |
+
+> \* US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + rainbow sparkle) ยืนยันโดยเจ้าของงาน 2026-07-06; งานต้นไม้ **หลายรูปแบบ** (art) ยกออกเป็นงานติดตามในภายหลัง
 
 > **หมายเหตุนอกขอบเขต Dev:** การเก็บข้อมูล MOCA (กระดาษ → Google Sheet) เป็นกระบวนการของทีมแพทย์ และจุดเด่นของแอป/บทบาท AI/ทิศทางธีมใหม่ต่อเนื่อง เป็นประเด็นเชิงกลยุทธ์ — บันทึกไว้ในรายงานการประชุม
 
@@ -89,7 +91,7 @@ gantt
 - [x] หน้าลงชื่อเข้าใช้ (Login, v0.17.0) + สมัครสมาชิก (Sign-up, v0.18.0) → [US-E7-02](../user-stories/US-E7-02.md) *(✅ ยืนยันมือถือ 2026-06-29)*
 - [x] หน้า Login ของ Admin → [US-E7-02](../user-stories/US-E7-02.md) (ขยายขอบเขตให้รวม Admin Login)
 - [x] หน้าข้อมูลผู้เล่น (Player-Info, v0.18.0) → [US-E7-03](../user-stories/US-E7-03.md) *(✅ ยืนยันมือถือ 2026-06-29)*
-- [ ] หน้า Leaderboard → [US-E7-01](../user-stories/US-E7-01.md)
+- [x] หน้า Leaderboard → [US-E7-01](../user-stories/US-E7-01.md) *(v0.25.0, ✅ ยืนยันการแสดงผลโดยเจ้าของงาน 2026-07-06)*
 - [x] หน้า Welcome: ปุ่มเข้าเกมใช้ art Start-Game-Button ("เริ่มเล่นเกม") → [US-E7-19](../user-stories/US-E7-19.md) *(v0.19.0, รอ QA มือถือ)*
 
 **Popup**
@@ -135,7 +137,7 @@ gantt
 
 ## 📊 Sprint Summary & Velocity
 - **งานที่วางแผนไว้ (Planned):** 21 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2 + 8 จาก Owner Task Block ก้องไผ่) และบั๊ก BUG-004/005/006/007
-- **สถานะปัจจุบัน (Status):** 📋 Planned — เริ่มต้น Sprint
+- **สถานะปัจจุบัน (Status):** 🏗 In-Progress — เจ้าของงานยืนยัน Done เพิ่ม 2026-07-06: US-E7-01, US-E7-07, US-E7-10*, US-E7-22, US-E7-25 (ล่าสุด v0.26.1)
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 
 ---

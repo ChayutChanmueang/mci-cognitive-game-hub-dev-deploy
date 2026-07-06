@@ -41,9 +41,23 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.23.0` | 2026-07-02 | US-E7-18: Android-style Toast component (`src/ui/components/toast.js`, `showToast`/`clearToast`) — replaces inline `<p>` feedback on Login/Admin-Login/Sign-up/Player-Info; bottom-center pill, info/success/error, a11y + reduced-motion |
 | `0.24.0` | 2026-07-02 | US-E7-22: partner/supporter logo row (CAMT, NAPLAB, CMU, MedCMU, NRCT) at the bottom of the Welcome screen |
 | `0.25.0` | 2026-07-03 | US-E7-01: Leaderboard Figma art port — ported `gh-leaderboard-*` components (`leaderboard-row`, `leaderboard-top-bar`, `leaderboard-bottom-status`, `bg-rounded-leaderboard`) + coin/trophy/flower assets under `public/assets/leaderboard/`; per-rank medal coins, orange "you" highlight, pinned bottom rank bar; scales via `--gh-scale` |
-| `0.26.0` | 2026-07-06 | **(current)** US-E7-25: "วันนี้พักก่อน" rest popup uses the reclining beanbag character art (`OldMan/OldWoman_resting_02.png`, gender-based) + widened/seated ground shadow scoped to the short popup |
+| `0.26.0` | 2026-07-06 | US-E7-25: "วันนี้พักก่อน" rest popup uses the reclining beanbag character art (`OldMan/OldWoman_resting_02.png`, gender-based) + widened/seated ground shadow scoped to the short popup |
+| `0.26.1` | 2026-07-06 | **(current)** Popup style isolation — per-popup `gh-popup--<variant>` scope + `--popup-*` CSS variables so rest / program-completion / check-in / resting-point popups tune independently; Sprint 7 verification pass (US-E7-01/07/10/22/25 confirmed by owner → Done) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.26.1] - 2026-07-06
+**Version bump:** `0.26.0 → 0.26.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible refactor that fixes cross-popup style bleed; no new user-facing feature.
+
+### Fixed
+- **Popup styles were shared and bled across popups.** The rest ("วันนี้พักก่อน"), program-completion ("ยินดีด้วย"), and check-in "เก่งมาก !!!" popups all shared the `.gh-popup__character` / `.gh-popup__character-img` / `.gh-popup__character-shadow` / `.gh-popup__message` rules, so tuning one (e.g. shrinking the beanbag figure) changed the others too. Each popup now carries a `gh-popup--<variant>` class on its root and the shared rules read `--popup-*` CSS variables, so per-popup character/shadow/message **size & position** can be set in isolation.
+
+### Changed
+- **`renderFramePopupMarkup` / `renderFramePopupShortMarkup`** (`src/ui/components/frame-popup.js`) take a `variant` option that adds `gh-popup--<variant>` to the popup root. Wired unique variants: `rest-day` + `program-complete` (`day-completion-popup.js`), `resting-point` (`resting-point-popup.js`), `checkin-success` + `checkin-calendar` (`checkin-summary-screen.js`).
+- **`public/components.css`** — `.gh-popup` / `.gh-popup-short` now declare tunable knobs (`--popup-gap`, `--popup-panel-height`, `--popup-char-margin-top`, `--popup-char-img-width`, `--popup-char-img-pad-bottom`, `--popup-shadow-width`, `--popup-shadow-bottom`, `--popup-message-font-size`, `--popup-message-line-height`); character/shadow/message rules consume them. Per-variant override blocks (`.gh-popup--rest-day`, `.gh-popup--program-complete`, `.gh-popup--checkin-success`) replace the earlier `.gh-popup-short .gh-popup__character-shadow` hack. Base defaults restored to the original look (char image `100%`, shadow `64%` / `4px`); `rest-day` keeps the beanbag tuning (image `70%`, shadow `70%` / `0`).
+
+### Docs (Sprint 7 verification pass — owner-confirmed 2026-07-06)
+- Marked **Done**: `US-E7-01` (Leaderboard art, v0.25.0 — displays correctly), `US-E7-07` (Thai mini-game names — confirmed), `US-E7-10` (tree growth + rainbow sparkle Juicy effects — displays well), `US-E7-22` (Welcome-screen partner logos, v0.24.0 — displays correctly), `US-E7-25` (rest popup character + independent positioning — confirmed). Synced `01-product-backlog.md`, `sprint-07.md`, and `kanban.md`.
 
 ## [0.26.0] - 2026-07-06
 **Version bump:** `0.25.0 → 0.26.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (rest popup art refresh).

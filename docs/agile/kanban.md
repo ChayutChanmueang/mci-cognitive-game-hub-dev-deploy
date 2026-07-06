@@ -6,13 +6,10 @@ kanban-plugin: board
 
 ## 📋 Backlog (Prioritized)
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
-- [ ] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard
-- [ ] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2)
 - [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
 - [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup *(เสร็จ v0.20.0; รอ QA มือถือ)*
 - [ ] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก: เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ (Doctor FB #2)
-- [ ] [US-E7-10](user-stories/US-E7-10.md) ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (Doctor FB #2)
 - [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)
 - [ ] [US-E7-12](user-stories/US-E7-12.md) แสดงโดเมน Cognitive + สรุปหลังบ้าน + เตรียมข้อมูล AI (Doctor FB #2)
 - [ ] [US-E7-13](user-stories/US-E7-13.md) เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + คนแก่ดีใจ) (Doctor FB #2)
@@ -37,7 +34,11 @@ kanban-plugin: board
 
 
 ## ✅ Done
-- [x] [US-E7-25](user-stories/US-E7-25.md) ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" — beanbag art `*_resting_02.png` + ขยับเงา (v0.26.0)
+- [x] [US-E7-25](user-stories/US-E7-25.md) ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" — beanbag art `*_resting_02.png` + ขยับเงา (v0.26.0); แยกสไตล์ popup ด้วย variant (v0.26.1) — ✅ ยืนยัน 2026-07-06
+- [x] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard (v0.25.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-10](user-stories/US-E7-10.md) เอฟเฟค Juicy ต้นคิดดี (growth transition + rainbow sparkle) (Doctor FB #2) — ✅ ยืนยัน 2026-07-06 *(ต้นไม้หลายรูปแบบยกเป็นงานติดตาม)*
+- [x] [US-E7-22](user-stories/US-E7-22.md) หน้าแรก: โลโก้คณะแพทย์ + หน่วยงานที่เกี่ยวข้อง (v0.24.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
 - [x] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up (+ Admin) — Figma components (v0.17.0/0.18.0)
 - [x] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info — Figma form panel (v0.18.0)
 - [x] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา

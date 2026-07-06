@@ -70,16 +70,16 @@
 ### E7: Game Art Assets & UI/UX Polish (P1)
 | ID | User Story | Priority | Status |
 | --- | --- | --- | --- |
-| [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | 🏗 In-Progress |
+| [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | ✅ Done |
 | [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
 | [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
 | [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | ✅ Done |
 | [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | ✅ Done |
 | [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
-| [US-E7-07](./user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | 🏗 In-Progress |
+| [US-E7-07](./user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | ✅ Done |
 | [US-E7-08](./user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
 | [US-E7-09](./user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
-| [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (sparkle เริ่มแล้ว) | Med | 🏗 In-Progress |
+| [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (sparkle เริ่มแล้ว) | Med | ✅ Done* |
 | [US-E7-11](./user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
 | [US-E7-12](./user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
 | [US-E7-13](./user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | ✅ Done |
@@ -91,13 +91,14 @@
 | [US-E7-19](./user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | ✅ Done |
 | [US-E7-20](./user-stories/US-E7-20.md) | ระบบทรานสิชั่น: Popup fade+scale / เปลี่ยนหน้า fade + แยก Loading component | Med | ✅ Done |
 | [US-E7-21](./user-stories/US-E7-21.md) | Progress-tree: เปลี่ยนสีตัวเลขความคืบหน้าอัตโนมัติเมื่อหลอดเกินครึ่ง (contrast) | Med | ✅ Done |
-| [US-E7-22](./user-stories/US-E7-22.md) | หน้าแรก: เพิ่มโลโก้คณะแพทย์ + หน่วยงานที่เกี่ยวข้อง | Med | 🏗 In-Progress |
+| [US-E7-22](./user-stories/US-E7-22.md) | หน้าแรก: เพิ่มโลโก้คณะแพทย์ + หน่วยงานที่เกี่ยวข้อง | Med | ✅ Done |
 | [US-E7-23](./user-stories/US-E7-23.md) | ขยาย collision กล่องวางคำตอบเกม Context Clues | Med | 📋 Backlog |
 | [US-E7-24](./user-stories/US-E7-24.md) | ย้ายชื่อเกม "ทอดอาหาร" (Fry Food) ขึ้นแทนหมวดหมู่ MCI ในหน้าหลัก | Med | 📋 Backlog |
 | [US-E7-25](./user-stories/US-E7-25.md) | ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" | Med | ✅ Done |
 | [US-E7-26](./user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | 📋 Backlog |
 
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..26 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
+> \* US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 
 ---
