@@ -1716,20 +1716,37 @@
   grid-template-rows: 1fr;
 }
 
+.gh-leaderboard-header__flower-cover-left {
+  width: 100%;
+  height: 100%;
+  padding-left: 15px;
+  justify-self: end;
+  align-items: end;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-header__flower-cover-right {
+  width: 100%;
+  height: 100%;
+  padding-right: 15px;
+  justify-self: center;
+  align-items: end;
+  grid-column: 2;
+  grid-row: 1;
+}
+
 .gh-leaderboard-header__flower--1 {
   width: calc(84px * var(--gh-scale, 1));
   height: calc(230px * var(--gh-scale, 1));
-  grid-column: 1;
-  grid-row: 1;
+  transform: translateY(30px);
 }
 
 .gh-leaderboard-header__flower--2 {
   width: calc(93px * var(--gh-scale, 1));
   height: calc(119px * var(--gh-scale, 1));
-  transform: translateY(-35px);
+  transform: translateY(36px);
   justify-self: end;
-  grid-column: 2;
-  grid-row: 1;
 }
 
 /* ── Floating top bar · column headings (3231:246) ──────────── */
@@ -1798,7 +1815,7 @@
 }
 
 .gh-leaderboard-top-bar__score-head {
-  width: 100%;
+  width: 115px;
   left: 0;
   top: 0;
   display: grid;
@@ -1806,6 +1823,7 @@
   grid-template-columns: 1fr 1fr;
   align-items: center;
   justify-content: center;
+  justify-self: center;
 }
 
 .gh-leaderboard-top-bar__trophy {

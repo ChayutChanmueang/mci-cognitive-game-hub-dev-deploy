@@ -44,6 +44,17 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
 
+## [2026-07-06] - New tasks: Owner Task Block (US-E7-23..26, docs)
+**Docs-only** (no `package.json` bump). Records four new owner requirements (ก้องไผ่, Medium); implementation not started.
+
+### Added
+- Created four user stories under `docs/agile/user-stories/`:
+  - `US-E7-23` — ขยาย collision กล่องวางคำตอบเกม **Context Clues** ให้กดง่ายขึ้น (hitbox ใน `clickable.js`/`quiz.js`); sibling ของ `US-E7-08`.
+  - `US-E7-24` — ย้ายชื่อเกม **"ทอดอาหาร" (Fry Food)** ขึ้นแทนที่หมวดหมู่ MCI ในหน้าหลัก; instance ของการสลับชื่อเกม ↔ หมวด Cognitive ใน `US-E7-14` (+ ใช้ `th_name` ตาม `US-E7-07`).
+  - `US-E7-25` — ใส่ตัวละครคุณตา/คุณยาย **นั่งพัก** ใน Popup **"วันนี้พักก่อน"** (`day-completion-popup.js` มี `getRestingCharacter()` อยู่แล้ว → verify/refresh art); ต่อเนื่อง `US-E7-16` AC#2.
+  - `US-E7-26` — จัด **layout หน้า Leaderboard เพิ่มเติม** (`gh-leaderboard-*` ใน `components.css`); ต่อยอดจาก `US-E7-01` (v0.25.0).
+- Registered all four in `01-product-backlog.md` (E7 table), `sprint-07.md` (new dated **Owner Task Block — ก้องไผ่ (2026-07-06)** group + task table, planned count 17 → 21), and `kanban.md` (Backlog lane).
+
 ## [2026-06-29] - New requirement: Toast component (US-E7-18, docs)
 **Docs-only** (no `package.json` bump). Records a new owner requirement.
 
