@@ -42,9 +42,20 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.24.0` | 2026-07-02 | US-E7-22: partner/supporter logo row (CAMT, NAPLAB, CMU, MedCMU, NRCT) at the bottom of the Welcome screen |
 | `0.25.0` | 2026-07-03 | US-E7-01: Leaderboard Figma art port — ported `gh-leaderboard-*` components (`leaderboard-row`, `leaderboard-top-bar`, `leaderboard-bottom-status`, `bg-rounded-leaderboard`) + coin/trophy/flower assets under `public/assets/leaderboard/`; per-rank medal coins, orange "you" highlight, pinned bottom rank bar; scales via `--gh-scale` |
 | `0.26.0` | 2026-07-06 | US-E7-25: "วันนี้พักก่อน" rest popup uses the reclining beanbag character art (`OldMan/OldWoman_resting_02.png`, gender-based) + widened/seated ground shadow scoped to the short popup |
-| `0.26.1` | 2026-07-06 | **(current)** Popup style isolation — per-popup `gh-popup--<variant>` scope + `--popup-*` CSS variables so rest / program-completion / check-in / resting-point popups tune independently; Sprint 7 verification pass (US-E7-01/07/10/22/25 confirmed by owner → Done) |
+| `0.26.1` | 2026-07-06 | Popup style isolation — per-popup `gh-popup--<variant>` scope + `--popup-*` CSS variables so rest / program-completion / check-in / resting-point popups tune independently; Sprint 7 verification pass (US-E7-01/07/10/22/25 confirmed by owner → Done) |
+| `0.27.0` | 2026-07-06 | **(current)** US-E7-26: additional Leaderboard layout pass — refined row / top-bar / bottom-status spacing & alignment and constrained page content to a centered `max 720px` wrapper (built on the US-E7-01 `gh-leaderboard-*` art); scales via `--gh-scale` |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.27.0] - 2026-07-06
+**Version bump:** `0.26.1 → 0.27.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible UI enhancement completing a distinct user story (consistent with sibling Leaderboard story US-E7-01 → v0.25.0). The code landed across recent `features/game-hub` commits (`adjust leaderboard layout`, `constrain content to 720px via centered clamp wrappers`, `enhance leaderboard layout`) and is now formally versioned as the owner has confirmed it complete.
+
+### Changed
+- **US-E7-26 — additional Leaderboard layout pass.** Refined the spacing/alignment of the leaderboard rows, top bar, and "อันดับของคุณ" bottom-status bar, and constrained the page content to a **centered `max 720px`** wrapper so the list reads cleanly on wide and mobile viewports. Builds on the US-E7-01 `gh-leaderboard-*` Figma art; still scales via `--gh-scale` and preserves scroll / infinite-scroll and the current-player highlight.
+  - Touched: `public/components.css` (`gh-leaderboard-*`), `src/ui/leaderboard-screen.js`, `src/ui/components/leaderboard-top-bar.js`, `leaderboard-bottom-status.js`, `leaderboard-row.js`.
+
+### Docs
+- Marked **US-E7-26 Done** (owner-confirmed 2026-07-06 — "แก้ไขเองเรียบร้อยแล้ว"). Synced `01-product-backlog.md`, `sprint-07.md`, and `kanban.md`.
 
 ## [0.26.1] - 2026-07-06
 **Version bump:** `0.26.0 → 0.26.1` (**PATCH**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible refactor that fixes cross-popup style bleed; no new user-facing feature.

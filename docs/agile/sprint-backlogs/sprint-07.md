@@ -119,7 +119,7 @@ gantt
 | [US-E7-23](../user-stories/US-E7-23.md) | ขยาย collision กล่องวางคำตอบเกม Context Clues | Med | 📋 Backlog |
 | [US-E7-24](../user-stories/US-E7-24.md) | ย้ายชื่อเกม "ทอดอาหาร" (Fry Food) ขึ้นแทนหมวดหมู่ MCI ในหน้าหลัก | Med | 📋 Backlog |
 | [US-E7-25](../user-stories/US-E7-25.md) | ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" | Med | ✅ Done (v0.26.0) |
-| [US-E7-26](../user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | 📋 Backlog |
+| [US-E7-26](../user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | ✅ Done (v0.27.0) |
 
 **มินิเกม**
 - [ ] ขยาย collision กล่องวางคำตอบเกม Context Clues ให้กดง่ายขึ้น → [US-E7-23](../user-stories/US-E7-23.md)
@@ -131,13 +131,13 @@ gantt
 - [x] เอาตัวละครคุณตา/คุณยาย **นั่งพัก** ไปใส่ Popup "วันนี้พักก่อน" → [US-E7-25](../user-stories/US-E7-25.md) *(v0.26.0: art beanbag `*_resting_02.png` + ขยับเงา)* (ต่อเนื่องกับ [US-E7-16](../user-stories/US-E7-16.md) AC#2)
 
 **Leaderboard**
-- [ ] จัด layout หน้า Leaderboard เพิ่มเติม → [US-E7-26](../user-stories/US-E7-26.md) (ต่อยอดจาก [US-E7-01](../user-stories/US-E7-01.md))
+- [x] จัด layout หน้า Leaderboard เพิ่มเติม → [US-E7-26](../user-stories/US-E7-26.md) (ต่อยอดจาก [US-E7-01](../user-stories/US-E7-01.md)) *(v0.27.0, ✅ เจ้าของงานแก้ไข/ยืนยันเอง 2026-07-06)*
 
 ---
 
 ## 📊 Sprint Summary & Velocity
 - **งานที่วางแผนไว้ (Planned):** 21 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2 + 8 จาก Owner Task Block ก้องไผ่) และบั๊ก BUG-004/005/006/007
-- **สถานะปัจจุบัน (Status):** 🏗 In-Progress — เจ้าของงานยืนยัน Done เพิ่ม 2026-07-06: US-E7-01, US-E7-07, US-E7-10*, US-E7-22, US-E7-25 (ล่าสุด v0.26.1)
+- **สถานะปัจจุบัน (Status):** 🏗 In-Progress — เจ้าของงานยืนยัน Done เพิ่ม 2026-07-06: US-E7-01, US-E7-07, US-E7-10*, US-E7-22, US-E7-25, US-E7-26 (ล่าสุด v0.27.0)
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 
 ---
