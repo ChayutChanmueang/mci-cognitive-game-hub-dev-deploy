@@ -48,6 +48,7 @@ export function showRestingPointPopup(options = {}) {
 
         // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
         overlay.innerHTML = renderFramePopupMarkup({
+            variant: "resting-point",
             title: "คุณทำได้ดีมาก",
             ariaLabel: "เวลาพัก",
             buttonLabel: "ข้าม",

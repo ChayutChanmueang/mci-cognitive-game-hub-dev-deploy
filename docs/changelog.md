@@ -40,9 +40,18 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.22.0` | 2026-07-02 | US-E7-21: progress-tree number stays readable at any fill — two-layer clipped text (base on cream track + high-contrast dark copy clipped to the yellow fill via `--tree-fill`) |
 | `0.23.0` | 2026-07-02 | US-E7-18: Android-style Toast component (`src/ui/components/toast.js`, `showToast`/`clearToast`) — replaces inline `<p>` feedback on Login/Admin-Login/Sign-up/Player-Info; bottom-center pill, info/success/error, a11y + reduced-motion |
 | `0.24.0` | 2026-07-02 | US-E7-22: partner/supporter logo row (CAMT, NAPLAB, CMU, MedCMU, NRCT) at the bottom of the Welcome screen |
-| `0.25.0` | 2026-07-03 | **(current)** US-E7-01: Leaderboard Figma art port — ported `gh-leaderboard-*` components (`leaderboard-row`, `leaderboard-top-bar`, `leaderboard-bottom-status`, `bg-rounded-leaderboard`) + coin/trophy/flower assets under `public/assets/leaderboard/`; per-rank medal coins, orange "you" highlight, pinned bottom rank bar; scales via `--gh-scale` |
+| `0.25.0` | 2026-07-03 | US-E7-01: Leaderboard Figma art port — ported `gh-leaderboard-*` components (`leaderboard-row`, `leaderboard-top-bar`, `leaderboard-bottom-status`, `bg-rounded-leaderboard`) + coin/trophy/flower assets under `public/assets/leaderboard/`; per-rank medal coins, orange "you" highlight, pinned bottom rank bar; scales via `--gh-scale` |
+| `0.26.0` | 2026-07-06 | **(current)** US-E7-25: "วันนี้พักก่อน" rest popup uses the reclining beanbag character art (`OldMan/OldWoman_resting_02.png`, gender-based) + widened/seated ground shadow scoped to the short popup |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.26.0] - 2026-07-06
+**Version bump:** `0.25.0 → 0.26.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible UI functionality (rest popup art refresh).
+
+### Changed
+- **US-E7-25 — "วันนี้พักก่อน" rest popup art.** `showDayCompletionPopup` (`src/ui/day-completion-popup.js`) now shows the **reclining beanbag** character art instead of the standing/sitting resting pose: `getRestingCharacter()` points at `OldMan_resting_02.png` / `OldWoman_resting_02.png` (still gender-based off the DB `gender`, `female` → คุณยาย, otherwise คุณตา). Title "วันนี้พักก่อน" + message "กลับมาเล่นใหม่วันพรุ่งนี้นะ" and the `.character-shadow` markup are unchanged.
+- **Ground shadow re-seated for the new pose.** Added a scoped rule `.gh-popup-short .gh-popup__character-shadow` in `public/components.css` (`width: 80%`, `bottom: 12px`) so the shadow widens and sits under the beanbag base. Scoped to `.gh-popup-short` (only the rest popup uses `renderFramePopupShortMarkup`), so the program-completion (finish-line) popup keeps the original 64% / 4px shadow.
+- Marked `US-E7-25` **Done** and moved it to Done in `kanban.md`, `sprint-07.md`, and `01-product-backlog.md`.
 
 ## [2026-07-06] - New tasks: Owner Task Block (US-E7-23..26, docs)
 **Docs-only** (no `package.json` bump). Records four new owner requirements (ก้องไผ่, Medium); implementation not started.

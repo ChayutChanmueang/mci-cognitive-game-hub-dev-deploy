@@ -23,7 +23,6 @@ kanban-plugin: board
 - [ ] [US-E7-16](user-stories/US-E7-16.md) แก้ Popup หลังดูละคร + เข้าเกมซ้ำในวันเดิม (ก้องไผ่)
 - [ ] [US-E7-23](user-stories/US-E7-23.md) ขยาย collision กล่องวางคำตอบเกม Context Clues (ก้องไผ่)
 - [ ] [US-E7-24](user-stories/US-E7-24.md) ย้ายชื่อเกม "ทอดอาหาร" ขึ้นแทนหมวดหมู่ MCI ในหน้าหลัก (ก้องไผ่)
-- [ ] [US-E7-25](user-stories/US-E7-25.md) ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" (ก้องไผ่)
 - [ ] [US-E7-26](user-stories/US-E7-26.md) จัด Layout หน้า Leaderboard เพิ่มเติม (ก้องไผ่)
 - [ ] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen
 - [ ] [BUG-005](reports/bugs/BUG-005.md) โหลดช้า → premature navigation ดีดกลับหน้า Game Hub
@@ -38,6 +37,7 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E7-25](user-stories/US-E7-25.md) ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" — beanbag art `*_resting_02.png` + ขยับเงา (v0.26.0)
 - [x] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up (+ Admin) — Figma components (v0.17.0/0.18.0)
 - [x] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info — Figma form panel (v0.18.0)
 - [x] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา

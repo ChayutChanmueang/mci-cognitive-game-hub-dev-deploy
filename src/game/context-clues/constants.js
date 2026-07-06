@@ -48,7 +48,7 @@ export const Config = Object.freeze({
 
 export const QuizUI_Setting = Object.freeze({
     setting: {
-        scaleSlot: {x: 300, y: 120},
+        scaleSlot: {x: 320, y: 120},
         quizTextSize: 62.0,
         labelFontSize: 56.0,
         slotFontSize: 62.0,

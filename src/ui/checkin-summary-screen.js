@@ -306,6 +306,7 @@ export function showCheckInPopup(options = {}) {
             if (state.step === "success") {
                 // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
                 const markup = renderFramePopupMarkup({
+                    variant: "checkin-success",
                     title: "เก่งมาก !!!",
                     ariaLabel: "เก่งมาก",
                     buttonLabel: "ต่อไป",
@@ -339,6 +340,7 @@ export function showCheckInPopup(options = {}) {
 
                 // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
                 const markup = renderFramePopupMarkup({
+                    variant: "checkin-calendar",
                     title: "เป้าหมายของฉัน",
                     ariaLabel: "เป้าหมายของฉัน",
                     buttonLabel: "ต่อไป",

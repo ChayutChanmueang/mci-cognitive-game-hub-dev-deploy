@@ -17,7 +17,7 @@ const CHARACTER_IMAGE_BASE = "/assets/common/character";
 function getRestingCharacter(gender) {
     const isFemale = String(gender || "").trim().toLowerCase() === "female";
     return {
-        src: `${CHARACTER_IMAGE_BASE}/${isFemale ? "female/OldWoman" : "man/OldMan"}_resting.png`,
+        src: `${CHARACTER_IMAGE_BASE}/${isFemale ? "female/OldWoman" : "man/OldMan"}_resting_02.png`,
         alt: isFemale ? "คุณยายกำลังพัก" : "คุณตากำลังพัก",
     };
 }
@@ -53,9 +53,10 @@ function mountFramePopup({ overlay, dismissible, resolve }) {
     document.addEventListener("keydown", onKeyDown);
 }
 
-// US-E7-16 AC#2 + US-E7-04: shown when the player has already completed today's goal and
-// re-enters on the same day. "วันนี้พักก่อน" with the gender resting character (คุณตา/คุณยาย)
-// inside the Figma Frame_Form_Panel + a single green Start-Game-Button.
+// US-E7-16 AC#2 + US-E7-04 + US-E7-25: shown when the player has already completed today's
+// goal and re-enters on the same day. "วันนี้พักก่อน" with the gender resting character
+// (คุณตา/คุณยาย, reclining beanbag art *_resting_02.png) inside the Figma Frame_Form_Panel
+// + a single green Start-Game-Button. Shadow is widened/seated for the beanbag pose in CSS.
 export function showDayCompletionPopup(options = {}) {
     if (typeof document === "undefined") {
         return Promise.resolve(false);
@@ -71,6 +72,7 @@ export function showDayCompletionPopup(options = {}) {
         const overlay = document.createElement("div");
         overlay.className = "app-popup";
         overlay.innerHTML = renderFramePopupShortMarkup({
+            variant: "rest-day",
             title: "วันนี้พักก่อน",
             ariaLabel: "วันนี้พักก่อน",
             buttonLabel: "กลับหน้าหลัก",
@@ -105,6 +107,7 @@ export function showProgramCompletionPopup(options = {}) {
         const overlay = document.createElement("div");
         overlay.className = "app-popup";
         overlay.innerHTML = renderFramePopupMarkup({
+            variant: "program-complete",
             title: "ยินดีด้วย",
             ariaLabel: "ยินดีด้วย",
             buttonLabel: "กลับหน้าหลัก",

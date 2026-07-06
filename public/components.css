@@ -1423,17 +1423,31 @@
  */
 .gh-popup {
   --gh-scale: var(--main-gh-scale);
+  /* ── Per-popup tunable knobs ──────────────────────────────────────────────
+     Defaults here match the original shared look. Each popup overrides these on
+     its own `gh-popup--<variant>` root class (see "Per-popup overrides" below),
+     so changing one popup's character/shadow/message size or position does NOT
+     affect the others. */
+  --popup-gap: clamp(16px, 3vh, 26px);
+  --popup-panel-height: clamp(350px, 75vh, 600px);
+  --popup-char-margin-top: 12px;
+  --popup-char-img-width: 100%;
+  --popup-char-img-pad-bottom: 5px;
+  --popup-shadow-width: 64%;
+  --popup-shadow-bottom: 4px;
+  --popup-message-font-size: clamp(1.3rem, 5.4vw, 1.85rem);
+  --popup-message-line-height: 1.35;
   position: relative;
   z-index: 1;
   display: grid;
   justify-items: center;
-  gap: clamp(16px, 3vh, 26px);
+  gap: var(--popup-gap);
   width: min(100%, 420px);
 }
 
 .gh-popup .gh-frame-form-panel {
   width: 100%;
-  height: clamp(350px, 75vh, 600px);
+  height: var(--popup-panel-height);
   /* Header takes its own height; the body fills the rest. Without this the body's
      `height: 100%` resolves against the full panel height and overflows past the
      header by the header's height. `minmax(0, …)` lets the body shrink/scroll. */
@@ -1454,17 +1468,27 @@
 
 .gh-popup-short {
   --gh-scale: var(--main-gh-scale);
+  /* Same tunable knobs as .gh-popup (short frame has its own default height). */
+  --popup-gap: clamp(16px, 3vh, 26px);
+  --popup-panel-height: clamp(400px, 75vh, 530px);
+  --popup-char-margin-top: 12px;
+  --popup-char-img-width: 100%;
+  --popup-char-img-pad-bottom: 5px;
+  --popup-shadow-width: 64%;
+  --popup-shadow-bottom: 4px;
+  --popup-message-font-size: clamp(1.3rem, 5.4vw, 1.85rem);
+  --popup-message-line-height: 1.35;
   position: relative;
   z-index: 1;
   display: grid;
   justify-items: center;
-  gap: clamp(16px, 3vh, 26px);
+  gap: var(--popup-gap);
   width: min(100%, 420px);
 }
 
 .gh-popup-short .gh-frame-form-panel {
   width: 100%;
-  height: clamp(400px, 75vh, 530px);
+  height: var(--popup-panel-height);
   /* Header takes its own height; the body fills the rest. Without this the body's
      `height: 100%` resolves against the full panel height and overflows past the
      header by the header's height. `minmax(0, …)` lets the body shrink/scroll. */
@@ -1490,7 +1514,7 @@
   justify-content: center;
   width: 100%;
   max-width: 100%;
-  margin-top: 12px;
+  margin-top: var(--popup-char-margin-top);
   align-items: end;
 }
 
@@ -1499,19 +1523,19 @@
   position: relative;
   z-index: 1;
   display: flex;
-  width: 100%;
+  width: var(--popup-char-img-width);
   height: auto;
   user-select: none;
-  padding-bottom: 5px;
+  padding-bottom: var(--popup-char-img-pad-bottom);
   -webkit-user-drag: none;
 }
 
 .gh-popup__character-shadow {
   position: absolute;
   left: 50%;
-  bottom: 4px;
+  bottom: var(--popup-shadow-bottom);
   transform: translateX(-50%);
-  width: 64%;
+  width: var(--popup-shadow-width);
   z-index: 0;
 }
 
@@ -1521,11 +1545,46 @@
   color: #945E17;
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 500;
-  font-size: clamp(1.3rem, 5.4vw, 1.85rem);
-  line-height: 1.35;
+  font-size: var(--popup-message-font-size);
+  line-height: var(--popup-message-line-height);
   max-width: 24ch;
   overflow-wrap: anywhere;
   align-self: anchor-center;
+}
+
+/* ── Per-popup overrides ──────────────────────────────────────────────────────
+ * Each popup carries a `gh-popup--<variant>` class on its root (set via the
+ * `variant` option of renderFramePopupMarkup / renderFramePopupShortMarkup). Only
+ * override the --popup-* knobs here, so one popup's character/shadow/message size
+ * & position can change WITHOUT affecting the others. Add more knobs above as
+ * needed. Variants in use:
+ *   rest-day         → "วันนี้พักก่อน" day-completion popup (beanbag art, US-E7-25)
+ *   program-complete → "ยินดีด้วย" 14-day completion popup (finish-line art)
+ *   checkin-success  → check-in "เก่งมาก !!!" step (cheer art)
+ *   resting-point    → rest-node break popup (own .resting-popup-* body)
+ *   checkin-calendar → check-in tree/progress step (own .tree-progress-* body)
+ */
+
+/* "วันนี้พักก่อน" — reclining beanbag figure: smaller image, wider ground shadow
+   seated right at the base of the beanbag. */
+.gh-popup--rest-day {
+  --popup-char-img-width: 70%;
+  --popup-shadow-width: 70%;
+  --popup-shadow-bottom: -10px;
+}
+
+/* "ยินดีด้วย" 14-day completion — finish-line figure (independent of rest-day). */
+.gh-popup--program-complete {
+  --popup-char-img-width: 100%;
+  --popup-shadow-width: 64%;
+  --popup-shadow-bottom: 4px;
+}
+
+/* Check-in "เก่งมาก !!!" success — cheer figure (independent of the others). */
+.gh-popup--checkin-success {
+  --popup-char-img-width: 100%;
+  --popup-shadow-width: 54%;
+  --popup-shadow-bottom: 0px;
 }
 
 .ph-popup-subtitle {

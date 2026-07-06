@@ -11,17 +11,26 @@ import {renderFrameFormPanel, renderFramePopupPanel} from "./frame-form-panel.js
 import { renderStartGameButton } from "./start-game-button.js";
 import { escapeText, escapeAttr } from "./escape.js";
 
+// Each popup passes a unique `variant` so its root gets a `gh-popup--<variant>` class.
+// CSS scopes the per-popup character/shadow/message knobs to that class (see
+// public/components.css → "Per-popup overrides"), so tuning one popup never leaks
+// into the others.
+function variantClass(variant) {
+  return variant ? ` gh-popup--${variant}` : "";
+}
+
 /**
  * @param {object} [opts]
  * @param {string} [opts.title]       header text (white on blue bar)
  * @param {string} [opts.body]        body HTML (trusted; character + message etc.)
  * @param {string} [opts.buttonLabel] Start-Game-Button label (default "ต่อไป")
  * @param {string} [opts.ariaLabel]   dialog aria-label
+ * @param {string} [opts.variant]     per-popup style scope → `gh-popup--<variant>`
  */
-export function renderFramePopupMarkup({ title = "", body = "", buttonLabel = "ต่อไป", ariaLabel } = {}) {
+export function renderFramePopupMarkup({ title = "", body = "", buttonLabel = "ต่อไป", ariaLabel, variant = "" } = {}) {
   return `
     <div class="app-popup__backdrop"></div>
-    <div class="gh-popup" role="dialog" aria-modal="true"${ariaLabel ? ` aria-label="${escapeAttr(ariaLabel)}"` : ""}>
+    <div class="gh-popup${variantClass(variant)}" role="dialog" aria-modal="true"${ariaLabel ? ` aria-label="${escapeAttr(ariaLabel)}"` : ""}>
       ${renderFramePopupPanel({
         className: "gh-popup__panel",
         header: `<h2 class="gh-frame-form-panel__title">${escapeText(title)}</h2>`,
@@ -33,10 +42,10 @@ export function renderFramePopupMarkup({ title = "", body = "", buttonLabel = "�
     </div>`;
 }
 
-export function renderFramePopupShortMarkup({ title = "", body = "", buttonLabel = "ต่อไป", ariaLabel } = {}) {
+export function renderFramePopupShortMarkup({ title = "", body = "", buttonLabel = "ต่อไป", ariaLabel, variant = "" } = {}) {
     return `
     <div class="app-popup__backdrop"></div>
-    <div class="gh-popup-short" role="dialog" aria-modal="true"${ariaLabel ? ` aria-label="${escapeAttr(ariaLabel)}"` : ""}>
+    <div class="gh-popup-short${variantClass(variant)}" role="dialog" aria-modal="true"${ariaLabel ? ` aria-label="${escapeAttr(ariaLabel)}"` : ""}>
       ${renderFramePopupPanel({
         className: "gh-popup__panel",
         header: `<h2 class="gh-frame-form-panel__title">${escapeText(title)}</h2>`,

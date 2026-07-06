@@ -116,7 +116,7 @@ gantt
 |----|--------------|----------|--------|
 | [US-E7-23](../user-stories/US-E7-23.md) | ขยาย collision กล่องวางคำตอบเกม Context Clues | Med | 📋 Backlog |
 | [US-E7-24](../user-stories/US-E7-24.md) | ย้ายชื่อเกม "ทอดอาหาร" (Fry Food) ขึ้นแทนหมวดหมู่ MCI ในหน้าหลัก | Med | 📋 Backlog |
-| [US-E7-25](../user-stories/US-E7-25.md) | ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" | Med | 📋 Backlog |
+| [US-E7-25](../user-stories/US-E7-25.md) | ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" | Med | ✅ Done (v0.26.0) |
 | [US-E7-26](../user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | 📋 Backlog |
 
 **มินิเกม**
@@ -126,7 +126,7 @@ gantt
 - [ ] ย้ายชื่อเกม "ทอดอาหาร" ขึ้นแทนที่หมวดหมู่ MCI → [US-E7-24](../user-stories/US-E7-24.md) (ต่อเนื่องกับ [US-E7-14](../user-stories/US-E7-14.md) ข้อ 2)
 
 **Popup**
-- [ ] เอาตัวละครคุณตา/คุณยาย **นั่งพัก** ไปใส่ Popup "วันนี้พักก่อน" → [US-E7-25](../user-stories/US-E7-25.md) (ต่อเนื่องกับ [US-E7-16](../user-stories/US-E7-16.md) AC#2)
+- [x] เอาตัวละครคุณตา/คุณยาย **นั่งพัก** ไปใส่ Popup "วันนี้พักก่อน" → [US-E7-25](../user-stories/US-E7-25.md) *(v0.26.0: art beanbag `*_resting_02.png` + ขยับเงา)* (ต่อเนื่องกับ [US-E7-16](../user-stories/US-E7-16.md) AC#2)
 
 **Leaderboard**
 - [ ] จัด layout หน้า Leaderboard เพิ่มเติม → [US-E7-26](../user-stories/US-E7-26.md) (ต่อยอดจาก [US-E7-01](../user-stories/US-E7-01.md))
