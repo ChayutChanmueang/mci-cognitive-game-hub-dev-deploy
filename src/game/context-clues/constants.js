@@ -53,6 +53,32 @@ export const QuizUI_Setting = Object.freeze({
         labelFontSize: 56.0,
         slotFontSize: 62.0,
         slotWidth: 300,
+        // Answer choice box (the draggable option cards at the bottom).
+        //   size     : visible card size (also drives the layout spacing between cards).
+        //   hitArea  : pointer grab/collision size. Set it a bit larger than `size` so
+        //              near-misses still register (US-E7-23). Keep each side's overflow
+        //              smaller than the gap between cards (choiceGapX/Y = 62) so adjacent
+        //              cards don't steal each other's input.
+        //   hitOffset: nudge the collision box relative to the card center, in px.
+        answerBox: {
+            size: {x: 455, y: 145},
+            hitArea: {x: 495, y: 185},
+            hitOffset: {x: 0, y: 0},
+        },
+        // Blank "วางคำ" slot inside the sentence (where a word is dropped).
+        //   size    : visible dashed-box size (width x height). width also reserves
+        //             the space the slot occupies in the sentence flow. Falls back to
+        //             the auto width (max of slotWidth / placeholder text) and to the
+        //             sentence line height (scaleSlot.y) when not set.
+        //   hitArea : the invisible drop/collision rect size. Set ≥ size so a word
+        //             snaps in even on a near-miss drop (US-E7-23). Defaults to size.
+        //   offset  : nudge the whole slot (border + drop rect + hint) in px, without
+        //             changing where the surrounding sentence text flows.
+        blankSlot: {
+            size: {x: 420, y: 140},
+            hitArea: {x: 455, y: 150},
+            offset: {x: 0, y: 0},
+        },
     },
     // White question panel size. Increase height here if the text area should be taller.
     quizBoxSize: {

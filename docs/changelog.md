@@ -43,9 +43,24 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.25.0` | 2026-07-03 | US-E7-01: Leaderboard Figma art port — ported `gh-leaderboard-*` components (`leaderboard-row`, `leaderboard-top-bar`, `leaderboard-bottom-status`, `bg-rounded-leaderboard`) + coin/trophy/flower assets under `public/assets/leaderboard/`; per-rank medal coins, orange "you" highlight, pinned bottom rank bar; scales via `--gh-scale` |
 | `0.26.0` | 2026-07-06 | US-E7-25: "วันนี้พักก่อน" rest popup uses the reclining beanbag character art (`OldMan/OldWoman_resting_02.png`, gender-based) + widened/seated ground shadow scoped to the short popup |
 | `0.26.1` | 2026-07-06 | Popup style isolation — per-popup `gh-popup--<variant>` scope + `--popup-*` CSS variables so rest / program-completion / check-in / resting-point popups tune independently; Sprint 7 verification pass (US-E7-01/07/10/22/25 confirmed by owner → Done) |
-| `0.27.0` | 2026-07-06 | **(current)** US-E7-26: additional Leaderboard layout pass — refined row / top-bar / bottom-status spacing & alignment and constrained page content to a centered `max 720px` wrapper (built on the US-E7-01 `gh-leaderboard-*` art); scales via `--gh-scale` |
+| `0.27.0` | 2026-07-06 | US-E7-26: additional Leaderboard layout pass — refined row / top-bar / bottom-status spacing & alignment and constrained page content to a centered `max 720px` wrapper (built on the US-E7-01 `gh-leaderboard-*` art); scales via `--gh-scale` |
+| `0.28.0` | 2026-07-06 | **(current)** US-E7-23: Context Clues easier answer placement — larger, independently tunable answer-box / blank-slot hit areas (`answerBox.hitArea`/`hitOffset`) + overlap-based drop in `DragDropManager` (`overlapDrop`: a word snaps in when its box overlaps an accepting zone, no pixel-perfect pointer aim) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.28.0] - 2026-07-06
+**Version bump:** `0.27.0 → 0.28.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible input functionality (overlap-based drop + configurable hit areas) completing a distinct user story.
+
+### Changed
+- **US-E7-23 — easier answer placement in Context Clues.** The answer choice boxes and the in-sentence "วางคำ" blank slots now expose an independently tunable **collision / hit area** (`answerBox.hitArea` + `answerBox.hitOffset`, and the blank-slot drop area) separate from their visible size, so the tappable/droppable region can be made larger than the artwork without moving it. Falls back to the previous sizes when unconfigured.
+  - Touched: `src/game/context-clues/entity/script/quiz.js`, `src/game/context-clues/constants.js`, `src/game/context-clues/utils/auto-insert-layout.js`.
+
+### Added
+- **`DragDropManager` overlap-drop fallback** (`src/core/drag-drop-manager.js`, `overlapDrop` option, default `on`). When a drag ends without the pointer released over a drop zone, the drop still succeeds if the dragged item's bounds **overlap** an accepting zone (edge touch counts); the zone with the largest overlap wins (`findOverlappingDropZone`). Drop resolution was refactored into a shared `performDrop()`. Lets elderly players place a word by proximity instead of pixel-perfect aim.
+
+### Docs
+- Marked **US-E7-23 Done** (owner-confirmed 2026-07-06 — "แก้ไขเรียบร้อยแล้ว"). Synced `01-product-backlog.md`, `sprint-07.md`, `kanban.md`.
+- Added new backlog stories **US-E7-27** (offline / no-internet notification popup) and **US-E7-28** (program-complete popup shows program start & end dates).
 
 ## [0.27.0] - 2026-07-06
 **Version bump:** `0.26.1 → 0.27.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — backward-compatible UI enhancement completing a distinct user story (consistent with sibling Leaderboard story US-E7-01 → v0.25.0). The code landed across recent `features/game-hub` commits (`adjust leaderboard layout`, `constrain content to 720px via centered clamp wrappers`, `enhance leaderboard layout`) and is now formally versioned as the owner has confirmed it complete.

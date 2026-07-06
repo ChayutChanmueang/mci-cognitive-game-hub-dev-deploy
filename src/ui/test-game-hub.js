@@ -41,9 +41,18 @@ const CATEGORY_META = Object.freeze({
         tone: "rose",
         description: "ฝึกการวางแผน ตัดสินใจ จัดลำดับ และควบคุมการทำงานหลายขั้นตอน",
     },
+    // US-E7-24: Physical group for the Fry Food (movement/accelerometer) game.
+    Physical: {
+        id: "Physical",
+        nameTh: "กายภาพ",
+        nameEn: "Physical",
+        icon: "directions_run",
+        tone: "sky",
+        description: "ฝึกการเคลื่อนไหวและการควบคุมร่างกายผ่านการขยับ/เอียงอุปกรณ์ให้สัมพันธ์กับเกม",
+    },
 });
 
-const CATEGORY_ORDER = ["Memory", "Visuospatial", "Attention", "Language", "Executive"];
+const CATEGORY_ORDER = ["Memory", "Visuospatial", "Attention", "Language", "Executive", "Physical"];
 const PAGE_SIZE = 10;
 const MINIO_VIDEO_BASE_URL = "https://minio-api-v4.kohtnas.com/mci-video-bucket";
 const TEST_GAME_HUB_STYLESHEET_ID = "test-game-hub-style";

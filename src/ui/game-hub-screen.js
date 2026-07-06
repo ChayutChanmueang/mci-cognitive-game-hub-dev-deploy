@@ -25,7 +25,7 @@ const DAILY_REQUIRED_GAME_FALLBACK = Object.freeze({
     name: "fry-food",
     th_name: "ทอดอาหาร",
     displayName: "เกมทอดอาหาร",
-    mci_group: "Executive",
+    mci_group: "Physical",
     max_score: null,
     created_at: null,
 });
@@ -61,6 +61,11 @@ const CATEGORY_META = Object.freeze({
     Executive: {
         nameTh: "บริหารสมอง",
         description: "ฝึกการวางแผน ตัดสินใจ จัดลำดับ และควบคุมการทำงานหลายขั้นตอน",
+    },
+    // US-E7-24: Fry Food (PHY001) is a movement/accelerometer game, grouped as Physical.
+    Physical: {
+        nameTh: "กายภาพ",
+        description: "ฝึกการเคลื่อนไหวและการควบคุมร่างกายผ่านการขยับ/เอียงอุปกรณ์ให้สัมพันธ์กับเกม",
     },
 });
 

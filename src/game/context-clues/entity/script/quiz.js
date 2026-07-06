@@ -33,6 +33,16 @@ export default class Quiz extends Entity{
         this.labelFontSize = setting.labelFontSize;
         this.quizTextSize = setting.quizTextSize;
         this.slotWidth = setting.slotWidth ?? setting.scaleSlot.x;
+        // Answer choice box: visible size, plus an independently tunable collision
+        // (hit) area + offset (US-E7-23). Falls back to the previous hardcoded values
+        // and to the visible size when hitArea/hitOffset are not configured.
+        this.answerBoxSize = setting.answerBox?.size ?? { x: 455, y: 145 };
+        this.answerHitArea = setting.answerBox?.hitArea ?? this.answerBoxSize;
+        this.answerHitOffset = setting.answerBox?.hitOffset ?? { x: 0, y: 0 };
+        // Blank "วางคำ" drop slot in the sentence: configurable visible size, an
+        // independently tunable drop/collision area, and a position offset (US-E7-23).
+        // Passed straight through to createInlineSentence via textStyle below.
+        this.blankSlot = setting.blankSlot ?? null;
         this.boxWidth = quizBoxSize.width;
         this.boxHeight = quizBoxSize.height;
         this.ownedContainer = scene.add.container(x, y);
@@ -97,6 +107,7 @@ export default class Quiz extends Entity{
             quizTextSize: this.quizTextSize,
             labelFontSize: this.labelFontSize,
             slotWidth: this.slotWidth,
+            blankSlot: this.blankSlot,
             slotStrokeColor: 0xffb0ca,
             slotStrokeWidth: 6,
             slotFillColor: 0xffffff,
@@ -151,8 +162,8 @@ export default class Quiz extends Entity{
         this.ownedContainer.add(dragInstruction);
 
         this.answerBoxes = [];
-        const choiceWidth = 455;
-        const choiceHeight = 145;
+        const choiceWidth = this.answerBoxSize.x;
+        const choiceHeight = this.answerBoxSize.y;
         const choiceGapX = 62;
         const choiceGapY = 62;
         const choiceTopY = sceneHeight - bottomPanelHeight + 150;
@@ -166,7 +177,10 @@ export default class Quiz extends Entity{
             const card = this.scene.add.graphics();
             this.drawChoiceCard(card, choiceWidth, choiceHeight, 8, 0xffffff, 0xffb0ca);
 
-            const bg = this.scene.add.rectangle(0, 0, choiceWidth, choiceHeight, choiceColor, 0.001)
+            // Invisible rectangle used purely as the drag handle + grab/collision area.
+            // Sized to answerHitArea (≥ the visible card) and nudged by answerHitOffset,
+            // so the tap target can be widened without changing the card's look (US-E7-23).
+            const bg = this.scene.add.rectangle(this.answerHitOffset.x, this.answerHitOffset.y, this.answerHitArea.x, this.answerHitArea.y, choiceColor, 0.001)
                 .setStrokeStyle(6, 0xffb0ca, 0)
                 .setOrigin(0.5);
 

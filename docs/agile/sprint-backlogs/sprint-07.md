@@ -116,19 +116,24 @@ gantt
 
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E7-23](../user-stories/US-E7-23.md) | ขยาย collision กล่องวางคำตอบเกม Context Clues | Med | 📋 Backlog |
-| [US-E7-24](../user-stories/US-E7-24.md) | ย้ายชื่อเกม "ทอดอาหาร" (Fry Food) ขึ้นแทนหมวดหมู่ MCI ในหน้าหลัก | Med | 📋 Backlog |
+| [US-E7-23](../user-stories/US-E7-23.md) | ขยาย collision กล่องวางคำตอบเกม Context Clues | Med | ✅ Done (v0.28.0) |
+| [US-E7-24](../user-stories/US-E7-24.md) | ย้ายชื่อเกม "ทอดอาหาร" (Fry Food) ขึ้นแทนหมวดหมู่ MCI + จัดเป็นหมวด Physical | Med | 📋 Backlog |
 | [US-E7-25](../user-stories/US-E7-25.md) | ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" | Med | ✅ Done (v0.26.0) |
 | [US-E7-26](../user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | ✅ Done (v0.27.0) |
+| [US-E7-27](../user-stories/US-E7-27.md) | Popup แจ้งเตือนเมื่ออินเทอร์เน็ตหลุด/ไม่มีอินเทอร์เน็ต | High | 📋 Backlog |
+| [US-E7-28](../user-stories/US-E7-28.md) | Popup "โปรแกรมจบแล้ว" แสดงวันเริ่ม–วันสิ้นสุดโปรแกรม | Med | 📋 Backlog |
 
 **มินิเกม**
-- [ ] ขยาย collision กล่องวางคำตอบเกม Context Clues ให้กดง่ายขึ้น → [US-E7-23](../user-stories/US-E7-23.md)
+- [x] ขยาย collision กล่องวางคำตอบเกม Context Clues ให้กดง่ายขึ้น → [US-E7-23](../user-stories/US-E7-23.md) *(v0.28.0, ✅ เจ้าของงานแก้ไข/ยืนยันเอง 2026-07-06 — hit area ปรับแยกได้ + overlap drop)*
 
 **หน้าหลัก (Game Hub)**
 - [ ] ย้ายชื่อเกม "ทอดอาหาร" ขึ้นแทนที่หมวดหมู่ MCI → [US-E7-24](../user-stories/US-E7-24.md) (ต่อเนื่องกับ [US-E7-14](../user-stories/US-E7-14.md) ข้อ 2)
+- [ ] จัดเกมเจียวไข่/ทอดอาหาร (`PHY001`) เป็นหมวด **Physical** + ให้ Game Hub แสดงหมวดเป็น Physical (เพิ่มหมวดใน `CATEGORY_META`, เปลี่ยน `mci_group` จาก `Executive`) → [US-E7-24](../user-stories/US-E7-24.md) *(เพิ่มขอบเขต 2026-07-06)*
 
 **Popup**
 - [x] เอาตัวละครคุณตา/คุณยาย **นั่งพัก** ไปใส่ Popup "วันนี้พักก่อน" → [US-E7-25](../user-stories/US-E7-25.md) *(v0.26.0: art beanbag `*_resting_02.png` + ขยับเงา)* (ต่อเนื่องกับ [US-E7-16](../user-stories/US-E7-16.md) AC#2)
+- [ ] เพิ่ม Popup แจ้งเตือนเมื่อ **อินเทอร์เน็ตหลุด/ไม่มีเน็ต** ("อินเทอร์เน็ตหายไปแล้ว" + ปุ่ม "ลองอีกครั้ง") → [US-E7-27](../user-stories/US-E7-27.md) *(เพิ่ม 2026-07-06)*
+- [ ] Popup **"โปรแกรมจบแล้ว"** แสดง **วันเริ่ม–วันสิ้นสุดโปรแกรม** (เริ่มต้น/สิ้นสุด) → [US-E7-28](../user-stories/US-E7-28.md) *(เพิ่ม 2026-07-06; ต่อยอด [US-E7-16](../user-stories/US-E7-16.md) AC#6)*
 
 **Leaderboard**
 - [x] จัด layout หน้า Leaderboard เพิ่มเติม → [US-E7-26](../user-stories/US-E7-26.md) (ต่อยอดจาก [US-E7-01](../user-stories/US-E7-01.md)) *(v0.27.0, ✅ เจ้าของงานแก้ไข/ยืนยันเอง 2026-07-06)*
@@ -137,7 +142,7 @@ gantt
 
 ## 📊 Sprint Summary & Velocity
 - **งานที่วางแผนไว้ (Planned):** 21 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2 + 8 จาก Owner Task Block ก้องไผ่) และบั๊ก BUG-004/005/006/007
-- **สถานะปัจจุบัน (Status):** 🏗 In-Progress — เจ้าของงานยืนยัน Done เพิ่ม 2026-07-06: US-E7-01, US-E7-07, US-E7-10*, US-E7-22, US-E7-25, US-E7-26 (ล่าสุด v0.27.0)
+- **สถานะปัจจุบัน (Status):** 🏗 In-Progress — เจ้าของงานยืนยัน Done เพิ่ม 2026-07-06: US-E7-01, US-E7-07, US-E7-10*, US-E7-22, US-E7-23, US-E7-25, US-E7-26 (ล่าสุด v0.28.0); เพิ่มงานใหม่ US-E7-27 (offline popup), US-E7-28 (program-complete dates)
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 
 ---
