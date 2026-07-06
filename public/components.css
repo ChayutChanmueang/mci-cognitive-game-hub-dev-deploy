@@ -1577,14 +1577,14 @@
 .gh-popup--program-complete {
   --popup-char-img-width: 100%;
   --popup-shadow-width: 64%;
-  --popup-shadow-bottom: 4px;
+  --popup-shadow-bottom: -17px;
 }
 
 /* Check-in "เก่งมาก !!!" success — cheer figure (independent of the others). */
 .gh-popup--checkin-success {
-  --popup-char-img-width: 100%;
+  --popup-char-img-width: 70%;
   --popup-shadow-width: 54%;
-  --popup-shadow-bottom: 0px;
+  --popup-shadow-bottom: -17px;
 }
 
 .ph-popup-subtitle {
