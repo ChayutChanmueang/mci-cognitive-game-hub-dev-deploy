@@ -72,8 +72,8 @@ export function renderLeaderboardScreen(root, options = {}) {
             : "";
 
         root.innerHTML = `
-            <section class="hub-clean-screen leaderboard-screen" aria-labelledby="leaderboard-title">
-                <div class="hub-clean-shell leaderboard-shell">
+            <section class="leaderboard-clean-screen leaderboard-screen" aria-labelledby="leaderboard-title">
+                <div class="leaderboard-clean-shell">
                     ${renderBgRoundedLeaderboard({
                         body: `
                             <div class="gh-leaderboard-stage">

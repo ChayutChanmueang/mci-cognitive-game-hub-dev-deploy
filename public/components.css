@@ -19,6 +19,10 @@
   --gh-scale: calc(420 / 1080);
 }
 
+.leaderboard-clean-shell {
+  --gh-scale: calc(420 / 1080);
+}
+
 :root {
   --main-gh-scale: 0.48;
   --main-gh-width: 240px;
