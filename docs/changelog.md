@@ -63,6 +63,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 ### Docs
 - Marked **US-E7-09, US-E7-14, US-E7-15 Done** and **BUG-004 Resolved**. Synced `01-product-backlog.md`, `sprint-07.md`, `kanban.md`, user-story files, and `BUG-004.md`.
+- Added **US-E7-29** (block Game Hub start button before program start date; node state = not yet playable) to backlog, sprint-07, kanban.
 
 ## [0.29.0] - 2026-07-06
 **Version bump:** `0.28.0 → 0.29.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — three new backward-compatible features (offline popup, program-complete dates, Physical category) verified by the owner; the highest applicable part (MINOR) wins and they share one version.

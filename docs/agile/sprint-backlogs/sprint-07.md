@@ -124,6 +124,21 @@ gantt
 | [US-E7-26](../user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | ✅ Done (v0.27.0) |
 | [US-E7-27](../user-stories/US-E7-27.md) | Popup แจ้งเตือนเมื่ออินเทอร์เน็ตหลุด/ไม่มีอินเทอร์เน็ต | High | ✅ Done (v0.29.0) |
 | [US-E7-28](../user-stories/US-E7-28.md) | Popup "โปรแกรมจบแล้ว" แสดงวันเริ่ม–วันสิ้นสุดโปรแกรม | Med | ✅ Done (v0.29.0) |
+| [US-E7-29](../user-stories/US-E7-29.md) | ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม | High | 📋 Backlog |
+
+---
+
+## 👤 Owner Task Block — ก้องไผ่ (2026-07-07)
+งานเพิ่มเติม — บล็อกการเล่นก่อนวันเริ่มโปรแกรม
+
+| ID | Story / Task | Priority | Status |
+|----|--------------|----------|--------|
+| [US-E7-29](../user-stories/US-E7-29.md) | ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม (node state = ยังไม่ถึงวัน) | High | 📋 Backlog |
+
+**Game Hub / โปรแกรม**
+- [ ] ไม่ให้เล่นเกมก่อน `started_program` — ซ่อนปุ่มเริ่มเกม + node ไม่เป็น `current` ที่ launch ได้ → [US-E7-29](../user-stories/US-E7-29.md) *(เพิ่ม 2026-07-07)*
+
+---
 
 **มินิเกม**
 - [x] ขยาย collision กล่องวางคำตอบเกม Context Clues ให้กดง่ายขึ้น → [US-E7-23](../user-stories/US-E7-23.md) *(v0.28.0, ✅ เจ้าของงานแก้ไข/ยืนยันเอง 2026-07-06 — hit area ปรับแยกได้ + overlap drop)*
@@ -144,7 +159,7 @@ gantt
 
 ## 📊 Sprint Summary & Velocity
 - **งานที่วางแผนไว้ (Planned):** 21 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2 + 8 จาก Owner Task Block ก้องไผ่) และบั๊ก BUG-004/005/006/007
-- **สถานะปัจจุบัน (Status):** ✅ Merged `features/game-hub` → `development` (2026-07-07, **v0.30.0**). Sprint 7 E7: **26/28 stories Done** (คงเหลือ US-E7-06, 08, 11, 12). BUG-004 Resolved (2026-07-07). ล่าสุด owner ยืนยัน Done: US-E7-09, US-E7-14, US-E7-15 (v0.30.0).
+- **สถานะปัจจุบัน (Status):** ✅ Merged `features/game-hub` → `development` (2026-07-07, **v0.30.0**). Sprint 7 E7: **26/29 stories Done** (คงเหลือ US-E7-06, 08, 11, 12, **29**). BUG-004 Resolved (2026-07-07). เพิ่มงานใหม่ **US-E7-29** (บล็อกเล่นก่อนวันเริ่มโปรแกรม).
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 
 ---

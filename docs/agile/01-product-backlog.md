@@ -98,8 +98,9 @@
 | [US-E7-26](./user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | ✅ Done |
 | [US-E7-27](./user-stories/US-E7-27.md) | Popup แจ้งเตือนเมื่ออินเทอร์เน็ตหลุด/ไม่มีอินเทอร์เน็ต | High | ✅ Done |
 | [US-E7-28](./user-stories/US-E7-28.md) | Popup "โปรแกรมจบแล้ว" แสดงวันเริ่ม–วันสิ้นสุดโปรแกรม | Med | ✅ Done |
+| [US-E7-29](./user-stories/US-E7-29.md) | ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม | High | ✅ Done |
 
-> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..28 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
+> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
 > \* US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 

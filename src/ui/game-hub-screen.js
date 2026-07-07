@@ -5,6 +5,7 @@ import {
     getProgramDateRange,
     getProgramDayDate,
     getProgramDayStatus,
+    formatThaiProgramDate,
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
@@ -488,7 +489,11 @@ export async function renderGameHubScreen(root, options = {}) {
     const buildLevelSections = () => {
         const prodSections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
         const activeDay = getActiveDay();
-        const { programEnded: isProgramEnded } = getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+        const { programEnded: isProgramEnded, programStarted: isProgramStarted } =
+            getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+        // US-E7-29: before the program start date, no node may be "current"
+        // (no lesson card / start button) so the player cannot play early.
+        const startDateLabel = !isProgramStarted ? formatThaiProgramDate(getStartedProgram()) : "";
 
         return prodSections.map((section) => {
             const day = Number(section.day);
@@ -501,9 +506,11 @@ export async function renderGameHubScreen(root, options = {}) {
             const nodes = section.nodes.map((node, index) => {
                 const isDone = index < completion.completedCount;
                 const isCurrent = index === currentNodeIndex;
-                const nodeState = isDone ? "pass" : (isCurrent && !isProgramEnded) ? "current" : "next";
+                // A node is only "current" (with a start button) once the program
+                // has started and not yet ended.
+                const isActiveCurrent = isCurrent && !isProgramEnded && isProgramStarted;
+                const nodeState = isDone ? "pass" : isActiveCurrent ? "current" : "next";
 
-                const isGameCurrent = isCurrent && !isProgramEnded && node.type === "game";
                 const nodeObj = {
                     id: node.id,
                     type: node.type,
@@ -517,13 +524,15 @@ export async function renderGameHubScreen(root, options = {}) {
                         : undefined,
                     number: node.gameNumber || index + 1,
                     fryfood: node.type === "game" && node.emoji === "🍳" && nodeState !== "pass",
-                    disabled: isProgramEnded,
-                    sideLabel: node.type === "checkin" && isDone ? "เช็คชื่อแล้ว"
+                    disabled: isProgramEnded || !isProgramStarted,
+                    sideLabel: (!isProgramStarted && isCurrent && startDateLabel)
+                            ? `โปรแกรมเริ่มวันที่ ${startDateLabel}`
+                            : node.type === "checkin" && isDone ? "เช็คชื่อแล้ว"
                             : node.type === "checkin" ? "รอเช็คชื่อ"
                             : node.title || `เกมที่ ${index + 1}`,
                 };
 
-                if (isCurrent && !isProgramEnded) {
+                if (isActiveCurrent) {
                     const game = node.gameData || {};
                     const categoryId = game.mci_group || "Attention";
                     nodeObj.category = getCategoryLabel(categoryId);
@@ -657,6 +666,14 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const handleNodeAction = async (node) => {
         if (!node) {
+            return;
+        }
+
+        // US-E7-29: safety net — never launch a minigame before the program
+        // start date, even if a start button somehow slipped through the UI.
+        const { programStarted: isProgramStarted } =
+            getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+        if (!isProgramStarted) {
             return;
         }
 
