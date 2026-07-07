@@ -30,9 +30,9 @@ export function renderLoginScreen(root, options = {}) {
                                 id: "patient-id-input",
                                 type: "text",
                                 inputmode: "numeric",
-                                placeholder: "กรอกหมายเลข HN",
+                                placeholder: "กรอกหมายเลข ID",
                                 autocomplete: "off",
-                                ariaLabel: "กรอกหมายเลข HN",
+                                ariaLabel: "กรอกหมายเลข ID",
                                 align: "center",
                                 className: "gh-login__field",
                             })}
