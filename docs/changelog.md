@@ -45,9 +45,24 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.26.1` | 2026-07-06 | Popup style isolation — per-popup `gh-popup--<variant>` scope + `--popup-*` CSS variables so rest / program-completion / check-in / resting-point popups tune independently; Sprint 7 verification pass (US-E7-01/07/10/22/25 confirmed by owner → Done) |
 | `0.27.0` | 2026-07-06 | US-E7-26: additional Leaderboard layout pass — refined row / top-bar / bottom-status spacing & alignment and constrained page content to a centered `max 720px` wrapper (built on the US-E7-01 `gh-leaderboard-*` art); scales via `--gh-scale` |
 | `0.28.0` | 2026-07-06 | US-E7-23: Context Clues easier answer placement — larger, independently tunable answer-box / blank-slot hit areas (`answerBox.hitArea`/`hitOffset`) + overlap-based drop in `DragDropManager` (`overlapDrop`: a word snaps in when its box overlaps an accepting zone, no pixel-perfect pointer aim) |
-| `0.29.0` | 2026-07-06 | **(current)** US-E7-24 (Fry Food → **Physical** category on Game Hub), US-E7-27 (offline "อินเทอร์เน็ตหายไปแล้ว" popup + `InternetManager`, gender art buffered as data URLs for offline render), US-E7-28 (program-complete popup shows Thai-era **start/end dates**) |
+| `0.29.0` | 2026-07-06 | US-E7-24 (Fry Food → **Physical** category on Game Hub), US-E7-27 (offline "อินเทอร์เน็ตหายไปแล้ว" popup + `InternetManager`, gender art buffered as data URLs for offline render), US-E7-28 (program-complete popup shows Thai-era **start/end dates**) |
+| `0.30.0` | 2026-07-07 | **(current)** US-E7-09 (Postcard Reader voice/font), US-E7-14 (Game Hub layout — spacing/swap/shadow), US-E7-15 (standardized green/red buttons); BUG-004 Resolved (black background after full-screen minigame) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+
+## [0.30.0] - 2026-07-07
+**Version bump:** `0.29.0 → 0.30.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — three Sprint 7 user stories verified complete by the owner plus one bug fix; highest applicable part (MINOR) wins.
+
+### Added / Changed
+- **US-E7-09 — Postcard Reader voice & readability.** เกมจดหมายจากหลานรัก: ปรับเสียง AI หรือถอดเสียง + ขยายตัวอักษรโจทย์ให้อ่านง่าย — owner ยืนยันแสดงผลได้ปกติ (2026-07-07).
+- **US-E7-14 — Game Hub layout polish.** ระยะห่างเลเวล, สลับชื่อเกม ↔ หมวด Cognitive, เงาตัวละคร (`.character-shadow`) ทั้ง node และ popup — owner ยืนยันแสดงผลได้ปกติ (2026-07-07).
+- **US-E7-15 — Standardized button colors.** ปุ่มเขียว = ยืนยัน/เริ่ม/ต่อไป, ปุ่มแดง = ยกเลิก — สม่ำเสมอทุกหน้าจอและ popup — owner ยืนยันแสดงผลได้ปกติ (2026-07-07).
+
+### Fixed
+- **BUG-004 — black Game Hub background after full-screen minigame.** กลับจากมินิเกม full-screen แล้วพื้นหลัง Game Hub ไม่เป็นสีดำอีกต่อไป — owner ยืนยัน Resolved (2026-07-07).
+
+### Docs
+- Marked **US-E7-09, US-E7-14, US-E7-15 Done** and **BUG-004 Resolved**. Synced `01-product-backlog.md`, `sprint-07.md`, `kanban.md`, user-story files, and `BUG-004.md`.
 
 ## [0.29.0] - 2026-07-06
 **Version bump:** `0.28.0 → 0.29.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — three new backward-compatible features (offline popup, program-complete dates, Physical category) verified by the owner; the highest applicable part (MINOR) wins and they share one version.
@@ -63,6 +78,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 ### Docs
 - Marked **US-E7-24, US-E7-27, US-E7-28 Done** (owner-confirmed 2026-07-06 — แสดงผลถูกต้อง). Synced `01-product-backlog.md`, `sprint-07.md`, `kanban.md`, and user-story files.
+- **Docs sync after merge to `development`** (2026-07-07, commit `3256a20`): reconciled `sprint-07.md` + `kanban.md` with product backlog — marked US-E7-04/05/16/17/18/19/20/21/13 Done and BUG-005/006/007 Resolved per merged `features/game-hub` branch.
 
 ## [0.28.0] - 2026-07-06
 **Version bump:** `0.27.0 → 0.28.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — new backward-compatible input functionality (overlap-based drop + configurable hit areas) completing a distinct user story.

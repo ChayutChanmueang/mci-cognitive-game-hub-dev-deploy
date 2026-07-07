@@ -33,12 +33,14 @@ gantt
 | [US-E7-01](../user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | ✅ Done |
 | [US-E7-02](../user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
 | [US-E7-03](../user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
-| [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | 🔍 Review / Testing |
-| [US-E7-05](../user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | 📋 Backlog |
+| [US-E7-04](../user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | ✅ Done (v0.20.0+) |
+| [US-E7-05](../user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | ✅ Done |
 | [US-E7-06](../user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
 | [US-E7-17](../user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
-| [US-E7-18](../user-stories/US-E7-18.md) | ย้าย feedback ข้อความ → Toast component แบบ Android | Med | 📋 Backlog |
-| [US-E7-19](../user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | 🔍 Review / Testing |
+| [US-E7-18](../user-stories/US-E7-18.md) | ย้าย feedback ข้อความ → Toast component แบบ Android | Med | ✅ Done (v0.23.0) |
+| [US-E7-19](../user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | ✅ Done (v0.19.0) |
+| [US-E7-20](../user-stories/US-E7-20.md) | ระบบทรานสิชั่น: Popup fade+scale / เปลี่ยนหน้า fade + แยก Loading component | Med | ✅ Done (v0.21.0) |
+| [US-E7-21](../user-stories/US-E7-21.md) | Progress-tree: เปลี่ยนสีตัวเลขความคืบหน้าอัตโนมัติเมื่อหลอดเกินครึ่ง (contrast) | Med | ✅ Done (v0.22.0) |
 
 ---
 
@@ -49,7 +51,7 @@ gantt
 |----|--------------|----------|--------|
 | [US-E7-07](../user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | ✅ Done |
 | [US-E7-08](../user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
-| [US-E7-09](../user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
+| [US-E7-09](../user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | ✅ Done (v0.30.0) |
 | [US-E7-10](../user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy | Med | ✅ Done* |
 | [US-E7-11](../user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
 | [US-E7-12](../user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
@@ -66,7 +68,7 @@ gantt
 
 | ID | Bug / Task | Severity | Status |
 |----|------------|----------|--------|
-| [BUG-004](../reports/bugs/BUG-004.md) | กลับจากมินิเกมโหมด full-screen แล้วพื้นหลัง Game Hub เป็นสีดำ | 🟠 Medium | 🔴 Open |
+| [BUG-004](../reports/bugs/BUG-004.md) | กลับจากมินิเกมโหมด full-screen แล้วพื้นหลัง Game Hub เป็นสีดำ | 🟠 Medium | ✅ Resolved |
 | [BUG-005](../reports/bugs/BUG-005.md) | โหลดข้อมูลช้า → ผู้ใช้เปิดเกม/Leaderboard ก่อนโหลดเสร็จแล้วถูกดีดกลับหน้า Game Hub (เสนอ: loading overlay หรือเลิก redirect) | 🔴 High | ✅ Resolved |
 | [BUG-006](../reports/bugs/BUG-006.md) | จอเล็ก: scroll ลงแล้ว background ถูกตัด + ปุ่ม FAB ไม่ float (เลื่อนตาม content) — scroll containment เสีย | 🟠 Medium | ✅ Resolved |
 | [BUG-007](../reports/bugs/BUG-007.md) | Game Hub header ไม่อยู่กึ่งกลางในบางเบราว์เซอร์ (`justify-items` บน element ที่ไม่ใช่ grid) | 🟡 Low | ✅ Resolved |
@@ -79,32 +81,32 @@ gantt
 งานที่มอบหมายให้ **ก้องไผ่** ในรอบนี้ แต่ละข้อ map กับ User Story (มีอยู่/สร้างใหม่) หรือเป็น note/coordination
 
 **หน้าหลัก (Game Hub)**
-- [ ] ปรับระยะห่างแต่ละเลเวลให้ห่างขึ้น (ปุ่มเริ่มเกมไม่เบียดมินิเกมถัดไป) → [US-E7-14](../user-stories/US-E7-14.md)
-- [ ] สลับตำแหน่งชื่อเกม ↔ ชื่อหมวด Cognitive ในหน้าหลัก → [US-E7-14](../user-stories/US-E7-14.md)
-- [ ] เพิ่มเงาตัวละครในหน้าหลัก → [US-E7-14](../user-stories/US-E7-14.md)
+- [x] ปรับระยะห่างแต่ละเลเวลให้ห่างขึ้น (ปุ่มเริ่มเกมไม่เบียดมินิเกมถัดไป) → [US-E7-14](../user-stories/US-E7-14.md) *(v0.30.0, ✅ ยืนยันโดยเจ้าของงาน 2026-07-07)*
+- [x] สลับตำแหน่งชื่อเกม ↔ ชื่อหมวด Cognitive ในหน้าหลัก → [US-E7-14](../user-stories/US-E7-14.md) *(v0.30.0, ✅ ยืนยันโดยเจ้าของงาน 2026-07-07)*
+- [x] เพิ่มเงาตัวละครในหน้าหลัก → [US-E7-14](../user-stories/US-E7-14.md) *(v0.30.0, ✅ ยืนยันโดยเจ้าของงาน 2026-07-07)*
 - [ ] นำ **Assets พี่กวาง** มาใส่ (เป็นแหล่ง art ของงาน E7) → ใช้ร่วมกับ US-E7-01..04, US-E7-14
 
 **ระบบสีปุ่ม**
-- [ ] ปุ่มเขียว = "เริ่มเกม"/"ตกลง"/"ต่อไป", ปุ่มแดง = "ยกเลิก" → [US-E7-15](../user-stories/US-E7-15.md)
+- [x] ปุ่มเขียว = "เริ่มเกม"/"ตกลง"/"ต่อไป", ปุ่มแดง = "ยกเลิก" → [US-E7-15](../user-stories/US-E7-15.md) *(v0.30.0, ✅ ยืนยันโดยเจ้าของงาน 2026-07-07)*
 
 **Art หน้าจอ DOM**
 - [x] หน้าลงชื่อเข้าใช้ (Login, v0.17.0) + สมัครสมาชิก (Sign-up, v0.18.0) → [US-E7-02](../user-stories/US-E7-02.md) *(✅ ยืนยันมือถือ 2026-06-29)*
 - [x] หน้า Login ของ Admin → [US-E7-02](../user-stories/US-E7-02.md) (ขยายขอบเขตให้รวม Admin Login)
 - [x] หน้าข้อมูลผู้เล่น (Player-Info, v0.18.0) → [US-E7-03](../user-stories/US-E7-03.md) *(✅ ยืนยันมือถือ 2026-06-29)*
 - [x] หน้า Leaderboard → [US-E7-01](../user-stories/US-E7-01.md) *(v0.25.0, ✅ ยืนยันการแสดงผลโดยเจ้าของงาน 2026-07-06)*
-- [x] หน้า Welcome: ปุ่มเข้าเกมใช้ art Start-Game-Button ("เริ่มเล่นเกม") → [US-E7-19](../user-stories/US-E7-19.md) *(v0.19.0, รอ QA มือถือ)*
+- [x] หน้า Welcome: ปุ่มเข้าเกมใช้ art Start-Game-Button ("เริ่มเล่นเกม") → [US-E7-19](../user-stories/US-E7-19.md) *(v0.19.0, ✅ ยืนยันโดยเจ้าของงาน)*
 
 **Popup**
-- [x] กรอบ Popup (Frame_Form_Panel + Start-Game-Button) → check-in success / resting / day+program completion → [US-E7-04](../user-stories/US-E7-04.md) *(v0.20.0, รอ QA; popup-dialog.js เป็นดีไซน์อื่น ยังไม่แตะ)*
+- [x] กรอบ Popup (Frame_Form_Panel + Start-Game-Button) → check-in success / resting / day+program completion + `popup-dialog.js` + `game-exit-popup.js` → [US-E7-04](../user-stories/US-E7-04.md) *(v0.20.0+, ✅ ยืนยันโดยเจ้าของงาน)*
 - [x] **ตัด** Popup หลังดูละครเสร็จ ("พบกันใหม่วันพรุ่งนี้") ออก → [US-E7-16](../user-stories/US-E7-16.md) *(ยืนยันด้วยโค้ด/grep 2026-06-26: ไม่มี popup นี้ในระบบ)*
 - [x] แก้ Popup เมื่อผู้เล่นเล่นจบของวันแล้วเข้ามาในวันเดิม ("วันนี้พักก่อน" + คุณตา/คุณยายนั่งพัก) → [US-E7-16](../user-stories/US-E7-16.md) *(v0.15.0, ✅ ยืนยันบนมือถือ 2026-06-26)*
-- [ ] เปลี่ยน emoji บน popup "ยินดีด้วย จบโปรแกรม 14 วัน" เป็นคุณตา/คุณยายตามเพศ + layout แบบ "วันนี้พักก่อน" → [US-E7-16](../user-stories/US-E7-16.md) AC#6 *(เพิ่มขอบเขต 2026-06-26)*
+- [x] เปลี่ยน emoji บน popup "ยินดีด้วย จบโปรแกรม 14 วัน" เป็นคุณตา/คุณยายตามเพศ + layout แบบ "วันนี้พักก่อน" → [US-E7-16](../user-stories/US-E7-16.md) AC#6 *(v0.20.0 + v0.29.0 วันที่เริ่ม–สิ้นสุด via US-E7-28)*
 
 **Boot Loading**
 - [x] ปรับ boot loading ตอนเปิดเกมให้ใช้โลโก้เกมเหมือนหน้า Welcome และ dot progress จำนวน 5 จุด → [US-E7-17](../user-stories/US-E7-17.md)
 
 **Feedback / Toast**
-- [ ] ย้าย feedback ข้อความ (error/สถานะกำลังทำงาน) ใต้ช่องกรอกใน Login/Sign-up/Player-Info ฯลฯ → **Toast แบบ Android** (component แยกใน `src/ui/components/`) → [US-E7-18](../user-stories/US-E7-18.md) *(requirement ใหม่ 2026-06-29)*
+- [x] ย้าย feedback ข้อความ (error/สถานะกำลังทำงาน) ใต้ช่องกรอกใน Login/Sign-up/Player-Info ฯลฯ → **Toast แบบ Android** (component แยกใน `src/ui/components/`) → [US-E7-18](../user-stories/US-E7-18.md) *(v0.23.0, ✅ ยืนยันโดยเจ้าของงาน)*
 
 **ข้อมูลหลังบ้าน (coordination)**
 - [ ] ตกลงกับ **น้องเกม** เรื่องข้อมูลหลังบ้าน เช่น เงื่อนไข/ขั้นตอน **ลบข้อมูลผู้เล่นทั้งหมด** ให้ลบได้เลยโดยไม่ติดปัญหาทั้งฝั่ง SE และฝั่งเรา → เกี่ยวข้องกับ [US-E5-03](../user-stories/US-E5-03.md) และ [TD-DB-01](../user-stories/TD-DB-01.md) (Owner: ก้องไผ่ + น้องเกม)
@@ -142,7 +144,7 @@ gantt
 
 ## 📊 Sprint Summary & Velocity
 - **งานที่วางแผนไว้ (Planned):** 21 User Stories ภายใต้ Epic E7 (6 เดิม + 7 จาก Doctor Feedback ครั้งที่ 2 + 8 จาก Owner Task Block ก้องไผ่) และบั๊ก BUG-004/005/006/007
-- **สถานะปัจจุบัน (Status):** 🏗 In-Progress — เจ้าของงานยืนยัน Done เพิ่ม 2026-07-06: US-E7-01, US-E7-07, US-E7-10*, US-E7-22, US-E7-23, US-E7-25, US-E7-26 (v0.28.0), **US-E7-24, US-E7-27, US-E7-28** (v0.29.0 — แสดงผลถูกต้อง ยืนยันโดยเจ้าของงาน)
+- **สถานะปัจจุบัน (Status):** ✅ Merged `features/game-hub` → `development` (2026-07-07, **v0.30.0**). Sprint 7 E7: **26/28 stories Done** (คงเหลือ US-E7-06, 08, 11, 12). BUG-004 Resolved (2026-07-07). ล่าสุด owner ยืนยัน Done: US-E7-09, US-E7-14, US-E7-15 (v0.30.0).
 - **เป้าหมายความสำเร็จ (Sprint Target):** ทุกหน้าจอ DOM หลักมี art asset ตรงธีม, ตัวเกมหลักแสดงเลขเวอร์ชันที่ sync กับ `package.json` (และซ่อนในมินิเกม), และมินิเกมทุกเกมยืดแนวตั้งได้โดยไม่มีการตัดขอบ/letterbox ภายในวันที่ 6 กรกฎาคม 2026
 
 ---

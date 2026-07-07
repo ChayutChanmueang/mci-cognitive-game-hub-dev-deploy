@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-06-23
+**Last Updated:** 2026-07-07
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
