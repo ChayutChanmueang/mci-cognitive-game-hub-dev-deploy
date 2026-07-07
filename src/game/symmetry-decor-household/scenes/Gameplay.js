@@ -285,7 +285,7 @@ export default class GameplayScene extends Phaser.Scene {
 
               // Use the animal type from level data — this matches the solution socket
               const spriteKey = _level[currentEntity].Animal;
-              const spriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              const spriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.336;
               box.addComponent(SpriteRenderer, {
                 textureKey: spriteKey,
                 sizeScale: spriteScale,
@@ -302,7 +302,7 @@ export default class GameplayScene extends Phaser.Scene {
 
               // Use the animal type from level data to match the draggable counterpart
               const blockerSpriteKey = _level[currentEntity].Animal;
-              const blockerSpriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.56;
+              const blockerSpriteScale = (this.grid.cellWidth * 0.8) / 128 * 0.336;
               blocker.addComponent(SpriteRenderer, {
                 textureKey: blockerSpriteKey,
                 sizeScale: blockerSpriteScale,
