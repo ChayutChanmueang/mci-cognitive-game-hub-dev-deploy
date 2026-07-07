@@ -57,6 +57,7 @@ export class MinigameHUD {
             "zoo-feeder",
             "medicine-feeder",
             "zoo-detective",
+            "zoo-detective-household",
             "context-clues",
             "symmetry-decor",
             "symmetry-decor-household",

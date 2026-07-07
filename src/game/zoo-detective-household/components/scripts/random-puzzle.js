@@ -8,7 +8,7 @@ export default class RandomPuzzle{
         const config = this.levelConfig[level];
 
         if(!config){
-            throw new Error(`Invalid zoo-detective level: ${level}`);
+            throw new Error(`Invalid zoo-detective-household level: ${level}`);
         }
 
         this.config = {

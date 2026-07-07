@@ -2,9 +2,9 @@
 // Start Menu Panel Settings
 // ---------------------------------------------------------------------------
 export const StartMenuSetting = Object.freeze({
-    title: 'สวนสัตว์นักสืบ',
-    description: 'เกมสังเกตคำใบ้และจัดวางสัตว์ให้ถูกตำแหน่ง',
-    instructions: 'อ่านคำใบ้ทีละข้อ แล้วเลือกสัตว์ไปวางในช่องให้ตรงกับเงื่อนไขทั้งหมด',
+    title: 'นักสืบในบ้าน',
+    description: 'เกมสังเกตคำใบ้และจัดวางของใช้ให้ถูกตำแหน่ง',
+    instructions: 'อ่านคำใบ้ทีละข้อ แล้วเลือกของใช้ไปวางในช่องให้ตรงกับเงื่อนไขทั้งหมด',
     coverImage: 'assets/common/cover/cover_zoo_detective.png',
     titleFontSize: '80px',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
@@ -15,12 +15,12 @@ export const StartMenuSetting = Object.freeze({
         if (level === 2) return 'ตาราง 2x3 / คำใบ้ซับซ้อนขึ้น';
         return 'ตาราง 3x3 / ต้องวิเคราะห์หลายเงื่อนไข';
     },
-    // Panel colour tokens — override the shared CSS defaults for this game
-    panelBorderColor: '#2D8FBA',
-    panelHeaderColor: '#45A9D4',
+    // Panel colour tokens — warm amber/brown household palette
+    panelBorderColor: '#B8860B',
+    panelHeaderColor: '#DAA520',
     // Font colour tokens
-    primaryFontColor: '#235B75',
-    secondaryFontColor: '#3D86A8',
+    primaryFontColor: '#6B4226',
+    secondaryFontColor: '#8B6914',
 });
 
 export const Config = Object.freeze({
@@ -58,44 +58,37 @@ export const PuzzleLevelConfig = Object.freeze({
     3: Object.freeze({ rows: 3, columns: 3, name: "Hard" })
 });
 
-export const AnimalIconAssets = Object.freeze({
-    bear: Object.freeze({ texture: "zoo-detective-animal-bear", path: "assets/common/animal/icons/H_Bear.png" }),
-    cow: Object.freeze({ texture: "zoo-detective-animal-cow", path: "assets/common/animal/icons/H_Cow.png" }),
-    elephant: Object.freeze({ texture: "zoo-detective-animal-elephant", path: "assets/common/animal/icons/H_ele.png" }),
-    fox: Object.freeze({ texture: "zoo-detective-animal-fox", path: "assets/common/animal/icons/H_Fox.png" }),
-    lion: Object.freeze({ texture: "zoo-detective-animal-lion", path: "assets/common/animal/icons/H_Li.png" }),
-    panda: Object.freeze({ texture: "zoo-detective-animal-panda", path: "assets/common/animal/icons/H_Pan.png" }),
-    corn: Object.freeze({ texture: "zoo-detective-food-corn", path: "assets/zoo-feeder/food/Corn.png" }),
-    beef: Object.freeze({ texture: "zoo-detective-food-beef", path: "assets/zoo-feeder/food/Beef.png" }),
-    fish: Object.freeze({ texture: "zoo-detective-food-fish", path: "assets/zoo-feeder/food/Fish.png" })
+export const HouseholdIconAssets = Object.freeze({
+    broom: Object.freeze({ texture: "household-item-broom", path: "assets/symmetry-decor/household-item/Broom.png" }),
+    phone: Object.freeze({ texture: "household-item-phone", path: "assets/symmetry-decor/household-item/Phone.png" }),
+    umbrella: Object.freeze({ texture: "household-item-umbrella", path: "assets/symmetry-decor/household-item/Umbrella.png" }),
+    bowl: Object.freeze({ texture: "household-item-bowl", path: "assets/symmetry-decor/household-item/bowl.png" }),
+    glasses: Object.freeze({ texture: "household-item-glasses", path: "assets/symmetry-decor/household-item/glasses.png" }),
+    keys: Object.freeze({ texture: "household-item-keys", path: "assets/symmetry-decor/household-item/keys.png" }),
+    purse: Object.freeze({ texture: "household-item-purse", path: "assets/symmetry-decor/household-item/purse.png" }),
+    remote: Object.freeze({ texture: "household-item-remote", path: "assets/symmetry-decor/household-item/remote.png" }),
+    scissors: Object.freeze({ texture: "household-item-scissors", path: "assets/symmetry-decor/household-item/scissor2.png" }),
 });
 
+// Keep the same export names for API compatibility with the game engine
+export const AnimalIconAssets = HouseholdIconAssets;
+
 export const DefaultAnimals = Object.freeze([
-    Object.freeze({ id: "bear", label: "หมี", icon: "🐻", ...AnimalIconAssets.bear }),
-    Object.freeze({ id: "lion", label: "สิงโต", icon: "🦁", ...AnimalIconAssets.lion }),
-    Object.freeze({ id: "elephant", label: "ช้าง", icon: "🐘", ...AnimalIconAssets.elephant }),
-    /*    Object.freeze({ id: "giraffe", label: "ยีราฟ", icon: "🦒" }),
-        Object.freeze({ id: "monkey", label: "ลิง", icon: "🐒" }),
-        Object.freeze({ id: "zebra", label: "ม้าลาย", icon: "🦓" }),*/
-    Object.freeze({ id: "panda", label: "แพนด้า", icon: "🐼", ...AnimalIconAssets.panda }),
-    /*    Object.freeze({ id: "tiger", label: "เสือ", icon: "🐯" }),
-        Object.freeze({ id: "hippo", label: "ฮิปโป", icon: "🦛" }),*/
-    Object.freeze({ id: "fox", label: "จิ้งจอก", icon: "🦊", ...AnimalIconAssets.fox }),
-    //Object.freeze({ id: "koala", label: "โคอาลา", icon: "🐨" }),
-    Object.freeze({ id: "cow", label: "วัว", icon: "🐮", ...AnimalIconAssets.cow }),
-    /*    Object.freeze({ id: "pig", label: "หมู", icon: "🐷" }),
-        Object.freeze({ id: "frog", label: "กบ", icon: "🐸" }),
-        Object.freeze({ id: "chicken", label: "ไก่", icon: "🐔" }),
-        Object.freeze({ id: "penguin", label: "เพนกวิน", icon: "🐧" })*/
-    Object.freeze({ id: "corn", label: "ข้าวโพด", icon: "🌽", ...AnimalIconAssets.corn }),
-    Object.freeze({ id: "beef", label: "เนื้อวัว", icon: "🥩", ...AnimalIconAssets.beef }),
-    Object.freeze({ id: "salmon", label: "เนื้อปลา", icon: "🐟", ...AnimalIconAssets.fish }),
+    Object.freeze({ id: "broom", label: "ไม้กวาด", icon: "🧹", ...HouseholdIconAssets.broom }),
+    Object.freeze({ id: "phone", label: "โทรศัพท์", icon: "📱", ...HouseholdIconAssets.phone }),
+    Object.freeze({ id: "umbrella", label: "ร่ม", icon: "☂️", ...HouseholdIconAssets.umbrella }),
+    Object.freeze({ id: "bowl", label: "ชาม", icon: "🥣", ...HouseholdIconAssets.bowl }),
+    Object.freeze({ id: "glasses", label: "แว่นตา", icon: "👓", ...HouseholdIconAssets.glasses }),
+    Object.freeze({ id: "keys", label: "กุญแจ", icon: "🔑", ...HouseholdIconAssets.keys }),
+    Object.freeze({ id: "purse", label: "กระเป๋า", icon: "👛", ...HouseholdIconAssets.purse }),
+    Object.freeze({ id: "remote", label: "รีโมท", icon: "📺", ...HouseholdIconAssets.remote }),
+    Object.freeze({ id: "scissors", label: "กรรไกร", icon: "✂️", ...HouseholdIconAssets.scissors }),
 ]);
 
 export const GameplayConfig = Object.freeze({
     stageLabel: "เลเวล",
     promptJoiner: "\n",
-    defaultPromptFallback: "วางสัตว์ตามคำใบ้ลงไปในช่องด้านล่าง",
+    defaultPromptFallback: "วางของใช้ตามคำใบ้ลงไปในช่องด้านล่าง",
     hintDirection: {
         up: "อยู่ด้านบน",
         down: "อยู่ด้านล่าง",
@@ -112,6 +105,6 @@ export const LevelMap = Object.freeze({
 });
 
 export const POPUP = Object.freeze({
-    POPUPTITLE: "สวนสัตว์นักสืบ",
-    POPUPTEXT: "ฝึกสมองด้วยปริศนาจัดบ้านสัตว์ สังเกตคำใบ้ แล้ววางสัตว์ให้ถูกที่!"
+    POPUPTITLE: "นักสืบในบ้าน",
+    POPUPTEXT: "ฝึกสมองด้วยปริศนาจัดของในบ้าน สังเกตคำใบ้ แล้ววางของใช้ให้ถูกที่!"
 })

@@ -23,7 +23,7 @@ export class Boot extends Scene
             'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
             'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
         };
-        EventBus.emit('audio:register', 'zoo-detective', sounds);
+        EventBus.emit('audio:register', 'zoo-detective-household', sounds);
 
         this.scene.start('Preloader');
     }

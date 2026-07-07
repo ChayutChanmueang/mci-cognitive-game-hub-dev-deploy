@@ -87,6 +87,7 @@ const BACK_BUTTON_PROTECTED_SLUGS = new Set([
     "symmetry-decor-household",
     "context-clues",
     "zoo-detective",
+    "zoo-detective-household",
     "fry-food",
 ]);
 const GAME_COLORS = Object.freeze({
@@ -97,6 +98,7 @@ const GAME_COLORS = Object.freeze({
     "symmetry-decor-household": { border: "#446A46", header: "#619B64", textPrimary: "#2C452E", textSecondary: "#3E6641" },
     "postcard-reader": { border: "#54AC24", header: "#65BD35", textPrimary: "#446930", textSecondary: "#6F9F55" },
     "context-clues": { border: "#C73969", header: "#E34F81", textPrimary: "#8F2448", textSecondary: "#C8577C" },
+    "zoo-detective-household": { border: "#B8860B", header: "#DAA520", textPrimary: "#6B4226", textSecondary: "#8B6914" },
     "fry-food": { border: "#DE8D23", header: "#FEA837", textPrimary: "#945E17", textSecondary: "#DE8519" },
 });
 let activeThemeColors = null;

@@ -6,7 +6,7 @@ import { StartMenuSetting } from '../constants.js';
 
 export default class StartMenuScene extends Phaser.Scene {
     constructor() {
-        super('zoo-detective-start-menu-scene');
+        super('zoo-detective-household-start-menu-scene');
     }
 
     preload() {
@@ -24,10 +24,10 @@ export default class StartMenuScene extends Phaser.Scene {
             'wrong': { src: ['assets/audio/common/sfx/Wrong.wav'] },
             'endgame': { src: ['assets/audio/common/sfx/EndGame.mp3'] }
         };
-        EventBus.emit('audio:register', 'zoo-detective', sounds);
+        EventBus.emit('audio:register', 'zoo-detective-household', sounds);
 
         // Play BGM
-        EventBus.emit('audio:bgm', 'zoo-detective');
+        EventBus.emit('audio:bgm', 'zoo-detective-household');
 
         EventBus.emit('minigame:hide-hud');
 
@@ -47,7 +47,7 @@ export default class StartMenuScene extends Phaser.Scene {
                 secondaryFontColor: StartMenuSetting.secondaryFontColor,
                 titleFontSize: StartMenuSetting.titleFontSize,
                 coverImage: StartMenuSetting.coverImage,
-                panelClass: 'result-panel--zoo-detective',
+                panelClass: 'result-panel--zoo-detective-household',
             });
             this.startMenuPanel.render();
         }

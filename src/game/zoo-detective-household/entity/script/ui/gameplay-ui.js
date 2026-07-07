@@ -65,7 +65,7 @@ export default class GameplayUI extends Entity{
         this.NextQuizPanel = new NextQuizPanel(scene);
 
         /*this.returnBtn = scene.createButton(scene.scale.width / 2 - 325, 105, "◀️ RETURN", () => {
-            EventBus.emit("minigame:level-select-request", { source: "zoo-detective-gameplay" });
+            EventBus.emit("minigame:level-select-request", { source: "zoo-detective-household-gameplay" });
         });
 
         this.returnBtn[0].setDepth(this.uiDepth);*/

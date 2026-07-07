@@ -6,7 +6,7 @@ import Theme from "../../../util/game-theme.js";
 import HintLineViewer from "../components/scripts/hint-line-viewer.js";
 import RandomPuzzle from "../components/scripts/random-puzzle.js";
 import { AnimalIconAssets, DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevelConfig } from "../constants.js";
-import {Config} from "../../zoo-detective/constants.js";
+import {Config} from "../constants.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
@@ -141,13 +141,13 @@ export default class GameplayScene extends Phaser.Scene {
             } : null;
 
             if (!callback.isCorrect && !isReplacingSameCell) {
-                EventBus.emit('audio:play', 'zoo-detective:wrong');
+                EventBus.emit('audio:play', 'zoo-detective-household:wrong');
                 if (cell) {
                     this.flashCellErrorBorder(cell);
                 }
             } else if (callback.isCorrect) {
                 this.increaseScore(Config.IncreaseScore[this.levelMap], cellPosition);
-                EventBus.emit('audio:play', 'zoo-detective:correct');
+                EventBus.emit('audio:play', 'zoo-detective-household:correct');
             }
 
             this.replayLog.addAnswerEvent(GlobalReplayEvent.ANSWER_SUBMITTED, {
@@ -238,7 +238,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.gameplayUI?.setScore(this.allScore);
         this.gameplayUI?.showGameOverPanel(this.allScore, resultStatus);
         
-        EventBus.emit('audio:play', 'zoo-detective:endgame');
+        EventBus.emit('audio:play', 'zoo-detective-household:endgame');
         EventBus.emit('minigame:game-over', { 
             score: this.allScore,
             level: this.level,

@@ -25,11 +25,11 @@ export default class GameOverPanel extends UIPanel{
         this.highscoreText.setScale(1.5);
 
         this.levelSelectBtn = this.createButton(0,175, "เลือกเลเวล", () => {
-            EventBus.emit("minigame:level-select-request", { source: "zoo-detective-game-over" });
+            EventBus.emit("minigame:level-select-request", { source: "zoo-detective-household-game-over" });
         });
 
         this.homeBtn = this.createButton(0,265, "กลับหน้าหลัก", () => {
-            EventBus.emit("minigame:exit-confirmed", { source: "zoo-detective-game-over" });
+            EventBus.emit("minigame:exit-confirmed", { source: "zoo-detective-household-game-over" });
         });
 
         this.addElements([this.titleText, this.scoreText, this.highscoreText,...this.levelSelectBtn,...this.homeBtn]);
