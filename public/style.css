@@ -2986,13 +2986,23 @@ md-linear-progress.no-transition::part(bar) {
     left: 0;
     pointer-events: none;
 }
+.minigame-hud--zoo-feeder .minigame-hud__center-group.minigame-hud__center-group--push-right {
+    left: auto !important;
+    right: 20px !important;
+    width: auto !important;
+}
 .minigame-hud__exit-btn-inline {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
     display: block;
     height: auto;
     width: 60px;
     object-fit: contain;
     cursor: pointer;
     pointer-events: auto;
+    z-index: 10;
 }
 .minigame-hud--zoo-feeder .minigame-hud__score-box,
 .minigame-hud--zoo-feeder .minigame-hud__time-box {

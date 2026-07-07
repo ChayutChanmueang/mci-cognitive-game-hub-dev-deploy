@@ -71,8 +71,8 @@ export class MinigameHUD {
             const iconSrc = "assets/icon_star.png";
 
             topbarHtml = `
+                <img id="hud-exit-button" src="assets/common/ui_icon/return_btn.png" alt="Return" class="minigame-hud__exit-btn-inline" />
                 <div class="minigame-hud__center-group">
-                    <img id="hud-exit-button" src="assets/common/ui_icon/return_btn.png" alt="Return" class="minigame-hud__exit-btn-inline" />
                     <div class="minigame-hud__score-box">
                         <img src="${iconSrc}" class="minigame-hud__score-star" alt="icon" />
                         <span class="minigame-hud__score-text"><span id="hud-score">${scoreLabelText}</span></span>
@@ -142,18 +142,48 @@ export class MinigameHUD {
         this.resizeObserver = new ResizeObserver((entries) => {
             for (let entry of entries) {
                 const width = entry.contentRect.width;
+                const height = entry.contentRect.height;
                 const topbar = this.element.querySelector(".minigame-hud__topbar");
                 const centerGroup = this.element.querySelector(".minigame-hud__center-group");
+                const exitBtn = this.element.querySelector("img.minigame-hud__exit-btn-inline");
                 
-                if (topbar && centerGroup) {
-                    // Center group contains exit btn, score box, time box
-                    const minWidth = 486;
-                    if (width < minWidth && width > 0) {
-                        const ratio = width / minWidth;
-                        centerGroup.style.transform = `scale(${ratio})`;
-                        centerGroup.style.transformOrigin = "center center";
+                if (topbar && centerGroup && exitBtn) {
+                    const heightRatio = height > 0 ? height / 932 : 1;
+
+                    // Score star icon overflows left by 30px, so we need extra buffer
+                    const breakpointOverlapCenter = 590 * heightRatio;
+                    const breakpointOverlapRight = 480 * heightRatio;
+                    
+                    let scale = heightRatio;
+
+                    if (width < breakpointOverlapRight && width > 0) {
+                        // Needs additional scaling to fit width if height scaling wasn't enough
+                        scale = width / 480; 
+                        centerGroup.classList.add("minigame-hud__center-group--push-right");
+                    } else if (width < breakpointOverlapCenter && width > 0) {
+                        // Right alignment only
+                        centerGroup.classList.add("minigame-hud__center-group--push-right");
                     } else {
-                        centerGroup.style.transform = "";
+                        // Normal centered state
+                        centerGroup.classList.remove("minigame-hud__center-group--push-right");
+                    }
+
+                    // Apply final scale to components
+                    centerGroup.style.transform = `scale(${scale})`;
+                    centerGroup.style.transformOrigin = centerGroup.classList.contains("minigame-hud__center-group--push-right") ? "right center" : "center center";
+                    
+                    exitBtn.style.transform = `translateY(-50%) scale(${scale})`;
+                    exitBtn.style.transformOrigin = "left center";
+
+                    // Scale the topbar background height
+                    topbar.style.height = `${99 * scale}px`;
+                    
+                    // Also scale the timer wrap if it exists for postcard-reader and fry-food
+                    const timerWrap = this.element.querySelector(".minigame-hud__timer-wrap");
+                    if (timerWrap && (this.options.gameSlug === "postcard-reader" || this.options.gameSlug === "fry-food")) {
+                        timerWrap.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
+                        timerWrap.style.setProperty('transform-origin', 'top center', 'important');
+                        timerWrap.style.setProperty('top', `${105 * scale}px`, 'important');
                     }
                 }
             }
