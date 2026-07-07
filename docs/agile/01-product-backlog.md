@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-07
+**Last Updated:** 2026-07-07 | **Release:** [v1.0.0](../changelog.md) — Stable production build
 
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"

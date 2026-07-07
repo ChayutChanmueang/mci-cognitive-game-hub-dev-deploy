@@ -15,7 +15,7 @@
 | [sprint-05](sprint-backlogs/sprint-05.md) | May 06-19     | User Management & Progression Overhaul | Completed |
 | [sprint-06](sprint-backlogs/sprint-06.md) | May 20-31     | Integration, Analytics & Admin | Completed |
 | Post-Sprint Hardening | Jun 01-16 | Deployment stabilization, branch cleanup, documentation sync | Completed |
-| [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 06 | **(Current)** Game Art Assets, Version Display & Mini-game Vertical Responsiveness | In-Progress |
+| [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -38,7 +38,8 @@ gantt
     section Hardening
     Deploy stabilization & docs sync :done, harden, 2026-06-01, 16d
     section Sprint 7
-    Art assets, version display & vertical responsive :active, s7, 2026-06-23, 14d
+    Art assets, version display & vertical responsive :done, s7, 2026-06-23, 14d
+    v1.0.0 stable release :milestone, rel10, 2026-07-07, 1d
 ```
 
 ---
@@ -54,7 +55,7 @@ gantt
 - **[sprint-05](sprint-backlogs/sprint-05.md)**: User Management & Progression Overhaul
 - **[sprint-06](sprint-backlogs/sprint-06.md)**: Integration, Analytics & Admin Dashboard
 - **Post-Sprint Hardening**: Stabilize deployment branches, verify Docker/nginx production build, fix stale leaderboard branch drift, and refresh documentation
-- **[sprint-07](sprint-backlogs/sprint-07.md)**: Game Art Assets, Version Display & Mini-game Vertical Responsiveness
+- **[sprint-07](sprint-backlogs/sprint-07.md)**: Game Art Assets, Version Display & Mini-game Vertical Responsiveness — **Completed → [v1.0.0](../changelog.md) stable release (2026-07-07)**
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
@@ -83,7 +84,7 @@ gantt
 
 ### 🎨 E7: Game Art Assets & UI/UX Polish
 - **Sprint 7:** เพิ่ม game art assets ให้หน้าจอ DOM หลัก (Leaderboard, Login, Sign-up, Player-Info, Popup), แสดงเลขเวอร์ชันบนตัวเกมหลัก (ซ่อนในมินิเกม) และทำให้มินิเกมยืดแนวตั้งได้ (Vertical Responsive)
-- **Target:** ชั้นการนำเสนอ (presentation layer) มีเอกลักษณ์ภาพครบทุกหน้าจอหลัก และมินิเกมแสดงผลเต็มจอแนวตั้งบนมือถือทุกอัตราส่วนเมื่อจบ Sprint 7
+- **Target:** ชั้นการนำเสนอ (presentation layer) มีเอกลักษณ์ภาพครบทุกหน้าจอหลัก — **shipped in v1.0.0** (2026-07-07). Post-1.0 follow-ups: US-E7-06 (vertical responsive), US-E7-08/11/12.
 
 ---
 

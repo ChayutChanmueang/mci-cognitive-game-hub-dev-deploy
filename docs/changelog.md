@@ -2,7 +2,7 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
-> Project version follows [Semantic Versioning 2.0.0](https://semver.org). Source of truth: `package.json`. The game is **pre-beta**, so it stays in the `0.x` line (SemVer rule 4 — "anything MAY change"); we do **not** bump to `1.0.0` until a stable, production public API is declared. Within `0.x`: new backward-compatible functionality bumps MINOR; bug fixes bump PATCH.
+> Project version follows [Semantic Versioning 2.0.0](https://semver.org). Source of truth: `package.json`. **v1.0.0** (2026-07-07) is the first **stable production release** — owner-declared full build after Sprint 7 merge to `development`. Post-1.0: backward-compatible features bump **MINOR** (`1.Y.0`); bug fixes bump **PATCH** (`1.0.Z`). The pre-1.0 `0.x` line (Feb–Jul 2026) is preserved in the version history below.
 >
 > ⚠️ **REMINDER — bump the version with the change, not "at ship".** Every change that adds functionality (MINOR) or fixes a bug (PATCH) **must** apply the version bump in lockstep — update `package.json` **and** this changelog **and** every doc that cites the version — following the **[semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md)** (see its §4 decision procedure + §5 update protocol + §9 checklist). Do **not** defer bumps to release time and do **not** bump PATCH for new features. When several unreleased changes accumulate, the highest applicable part wins and they share one version.
 
@@ -46,9 +46,27 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.27.0` | 2026-07-06 | US-E7-26: additional Leaderboard layout pass — refined row / top-bar / bottom-status spacing & alignment and constrained page content to a centered `max 720px` wrapper (built on the US-E7-01 `gh-leaderboard-*` art); scales via `--gh-scale` |
 | `0.28.0` | 2026-07-06 | US-E7-23: Context Clues easier answer placement — larger, independently tunable answer-box / blank-slot hit areas (`answerBox.hitArea`/`hitOffset`) + overlap-based drop in `DragDropManager` (`overlapDrop`: a word snaps in when its box overlaps an accepting zone, no pixel-perfect pointer aim) |
 | `0.29.0` | 2026-07-06 | US-E7-24 (Fry Food → **Physical** category on Game Hub), US-E7-27 (offline "อินเทอร์เน็ตหายไปแล้ว" popup + `InternetManager`, gender art buffered as data URLs for offline render), US-E7-28 (program-complete popup shows Thai-era **start/end dates**) |
-| `0.30.0` | 2026-07-07 | **(current)** US-E7-09 (Postcard Reader voice/font), US-E7-14 (Game Hub layout — spacing/swap/shadow), US-E7-15 (standardized green/red buttons); BUG-004 Resolved (black background after full-screen minigame) |
+| `0.30.0` | 2026-07-07 | US-E7-09 (Postcard Reader voice/font), US-E7-14 (Game Hub layout — spacing/swap/shadow), US-E7-15 (standardized green/red buttons); BUG-004 Resolved (black background after full-screen minigame) |
+| `1.0.0` | 2026-07-07 | **(current — stable release)** First production-ready full build: owner-declared milestone after `features/game-hub` → `development` merge; core patient/admin flows, 14-day Game Hub program, minigame suite, PWA, Supabase persistence, Docker/nginx deploy |
 
-> The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+> The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.0.0] - 2026-07-07
+**Version bump:** `0.30.0 → 1.0.0` (**MAJOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — deliberate stable-release milestone: owner confirms the game is **production-ready / full build** after Sprint 7 work merged to `development`. Resets MINOR and PATCH to 0.
+
+### Release highlights
+- **Patient flow (complete):** Welcome → Login/Sign-up → Game Hub → daily minigames → check-in / profile / leaderboard.
+- **14-day cognitive program:** level progression, daily goals, rest nodes, program-complete popup with Thai-era start/end dates (US-E7-28), block play before program start date (US-E7-29).
+- **Minigame suite:** Zoo Detective, Zoo Feeder, Context Clues, Symmetry Decor, Postcard Reader, Resting Point, Fry Food (accelerometer + iOS gyro).
+- **Presentation layer (Sprint 7):** Figma-derived DOM UI (Leaderboard, Login, Sign-up, Player-Info, popups), gender-based คุณตา/คุณยาย art, Toast, transitions, offline popup + `InternetManager` (US-E7-27), version badge (US-E7-05).
+- **Platform:** Installable PWA, service worker, VideoPlayer (check-in / rest), Supabase + edge-function fallbacks, CSV export, admin tools, Docker/nginx production build.
+- **Stability fixes shipped in 0.x line:** BUG-004/005/006/007 resolved; boot loading overlay; route-version guard; scroll containment.
+
+### Known follow-up (post-1.0 backlog — not blocking this release)
+- US-E7-06 (minigame vertical responsive), US-E7-08/11/12 (doctor feedback), US-E5-03 (delete-account UI), TD-DB-01.
+
+### Docs
+- Bumped `package.json`, `docs/index.md`, `docs/changelog.md`, sprint planning — project status → **Stable Release 1.0.0**.
 
 ## [0.30.0] - 2026-07-07
 **Version bump:** `0.29.0 → 0.30.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — three Sprint 7 user stories verified complete by the owner plus one bug fix; highest applicable part (MINOR) wins.
