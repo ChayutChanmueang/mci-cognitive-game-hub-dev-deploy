@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-06
+**Last Updated:** 2026-07-07
 
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"
@@ -78,13 +78,13 @@
 | [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
 | [US-E7-07](./user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | ✅ Done |
 | [US-E7-08](./user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
-| [US-E7-09](./user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
+| [US-E7-09](./user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | ✅ Done |
 | [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (sparkle เริ่มแล้ว) | Med | ✅ Done* |
 | [US-E7-11](./user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
 | [US-E7-12](./user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
 | [US-E7-13](./user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | ✅ Done |
-| [US-E7-14](./user-stories/US-E7-14.md) | ปรับ Layout หน้าหลัก Game Hub (ระยะเลเวล, สลับชื่อเกม/หมวด, เงาตัวละคร) | Med | 📋 Backlog |
-| [US-E7-15](./user-stories/US-E7-15.md) | ระบบสีปุ่มมาตรฐาน (เขียว = ยืนยัน, แดง = ยกเลิก) | Med | 📋 Backlog |
+| [US-E7-14](./user-stories/US-E7-14.md) | ปรับ Layout หน้าหลัก Game Hub (ระยะเลเวล, สลับชื่อเกม/หมวด, เงาตัวละคร) | Med | ✅ Done |
+| [US-E7-15](./user-stories/US-E7-15.md) | ระบบสีปุ่มมาตรฐาน (เขียว = ยืนยัน, แดง = ยกเลิก) | Med | ✅ Done |
 | [US-E7-16](./user-stories/US-E7-16.md) | แก้ Popup (ตัด popup หลังดูละคร + เข้าเกมซ้ำในวันที่เล่นจบแล้ว + เปลี่ยน emoji popup จบโปรแกรมเป็นคุณตา/ยาย) | Med | ✅ Done |
 | [US-E7-17](./user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
 | [US-E7-18](./user-stories/US-E7-18.md) | ย้าย feedback ข้อความ (error/สถานะ) → Toast component แบบ Android | Med | ✅ Done |

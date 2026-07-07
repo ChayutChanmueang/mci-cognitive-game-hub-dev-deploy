@@ -28,11 +28,11 @@ export function renderWelcomeScreen(root, options = {}) {
         
         <!-- US-E7-22: partner/supporter logos, bottom row -->
         <div class="landing-screen__partners" aria-label="หน่วยงานที่เกี่ยวข้อง">
-            <img class="landing-screen__partner-logo" src="/assets/common/Logo/CAMT.png" alt="วิทยาลัยศิลปะ สื่อ และเทคโนโลยี มหาวิทยาลัยเชียงใหม่ (CAMT)" />
-            <img class="landing-screen__partner-logo" src="/assets/common/Logo/NAPLAB.png" alt="NAPLAB Game Studio" />
-            <img class="landing-screen__partner-logo" src="/assets/common/Logo/CMU-Logo.png" alt="มหาวิทยาลัยเชียงใหม่ (Chiang Mai University)" />
-            <img class="landing-screen__partner-logo" src="/assets/common/Logo/MedCMU.png" alt="คณะแพทยศาสตร์ มหาวิทยาลัยเชียงใหม่ (MedCMU)" />
-            <img class="landing-screen__partner-logo" src="/assets/common/Logo/NRCT.png" alt="สำนักงานการวิจัยแห่งชาติ (วช. / NRCT)" />
+            <img class="landing-screen__partner-logo-nrct" src="/assets/common/Logo/NRCT.png" alt="สำนักงานการวิจัยแห่งชาติ (วช. / NRCT)" />
+            <img class="landing-screen__partner-logo-medcmu" src="/assets/common/Logo/MedCMU.png" alt="คณะแพทยศาสตร์ มหาวิทยาลัยเชียงใหม่ (MedCMU)" />
+            <img class="landing-screen__partner-logo-cmu" src="/assets/common/Logo/CMU-Logo.png" alt="มหาวิทยาลัยเชียงใหม่ (Chiang Mai University)" />
+            <img class="landing-screen__partner-logo-camt" src="/assets/common/Logo/CAMT.png" alt="วิทยาลัยศิลปะ สื่อ และเทคโนโลยี มหาวิทยาลัยเชียงใหม่ (CAMT)" />
+            <img class="landing-screen__partner-logo-naplab" src="/assets/common/Logo/NAPLAB.png" alt="NAPLAB Game Studio" />
         </div>
     `;
 

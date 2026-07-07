@@ -63,13 +63,15 @@ export function renderLeaderboardScreen(root, options = {}) {
                 ? `<div class="gh-leaderboard-list">${renderRows(players)}</div>`
                 : `<div class="gh-leaderboard-empty"><p>ยังไม่มีข้อมูลคะแนน</p></div>`;
 
-        const bottomMarkup = !loading && currentRankInfo?.rank
-            ? renderLeaderboardBottomStatus({
-                rank: currentRankInfo.rank,
-                playerName: currentRankInfo.name || patientLabel,
-                score: formatScore(currentRankInfo.score || 0),
-            })
-            : "";
+        const bottomMarkup =
+            !loading && currentRankInfo != null
+                ? renderLeaderboardBottomStatus({
+                      // New accounts may have no rank yet — show ∞ until a score is recorded.
+                      rank: currentRankInfo.rank != null ? currentRankInfo.rank : "∞",
+                      playerName: currentRankInfo.name || patientLabel,
+                      score: formatScore(currentRankInfo.score ?? 0),
+                  })
+                : "";
 
         root.innerHTML = `
             <section class="leaderboard-clean-screen leaderboard-screen" aria-labelledby="leaderboard-title">
