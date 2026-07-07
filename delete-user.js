@@ -2,9 +2,10 @@
 /**
  * delete-user.js — CLI-only tool to permanently delete patient accounts.
  *
- * Deletes a user's rows from every table that has a foreign key to
- * `user_data.hn`, then the `user_data` row itself, inside a best-effort
- * ordered cascade (children first, root last).
+ * Deletes a user's `user_data` row(s). Every table with a foreign key to
+ * `user_data` uses ON DELETE CASCADE, so all linked rows (game logs, history,
+ * event logs, roles, etc.) are removed automatically and atomically by the
+ * database in a single statement — no manual table ordering required.
  *
  * Environment (loaded from the project `.env`, same variables as the app):
  *   SUPABASE_URL              (or VITE_SUPABASE_URL)   — Supabase project URL
@@ -26,16 +27,22 @@ import { parseArgs } from "node:util";
 import { pathToFileURL } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 
-// Child tables carrying a direct FK to user_data.hn, in delete order
-// (children first). The root table is deleted last. Keep this in sync with
-// the schema (docs/software/03-data-schema.md); tables are deleted in the
-// order listed here.
-const CHILD_TABLES = [
-    "game_replay_log",
-    "user_game_history",
-    "user_game_profile_data",
-];
+// Root table we delete from. Everything else cascades from the DB constraints.
 const ROOT_TABLE = "user_data";
+
+// Tables that cascade when a user_data row is deleted — informational only,
+// used to render a preview in --dry-run. `via` is the user_data column the
+// table's `column` points at (kept in sync with the ON DELETE CASCADE FKs;
+// see docs/software/03-data-schema.md).
+const CASCADE_TABLES = [
+    { table: "game_replay_log", column: "hn", via: "hn" },
+    { table: "game_user_log", column: "hn", via: "hn" },
+    { table: "user_game_history", column: "hn", via: "hn" },
+    { table: "user_game_profile_data", column: "hn", via: "hn" },
+    { table: "user_event_log", column: "user_id", via: "id" },
+    { table: "user_personnel", column: "user_id", via: "id" },
+    { table: "user_roles", column: "user_id", via: "id" },
+];
 
 const HELP = `delete-user.js — permanently delete patient accounts (CLI only)
 
@@ -52,6 +59,10 @@ Options:
   --yes        Confirm a destructive --all run.
   --dry-run    Print the plan (and row counts if reachable) without deleting.
   --help       Show this help.
+
+Linked rows in game_replay_log, game_user_log, user_game_history,
+user_game_profile_data, user_event_log, user_personnel and user_roles are
+removed automatically via ON DELETE CASCADE.
 
 Environment (from .env):
   SUPABASE_URL / VITE_SUPABASE_URL              Supabase project URL
@@ -120,18 +131,13 @@ async function main() {
         fail("Refusing to delete ALL users without --yes. Add --yes to confirm.");
     }
 
-    // Describe the plan (children first, root last).
-    const orderedTables = [...CHILD_TABLES, ROOT_TABLE];
     const scope = deleteAll ? "ALL users" : `HN: ${hnList.join(", ")}`;
     console.log(`Target: ${scope}`);
-    console.log("Planned deletes (order matters):");
-    for (const table of orderedTables) {
-        console.log(
-            deleteAll
-                ? `  - DELETE FROM ${table}  (all rows)`
-                : `  - DELETE FROM ${table} WHERE hn IN (${hnList.join(", ")})`,
-        );
-    }
+    console.log(
+        deleteAll
+            ? `Plan: DELETE FROM ${ROOT_TABLE} (all rows) — linked rows cascade.`
+            : `Plan: DELETE FROM ${ROOT_TABLE} WHERE hn IN (${hnList.join(", ")}) — linked rows cascade.`,
+    );
 
     // Resolve credentials.
     const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -163,41 +169,50 @@ async function main() {
         auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Helper: build a delete/select query scoped to the selection.
-    const scoped = (query) =>
-        deleteAll ? query.not("id", "is", null) : query.in("hn", hnList);
-
     if (dryRun) {
-        console.log("\n[dry-run] Row counts that would be deleted:");
-        for (const table of orderedTables) {
-            const { count, error } = await scoped(
-                client.from(table).select("id", { count: "exact", head: true }),
-            );
-            if (error) {
-                console.log(`  - ${table}: (count failed: ${error.message})`);
-            } else {
-                console.log(`  - ${table}: ${count ?? 0} row(s)`);
-            }
+        // Resolve the internal ids of the targeted users so we can count the
+        // tables that reference user_data.id (not hn).
+        let targetIds = [];
+        if (!deleteAll) {
+            const { data, error } = await client
+                .from(ROOT_TABLE)
+                .select("id")
+                .in("hn", hnList);
+            if (error) fail(`Lookup of target users failed: ${error.message}`);
+            targetIds = (data || []).map((r) => r.id);
+        }
+
+        const countFor = async (table, column, keys) => {
+            let query = client.from(table).select("*", { count: "exact", head: true });
+            query = deleteAll ? query.not(column, "is", null) : query.in(column, keys);
+            const { count, error } = await query;
+            return error ? `(count failed: ${error.message})` : `${count ?? 0} row(s)`;
+        };
+
+        console.log("\n[dry-run] Rows that would be deleted:");
+        console.log(
+            `  - ${ROOT_TABLE}: ${await countFor(ROOT_TABLE, "hn", hnList)}`,
+        );
+        for (const { table, column, via } of CASCADE_TABLES) {
+            const keys = via === "hn" ? hnList : targetIds;
+            console.log(`  - ${table} (cascade): ${await countFor(table, column, keys)}`);
         }
         console.log("\n[dry-run] No rows were deleted.");
         return;
     }
 
-    // Execute the cascade: children first, then the root table.
-    let totalDeleted = 0;
-    for (const table of orderedTables) {
-        const { data, error } = await scoped(
-            client.from(table).delete().select("id"),
-        );
-        if (error) {
-            fail(`Delete from ${table} failed: ${error.message}`);
-        }
-        const removed = data ? data.length : 0;
-        totalDeleted += removed;
-        console.log(`[ok] deleted ${removed} row(s) from ${table}`);
+    // Execute: a single delete on user_data; the DB cascades the rest atomically.
+    const query = client.from(ROOT_TABLE).delete().select("id");
+    const { data, error } = deleteAll
+        ? await query.not("id", "is", null)
+        : await query.in("hn", hnList);
+    if (error) {
+        fail(`Delete from ${ROOT_TABLE} failed: ${error.message}`);
     }
-
-    console.log(`[done] Removed ${totalDeleted} row(s) for ${scope}.`);
+    const removed = data ? data.length : 0;
+    console.log(
+        `[done] Deleted ${removed} ${ROOT_TABLE} row(s) for ${scope}; linked rows cascaded.`,
+    );
 }
 
 // CLI-only guard: run only when invoked directly as a script, never on import.

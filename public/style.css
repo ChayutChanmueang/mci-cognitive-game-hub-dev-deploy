@@ -386,10 +386,10 @@ body.game-mode .app-version-badge {
 /* US-E7-22: partner / supporter logo row at the bottom of the landing screen. */
 .landing-screen__partners {
     position: absolute;
-    bottom: 15px;
     align-self: end;
     width: 100%;
-    max-width: 640px;
+    height: 70px;
+    background-color: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -397,8 +397,32 @@ body.game-mode .app-version-badge {
     gap: clamp(12px, 3.5vw, 30px);
 }
 
-.landing-screen__partner-logo {
-    height: clamp(30px, 8vw, 46px);
+.landing-screen__partner-logo-nrct {
+    height: clamp(36px, 15vw, 58px);
+    width: auto;
+    object-fit: contain;
+}
+
+.landing-screen__partner-logo-medcmu {
+    height: clamp(36px, 13vw, 56px);
+    width: auto;
+    object-fit: contain;
+}
+
+.landing-screen__partner-logo-cmu {
+    height: clamp(32px, 6vw, 34px);
+    width: auto;
+    object-fit: contain;
+}
+
+.landing-screen__partner-logo-camt {
+    height: clamp(36px, 9vw, 40px);
+    width: auto;
+    object-fit: contain;
+}
+
+.landing-screen__partner-logo-naplab {
+    height: clamp(38px, 11vw, 42px);
     width: auto;
     object-fit: contain;
 }
