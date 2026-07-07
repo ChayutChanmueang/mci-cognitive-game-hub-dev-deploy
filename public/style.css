@@ -2694,6 +2694,7 @@ body.game-mode .app-version-badge {
     right: 0;
     width: 100vw;
     height: 99px;
+    padding: 0 !important;
     background: rgba(128, 128, 128, 0.5) !important;
     backdrop-filter: none !important;
     border: none !important;
@@ -2797,6 +2798,7 @@ md-linear-progress.no-transition::part(bar) {
     font-weight: 800 !important;
     line-height: 1 !important;
     margin-right: 12px;
+    margin-top: -4px !important;
     /* Visual offset to center the number relative to the box */
 }
 
@@ -2975,7 +2977,7 @@ md-linear-progress.no-transition::part(bar) {
 .minigame-hud--zoo-feeder .minigame-hud__center-group {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center !important;
     gap: 30px;
     width: 100%;
     height: 100%;
@@ -2983,6 +2985,14 @@ md-linear-progress.no-transition::part(bar) {
     top: 0;
     left: 0;
     pointer-events: none;
+}
+.minigame-hud__exit-btn-inline {
+    display: block;
+    height: auto;
+    width: 60px;
+    object-fit: contain;
+    cursor: pointer;
+    pointer-events: auto;
 }
 .minigame-hud--zoo-feeder .minigame-hud__score-box,
 .minigame-hud--zoo-feeder .minigame-hud__time-box {
