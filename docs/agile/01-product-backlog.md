@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-06-16
+**Last Updated:** 2026-07-06
 
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"
@@ -34,9 +34,9 @@
 | [US-E3-01](./user-stories/archives/US-E3-01.md) | เกม Zoo Detective (การคิดวิเคราะห์/Executive)                  | High     | ✅ Done  |
 | [US-E3-02](./user-stories/archives/US-E3-02.md) | เกม Zoo Feeder (ความจดจ่อ/Attention)                           | High     | ✅ Done  |
 | [US-E3-03](./user-stories/archives/US-E3-03.md) | เกม Context Clues (คำศัพท์/Language)                           | High     | ✅ Done  |
-| [US-E3-04](./user-stories/US-E3-04.md) | เกม Symmetry Decor (มิติสัมพันธ์/Visuospatial)                 | Med      | ✅ Done  |
-| [US-E3-05](./user-stories/US-E3-05.md) | เกม Postcard Reader (ความจำระยะสั้น/Memory)                    | Med      | ✅ Done  |
-| [US-E3-06](./user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | Low      | 🏗 In-Progress |
+| US-E3-04 | เกม Symmetry Decor (มิติสัมพันธ์/Visuospatial) — ดู [GDD](../gdd/minigames/gdd_symmetry_decor.md) | Med      | ✅ Done  |
+| US-E3-05 | เกม Postcard Reader (ความจำระยะสั้น/Memory) — ดู [GDD](../gdd/minigames/gdd_postcard_reader.md) | Med      | ✅ Done  |
+| [US-E3-06](./user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | Low      | ✅ Done  |
 | [US-E3-07](./user-stories/archives/US-E3-07.md) | เกม Fry Food (ทอดไข่/ทอดอาหาร) และการควบคุมด้วย Accelerometer | Med      | ✅ Done  |
 | [US-E3-08](./user-stories/archives/US-E3-08.md) | ระบบติดตั้งแอปพลิเคชันแบบ Progressive Web App (PWA)            | Low      | ✅ Done  |
 | [UX-RESP-01](./user-stories/archives/UX-RESP-01.md) | กรอบระบบรองรับมือถือและการวิจัยความละเอียดหน้าจอ (Responsive)   | High     | ✅ Done  |
@@ -44,8 +44,8 @@
 ### E4: Data Tracking & Analytics (Supabase) (P1)
 | ID       | User Story                                                    | Priority | Status   |
 | -------- | ------------------------------------------------------------- | -------- | -------- |
-| [US-E4-01](./user-stories/US-E4-01.md) | บันทึกข้อมูลส่วนตัวและเวลาการใช้งาน Gamehub                   | High     | ✅ Done   |
-| [US-E4-02](./user-stories/US-E4-02.md) | บันทึกผลการเล่นมินิเกม (Score, Time, Difficulty)              | High     | ✅ Done   |
+| US-E4-01 | บันทึกข้อมูลส่วนตัวและเวลาการใช้งาน Gamehub                   | High     | ✅ Done   |
+| US-E4-02 | บันทึกผลการเล่นมินิเกม (Score, Time, Difficulty)              | High     | ✅ Done   |
 | [US-E4-03](./user-stories/archives/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med      | ✅ Done   |
 | [US-E4-04](./user-stories/archives/US-E4-04.md) | ระบบจัดเก็บบันทึกการเล่นซ้ำพฤติกรรม (Replay Event Logging)     | Med      | ✅ Done   |
 
@@ -63,9 +63,45 @@
 | --- | --- | --- | --- |
 | TD-E6-01 | ตรวจและแก้ branch/deploy drift ระหว่าง `staging`, `dev`, และ test VM | High | ✅ Done |
 | TD-E6-02 | ป้องกัน stale leaderboard implementation (`topObserver`) กลับเข้า production build | High | ✅ Done |
-| TD-E6-03 | อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน | Med | 🏗 In-Progress |
-| TD-E6-04 | Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง | High | 🔍 Review / Testing |
-| TD-E6-05 | ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง | Med | 📋 Backlog |
+| TD-E6-03 | อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน | Med | ✅ Done |
+| TD-E6-04 | Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง | High | ✅ Done |
+| TD-E6-05 | ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง | Med | ✅ Done |
+
+### E7: Game Art Assets & UI/UX Polish (P1)
+| ID | User Story | Priority | Status |
+| --- | --- | --- | --- |
+| [US-E7-01](./user-stories/US-E7-01.md) | Game art assets สำหรับหน้า Leaderboard | High | ✅ Done |
+| [US-E7-02](./user-stories/US-E7-02.md) | Game art assets สำหรับหน้า Login และ Sign-up | High | ✅ Done |
+| [US-E7-03](./user-stories/US-E7-03.md) | Game art assets สำหรับหน้า Player-Info | Med | ✅ Done |
+| [US-E7-04](./user-stories/US-E7-04.md) | Game art assets / ระบบภาพสำหรับ Popup (dialog) | Med | ✅ Done |
+| [US-E7-05](./user-stories/US-E7-05.md) | แสดงเลขเวอร์ชันบนตัวเกมหลัก (Game Hub) และซ่อนเมื่อเข้ามินิเกม | Med | ✅ Done |
+| [US-E7-06](./user-stories/US-E7-06.md) | มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive) | High | 📋 Backlog |
+| [US-E7-07](./user-stories/US-E7-07.md) | ชื่อมินิเกมภาษาไทย (ปก + Gamehub) + ขยายตัวอักษรวิธีเล่น | High | ✅ Done |
+| [US-E7-08](./user-stories/US-E7-08.md) | แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (เนื้อเรื่องกางเต็นท์) | High | 📋 Backlog |
+| [US-E7-09](./user-stories/US-E7-09.md) | จดหมายจากหลานรัก — เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ | Med | 📋 Backlog |
+| [US-E7-10](./user-stories/US-E7-10.md) | ต้นคิดดีหลายรูปแบบ + เอฟเฟค Juicy (sparkle เริ่มแล้ว) | Med | ✅ Done* |
+| [US-E7-11](./user-stories/US-E7-11.md) | ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ + ไปป์ไลน์ AI | Med | 📋 Backlog |
+| [US-E7-12](./user-stories/US-E7-12.md) | แสดงโดเมน Cognitive ในเกม + สรุปหลังบ้านรายด้าน + เตรียมข้อมูล AI | Med | 📋 Backlog |
+| [US-E7-13](./user-stories/US-E7-13.md) | เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + อนิเมชันคนแก่ดีใจ) | Med | ✅ Done |
+| [US-E7-14](./user-stories/US-E7-14.md) | ปรับ Layout หน้าหลัก Game Hub (ระยะเลเวล, สลับชื่อเกม/หมวด, เงาตัวละคร) | Med | 📋 Backlog |
+| [US-E7-15](./user-stories/US-E7-15.md) | ระบบสีปุ่มมาตรฐาน (เขียว = ยืนยัน, แดง = ยกเลิก) | Med | 📋 Backlog |
+| [US-E7-16](./user-stories/US-E7-16.md) | แก้ Popup (ตัด popup หลังดูละคร + เข้าเกมซ้ำในวันที่เล่นจบแล้ว + เปลี่ยน emoji popup จบโปรแกรมเป็นคุณตา/ยาย) | Med | ✅ Done |
+| [US-E7-17](./user-stories/US-E7-17.md) | ปรับ Boot Loading ให้ใช้โลโก้เกม + dot progress 5 จุด | Med | ✅ Done |
+| [US-E7-18](./user-stories/US-E7-18.md) | ย้าย feedback ข้อความ (error/สถานะ) → Toast component แบบ Android | Med | ✅ Done |
+| [US-E7-19](./user-stories/US-E7-19.md) | หน้า Welcome: เปลี่ยนปุ่มเข้าเกมเป็น art Start-Game-Button | Low | ✅ Done |
+| [US-E7-20](./user-stories/US-E7-20.md) | ระบบทรานสิชั่น: Popup fade+scale / เปลี่ยนหน้า fade + แยก Loading component | Med | ✅ Done |
+| [US-E7-21](./user-stories/US-E7-21.md) | Progress-tree: เปลี่ยนสีตัวเลขความคืบหน้าอัตโนมัติเมื่อหลอดเกินครึ่ง (contrast) | Med | ✅ Done |
+| [US-E7-22](./user-stories/US-E7-22.md) | หน้าแรก: เพิ่มโลโก้คณะแพทย์ + หน่วยงานที่เกี่ยวข้อง | Med | ✅ Done |
+| [US-E7-23](./user-stories/US-E7-23.md) | ขยาย collision กล่องวางคำตอบเกม Context Clues | Med | ✅ Done |
+| [US-E7-24](./user-stories/US-E7-24.md) | ย้ายชื่อเกม "ทอดอาหาร" (Fry Food) ขึ้นแทนหมวดหมู่ MCI + จัดเป็นหมวด Physical | Med | ✅ Done |
+| [US-E7-25](./user-stories/US-E7-25.md) | ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" | Med | ✅ Done |
+| [US-E7-26](./user-stories/US-E7-26.md) | จัด Layout หน้า Leaderboard เพิ่มเติม | Med | ✅ Done |
+| [US-E7-27](./user-stories/US-E7-27.md) | Popup แจ้งเตือนเมื่ออินเทอร์เน็ตหลุด/ไม่มีอินเทอร์เน็ต | High | ✅ Done |
+| [US-E7-28](./user-stories/US-E7-28.md) | Popup "โปรแกรมจบแล้ว" แสดงวันเริ่ม–วันสิ้นสุดโปรแกรม | Med | ✅ Done |
+
+> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..28 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
+> \* US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
+> บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 
 ---
 

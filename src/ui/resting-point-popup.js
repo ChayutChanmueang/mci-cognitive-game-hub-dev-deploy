@@ -1,5 +1,7 @@
 import { RollingCountdownTimer } from "../util/Odometer/odometer.js";
 import "../util/Odometer/odometer.css";
+import { renderFramePopupMarkup } from "./components/frame-popup.js";
+import { dismissPopup } from "./transition/popup-transition.js";
 
 const CAT_SLEEPING_GIF = "/assets/resting-point/resting-cat/cat-sleep.gif";
 const CAT_JUMPING_GIF = "/assets/resting-point/resting-cat/cat-jump.gif";
@@ -33,9 +35,9 @@ export function showRestingPointPopup(options = {}) {
                 intervalId = null;
             }
             timerDisplay?.destroy();
-            overlay.remove();
             document.removeEventListener("keydown", onKeyDown);
-            resolve(result);
+            // Play the leave animation, then remove + resolve (US-E7-20).
+            dismissPopup(overlay).then(() => resolve(result));
         };
 
         const onKeyDown = (event) => {
@@ -44,18 +46,16 @@ export function showRestingPointPopup(options = {}) {
             }
         };
 
-        overlay.innerHTML = `
-            <div class="app-popup__backdrop"></div>
-            <div
-                class="app-popup__dialog app-popup__dialog--success app-popup__dialog--resting"
-                role="dialog"
-                aria-modal="true"
-                aria-label="เวลาพัก"
-            >
+        // US-E7-04: Figma popup art — Frame_Form_Panel + Start-Game-Button.
+        overlay.innerHTML = renderFramePopupMarkup({
+            variant: "resting-point",
+            title: "คุณทำได้ดีมาก",
+            ariaLabel: "เวลาพัก",
+            buttonLabel: "ข้าม",
+            body: `
                 <div class="resting-popup-layout">
                     <div class="resting-popup-copy">
-                        <strong>คุณทำได้ดีมาก</strong>
-                        <p>พักสักครู่ก่อนกลับไปเล่นเกม</p>
+                        <span class="ph-popup-subtitle">พักสักครู่ก่อนกลับไปเล่นเกม</span>
                     </div>
                     <img
                         class="resting-popup-cat"
@@ -70,11 +70,8 @@ export function showRestingPointPopup(options = {}) {
                         <span class="resting-popup-timer__unit">วินาที</span>
                     </div>
                 </div>
-                <div class="app-popup__actions checkin-popup-success-actions">
-                    <md-filled-button type="button" data-resting-skip style="width: 100%;">ข้าม</md-filled-button>
-                </div>
-            </div>
-        `;
+            `,
+        });
 
         const timerEl = overlay.querySelector("[data-resting-timer]");
         const timerValueEl = overlay.querySelector("[data-resting-timer-value]");
@@ -90,7 +87,8 @@ export function showRestingPointPopup(options = {}) {
             })
             : null;
 
-        const skipBtn = overlay.querySelector("[data-resting-skip]");
+        const skipBtn = overlay.querySelector(".gh-start-button");
+        const skipBtnLabel = overlay.querySelector(".gh-start-button__label");
 
         const updateTimer = (value) => {
             const nextValue = Math.max(0, value);
@@ -118,8 +116,8 @@ export function showRestingPointPopup(options = {}) {
                 catImg.alt = "แมวลุกขึ้นพร้อมเล่นแล้ว";
             }
             timerGroupEl?.setAttribute("aria-hidden", "true");
-            if (skipBtn) {
-                skipBtn.textContent = "กลับสู่หน้าหลัก";
+            if (skipBtnLabel) {
+                skipBtnLabel.textContent = "กลับสู่หน้าหลัก";
             }
         };
 

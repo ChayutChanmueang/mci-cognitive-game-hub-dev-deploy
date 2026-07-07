@@ -19,6 +19,20 @@
   --gh-scale: calc(420 / 1080);
 }
 
+.leaderboard-clean-shell {
+  --gh-scale: calc(420 / 1080);
+}
+
+:root {
+  --main-gh-scale: 0.48;
+  --main-gh-width: 240px;
+  --main-gh-height: 90px;
+  --bt-dialog-gh-width: 140px;
+  --bt-dialog-height: 75px;
+  --main-font: "Noto Sans Thai Looped";
+  --main-font-type: sans-serif;
+}
+
 /* ── Part 1 · Node states (Pass / Current / Next + fryfood variant) ─────────
  * Coordinates are at the Figma 1080x1920 frame scale (px). Sizing/scaling into
  * the production .hub-clean-level__node container is reconciled in Part 8.
@@ -217,7 +231,7 @@
   position: absolute;
 }
 .gh-node-num text {
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: 80px;
 }
@@ -287,7 +301,7 @@
   width: calc(259px * var(--gh-scale, 1));
   height: calc(69px * var(--gh-scale, 1));
   text-align: center;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: calc(43px * var(--gh-scale, 1));
   line-height: normal;
@@ -308,9 +322,11 @@
 /* Start-Game-Button · 3108:68 (rect bbox 540.3278 x 186.7422; white stroke overflows) */
 .gh-start-button {
   position: relative;
-  display: block;
-  width: calc(540.3278px * var(--gh-scale, 1));
-  height: calc(186.7422px * var(--gh-scale, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   padding: 0;
   border: 0;
   background: transparent;
@@ -325,33 +341,34 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(540.3278px * var(--gh-scale, 1));
-  height: calc(186.7422px * var(--gh-scale, 1));
+  width: 100%;
+  height: 100%;
   border-radius: calc(79.59504px * var(--gh-scale, 1));
   background: rgb(66, 134, 29);
-  box-shadow: 0 0 0 calc(10.714716px * var(--gh-scale, 1)) rgba(255, 255, 255, 1); /* white OUTSIDE stroke */
+  box-shadow: 0 0 0 calc(10.714716px * var(--gh-scale, 1)) rgba(255, 255, 255, 1);
+  z-index: 1;
 }
 .gh-start-button__fill { /* 3108:64 */
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(540.3278px * var(--gh-scale, 1));
-  height: calc(179.85416px * var(--gh-scale, 1));
+  width: 100%;
+  height: 95%;
   border-radius: calc(79.59504px * var(--gh-scale, 1));
   background: linear-gradient(to bottom, rgb(125, 215, 76) 0%, rgb(74, 157, 29) 100%);
+  z-index: 2;
 }
 .gh-start-button__label { /* 3108:66 */
-  position: absolute;
-  left: calc(107.570221px * var(--gh-scale, 1));
-  top: calc(36.707027px * var(--gh-scale, 1));
-  width: calc(326px * var(--gh-scale, 1));
+  position: relative;
+  width: 100%;
   height: calc(107px * var(--gh-scale, 1));
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
-  font-size: calc(66.71947px * var(--gh-scale, 1));
-  line-height: normal;
+  font-size: calc(56px * var(--gh-scale, 1));
+  text-align: center;
+  transform: translateY(0px);
   color: #ffffff;
-  white-space: nowrap;
+  z-index: 3;
 }
 
 /* LessonCard · 3108:26 (658.1367 x 546.7422) */
@@ -371,7 +388,7 @@
   position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: 0;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: calc(78.55112px * var(--gh-scale, 1));
   line-height: normal;
@@ -382,7 +399,7 @@
   position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: calc(101.65625px * var(--gh-scale, 1));
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 500;
   font-size: calc(51.98235px * var(--gh-scale, 1));
   line-height: normal;
@@ -395,7 +412,7 @@
   top: calc(184.828125px * var(--gh-scale, 1));
   width: calc(515.2029px * var(--gh-scale, 1));
   margin: 0;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 500;
   font-size: calc(36.96523px * var(--gh-scale, 1));
   line-height: normal;
@@ -405,6 +422,8 @@
   position: absolute;
   left: calc(81px * var(--gh-scale, 1));
   top: calc(360px * var(--gh-scale, 1));
+  width: 210px;
+  height: 72px;
 }
 
 /* ── Part 5 · Floating Action Buttons (Figma 3108:3 / 3108:4, 160 x 160) ──────*/
@@ -489,7 +508,7 @@
 }
 .gh-header-bar span {
   position: absolute;
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   line-height: normal;
   white-space: nowrap;
 }
@@ -715,11 +734,54 @@
 .gh-emoji-node__image {
   position: absolute;
   left: calc(6px * var(--gh-scale, 1));
-  top: calc(-30px * var(--gh-scale, 1));
+  top: calc(-55px * var(--gh-scale, 1));
   width: calc(246.9225px * var(--gh-scale, 1));
   height: calc(167.7806px * var(--gh-scale, 1));
   object-fit: contain;
   pointer-events: none;
+}
+
+/* rest node (คุณตา/คุณยายนั่งพัก) — tune position/size independently here. */
+.gh-emoji-node-rest__image {
+  position: absolute;
+  left: calc(6px * var(--gh-scale, 1));
+  top: calc(-45px * var(--gh-scale, 1));
+  width: calc(246.9225px * var(--gh-scale, 1));
+  height: calc(167.7806px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* check-in node (คุณตา/คุณยายยืนถือธง) — tune position/size independently here. */
+.gh-emoji-node-checkin__image {
+  position: absolute;
+  left: calc(6px * var(--gh-scale, 1));
+  top: calc(-55px * var(--gh-scale, 1));
+  width: calc(280px * var(--gh-scale, 1));
+  height: calc(185px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+/* standard Character_Shadow on the coin top, under the character's feet (US-E7-14 #4).
+   Appearance comes from .character-shadow; tune top/width here to seat it on the coin
+   (height is derived from the shared aspect-ratio). Paints behind the __image. */
+.gh-emoji-node__shadow {
+  position: absolute;
+  left: 50%;
+  top: calc(104px * var(--gh-scale, 1));
+  transform: translateX(-50%) translateY(-5px);
+  width: calc(150px * var(--gh-scale, 1));
+  z-index: 0;
+}
+/* per-type shadow tuning hooks (override top/width/transform to seat the shadow under
+   each character — rest sits, check-in stands). Base values come from the rule above. */
+.gh-emoji-node-rest__shadow {
+  top: calc(104px * var(--gh-scale, 1));
+  width: calc(150px * var(--gh-scale, 1));
+}
+.gh-emoji-node-checkin__shadow {
+  top: calc(104px * var(--gh-scale, 1));
+  width: calc(150px * var(--gh-scale, 1));
 }
 
 /* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill) */
@@ -731,7 +793,7 @@
   border-radius: calc(40px * var(--gh-scale, 1));
   background: rgba(255, 255, 255, 0.9);
   /*border: calc(3px * var(--gh-scale, 1)) solid rgba(183, 176, 168, 0.62);*/
-  font-family: "Noto Sans Thai Looped", sans-serif;
+  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: calc(44px * var(--gh-scale, 1));
   line-height: 1.15;
@@ -746,12 +808,18 @@
  * absolutely within .hub-clean-stage context).
  */
 .gh-header-float {
-  justify-self: center;
+  /* BUG-007: must be a grid container for `justify-items: center` to take effect —
+     otherwise (plain block flow) browsers ignore it and the header bar stays
+     left-aligned. `margin-inline: auto` centers the float itself within the shell
+     regardless of whether the parent is a grid (so it no longer relies on the
+     equally-ineffective `justify-self` against a block parent). */
+  display: grid;
+  justify-items: center;
   width: min(90%, calc(1024px * var(--gh-scale, 1)));
+  margin-inline: auto;
   position: sticky;
   top: 0;
   z-index: 10;
-  justify-items: center;
   margin-top: calc(86px * var(--gh-scale, 1));
 }
 .gh-stage {
@@ -784,4 +852,1473 @@
 /* legacy: .gh-topbar-inflow for in-flow headers (if needed) */
 .gh-topbar-inflow {
   margin: 0 0 calc(8px * var(--gh-scale, 1)) calc(61px * var(--gh-scale, 1));
+}
+
+/* ── Login screens (US-E7-02) · Frame_Panel + Frame_TextFieldBox + Start-Game-Button ──
+ * Ported Figma surfaces composed into the player & admin login layouts. The
+ * Start-Game-Button is authored at Figma 1080 scale, so a local --gh-scale sizes it
+ * (and only it) down to fit the login column. The panel/field surfaces use responsive
+ * lengths so they reflow on phones. Exact Figma colors/strokes are preserved.
+ */
+.gh-login {
+  --gh-scale: var(--main-gh-scale);
+  width: 100%;
+  display: grid;
+  justify-items: center;
+}
+
+.gh-login__stack {
+  display: grid;
+  justify-items: center;
+  gap: clamp(26px, 5vh, 46px);
+  width: min(100%, 460px);
+}
+
+/* Frame_Panel (3161:657) — white surface + blue OUTSIDE stroke 12 + drop shadow. */
+.gh-frame-panel {
+  position: relative;
+  background: #ffffff;
+  border-radius: 40px;
+  box-shadow:
+    0 0 0 6px rgb(138, 197, 219),
+    0 6px 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.gh-login__panel {
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  gap: clamp(9px, 3.4vh, 14px);
+}
+
+.gh-login-padding__panel {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.gh-admin-login-padding__panel {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  padding-left: 2.2vh;
+  padding-right: 2.2vh;
+}
+
+.gh-login__title {
+  margin: 0;
+  text-align: center;
+  color: #151515;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: clamp(2rem, 7vw, 2.6rem);
+  line-height: 1.1;
+  padding-bottom: 6px;
+  padding-top: 12px;
+}
+
+/* Frame_TextFieldBox (3161:646) — white box + light-blue OUTSIDE stroke 1.646. */
+.gh-frame-field-box {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  /* allow this grid/flex item to shrink below the native input's intrinsic
+     (size-attribute) min-content width so the field never overflows the panel */
+  min-width: 0;
+  background: #ffffff;
+  border-radius: 9px;
+  box-shadow: 0 0 0 0.825px rgb(173, 229, 249);
+  overflow: hidden;
+}
+
+.gh-frame-field-box--error {
+  box-shadow: 0 0 0 2px rgb(214, 80, 80);
+}
+
+.gh-frame-field-box__input {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: clamp(1rem, 4vw, 1.1rem);
+  color: #1f1f1f;
+  padding: clamp(14px, 2.4vh, 20px) clamp(18px, 4vw, 26px);
+}
+
+.gh-frame-field-box__input::placeholder {
+  color: #9aa3ab;
+  opacity: 1;
+}
+
+.gh-frame-field-box__input--center {
+  text-align: center;
+}
+
+/* admin: "label :" + field rows */
+.gh-login__row {
+  display: grid;
+  height: 54px;
+  align-items: center;
+}
+
+.gh-login-grid__row {
+  grid-template-columns: minmax(0, auto) minmax(0, 1.8fr);
+  gap: clamp(10px, 2.6vw, 18px);
+}
+
+.gh-login__row-label {
+  width: 80px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-self: right;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.gh-login-text-field{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: #305A69;
+  font-size: clamp(1rem, 3.6vw, 1.1rem);
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .gh-login {
+    --gh-scale: var(--main-gh-scale);
+  }
+}
+
+/* ── Form screens (US-E7-02/03) · Frame_Form_Panel + Button_OK/Close + IconButtonBack ──
+ * Applied to Player-Info (read-only) and Sign-up (interactive). Exact Figma colors/strokes
+ * preserved; panel/fields/buttons sized responsively so they reflow on phones.
+ */
+.gh-form {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+}
+
+.gh-form__stack {
+  width: min(100%, 520px);
+  margin-bottom: 75px;
+}
+
+/* Frame_Form_Panel (3161:746) — white panel + blue stroke 12 + drop shadow + blue header. */
+.gh-frame-form-panel {
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  gap: 0;
+  align-content: stretch;
+  width: 100%;
+  flex-direction: column;
+  border-radius: 40px;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 6px rgb(138, 197, 219),
+    0 6px 4px 6px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+/* 3161:739 blue top header bar */
+.gh-frame-form-panel__top {
+  height: 100px;
+  max-height: 100px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+  background: rgb(137, 212, 239);
+}
+
+.gh-frame-form-panel__title {
+  grid-column: 2;
+  margin: 0;
+  text-align: center;
+  color: #ffffff;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: 2.5rem;
+}
+
+.gh-frame-form-panel__body {
+  display: grid;
+  gap: clamp(16px, 3vh, 26px);
+  padding-left: 26px;
+  padding-right: 26px;
+  padding-bottom: 26px;
+  padding-top: 26px;
+}
+
+.gh-frame-popup-panel__body {
+  display: grid;
+  gap: clamp(16px, 3vh, 26px);
+  padding-left: 26px;
+  padding-right: 26px;
+  min-height: 0;
+  justify-content: center;
+}
+
+/* IconButtonBack (3161:652) — exact Figma SVG; SVG overflows its box (stroke + shadow). */
+.gh-icon-button-back {
+  position: relative;
+  justify-self: start;
+  width: clamp(46px, 11vw, 62px);
+  height: clamp(39px, 9.3vw, 52px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gh-icon-button-back__svg {
+  width: 48px;
+  height: auto;
+  overflow: visible;
+  bottom: 5px;
+}
+
+/* read-only value display + native select inside a Frame_TextFieldBox */
+.gh-frame-field-box__value {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 24px);
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: clamp(1rem, 4vw, 1.3rem);
+  color: #1f1f1f;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  min-height: 1.3em;
+}
+
+.gh-frame-field-box__select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: clamp(1.05rem, 4.4vw, 1.4rem);
+  color: #1f1f1f;
+  padding: clamp(14px, 2.4vh, 20px) clamp(40px, 9vw, 48px) clamp(14px, 2.4vh, 20px) clamp(16px, 4vw, 24px);
+  /* chevron */
+  background-image: linear-gradient(45deg, transparent 50%, #6a7a86 50%), linear-gradient(135deg, #6a7a86 50%, transparent 50%);
+  background-position: calc(100% - 22px) center, calc(100% - 14px) center;
+  background-size: 8px 8px, 8px 8px;
+  background-repeat: no-repeat;
+}
+
+/* Action buttons — Button_OK (3161:643) green / Button_Close (3161:649) red.
+   Responsive pills: base (dark) shows a thin lip below the slightly-shorter gradient. */
+.gh-form__actions {
+  display: flex;
+  gap: clamp(12px, 3vw, 20px);
+  margin-top: 0;
+}
+
+.gh-button-ok,
+.gh-button-close {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: clamp(56px, 13vw, 74px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gh-button-ok[disabled],
+.gh-button-close[disabled] {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.gh-button-ok__base,
+.gh-button-close__base {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+
+.gh-button-ok__fill,
+.gh-button-close__fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 95%;
+  border-radius: 999px;
+}
+
+.gh-button-ok__base { background: rgb(65, 134, 29); }
+.gh-button-ok__fill { background: linear-gradient(to bottom, rgb(125, 215, 76) 0%, rgb(74, 157, 29) 100%); }
+.gh-button-close__base { background: rgb(201, 45, 45); }
+.gh-button-close__fill { background: linear-gradient(to bottom, rgb(252, 106, 106) 0%, rgb(242, 50, 50) 100%); }
+
+.gh-button-ok__label,
+.gh-button-close__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.5%;
+  color: #ffffff;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 4.6vw, 1.7rem);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Button_OK_Stroke · 3204:29  /  Button_Close_Stroke · 3204:28
+ * Stroke variants: white OUTSIDE stroke (box-shadow spread) + baked-in Thai label.
+ * Exact Figma bbox 353.75 x 182.32984924316406, scaled by --gh-scale.
+ * Follows the start-game-button pattern; label centered + hidden Figma text stroke
+ * omitted (Figma had it visible:false). */
+.gh-button-ok-stroke,
+.gh-button-close-stroke {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gh-button-ok-stroke[disabled],
+.gh-button-close-stroke[disabled] {
+  cursor: default;
+  opacity: 0.5; /* non-Figma affordance for the disabled state */
+}
+
+.gh-button-ok-stroke__base,
+.gh-button-close-stroke__base { /* 3204:21 / 3204:14 */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(65px * var(--gh-scale, 1));
+  box-shadow: 0 0 0 calc(10.4615478515625px * var(--gh-scale, 1)) rgba(255, 255, 255, 1);
+  z-index: 1;
+}
+
+.gh-button-ok-stroke__fill,
+.gh-button-close-stroke__fill { /* 3204:22 / 3204:15 (top-aligned; dark base shows a lip below) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 95.5%;
+  border-radius: calc(65px * var(--gh-scale, 1));
+  z-index: 2;
+}
+
+.gh-button-ok-stroke__base { background: rgb(65, 134, 29); }
+.gh-button-ok-stroke__fill { background: linear-gradient(to bottom, rgb(125, 215, 76) 0%, rgb(74, 157, 29) 100%); }
+.gh-button-close-stroke__base { background: rgb(201, 45, 45); }
+.gh-button-close-stroke__fill { background: linear-gradient(to bottom, rgb(252, 106, 106) 0%, rgb(242, 50, 50) 100%); }
+
+.gh-button-ok-stroke__label,
+.gh-button-close-stroke__label { /* 3204:24 / 3204:17 (orange stroke hidden -> plain #fff) */
+  position: absolute;
+  transform: translateY(-3px);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: calc(48px * var(--gh-scale, 1));
+  line-height: normal;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* US-E7-04 · popup-dialog.js confirm/prompt (Frame 1257 layout).
+ * Frame_Panel holds centered title + message; Button_Close_Stroke +
+ * Button_OK_Stroke sit below it. --gh-scale here sizes the stroke buttons. */
+.gh-dialog {
+  --gh-scale: var(--main-gh-scale);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 4vh, 34px);
+  width: min(100%, 480px);
+}
+
+.gh-dialog__panel { /* extends .gh-frame-panel */
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  gap: clamp(10px, 2.4vh, 18px);
+  padding-top: 28px;
+  padding-bottom: 28px;
+  text-align: center;
+}
+
+.gh-dialog__title {
+  margin: 0 25px;
+  color: #1c1c1c;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: 2.6rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.gh-dialog__message {
+  margin: 0 25px;
+  color: #333333;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 400;
+  font-size: clamp(1rem, 4.6vw, 1.4rem);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Buttons now sit INSIDE the Frame_Panel (Frame 1257), below the message. */
+.gh-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3.5vw, 38px);
+  margin-top: 10px;
+}
+
+/* Multi-choice (list) mode — Image #10: keep the existing prompt dialog layout +
+ * Material buttons, only swap the frame to the Frame_Panel look (3161:658 values).
+ * Two-class selector so it overrides the base .app-popup__dialog frame regardless
+ * of stylesheet order. */
+.app-popup__dialog.gh-dialog--framed {
+  background: #ffffff;
+  border: 0;
+  border-radius: 40px;
+  box-shadow:
+    0 0 0 6px rgb(138, 197, 219),
+    0 6px 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Player-Info / Sign-up shared field rows (one grid so labels + fields align across rows) */
+.gh-form__rows {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(10px, 2vh, 16px) clamp(10px, 3vw, 20px);
+}
+
+.gh-form__label {
+  color: #305A69;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 600;
+  font-size: clamp(1rem, 3.6vw, 1.3rem);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* US-E7-18 · Android-style Toast (src/ui/components/toast.js). One floating message,
+   bottom-center, auto-dismiss. Sits above popups (2000) / loading (1500). */
+.gh-toast-container {
+  position: fixed;
+  left: 50%;
+  bottom: max(32px, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: min(92vw, 480px);
+  pointer-events: none;
+}
+
+.gh-toast {
+  pointer-events: auto;
+  max-width: 100%;
+  padding: 14px 24px;
+  border-radius: 999px;
+  background: rgba(40, 42, 46, 0.94);
+  color: #ffffff;
+  font-family: "Noto Sans Thai", sans-serif;
+  font-size: clamp(1.05rem, 4vw, 1.3rem);
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.gh-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gh-toast--leaving {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.gh-toast--error {
+  background: rgba(176, 32, 32, 0.96);
+}
+
+.gh-toast--success {
+  background: rgba(32, 121, 60, 0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gh-toast {
+    transition: none;
+    transform: none;
+  }
+  .gh-toast--visible,
+  .gh-toast--leaving {
+    transform: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .gh-form__label {
+    white-space: normal;
+  }
+}
+
+/* ── Popup art (US-E7-04) · Frame_Form_Panel + Start-Game-Button ──────────────
+ * Centered column inside an `.app-popup` overlay: the framed panel (blue header +
+ * white body with character + message) and a single green Start-Game-Button below.
+ * Shared by check-in success, resting, and day/program-completion popups.
+ */
+.gh-popup {
+  --gh-scale: var(--main-gh-scale);
+  /* ── Per-popup tunable knobs ──────────────────────────────────────────────
+     Defaults here match the original shared look. Each popup overrides these on
+     its own `gh-popup--<variant>` root class (see "Per-popup overrides" below),
+     so changing one popup's character/shadow/message size or position does NOT
+     affect the others. */
+  --popup-gap: clamp(16px, 3vh, 26px);
+  --popup-panel-height: clamp(350px, 75vh, 600px);
+  --popup-char-margin-top: 12px;
+  --popup-char-img-width: 100%;
+  --popup-char-img-pad-bottom: 5px;
+  --popup-shadow-width: 64%;
+  --popup-shadow-bottom: 4px;
+  --popup-message-font-size: clamp(1.3rem, 5.4vw, 1.85rem);
+  --popup-message-line-height: 1.35;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: var(--popup-gap);
+  width: min(100%, 420px);
+}
+
+.gh-popup .gh-frame-form-panel {
+  width: 100%;
+  height: var(--popup-panel-height);
+  /* Header takes its own height; the body fills the rest. Without this the body's
+     `height: 100%` resolves against the full panel height and overflows past the
+     header by the header's height. `minmax(0, …)` lets the body shrink/scroll. */
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.gh-popup-short__message {
+  margin: 0;
+  text-align: center;
+  color: #945E17;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 500;
+  font-size: clamp(1.3rem, 5.4vw, 1.85rem);
+  line-height: 2.5;
+  max-width: 24ch;
+  overflow-wrap: anywhere;
+}
+
+.gh-popup-short {
+  --gh-scale: var(--main-gh-scale);
+  /* Same tunable knobs as .gh-popup (short frame has its own default height). */
+  --popup-gap: clamp(16px, 3vh, 26px);
+  --popup-panel-height: clamp(400px, 75vh, 530px);
+  --popup-char-margin-top: 12px;
+  --popup-char-img-width: 100%;
+  --popup-char-img-pad-bottom: 5px;
+  --popup-shadow-width: 64%;
+  --popup-shadow-bottom: 4px;
+  --popup-message-font-size: clamp(1.3rem, 5.4vw, 1.85rem);
+  --popup-message-line-height: 1.35;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: var(--popup-gap);
+  width: min(100%, 420px);
+}
+
+.gh-popup-short .gh-frame-form-panel {
+  width: 100%;
+  height: var(--popup-panel-height);
+  /* Header takes its own height; the body fills the rest. Without this the body's
+     `height: 100%` resolves against the full panel height and overflows past the
+     header by the header's height. `minmax(0, …)` lets the body shrink/scroll. */
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+/* Sizing wrapper for the Start-Game-Button (the button itself is width/height:100%,
+   so its box size is defined here; --gh-scale on .gh-popup scales radius + label). */
+.gh-popup__button {
+  width: var(--main-gh-width);
+  height: var(--main-gh-height);
+}
+
+.gh-dialog-popup__button {
+  width: var(--bt-dialog-gh-width);
+  height: var(--bt-dialog-height);
+}
+
+.gh-popup__character {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  margin-top: var(--popup-char-margin-top);
+  align-items: end;
+}
+
+.gh-popup__character-img {
+  justify-self: center;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: var(--popup-char-img-width);
+  height: auto;
+  user-select: none;
+  padding-bottom: var(--popup-char-img-pad-bottom);
+  -webkit-user-drag: none;
+}
+
+.gh-popup__character-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: var(--popup-shadow-bottom);
+  transform: translateX(-50%);
+  width: var(--popup-shadow-width);
+  z-index: 0;
+}
+
+.gh-popup__message {
+  margin: 0;
+  text-align: center;
+  color: #945E17;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 500;
+  font-size: var(--popup-message-font-size);
+  line-height: var(--popup-message-line-height);
+  max-width: 24ch;
+  overflow-wrap: anywhere;
+  align-self: anchor-center;
+}
+
+/* US-E7-28: program-complete text group — thank-you line + program start/end dates,
+   kept together (tighter than the body grid gap) and centered under the character. */
+.gh-popup__complete-text {
+  display: grid;
+  justify-items: center;
+  gap: clamp(10px, 2vh, 18px);
+  align-self: anchor-center;
+}
+
+.gh-popup__complete-text .gh-popup__message {
+  align-self: auto;
+}
+
+.gh-popup__dates {
+  display: grid;
+  justify-items: center;
+  gap: clamp(2px, 0.8vh, 8px);
+}
+
+.gh-popup__date-line {
+  margin: 0;
+  text-align: center;
+  color: #945E17;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 500;
+  font-size: clamp(1.15rem, 4.6vw, 1.55rem);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.gh-popup__date-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Per-popup overrides ──────────────────────────────────────────────────────
+ * Each popup carries a `gh-popup--<variant>` class on its root (set via the
+ * `variant` option of renderFramePopupMarkup / renderFramePopupShortMarkup). Only
+ * override the --popup-* knobs here, so one popup's character/shadow/message size
+ * & position can change WITHOUT affecting the others. Add more knobs above as
+ * needed. Variants in use:
+ *   rest-day         → "วันนี้พักก่อน" day-completion popup (beanbag art, US-E7-25)
+ *   program-complete → "ยินดีด้วย" 14-day completion popup (finish-line art)
+ *   checkin-success  → check-in "เก่งมาก !!!" step (cheer art)
+ *   resting-point    → rest-node break popup (own .resting-popup-* body)
+ *   checkin-calendar → check-in tree/progress step (own .tree-progress-* body)
+ *   offline          → "อินเทอร์เน็ตหายไปแล้ว" no-internet popup (US-E7-27)
+ */
+
+/* "วันนี้พักก่อน" — reclining beanbag figure: smaller image, wider ground shadow
+   seated right at the base of the beanbag. */
+.gh-popup--rest-day {
+  --popup-char-img-width: 70%;
+  --popup-shadow-width: 70%;
+  --popup-shadow-bottom: -10px;
+}
+
+/* "โปรแกรมจบแล้ว" completion (US-E7-28) — seated beanbag figure + start/end dates.
+   Smaller figure so the two date lines fit without crowding (independent of rest-day). */
+.gh-popup--program-complete {
+  --popup-char-img-width: 100%;
+  --popup-shadow-width: 90%;
+  --popup-shadow-bottom: -10px;
+}
+
+/* Check-in "เก่งมาก !!!" success — cheer figure (independent of the others). */
+.gh-popup--checkin-success {
+  --popup-char-img-width: 70%;
+  --popup-shadow-width: 54%;
+  --popup-shadow-bottom: -17px;
+}
+
+/* "อินเทอร์เน็ตหายไปแล้ว" no-internet popup (US-E7-27) — standing/climbing figure.
+   Independent knobs; retune when the dedicated `*_no-internet.png` art is added. */
+.gh-popup--offline {
+  --popup-char-img-width: 90%;
+  --popup-shadow-width: 0;
+  --popup-shadow-bottom: -6px;
+}
+
+/* Design shows the character hugging the TOP of the panel (message right below it,
+   empty space at the bottom). The shared body grid stretches its rows to fill the
+   panel — which bottom-weights this popup — so pack the content to the top instead.
+   Scoped to the offline variant so the other popups keep their centered layout. */
+.gh-popup--offline .gh-frame-popup-panel__body {
+  align-content: start;
+}
+
+.ph-popup-subtitle {
+  margin: 0;
+  font-size: 20px;
+  font-family: var(--main-font), var(--main-font-type);
+  color: #305A69;
+  line-height: 1.4;
+  justify-self: center;
+}
+
+@media (max-width: 380px) {
+  .gh-popup {
+    --gh-scale: var(--main-gh-scale);
+  }
+}
+
+/* US-E7-04 · check-in video step. Title sits on the gradient backdrop; the clip is in a
+   plain Frame_Panel (no header). The frame is large while playing and collapses once the
+   clip ends, revealing the Start-Game-Button below it. */
+.gh-video-popup {
+  --gh-scale: var(--main-gh-scale);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.6vh, 22px);
+  height: 100%;
+  width: 100%;
+}
+
+.gh-video-popup__title {
+  width: 100%;
+  height: 75px;
+  margin: 0;
+  color: #ffffff;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.gh-video-popup__title-text {
+  width: 100%;
+  font-weight: 700;
+  font-size: clamp(2.3rem, 15vw, 2.3rem);
+  text-align: center;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+  font-family: var(--main-font), var(--main-font-type);
+  line-height: 2;
+  margin: 0;
+}
+
+/* the frame also carries .gh-frame-panel (blue stroke + radius + white bg) */
+.parent-gh-video-popup__frame{
+  width: 100%;
+  height: 98vh;
+  resize: both;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 10px;
+  align-items: start;
+  container-type: size;
+  padding: 10px;
+}
+
+.gh-video-popup__frame {
+  aspect-ratio: 9 / 16;
+  display: flex;
+  overflow: hidden;
+  width: min(45vh, 80cqh * 9 / 16);
+  align-self: center;
+}
+
+.gh-video-popup__frame .video-popup-player {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: #000;
+  object-fit: cover;
+}
+
+.gh-video-popup__button {
+  --gh-scale: var(--main-gh-scale);
+  justify-self: center;
+  align-self: center;
+  display: none;
+  grid-row: 2;
+  justify-items: center;
+  width: var(--main-gh-width);
+  height: var(--main-gh-height);
+}
+
+/* On end, revealing the button reduces the space left for the frame; the frame is
+   `flex: 1` + `aspect-ratio: 9/16`, so it simply shrinks to the largest 9:16 box that
+   still fits — no fixed height needed. */
+.gh-video-popup.is-ended .gh-video-popup__button {
+  display: block;
+}
+
+.gh-video-popup.is-ended .gh-video-popup__frame {
+  width: min(36vh, 80cqh * 9 / 16);
+  margin-bottom: 25px;
+}
+
+/* ============================================================
+   US-E7-01 · Leaderboard (Figma 3231:15). Ported components:
+   leaderboard-row.js, leaderboard-top-bar.js,
+   leaderboard-bottom-status.js, bg-rounded-leaderboard.js.
+   Every length is authored at the 1080px Figma frame and scaled
+   by --gh-scale (set on .hub-clean-shell = calc(420 / 1080)),
+   the same convention as the gh-*-node components above.
+   ============================================================ */
+.leaderboard-screen {
+  background: #8ee39a;
+  color: #305a69;
+}
+
+/* cream rounded body surface behind the rows (BG-Rounded-Leaderboard 3231:253) */
+.gh-bg-rounded-leaderboard {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  top: calc(305px * var(--gh-scale, 1));
+  bottom: 0;
+  background: #fcf7ed;
+  overflow: hidden;
+}
+
+/* ── Header · title + subtitle + flowers + back (3231:15) ───── */
+.gh-leaderboard-header {
+  position: absolute;
+  z-index: 4;
+  inset: 0 0 auto;
+  height: calc(304px * var(--gh-scale, 1));
+  overflow: hidden;
+  text-align: center;
+}
+
+.gh-leaderboard-header__title,
+.gh-leaderboard-header__subtitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 50px;
+  font-family: var(--main-font), var(--main-font-type);
+  line-height: normal;
+}
+
+.gh-leaderboard-header__title {
+  top: calc(38px * var(--gh-scale, 1));
+  color: #305a69;
+  font-size: calc(clamp(72px, 21vw, 84px) * var(--gh-scale, 1));
+  font-weight: 700;
+}
+
+.gh-leaderboard-header__subtitle {
+  top: calc(177px * var(--gh-scale, 1));
+  color: #3690b1;
+  font-size: calc(clamp(32px, 12vw, 52px) * var(--gh-scale, 1));
+  font-weight: 500;
+}
+
+.gh-leaderboard-back {
+  position: absolute;
+  z-index: 6;
+  left: calc(32px * var(--gh-scale, 1));
+  top: calc(62px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-header__flower {
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.gh-leaderboard-header__flower-clamp {
+  position: absolute;
+  top: 45px;
+  z-index: 1;
+  height: 100%;
+  width: clamp(0px, 100%, 720px);
+  justify-self: center;
+  justify-item: space-between;
+  align-items: end;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.gh-leaderboard-header__flower-cover-left {
+  width: 100%;
+  height: 100%;
+  padding-left: 15px;
+  justify-self: end;
+  align-items: end;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-header__flower-cover-right {
+  width: 100%;
+  height: 100%;
+  padding-right: 15px;
+  justify-self: center;
+  align-items: end;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.gh-leaderboard-header__flower--1 {
+  width: calc(84px * var(--gh-scale, 1));
+  height: calc(230px * var(--gh-scale, 1));
+  transform: translateY(30px);
+}
+
+.gh-leaderboard-header__flower--2 {
+  width: calc(93px * var(--gh-scale, 1));
+  height: calc(119px * var(--gh-scale, 1));
+  transform: translateY(36px);
+  justify-self: end;
+}
+
+/* ── Floating top bar · column headings (3231:246) ──────────── */
+.gh-leaderboard-top-bar {
+  position: absolute;
+  z-index: 3;
+  top: calc(305px * var(--gh-scale, 1));
+  width: 100%;
+  height: calc(144px * var(--gh-scale, 1));
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.gh-leaderboard-top-bar-clamp {
+  height: 100%;
+  width: clamp(0px, 100%, 720px);
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.gh-leaderboard-top-bar__bg {
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  background: rgb(101, 168, 186);
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__content {
+  width: 100%;
+  height: 100%;
+  padding: 0 28px;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  justify-content: center;
+}
+
+.gh-leaderboard-top-bar__label {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(64px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.gh-leaderboard-top-bar__label--rank {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__label--name {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__score-head {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.gh-leaderboard-top-bar__score-head {
+  width: 115px;
+  left: 0;
+  top: 0;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+}
+
+.gh-leaderboard-top-bar__trophy {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.gh-leaderboard-top-bar__trophy-image {
+  width: calc(78px * var(--gh-scale, 1));
+  height: calc(68px * var(--gh-scale, 1));
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.gh-leaderboard-top-bar__score-head-label {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* ── Scrolling rows region ──────────────────────────────────── */
+.gh-leaderboard-stage {
+  margin-top: calc(144px * var(--gh-scale, 1));
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.gh-leaderboard-scroll {
+  position: absolute;
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-bottom: 60px;
+  height: 100%;
+  width: clamp(0px, 100%, 720px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(48, 90, 105, 0.34) transparent;
+}
+
+.gh-leaderboard-content {
+  padding-top: calc(35px * var(--gh-scale, 1));
+  padding-bottom: calc(250px * var(--gh-scale, 1) + env(safe-area-inset-bottom));
+}
+
+.gh-leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(42px * var(--gh-scale, 1));
+}
+
+.gh-leaderboard-empty {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  padding: 48px 20px;
+  color: #305a69;
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  text-align: center;
+}
+
+.gh-leaderboard-empty p {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* ── Leaderboard row card (3231:179..223) ───────────────────── */
+.gh-leaderboard-row {
+  position: relative;
+  padding: 0 14px;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: 100%;
+  height: calc(192px * var(--gh-scale, 1));
+  overflow: hidden;
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: #ffffff;
+  box-shadow: 0 calc(8px * var(--gh-scale, 1)) 0 0 rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gh-leaderboard-row[data-variant~="gold"] {
+  --lb-rank-stroke: #d88e1f;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #c3801d;
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #fef4e2;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) #f4e4c7;
+  --lb-score-color: #d29c5f;
+}
+
+.gh-leaderboard-row[data-variant~="silver"] {
+  --lb-rank-stroke: #888cac;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #c2bdbf;
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #eef1f5;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) rgba(0, 0, 0, 0.11);
+  --lb-score-color: #7a8594;
+}
+
+.gh-leaderboard-row[data-variant~="bronze"] {
+  --lb-rank-stroke: #ca6631;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #bd6434;
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #ffedda;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) rgba(255, 208, 183, 0.5);
+  --lb-score-color: #f0a881;
+}
+
+.gh-leaderboard-row[data-variant~="other"] {
+  --lb-rank-stroke: #309aa5;
+  --lb-rank-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) rgba(109, 143, 205, 0.74);
+  --lb-name-color: #268ca8;
+  --lb-score-bg: #e9faff;
+  --lb-score-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) #d1e1e5;
+  --lb-score-color: #41aac7;
+}
+
+/* current player — orange ring highlight (Top-3-You 3231:212) */
+.gh-leaderboard-row[data-variant~="you"] {
+  width: 102.5%;
+  height: 83px;
+  border: calc(12px * var(--gh-scale, 1)) solid #ffbf7f;
+  --lb-name-color: #a85c26;
+}
+
+.gh-leaderboard-row__content {
+  width: 100%;
+  height: auto;
+  display: grid;
+  grid-template-columns: 1fr 2.6fr 2.6fr;
+  grid-template-rows: 1fr;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+  align-content: center;
+}
+
+.gh-leaderboard-row__rank-cell {
+  width: 100%;
+  height: 100%;
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  align-items: start;
+  justify-items: start;
+}
+
+.gh-leaderboard-row__medal {
+  inset: 0;
+  width: calc(142px * var(--gh-scale, 1));
+  height: calc(144px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-row__rank {
+  inset: 0;
+  margin-left: 19px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  -webkit-text-stroke: calc(4px * var(--gh-scale, 1)) var(--lb-rank-stroke, transparent);
+  paint-order: stroke fill;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(76px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  text-shadow: var(--lb-rank-shadow, none);
+  white-space: nowrap;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-row__name {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  transform: translateY(-3px);
+  display: flow;
+  justify-content: center;
+  align-content: center;
+  overflow: hidden;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.gh-leaderboard-row__name-text {
+  width: 100%;
+  height: fit-content;
+  margin: 0;
+  overflow: hidden;
+  color: var(--lb-name-color, #268ca8);
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 2;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.gh-leaderboard-row__score-cell {
+  width: 100%;
+  height: calc(136px * var(--gh-scale, 1));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: var(--lb-score-bg, transparent);
+  box-shadow: var(--lb-score-shadow, none);
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.gh-leaderboard-row__score {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--lb-score-color, currentColor);
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  transform: translateY(-2px);
+  letter-spacing: calc(6px * var(--gh-scale, 1));
+  white-space: nowrap;
+}
+
+/* ── Pinned "your rank" bar (Bottom-Status-Player 3231:236) ──── */
+.gh-leaderboard-bottom {
+  position: absolute;
+  z-index: 5;
+  bottom: 0;
+  width: 100%;
+  height: calc(203px * var(--gh-scale, 1));
+  color: #ca6631;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.gh-leaderboard-bottom__panel {
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  border-radius: calc(52px * var(--gh-scale, 1)) calc(52px * var(--gh-scale, 1)) 0 0;
+  background: #fbe5c3;
+  box-shadow: inset 0 0 0 calc(12px * var(--gh-scale, 1)) #ffbf80;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-bottom-clamp {
+  width: clamp(0px, 100%, 720px);
+  height: 100%;
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.gh-leaderboard-bottom__content {
+  width: 100%;
+  height: 100%;
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: 1fr 2.6fr 2.6fr;
+  grid-template-rows: 1fr;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+  align-content: center;
+
+}
+
+.gh-leaderboard-bottom__rank-cell {
+  width: 100%;
+  height: auto;
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  align-items: start;
+  justify-items: start;
+}
+
+.gh-leaderboard-bottom__medal {
+  inset: 0;
+  width: calc(142px * var(--gh-scale, 1));
+  height: calc(144px * var(--gh-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-bottom__rank {
+  inset: 0;
+  margin-left: 19px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  -webkit-text-stroke: calc(4px * var(--gh-scale, 1)) #ca6631;
+  paint-order: stroke fill;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(76px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  text-shadow: 0 calc(2px * var(--gh-scale, 1)) calc(5.6px * var(--gh-scale, 1)) #bd6434;
+  white-space: nowrap;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.gh-leaderboard-bottom__name {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  overflow: hidden;
+  line-height: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.gh-leaderboard-bottom__name-text {
+  width: 100%;
+  height: fit-content;
+  margin: 0;
+  overflow: hidden;
+  color: #ca6631;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 2;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.gh-leaderboard-bottom__score-cell {
+  grid-column: 3;
+  grid-row: 1;
+  width: 100%;
+  height: calc(142px * var(--gh-scale, 1));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: calc(52px * var(--gh-scale, 1));
+  background: #ffedda;
+  box-shadow: inset 0 calc(4px * var(--gh-scale, 1)) calc(4px * var(--gh-scale, 1)) rgba(255, 208, 183, 0.5);
+}
+
+.gh-leaderboard-bottom__score {
+  color: #f0821d;
+  font-family: var(--main-font), var(--main-font-type);
+  font-size: calc(60px * var(--gh-scale, 1));
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: calc(6px * var(--gh-scale, 1));
+  white-space: nowrap;
 }

@@ -25,7 +25,7 @@ const DAILY_REQUIRED_GAME_FALLBACK = Object.freeze({
     name: "fry-food",
     th_name: "ทอดอาหาร",
     displayName: "เกมทอดอาหาร",
-    mci_group: "Executive",
+    mci_group: "Physical",
     max_score: null,
     created_at: null,
 });
@@ -61,6 +61,11 @@ const CATEGORY_META = Object.freeze({
     Executive: {
         nameTh: "บริหารสมอง",
         description: "ฝึกการวางแผน ตัดสินใจ จัดลำดับ และควบคุมการทำงานหลายขั้นตอน",
+    },
+    // US-E7-24: Fry Food (PHY001) is a movement/accelerometer game, grouped as Physical.
+    Physical: {
+        nameTh: "กายภาพ",
+        description: "ฝึกการเคลื่อนไหวและการควบคุมร่างกายผ่านการขยับ/เอียงอุปกรณ์ให้สัมพันธ์กับเกม",
     },
 });
 
@@ -542,6 +547,12 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const render = () => {
+        // BUG-005 / PB-01-01: the caller (main.js route dispatcher) owns a route version.
+        // If the user navigated away while this hub was still loading, skip the render so
+        // we don't paint the Game Hub over whatever screen the user actually moved to.
+        if (typeof options.isStale === "function" && options.isStale()) {
+            return;
+        }
         cleanup();
         const levelSections = buildLevelSections();
         const currentDay = getCurrentProgramDay();
@@ -953,7 +964,12 @@ export async function renderGameHubScreen(root, options = {}) {
 
         if (isProgramEnded) {
             state.completionPopupShown = true;
-            await showProgramCompletionPopup({ programDayCount: getProgramDayCount() });
+            await showProgramCompletionPopup({
+                programDayCount: getProgramDayCount(),
+                gender: options.patientGender,
+                startedProgram: getStartedProgram(),
+                programEndDate: state.dailyProgram?.programEndDate || "",
+            });
             return;
         }
 
@@ -965,7 +981,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
         if (isComplete) {
             state.completionPopupShown = true;
-            await showDayCompletionPopup({ programDay: currentDay, programDayCount: getProgramDayCount() });
+            await showDayCompletionPopup({ gender: options.patientGender });
         }
     };
 
@@ -1021,6 +1037,10 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     render();
+    // PB-01-02: first paint is done — the hub is on screen and usable. Signal readiness now so
+    // the boot loading overlay dismisses immediately, instead of waiting for the data loads
+    // below (loadProgram/loadHistory) which can take several seconds and made boot feel ~10-20s.
+    options.onReady?.();
     await loadProgram();
     await loadHistory();
 }

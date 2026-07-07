@@ -26,10 +26,17 @@ import { escapeText, escapeAttr } from "./escape.js";
 // rest/checkin: shown in a coin matching the node's done/next look. A gender-specific
 // character image (node.image) replaces the emoji glyph when provided; the emoji is
 // kept as the fallback for when no image is supplied.
-function renderEmojiNode(emoji, { done = false, image = "" } = {}) {
+function renderEmojiNode(emoji, { done = false, image = "", type = "" } = {}) {
   const cls = done ? "gh-emoji-node gh-emoji-node--done" : "gh-emoji-node";
+  // rest (sitting) and check-in (standing) characters sit differently on the coin, so
+  // the image + its standard Character_Shadow (US-E7-14 #4) carry a per-type modifier
+  // class so each can be tuned independently. Shadow is placed before the image so it
+  // paints behind it.
+  const variant = type === "rest" || type === "checkin" ? type : "";
+  const imageCls = `gh-emoji-node__image${variant ? ` gh-emoji-node-${variant}__image` : ""}`;
+  const shadowCls = `character-shadow gh-emoji-node__shadow${variant ? ` gh-emoji-node-${variant}__shadow` : ""}`;
   const face = image
-    ? `<img class="gh-emoji-node__image" src="${escapeAttr(image)}" alt="" aria-hidden="true" />`
+    ? `<span class="${shadowCls}" aria-hidden="true"></span><img class="${imageCls}" src="${escapeAttr(image)}" alt="" aria-hidden="true" />`
     : `<span class="gh-emoji-node__glyph">${escapeText(emoji)}</span>`;
   return `
     <div class="${cls}">
@@ -45,6 +52,7 @@ function renderNodeGlyph(node) {
     return renderEmojiNode(node.emoji || (node.type === "rest" ? "🏋️" : "🏁"), {
       done: node.state === "pass",
       image: node.image,
+      type: node.type,
     });
   }
   if (node.state === "pass") return renderPassNode();

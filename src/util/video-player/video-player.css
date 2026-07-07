@@ -53,6 +53,14 @@ body.vp-pseudo-fullscreen-active {
     width: 100%;
     height: 100%;
     display: block;
+    object-fit: cover;
+}
+
+/* In fullscreen the portrait (9:16) clip no longer matches its container aspect
+   (a landscape monitor), so `cover` would zoom in and crop past the screen edges.
+   Letterbox the whole clip instead. */
+.vp-root:fullscreen .vp-video,
+.vp-root.vp-pseudo-fullscreen .vp-video {
     object-fit: contain;
 }
 

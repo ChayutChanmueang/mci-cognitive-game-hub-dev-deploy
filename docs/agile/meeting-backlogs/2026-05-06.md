@@ -75,8 +75,8 @@
 ---
 
 ## 🔗 Traceability
-- **Weekly Backlog:** [Weekly-Backlog-Template](Weekly-Backlog-Template.md)
-- **Full Roadmap:** [ProjectPlan-Template](ProjectPlan-Template.md)
+- **Weekly Backlog:** Weekly-Backlog-Template (template not tracked)
+- **Full Roadmap:** [Sprint Roadmap](../02-sprint-planning.md)
 
 ---
 

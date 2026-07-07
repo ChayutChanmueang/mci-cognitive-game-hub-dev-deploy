@@ -5,20 +5,48 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
-- [ ] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
+- [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
+- [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
+- [ ] [US-E7-05](user-stories/US-E7-05.md) เลขเวอร์ชันบน Game Hub (ซ่อนในมินิเกม)
+- [ ] [US-E7-04](user-stories/US-E7-04.md) Game art assets / ระบบภาพ Popup *(เสร็จ v0.20.0; รอ QA มือถือ)*
+- [ ] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก: เสียง AI ใหม่/ถอดเสียง + ขยายตัวอักษรโจทย์ (Doctor FB #2)
+- [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)
+- [ ] [US-E7-12](user-stories/US-E7-12.md) แสดงโดเมน Cognitive + สรุปหลังบ้าน + เตรียมข้อมูล AI (Doctor FB #2)
+- [ ] [US-E7-13](user-stories/US-E7-13.md) เอฟเฟคฉลองหน้า "เก่งมาก!!!" (ระเบิดริปปิ้น + คนแก่ดีใจ) (Doctor FB #2)
+- [ ] [US-E7-14](user-stories/US-E7-14.md) ปรับ Layout หน้าหลัก Game Hub (ระยะเลเวล/สลับชื่อ/เงาตัวละคร) (ก้องไผ่)
+- [ ] [US-E7-15](user-stories/US-E7-15.md) ระบบสีปุ่มมาตรฐาน เขียว=ยืนยัน/แดง=ยกเลิก (ก้องไผ่)
+- [ ] [US-E7-18](user-stories/US-E7-18.md) ย้าย feedback ข้อความ → Toast component แบบ Android (ก้องไผ่)
+- [ ] [US-E7-19](user-stories/US-E7-19.md) หน้า Welcome: ปุ่มเข้าเกมเป็น art Start-Game-Button (ก้องไผ่)
+- [ ] [US-E7-16](user-stories/US-E7-16.md) แก้ Popup หลังดูละคร + เข้าเกมซ้ำในวันเดิม (ก้องไผ่)
+- [ ] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen
+- [ ] [BUG-005](reports/bugs/BUG-005.md) โหลดช้า → premature navigation ดีดกลับหน้า Game Hub
+- [ ] [BUG-006](reports/bugs/BUG-006.md) จอเล็ก: background ถูกตัด + FAB ไม่ float (scroll containment เสีย)
 
 ## 🔵 In Progress (WIP Limit: 3)
-- [ ] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 - [ ] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชีและลงชื่อออก
-- [ ] TD-E6-03 อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน
 
 
 ## 🔍 Review / Testing
-- [ ] TD-E6-04 Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง
 
 
 ## ✅ Done
+- [x] [US-E7-24](user-stories/US-E7-24.md) ย้ายชื่อเกม "ทอดอาหาร" ขึ้นแทนหมวดหมู่ MCI + จัดเป็นหมวด Physical (v0.29.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-27](user-stories/US-E7-27.md) Popup แจ้งเตือนอินเทอร์เน็ตหลุด/ไม่มีเน็ต — offline popup + `InternetManager` + art buffer data URL (v0.29.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-28](user-stories/US-E7-28.md) Popup "โปรแกรมจบแล้ว" แสดงวันเริ่ม–วันสิ้นสุดโปรแกรม (v0.29.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-25](user-stories/US-E7-25.md) ใส่ตัวละครคุณตา/คุณยายนั่งพักใน Popup "วันนี้พักก่อน" — beanbag art `*_resting_02.png` + ขยับเงา (v0.26.0); แยกสไตล์ popup ด้วย variant (v0.26.1) — ✅ ยืนยัน 2026-07-06
+- [x] [US-E7-23](user-stories/US-E7-23.md) ขยาย collision กล่องวางคำตอบเกม Context Clues — hit area ปรับแยกได้ + overlap drop (`DragDropManager.overlapDrop`) (v0.28.0) — ✅ เจ้าของงานแก้ไข/ยืนยันเอง 2026-07-06
+- [x] [US-E7-26](user-stories/US-E7-26.md) จัด Layout หน้า Leaderboard เพิ่มเติม — refine row/top-bar/bottom-status + centered `max 720px` wrapper (v0.27.0) — ✅ เจ้าของงานแก้ไข/ยืนยันเอง 2026-07-06
+- [x] [US-E7-01](user-stories/US-E7-01.md) Game art assets หน้า Leaderboard (v0.25.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-07](user-stories/US-E7-07.md) ชื่อมินิเกมภาษาไทย + ขยายตัวอักษรวิธีเล่น (Doctor FB #2) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-10](user-stories/US-E7-10.md) เอฟเฟค Juicy ต้นคิดดี (growth transition + rainbow sparkle) (Doctor FB #2) — ✅ ยืนยัน 2026-07-06 *(ต้นไม้หลายรูปแบบยกเป็นงานติดตาม)*
+- [x] [US-E7-22](user-stories/US-E7-22.md) หน้าแรก: โลโก้คณะแพทย์ + หน่วยงานที่เกี่ยวข้อง (v0.24.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
+- [x] [US-E7-02](user-stories/US-E7-02.md) Game art assets หน้า Login & Sign-up (+ Admin) — Figma components (v0.17.0/0.18.0)
+- [x] [US-E7-03](user-stories/US-E7-03.md) Game art assets หน้า Player-Info — Figma form panel (v0.18.0)
+- [x] [US-E3-06](user-stories/US-E3-06.md) เกมจำสัตว์ (Working Memory) - คำถามคั่นเวลา
+- [x] TD-E6-03 อัปเดตเอกสารหลักให้ตรงกับ implementation ปัจจุบัน
+- [x] TD-E6-04 Smoke test Docker/nginx production image หลัง build จาก branch ที่ถูกต้อง
+- [x] TD-E6-05 ตรวจ UI scroll containment สำหรับ Hub/Profile/Leaderboard ใน viewport จริง
 - [x] TD-E6-01 ตรวจและแก้ branch/deploy drift ระหว่าง staging, dev และ test VM
 - [x] TD-E6-02 ป้องกัน stale leaderboard implementation (`topObserver`) กลับเข้า production build
 - [x] [US-E4-03](user-stories/archives/US-E4-03.md) บันทึกข้อมูลเชิงลึก (Accuracy, RT, Fatigue Effect)

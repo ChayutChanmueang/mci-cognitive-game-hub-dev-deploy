@@ -1,3 +1,5 @@
+import { renderStartGameButton } from "./components/start-game-button.js";
+
 export function renderWelcomeScreen(root, options = {}) {
     if (!root) {
         return;
@@ -7,6 +9,7 @@ export function renderWelcomeScreen(root, options = {}) {
         onLogin = () => {},
     } = options;
 
+    // US-E7-19: entry button uses the game's Start-Game-Button art (green pill).
     root.innerHTML = `
         <section class="landing-screen" aria-labelledby="landing-title">
             <div class="landing-screen__logo">
@@ -19,14 +22,21 @@ export function renderWelcomeScreen(root, options = {}) {
             </div>
 
             <div class="landing-screen__actions">
-                <md-filled-button id="landing-login-button" class="landing-login-button" type="button">
-                    ลงชื่อเข้าใช้
-                </md-filled-button>
+                ${renderStartGameButton({ label: "เริ่มเล่นเกม" })}
             </div>
         </section>
+        
+        <!-- US-E7-22: partner/supporter logos, bottom row -->
+        <div class="landing-screen__partners" aria-label="หน่วยงานที่เกี่ยวข้อง">
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/CAMT.png" alt="วิทยาลัยศิลปะ สื่อ และเทคโนโลยี มหาวิทยาลัยเชียงใหม่ (CAMT)" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/NAPLAB.png" alt="NAPLAB Game Studio" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/CMU-Logo.png" alt="มหาวิทยาลัยเชียงใหม่ (Chiang Mai University)" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/MedCMU.png" alt="คณะแพทยศาสตร์ มหาวิทยาลัยเชียงใหม่ (MedCMU)" />
+            <img class="landing-screen__partner-logo" src="/assets/common/Logo/NRCT.png" alt="สำนักงานการวิจัยแห่งชาติ (วช. / NRCT)" />
+        </div>
     `;
 
-    root.querySelector("#landing-login-button")?.addEventListener("click", () => {
+    root.querySelector(".gh-start-button")?.addEventListener("click", () => {
         onLogin();
     });
 }
