@@ -107,7 +107,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.totalMove++;
         if (socketChecker.checkEntity(draggableData)) {
           console.log("Correct Socket");
-          EventBus.emit('audio:play', 'symmetry-decor:correct');
+          EventBus.emit('audio:play', 'symmetry-decor-household:correct');
           if (!socketComponent.hasAwardedPoints) {
             socketComponent.hasAwardedPoints = true;
             this.correctSlotMove++;
@@ -139,7 +139,7 @@ export default class GameplayScene extends Phaser.Scene {
               draggableData.animal,
               false,
             );
-            EventBus.emit('audio:play', 'symmetry-decor:wrong');
+            EventBus.emit('audio:play', 'symmetry-decor-household:wrong');
           }
         }
       } else {
@@ -207,7 +207,7 @@ export default class GameplayScene extends Phaser.Scene {
     const completedStages = this.completedStages || 0;
 
     // this.gameplayUI.showGameOverPanel(finalTime, this.allScore, completedStages);
-    EventBus.emit('audio:play', 'symmetry-decor:endgame');
+    EventBus.emit('audio:play', 'symmetry-decor-household:endgame');
     EventBus.emit('minigame:game-over', {
       score: this.allScore,
       level: levelNumber,

@@ -1,4 +1,4 @@
-import activeTheme from './themes/animal-theme.json';
+import activeTheme from './themes/household-theme.json';
 
 // ---------------------------------------------------------------------------
 // Start Menu Panel Settings

@@ -1,0 +1,37 @@
+{
+  "StartMenuSetting": {
+    "title": "ภาพสะท้อน",
+    "description": "เกมจัดวางของให้สมมาตรกัน",
+    "instructions": "จัดของให้สมมาตรกัน ตามการสะท้อนของกระจก",
+    "coverImage": "assets/common/cover/cover_symmetry_decor.png",
+    "titleFontSize": "80px",
+    "defaultLevel": 1,
+    "panelBorderColor": "#DB4670",
+    "panelHeaderColor": "#FF5585",
+    "primaryFontColor": "#A83855",
+    "secondaryFontColor": "#F26A8D"
+  },
+  "GameOverSetting": {
+    "panelBorderColor": "#DB4670",
+    "panelHeaderColor": "#FF5585",
+    "primaryFontColor": "#A83855",
+    "secondaryFontColor": "#F26A8D"
+  },
+  "availableAssets": [
+    "icon_bear",
+    "icon_cow",
+    "icon_elephant",
+    "icon_fox",
+    "icon_lion",
+    "icon_panda"
+  ],
+  "assets": {
+    "background": "assets/symmetry-decor/etc/BG.png",
+    "icon_bear": "assets/common/animal/icons/H_Bear.png",
+    "icon_cow": "assets/common/animal/icons/H_Cow.png",
+    "icon_elephant": "assets/common/animal/icons/H_ele.png",
+    "icon_fox": "assets/common/animal/icons/H_Fox.png",
+    "icon_lion": "assets/common/animal/icons/H_Li.png",
+    "icon_panda": "assets/common/animal/icons/H_Pan.png"
+  }
+}
