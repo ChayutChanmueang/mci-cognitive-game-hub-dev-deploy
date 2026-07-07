@@ -85,6 +85,36 @@ function fail(message) {
     process.exit(1);
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Transient network failures (undici "fetch failed", resets, timeouts) surface
+// as a Supabase `error`. Retry those a few times with exponential backoff;
+// return immediately on success or on a real (non-transient) error. `runQuery`
+// must build a fresh query each call — PostgREST query builders are one-shot.
+async function withRetry(runQuery, { attempts = 4, baseDelay = 600 } = {}) {
+    let result;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+            result = await runQuery();
+        } catch (e) {
+            result = { error: e };
+        }
+        if (!result.error) return result;
+        const message = String(result.error.message || result.error);
+        const transient =
+            /fetch failed|network|socket hang up|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|timeout|terminated/i.test(
+                message,
+            );
+        if (!transient || attempt === attempts - 1) return result;
+        const wait = baseDelay * 2 ** attempt;
+        console.warn(
+            `[retry] transient network error (${message}); retry ${attempt + 1}/${attempts - 1} in ${wait}ms...`,
+        );
+        await sleep(wait);
+    }
+    return result;
+}
+
 async function main() {
     // Load .env from the project root using the Node built-in (no dotenv dep).
     // Real environment variables still win / act as a fallback if .env absent.
@@ -174,18 +204,20 @@ async function main() {
         // tables that reference user_data.id (not hn).
         let targetIds = [];
         if (!deleteAll) {
-            const { data, error } = await client
-                .from(ROOT_TABLE)
-                .select("id")
-                .in("hn", hnList);
+            const { data, error } = await withRetry(() =>
+                client.from(ROOT_TABLE).select("id").in("hn", hnList),
+            );
             if (error) fail(`Lookup of target users failed: ${error.message}`);
             targetIds = (data || []).map((r) => r.id);
         }
 
         const countFor = async (table, column, keys) => {
-            let query = client.from(table).select("*", { count: "exact", head: true });
-            query = deleteAll ? query.not(column, "is", null) : query.in(column, keys);
-            const { count, error } = await query;
+            const { count, error } = await withRetry(() => {
+                const query = client
+                    .from(table)
+                    .select("*", { count: "exact", head: true });
+                return deleteAll ? query.not(column, "is", null) : query.in(column, keys);
+            });
             return error ? `(count failed: ${error.message})` : `${count ?? 0} row(s)`;
         };
 
@@ -202,10 +234,10 @@ async function main() {
     }
 
     // Execute: a single delete on user_data; the DB cascades the rest atomically.
-    const query = client.from(ROOT_TABLE).delete().select("id");
-    const { data, error } = deleteAll
-        ? await query.not("id", "is", null)
-        : await query.in("hn", hnList);
+    const { data, error } = await withRetry(() => {
+        const query = client.from(ROOT_TABLE).delete().select("id");
+        return deleteAll ? query.not("id", "is", null) : query.in("hn", hnList);
+    });
     if (error) {
         fail(`Delete from ${ROOT_TABLE} failed: ${error.message}`);
     }
