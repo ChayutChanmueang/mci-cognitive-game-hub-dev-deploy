@@ -328,11 +328,31 @@ const GAME_COLORS = Object.freeze({
 });
 ```
 
-#### 6. Register in the database
+#### 6. Register the Top UI style (⚠️ Easy to miss!)
+
+Open `src/ui/minigame-hud.js` and add your new slug to the `topbarStyleGames` array. This array controls which games use the modern top bar HUD (with the star-score and clock icons) instead of the legacy HUD layout.
+
+```diff
+ const topbarStyleGames = [
+     "zoo-feeder",
+     "medicine-feeder",
+     "zoo-detective",
+     "context-clues",
+     "symmetry-decor",
++    "new-game-slug",   // ← add your slug here
+     "postcard-reader",
+     "fry-food",
+ ];
+```
+
+> [!WARNING]
+> Forgetting this step means the game will fall through to the **legacy HUD layout** (title + score on separate left/right panels) instead of the intended modern top bar. The game will still run, but the UI will look wrong.
+
+#### 7. Register in the database
 
 Add a row to the Supabase `games` table with a `name` field that slugifies to your new game slug (e.g. `name = "New Game Slug"` → slug = `new-game-slug`).
 
-#### 7. Auto-discovery
+#### 8. Auto-discovery
 
 The new game is automatically routable via Vite's `import.meta.glob`:
 
@@ -419,5 +439,6 @@ Every theme JSON file should follow this shape. Fields marked **required** must 
 - [ ] Replaced all audio slug strings (audio:register, audio:bgm, audio:play)
 - [ ] Added slug to `BACK_BUTTON_PROTECTED_SLUGS` in `src/main.js`
 - [ ] Added color entry to `GAME_COLORS` in `src/main.js`
+- [ ] **Added slug to `topbarStyleGames` in `src/ui/minigame-hud.js`** ← top bar HUD registration
 - [ ] Added game row in Supabase `games` table
 - [ ] Tested the new game loads and plays correctly

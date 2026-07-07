@@ -59,6 +59,7 @@ export class MinigameHUD {
             "zoo-detective",
             "context-clues",
             "symmetry-decor",
+            "symmetry-decor-household",
             "postcard-reader",
             "fry-food",
         ];
