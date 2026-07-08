@@ -929,6 +929,7 @@ export async function renderGameHubScreen(root, options = {}) {
                     defaultDayCount: options.defaultDayCount || 14,
                     loadVideoSrc: () => db.getRandomGameVideoUrl(),
                     patientGender: options.patientGender,
+                    treeType: options.treeType,
                 });
             }
         } catch (error) {

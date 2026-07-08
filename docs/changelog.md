@@ -69,6 +69,9 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - Empty/inaccessible tree catalogs fail closed in the data layer, preventing accidental mass persistence of fallback type `a` before the RLS migration is deployed.
 - US-E8-01 moved to Review / Testing. Production build passes; the RLS migration still needs deployment before manual Supabase and mobile visual QA.
 
+### Fixed
+- Restored the check-in growth sequence: the calendar DOM now renders the previous/smaller tree stage initially, holds it for the original timing, then transitions to the current/grown stage. The grown asset is preloaded during the hold to prevent a flash of the final tree before animation.
+
 ## [2026-07-08] - US-E8-01: production DB snapshot (docs)
 **Docs-only** (no `package.json` bump).
 
