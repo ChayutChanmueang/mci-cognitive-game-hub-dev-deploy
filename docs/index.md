@@ -1,8 +1,8 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** 🟢 **Stable Release (1.0.0)** — Production-ready full build | **Last Sprint:** [Sprint 7 — Art, Versioning & Vertical Responsiveness](agile/sprint-backlogs/sprint-07.md) *(Completed → v1.0.0, 2026-07-07)*
-**Version:** 1.0.0 | **Last Updated:** 2026-07-07 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 **Stable Release (1.0.0)** — Production-ready full build | **Current Sprint:** [Sprint 8 — Per-Player Progression Tree](agile/sprint-backlogs/sprint-08.md) *(Active, 2026-07-08 → target v1.1.0)*
+**Version:** 1.1.0 | **Last Updated:** 2026-07-08 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -21,8 +21,8 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Media:** Embeddable `VideoPlayer` (loading overlay, buffering feedback, read-only progress, volume/mute sync, fullscreen with iOS pseudo-fullscreen fallback) used in the check-in short-video step and resting point; random video selection filters hidden entries from `game_video_list`.
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
-### Latest Sprint 7 UI Update
-- **[US-E7-17](agile/user-stories/US-E7-17.md) — Boot loading visual refresh:** boot loading ตอนเปิดเกมแสดงโลโก้เกมแบบเดียวกับหน้า `src/ui/welcome-screen.js` (`/Logo.png`) และใช้ dot progress แบบง่ายจำนวน **5 dots** แทน spinner/ข้อความโหลดเดิม โดย overlay ยังปิดผ่าน logic `finishBootLoading()`/first usable paint เดิม
+### Latest Sprint 8 Planning
+- **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น:** อ่าน `user_game_profile_data.tree_type` จาก Supabase; สุ่มจากตาราง `game_tree_list` (`a`/`b`/`c`/`d`); **ผู้เล่น v1.0.0 ที่ `tree_type` เป็น NULL** → lazy backfill ตอน login (สุ่มแล้ว `UPDATE`); asset ที่ `public/assets/checkin-popup/{type}/`
 
 ---
 
@@ -52,6 +52,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - [Kanban Board](agile/kanban.md) - สถานะงานปัจจุบัน
 - [01. Product Backlog](agile/01-product-backlog.md) - รายการฟีเจอร์และ User Stories ทั้งหมด
 - [02. Sprint Roadmap](agile/02-sprint-planning.md) - แผนการดำเนินงานภาพรวมและรายละเอียด Sprint ปัจจุบัน
+- [Sprint 08 Backlog](agile/sprint-backlogs/sprint-08.md) - Sprint ปัจจุบัน (post-1.0 → v1.1.0)
 - [03. Meeting Logs](agile/03-meeting-backlogs.md) - บันทึกการประชุมของทีม
 - [04. Sprint Retrospectives](agile/04-retrospectives-backlog.md) - บันทึกสรุปบทเรียนและแนวทางการปรับปรุงในแต่ละ Sprint
 - [05. System Test Reports](agile/05-report-backlog.md) - รายงานผลการทดสอบระบบและสรุปสถานะคุณภาพล่าสุด

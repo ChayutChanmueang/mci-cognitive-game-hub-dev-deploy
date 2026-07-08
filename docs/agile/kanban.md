@@ -16,6 +16,7 @@ kanban-plugin: board
 
 
 ## 🔍 Review / Testing
+- [ ] [US-E8-01](user-stories/US-E8-01.md) ต้นคิดดีหลายชนิดต่อผู้เล่น — implementation complete; รอ manual/mobile QA (Sprint 8 → v1.1.0)
 
 
 ## ✅ Done

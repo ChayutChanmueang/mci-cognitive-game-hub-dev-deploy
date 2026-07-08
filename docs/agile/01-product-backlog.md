@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-07 | **Release:** [v1.0.0](../changelog.md) — Stable production build
+**Last Updated:** 2026-07-08 | **Release:** [v1.0.0](../changelog.md) — Stable production build | **Current Sprint:** [Sprint 08](./sprint-backlogs/sprint-08.md) (post-1.0 → target `1.1.0`)
 
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"
@@ -100,7 +100,13 @@
 | [US-E7-28](./user-stories/US-E7-28.md) | Popup "โปรแกรมจบแล้ว" แสดงวันเริ่ม–วันสิ้นสุดโปรแกรม | Med | ✅ Done |
 | [US-E7-29](./user-stories/US-E7-29.md) | ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม | High | ✅ Done |
 
+### E8: Check-in Personalization & Post-1.0 Enhancements (P1)
+| ID | User Story | Priority | Status |
+| --- | --- | --- | --- |
+| [US-E8-01](./user-stories/US-E8-01.md) | ต้นคิดดีหลายชนิดต่อผู้เล่น — `tree_type` + `game_tree_list` + lazy backfill ผู้เล่น v1.0.0 (`NULL` → สุ่ม + persist) | High | 🧪 Review / Testing |
+
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
+> ⤷ US-E8-01 ต่อยอด [US-E7-10](./user-stories/US-E7-10.md) (ต้นไม้หลายรูปแบบ) — ดู [Sprint 08](./sprint-backlogs/sprint-08.md)
 > \* US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 
