@@ -47,9 +47,73 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.28.0` | 2026-07-06 | US-E7-23: Context Clues easier answer placement — larger, independently tunable answer-box / blank-slot hit areas (`answerBox.hitArea`/`hitOffset`) + overlap-based drop in `DragDropManager` (`overlapDrop`: a word snaps in when its box overlaps an accepting zone, no pixel-perfect pointer aim) |
 | `0.29.0` | 2026-07-06 | US-E7-24 (Fry Food → **Physical** category on Game Hub), US-E7-27 (offline "อินเทอร์เน็ตหายไปแล้ว" popup + `InternetManager`, gender art buffered as data URLs for offline render), US-E7-28 (program-complete popup shows Thai-era **start/end dates**) |
 | `0.30.0` | 2026-07-07 | US-E7-09 (Postcard Reader voice/font), US-E7-14 (Game Hub layout — spacing/swap/shadow), US-E7-15 (standardized green/red buttons); BUG-004 Resolved (black background after full-screen minigame) |
-| `1.0.0` | 2026-07-07 | **(current — stable release)** First production-ready full build: owner-declared milestone after `features/game-hub` → `development` merge; core patient/admin flows, 14-day Game Hub program, minigame suite, PWA, Supabase persistence, Docker/nginx deploy |
+| `1.0.0` | 2026-07-07 | First production-ready full build: owner-declared milestone after `features/game-hub` → `development` merge; core patient/admin flows, 14-day Game Hub program, minigame suite, PWA, Supabase persistence, Docker/nginx deploy |
+| `1.1.0` | 2026-07-08 | **(current — QA pending)** US-E8-01 per-player progression trees, signup assignment, and lazy backfill for existing profiles |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.1.0] - 2026-07-08
+**Version bump:** `1.0.0 → 1.1.0` (**MINOR**) — adds backward-compatible per-player progression-tree personalization.
+
+### Corrected
+- Synced the production `user_game_profile_data` DDL: `tree_type` is nullable with **no database default**. Signup therefore supplies the catalog-selected value explicitly; omitted values remain `NULL` for lazy backfill.
+
+### Added
+- `database.js`: catalog-backed `getGameTreeList()`, `pickRandomTreeType()`, and race-aware `ensureUserGameProfileTreeType({ hn })`.
+- Sign-up assigns and persists a random tree type from `game_tree_list`; Game Hub lazily backfills existing `NULL`, blank, or invalid values.
+- Check-in tree assets resolve through `/assets/checkin-popup/{tree_type}/tree_{tree_type}_{01..14}.png` in both static and growth-transition states.
+- Supabase migration adds the authenticated SELECT grant/RLS policy required to read `game_tree_list`.
+
+### Changed
+- User game-profile reads include `tree_type`; Game Hub and Player Info test hooks pass it to the check-in popup.
+- Empty/inaccessible tree catalogs fail closed in the data layer, preventing accidental mass persistence of fallback type `a` before the RLS migration is deployed.
+- US-E8-01 moved to Review / Testing. Production build passes; the RLS migration still needs deployment before manual Supabase and mobile visual QA.
+
+### Fixed
+- Restored the check-in growth sequence: the calendar DOM now renders the previous/smaller tree stage initially, holds it for the original timing, then transitions to the current/grown stage. The grown asset is preloaded during the hold to prevent a flash of the final tree before animation.
+
+## [2026-07-08] - US-E8-01: production DB snapshot (docs)
+**Docs-only** (no `package.json` bump).
+
+### Added
+- Production data snapshots from Supabase export (owner, 2026-07-08):
+  - `game_tree_list`: 4 rows (`a`–`d`, `name` null)
+  - `user_game_profile_data`: 17 rows (id 59–75), **all `tree_type = NULL`**, all `program = 5`
+- SQL reference files: `docs/agile/user-stories/assets/us-e8-01-game_tree_list_rows.sql`, `us-e8-01-user_game_profile_data_rows.sql`
+- § **Production Snapshot** in [US-E8-01](agile/user-stories/US-E8-01.md) with full HN table
+
+### Changed
+- [US-E8-01](agile/user-stories/US-E8-01.md): AC#1/#7, migration notes, marked DB migration task done
+- [03-data-schema.md](software/03-data-schema.md), [sprint-08.md](agile/sprint-backlogs/sprint-08.md): production counts
+
+## [2026-07-08] - US-E8-01: v1.0.0 player backfill + `game_tree_list` (docs)
+**Docs-only** (no `package.json` bump — ยังอยู่ที่ `1.0.0` จนกว่า US-E8-01 จะ ship เป็น **`1.1.0`** MINOR).
+
+### Added
+- ตาราง **`game_tree_list`** — แหล่งรายการชนิดต้นไม้ที่สุ่มได้ (`id`, `name`); seed ตัวอย่าง `a`/`b`/`c`/`d`
+- **Lazy backfill** สำหรับผู้เล่น **v1.0.0 ที่เริ่มโปรแกรมไปแล้ว**: ถ้า `user_game_profile_data.tree_type IS NULL` (หรือว่าง) → สุ่มจาก `game_tree_list` แล้ว **`UPDATE`** ตอนโหลด profile — ค่าคงที่หลัง login ครั้งแรก (ไม่ fallback ชั่วคราวบน UI อย่างเดียว)
+
+### Changed
+- [US-E8-01](agile/user-stories/US-E8-01.md): AC#3 (backfill), §`game_tree_list`, §Migration, tasks (`ensureUserGameProfileTreeType`, `getGameTreeList`, `pickRandomTreeType`)
+- [sprint-08.md](agile/sprint-backlogs/sprint-08.md): DoD + risks (race backfill, empty `game_tree_list`)
+- [03-data-schema.md](software/03-data-schema.md): §3.4 `game_tree_list`, ER diagram, runtime notes ของ `user_game_profile_data`
+- `01-product-backlog.md`, `kanban.md`, `index.md`, `02-sprint-planning.md`
+
+## [2026-07-08] - Sprint 8 Planning: Per-Player Progression Tree (US-E8-01, docs)
+**Docs-only** (no `package.json` bump — ยังอยู่ที่ `1.0.0` จนกว่า US-E8-01 จะ ship เป็น **`1.1.0`** MINOR).
+
+### Added
+- Opened **Sprint 8** (2026-07-08 → 2026-07-21): [sprint-08.md](agile/sprint-backlogs/sprint-08.md) — post-1.0 line, target **v1.1.0**
+- Epic **E8: Check-in Personalization & Post-1.0 Enhancements** with [US-E8-01](agile/user-stories/US-E8-01.md):
+  - ต้นคิดดีหลายชนิดต่อผู้เล่น — `user_game_profile_data.tree_type` + `game_tree_list`
+  - สุ่มตอนสร้าง profile; lazy backfill ผู้เล่นเก่า `tree_type = NULL`
+  - asset ที่ `public/assets/checkin-popup/{type}/tree_{type}_01..14.png`
+  - ต่อยอดงานที่ยกจาก US-E7-10 (ต้นไม้หลายรูปแบบ)
+- Documented `tree_type` column + DDL ใน [03-data-schema.md](software/03-data-schema.md)
+
+### Changed
+- Updated `01-product-backlog.md`, `02-sprint-planning.md`, `kanban.md`, `index.md`
+- Linked US-E7-10 deferred AC#1/#6 → US-E8-01
 
 ## [1.0.0] - 2026-07-07
 **Version bump:** `0.30.0 → 1.0.0` (**MAJOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — deliberate stable-release milestone: owner confirms the game is **production-ready / full build** after Sprint 7 work merged to `development`. Resets MINOR and PATCH to 0.

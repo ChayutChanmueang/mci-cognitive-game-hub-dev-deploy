@@ -437,6 +437,13 @@ export function renderPlayerInfoScreen(root, options = {}) {
         root.querySelector("[data-test-checkin-popup]")?.addEventListener("click", async () => {
             closeTestMenus();
             const totalDays = 14;
+            let treeType = "a";
+            try {
+                const gameProfile = await db.ensureUserGameProfileTreeType({ hn: player?.hn });
+                treeType = String(gameProfile?.tree_type || "a").trim();
+            } catch (error) {
+                console.warn("Unable to load the player's tree type for the check-in test:", error);
+            }
             const completedCount = Math.floor(Math.random() * totalDays) + 1;
             const programStart = new Date();
             programStart.setDate(programStart.getDate() - totalDays + 1);
@@ -450,6 +457,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
                 programStartedAt: programStart.toISOString(),
                 defaultDayCount: totalDays,
                 loadVideoSrc: () => db.getRandomGameVideoUrl(),
+                treeType,
             });
         });
 

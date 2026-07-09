@@ -13,6 +13,7 @@ const USER_GAME_HISTORY_TABLE = "user_game_history";
 const REPLAY_LOG_TABLE = "game_replay_log";
 const USER_PATIENT_DATA_TABLE = "user_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
+const GAME_TREE_LIST_TABLE = "game_tree_list";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
 const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
 const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
@@ -271,7 +272,7 @@ class Database {
             ),
             this.getAllTableRows(
                 USER_GAME_PROFILE_DATA_TABLE,
-                "id, hn, program, created_at",
+                "id, hn, program, tree_type, created_at",
                 [{ column: "created_at", ascending: false }],
             ),
             this.getAllTableRows(
@@ -504,7 +505,7 @@ class Database {
             ),
             this.getAllTableRows(
                 USER_GAME_PROFILE_DATA_TABLE,
-                "id, hn, program, created_at",
+                "id, hn, program, tree_type, created_at",
                 [
                     { column: "created_at", ascending: false },
                     { column: "id", ascending: false },
@@ -994,6 +995,7 @@ class Database {
     async createUserGameProfile({
         hn,
         defaultProgramId = DEFAULT_GAME_PROFILE_PROGRAM_ID,
+        treeType = "",
     }) {
         const parsedHn = String(hn || "").trim();
         const parsedProgramId = Number(defaultProgramId);
@@ -1009,10 +1011,16 @@ class Database {
         await this.initAuth();
 
         const client = this.getClient();
+        const treeRows = await this.getGameTreeList();
+        const allowedTreeTypes = new Set(treeRows.map((row) => String(row?.id || "").trim()).filter(Boolean));
+        const requestedTreeType = String(treeType || "").trim();
+        const resolvedTreeType = allowedTreeTypes.has(requestedTreeType)
+            ? requestedTreeType
+            : await this.pickRandomTreeType(treeRows);
         const { data, error } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .insert([{ hn: parsedHn, program: parsedProgramId }])
-            .select("id, hn, program, created_at")
+            .insert([{ hn: parsedHn, program: parsedProgramId, tree_type: resolvedTreeType }])
+            .select("id, hn, program, tree_type, created_at")
             .maybeSingle();
 
         if (error) {
@@ -1020,6 +1028,108 @@ class Database {
         }
 
         return data || { hn: parsedHn };
+    }
+
+    async getGameTreeList() {
+        await this.initAuth();
+
+        const { data, error } = await this.getClient()
+            .from(GAME_TREE_LIST_TABLE)
+            .select("id, name, created_at")
+            .order("id", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return (data || []).filter((row) => String(row?.id || "").trim());
+    }
+
+    async pickRandomTreeType(treeRows = null) {
+        const rows = Array.isArray(treeRows) ? treeRows : await this.getGameTreeList();
+        const treeTypes = [...new Set(rows.map((row) => String(row?.id || "").trim()).filter(Boolean))];
+
+        if (!treeTypes.length) {
+            throw new Error("Game tree catalog is empty or inaccessible");
+        }
+
+        return treeTypes[Math.floor(Math.random() * treeTypes.length)];
+    }
+
+    async ensureUserGameProfileTreeType({ hn }) {
+        const parsedHn = String(hn || "").trim();
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const treeRows = await this.getGameTreeList();
+        const allowedTreeTypes = new Set(treeRows.map((row) => String(row?.id || "").trim()).filter(Boolean));
+        if (!allowedTreeTypes.size) {
+            throw new Error("Game tree catalog is empty or inaccessible");
+        }
+        const { data: profileRows, error: profileError } = await client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .select("id, hn, program, tree_type, created_at")
+            .eq("hn", parsedHn)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+        if (profileError) {
+            throw profileError;
+        }
+
+        const profile = Array.isArray(profileRows) ? profileRows[0] : null;
+        if (!profile?.id) {
+            throw new Error("Game profile not found");
+        }
+
+        const currentTreeType = String(profile.tree_type || "").trim();
+        if (allowedTreeTypes.has(currentTreeType)) {
+            return profile;
+        }
+
+        const nextTreeType = await this.pickRandomTreeType(treeRows);
+        let updateQuery = client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .update({ tree_type: nextTreeType })
+            .eq("id", profile.id);
+
+        updateQuery = profile.tree_type == null
+            ? updateQuery.is("tree_type", null)
+            : updateQuery.eq("tree_type", profile.tree_type);
+
+        const { data: updatedRows, error: updateError } = await updateQuery
+            .select("id, hn, program, tree_type, created_at");
+
+        if (updateError) {
+            throw updateError;
+        }
+
+        const updatedProfile = Array.isArray(updatedRows) ? updatedRows[0] : null;
+        if (updatedProfile?.tree_type) {
+            return updatedProfile;
+        }
+
+        // Another tab may have filled the value first. Read the persisted winner.
+        const { data: latestRows, error: latestError } = await client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .select("id, hn, program, tree_type, created_at")
+            .eq("id", profile.id)
+            .limit(1);
+
+        if (latestError) {
+            throw latestError;
+        }
+
+        const latestProfile = Array.isArray(latestRows) ? latestRows[0] : null;
+        if (!allowedTreeTypes.has(String(latestProfile?.tree_type || "").trim())) {
+            throw new Error("Unable to persist a valid game tree type");
+        }
+
+        return latestProfile;
     }
 
     async getGameLevelPresetList() {
@@ -1055,7 +1165,7 @@ class Database {
         const client = this.getClient();
         const { data: existingRows, error: findError } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .select("id, hn, program, created_at")
+            .select("id, hn, program, tree_type, created_at")
             .eq("hn", parsedHn)
             .order("created_at", { ascending: false })
             .limit(1);
@@ -1070,7 +1180,7 @@ class Database {
                 .from(USER_GAME_PROFILE_DATA_TABLE)
                 .update({ program: parsedProgramId })
                 .eq("id", existingProfile.id)
-                .select("id, hn, program, created_at")
+                .select("id, hn, program, tree_type, created_at")
                 .maybeSingle();
 
             if (updateError) {
@@ -1084,10 +1194,11 @@ class Database {
             return updatedProfile;
         }
 
+        const treeType = await this.pickRandomTreeType();
         const { data: insertedProfile, error: insertError } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .insert([{ hn: parsedHn, program: parsedProgramId }])
-            .select("id, hn, program, created_at")
+            .insert([{ hn: parsedHn, program: parsedProgramId, tree_type: treeType }])
+            .select("id, hn, program, tree_type, created_at")
             .maybeSingle();
 
         if (insertError) {
@@ -1228,7 +1339,7 @@ class Database {
                 .maybeSingle(),
             client
                 .from(USER_GAME_PROFILE_DATA_TABLE)
-                .select("id, hn, program, created_at")
+                .select("id, hn, program, tree_type, created_at")
                 .eq("hn", parsedHn)
                 .order("created_at", { ascending: false })
                 .limit(1),

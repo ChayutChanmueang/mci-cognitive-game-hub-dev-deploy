@@ -674,10 +674,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         let patientGender = "";
+        let treeType = "a";
         if (patientCode) {
             try {
-                const patient = await db.getPatientByHn(patientCode);
+                const [patient, gameProfile] = await Promise.all([
+                    db.getPatientByHn(patientCode),
+                    db.ensureUserGameProfileTreeType({ hn: patientCode }),
+                ]);
                 patientGender = String(patient?.gender || "").trim();
+                treeType = String(gameProfile?.tree_type || "a").trim();
                 // Cache gender so the offline popup can show the right character even
                 // once the connection drops (can't hit the DB then). US-E7-27.
                 internetManager.setGender(patientGender);
@@ -726,6 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
             patientCode,
             patientLabel,
             patientGender,
+            treeType,
             initialScene: options.initialScene,
             initialCategory: options.initialCategory,
             sharedState: hubUiState,
@@ -1576,6 +1582,7 @@ document.addEventListener("DOMContentLoaded", () => {
             educationLevels,
             educationLevelsError,
             onBack: () => navigateTo(ROUTES.login),
+            loadRandomTreeType: () => db.pickRandomTreeType(),
             onSubmit: async (formData) => {
                 const patientCodeLabel = `ID ${String(formData?.hn || "").trim()}`;
                 const shouldCreatePatient = await showPopup({
@@ -1594,7 +1601,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const createdPatient = await db.createPatientProfile(formData);
 
                 try {
-                    await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
+                    await db.createUserGameProfile({
+                        hn: createdPatient?.hn || formData?.hn,
+                        treeType: formData?.treeType,
+                    });
                 } catch (error) {
                     // TODO: Replace this client-side compensation with a Supabase RPC transaction
                     // that creates user_data and user_game_profile_data atomically.
