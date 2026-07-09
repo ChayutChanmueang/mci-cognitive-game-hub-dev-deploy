@@ -42,16 +42,21 @@ export default class TutorialManager {
 
         const levelNumber = getDifficultyLevelNumber(this.difficulty);
         const storageKey = `symmetry_decor_tutorial_shown_${levelNumber}`;
-        const hasShownBefore = localStorage.getItem(storageKey) === 'true';
+        const hasShownBefore = sessionStorage.getItem(storageKey) === 'true';
 
         let shouldShowNow = false;
 
-        if (this.config.showOnEveryStart) {
+        if (this.config.showOnEveryStart && !hasShownBefore) {
             shouldShowNow = true;
+            sessionStorage.setItem(storageKey, 'true');
         } else if (this.config.showOnFirstStart && !hasShownBefore) {
             shouldShowNow = true;
-            // Mark as shown for future
             localStorage.setItem(storageKey, 'true');
+        }
+
+        // We need to track interaction even before tutorial is shown to reset the idle timer
+        if (this.config.showOnIdle) {
+            this._registerGlobalInteractionListeners();
         }
 
         if (shouldShowNow) {
@@ -61,8 +66,6 @@ export default class TutorialManager {
             });
         } else if (this.config.showOnIdle) {
             this.startIdleTimer();
-            // We need to track interaction even before tutorial is shown to reset the idle timer
-            this._registerGlobalInteractionListeners();
         }
     }
 
