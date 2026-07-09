@@ -70,6 +70,7 @@ export function renderSignupScreen(root, options = {}) {
         educationLevels = [],
         educationLevelsError = "",
         onBack = () => {},
+        loadRandomTreeType = null,
         onSubmit = () => {},
     } = options;
 
@@ -305,6 +306,9 @@ export function renderSignupScreen(root, options = {}) {
         showToast("กำลังบันทึกข้อมูลผู้ป่วย...", { type: "info", duration: 0 });
 
         try {
+            if (typeof loadRandomTreeType === "function") {
+                formData.treeType = await loadRandomTreeType();
+            }
             const submitted = await onSubmit(formData);
             if (submitted === false) {
                 clearToast();
