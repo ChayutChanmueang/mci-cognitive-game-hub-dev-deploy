@@ -1482,6 +1482,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 navigateTo(getGameExitRoute(selectedGame));
             };
 
+            const handleExitWithCompletion = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level} (skip)`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
+                
+                cleanup();
+                navigateTo(getGameExitRoute(selectedGame));
+            };
+
             const cleanup = () => {
                 removeBackGuard();
                 EventBus.off("minigame:exit-request", handleExit);
@@ -1489,6 +1513,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 EventBus.off("minigame:retry-request", handleRetry);
                 EventBus.off("minigame:level-select-request", handleLevelSelect);
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                EventBus.off("minigame:exit-with-completion", handleExitWithCompletion);
                 activeResultPanel?.destroy();
                 activeResultPanel = null;
                 hud.destroy();
@@ -1501,6 +1526,7 @@ document.addEventListener("DOMContentLoaded", () => {
             EventBus.on("minigame:retry-request", handleRetry);
             EventBus.on("minigame:level-select-request", handleLevelSelect);
             EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+            EventBus.on("minigame:exit-with-completion", handleExitWithCompletion);
 
             return true;
         } catch (error) {
