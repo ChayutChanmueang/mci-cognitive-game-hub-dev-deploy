@@ -1059,7 +1059,7 @@ export default class GameplayScene extends Phaser.Scene {
         });
 
         const messageLabel = document.createElement('p');
-        messageLabel.textContent = 'อุปกรณ์ของคุณไม่มีเซ็นเซอร์วัดการเอียง (Gyroscope) ซึ่งจำเป็นสำหรับเกมนี้';
+        messageLabel.textContent = 'อุปกรณ์ของท่านไม่มีเซ็นเซอร์วัดการเอียง ซึ่งจำเป็นต่อการเล่นเกมนี้ \nท่านสามารถกดตกลงเพื่อเล่นเกมต่อไปได้เลย';
         Object.assign(messageLabel.style, {
             color: '#fff',
             fontSize: '22px',
@@ -1067,7 +1067,8 @@ export default class GameplayScene extends Phaser.Scene {
             textAlign: 'center',
             margin: '0 24px',
             textShadow: '0 2px 8px rgba(0,0,0,0.8)',
-            maxWidth: '400px',
+            maxWidth: '500px', // slightly wider to fit text nicely
+            whiteSpace: 'pre-line',
         });
 
         const okBtn = document.createElement('button');
