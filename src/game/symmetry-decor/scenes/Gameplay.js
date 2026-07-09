@@ -93,9 +93,10 @@ export default class GameplayScene extends Phaser.Scene {
 
     // Flag: timer expired while puzzle was in progress — finish puzzle first
     this.pendingGameOver = false;
+    this.isTransitioning = false;
 
     this.events.on('socketFilled', (socketComponent, entity) => {
-      if (this.isGameEnded) return;
+      if (this.isGameEnded || this.pendingGameOver) return;
 
       // Ignore non-draggable entities (blockers) — they have no DraggableDataComponent
       const draggableData = entity.getComponent(DraggableDataComponent);
@@ -155,7 +156,7 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   handleRoundComplete() {
-    if (this.isGameEnded) return;
+    if (this.isGameEnded || this.pendingGameOver) return;
 
     // const addScore = Config.IncreaseScore[this.level];
     // this.allScore += addScore;
@@ -164,22 +165,21 @@ export default class GameplayScene extends Phaser.Scene {
     // Always trigger level complete effect for the final puzzle success
     showLevelCompleteEffect();
 
-    // If timer already expired, end the game after the effect
-    if (this.pendingGameOver) {
-      this.time.delayedCall(1500, () => {
-        this.onGameOver("success");
-      });
-      return;
-    }
-
-    // Otherwise, advance to the next round
+    // Advance to the next round
     this.stage++;
     EventBus.emit('minigame:score', { score: this.allScore });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
 
+    this.isTransitioning = true;
+
     // Short delay for success feedback before loading next puzzle
     this.time.delayedCall(1500, () => {
-      this.constructGrid(true);
+      this.isTransitioning = false;
+      if (!this.pendingGameOver && !this.isGameEnded) {
+        this.constructGrid(true);
+      } else if (this.pendingGameOver && !this.isGameEnded) {
+        this.onGameOver("success");
+      }
     });
   }
 
@@ -231,8 +231,15 @@ export default class GameplayScene extends Phaser.Scene {
     EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
 
     if (elapsePlaytimeMS >= Config.TimeLimitMs && !this.pendingGameOver) {
-      // Let the player finish the current puzzle before ending
       this.pendingGameOver = true;
+      this.levelIsActive = false; // Stop timer updates
+
+      if (!this.isTransitioning) {
+        showLevelCompleteEffect();
+        this.time.delayedCall(1500, () => {
+          this.onGameOver("success");
+        });
+      }
     }
   }
 
