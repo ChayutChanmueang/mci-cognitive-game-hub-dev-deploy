@@ -78,6 +78,43 @@ export const Config = Object.freeze({
     TimeLimitMs: 180000 // 3 Minutes
 });
 
+export const TutorialConfig = Object.freeze({
+    [Difficulty.EASY]: {
+        // --- When to show ---
+        showOnFirstStart: true,      // Show tutorial on very first game
+        showOnEveryStart: false,     // Show tutorial every time game starts
+        showOnIdle: true,            // Show tutorial after player is idle
+        idleTimeoutMs: 10000,        // <- Designer-tweakable (ms)
+
+        // --- Animation style ---
+        // 'hand-only'       -> hand slides from item to slot
+        // 'ghost-preview'   -> hand drags a semi-transparent copy of the item along with it
+        animationStyle: 'hand-only',
+
+        // --- Dismissal behavior ---
+        dismissOnDrag: true,         // Tutorial disappears when player starts dragging
+        dismissOnTap: true,          // Tutorial disappears when player taps anywhere
+    },
+    [Difficulty.NORMAL]: {
+        showOnFirstStart: true,
+        showOnEveryStart: false,
+        showOnIdle: true,
+        idleTimeoutMs: 8000,         // <- Designer-tweakable (ms)
+        animationStyle: 'ghost-preview',
+        dismissOnDrag: true,
+        dismissOnTap: true,
+    },
+    [Difficulty.HARD]: {
+        showOnFirstStart: true,
+        showOnEveryStart: false,
+        showOnIdle: true,
+        idleTimeoutMs: 5000,         // <- Designer-tweakable (ms)
+        animationStyle: 'ghost-preview',
+        dismissOnDrag: true,
+        dismissOnTap: false,
+    },
+});
+
 export const GameLevels = {
     [Difficulty.EASY]: [
         {

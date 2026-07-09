@@ -11,6 +11,7 @@ import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
 
 import LevelGenerator from "../components/scripts/level-generator";
+import TutorialManager from "../components/scripts/tutorial-manager";
 import game_db from "/src/util/minigame-db-util.js";
 import EmojiRenderer from "../components/scripts/emoji-renderer";
 import SpriteRenderer from "../components/scripts/sprite-renderer";
@@ -38,6 +39,7 @@ export default class GameplayScene extends Phaser.Scene {
     for (const [key, path] of Object.entries(ThemeAssets)) {
         this.load.image(key, path);
     }
+    this.load.image('tutorial_hand', 'assets/common/ui_icon/return_btn.png');
   }
 
   create(data) {
@@ -157,6 +159,11 @@ export default class GameplayScene extends Phaser.Scene {
   handleRoundComplete() {
     if (this.isGameEnded) return;
 
+    if (this.tutorialManager) {
+        this.tutorialManager.destroy();
+        this.tutorialManager = null;
+    }
+
     // const addScore = Config.IncreaseScore[this.level];
     // this.allScore += addScore;
     this.completedStages++;
@@ -187,6 +194,12 @@ export default class GameplayScene extends Phaser.Scene {
     if (this.isGameEnded) return;
     this.isGameEnded = true;
     this.levelIsActive = false;
+    
+    if (this.tutorialManager) {
+        this.tutorialManager.destroy();
+        this.tutorialManager = null;
+    }
+
     this.gameEndedAt = new Date();
     this.replayLogger.addTimestampEvent(GlobalReplayEvent.ROUND_COMPLETED);
     this.replayLogger.pushToDatabase();
@@ -323,6 +336,36 @@ export default class GameplayScene extends Phaser.Scene {
       }
     }
     this.grid.sort('depth');
+
+    // Disable drop-zones on the reference side
+    for (let i = 0; i < _gridConfig.columns; i++) {
+      for (let j = 0; j < _gridConfig.rows; j++) {
+        if (this.levelGenerator.isCellInRegion(
+            _gridConfig.symmetryType, 'fixed', i, j,
+            Math.floor(_gridConfig.columns / 2),
+            Math.floor(_gridConfig.rows / 2)
+        )) {
+            const cell = this.grid.getEntityAt(i, j);
+            if (cell && cell.input) {
+                cell.input.dropZone = false;
+            }
+        }
+      }
+    }
+
+    // Handle Tutorial
+    if (this.tutorialManager) {
+        this.tutorialManager.destroy();
+    }
+    this.tutorialManager = new TutorialManager(
+        this,
+        this.level,
+        this.grid,
+        _level,
+        _solution,
+        _gridConfig.symmetryType
+    );
+    this.tutorialManager.init();
   }
 
   configMaker(_Difficulty = Difficulty.EASY, _Level = 1) {
