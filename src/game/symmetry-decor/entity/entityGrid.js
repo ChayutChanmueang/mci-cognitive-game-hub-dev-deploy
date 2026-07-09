@@ -12,6 +12,7 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
         this.cols = config.columns || 10;
         this.rows = config.rows || 10;
         this.padding = config.padding || 0;
+        this.gridConfig = config;
 
         // 2. Calculate the exact cell size to fit the bounds
         this._calculateCellDimensions();
@@ -171,48 +172,85 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
         }
     }
 
+    _isReferenceCell(x, y, symmetryType) {
+        if (!symmetryType) return false;
+        const halfCols = Math.floor(this.cols / 2);
+        const halfRows = Math.floor(this.rows / 2);
+        switch (symmetryType) {
+            case 'L-R': return x < halfCols;
+            case 'R-L': return x >= halfCols;
+            case 'T-B': return y < halfRows;
+            case 'B-T': return y >= halfRows;
+            case 'QUADRANT': return (x < halfCols && y < halfRows);
+            case 'FOUR_WAY': return (x < halfCols && y < halfRows);
+            case 'DIAGONAL': return x < y;
+            default: return x < halfCols;
+        }
+    }
+
     drawGridBackground() {
-        const graphics = this.scene.add.graphics();
+        const graphicsBg = this.scene.add.graphics();
+        const graphicsBorders = this.scene.add.graphics();
 
         // --- Styling (Tweak these to match your aesthetic) ---
         const bgColor = 0xffffff;       // White background
         const borderColor = 0xDB4670;   // Outer border color
         const innerBorderColor = 0xF2D0D9;
+        const refBorderColor = 0x888888; // Dark grey for reference side
         const outerBorderThickness = 12;
         const innerBorderThickness = 6;
         const cornerRadius = 16;        // How round the outer corners are
 
         // 1. Draw the main outer rounded rectangle background
-        graphics.fillStyle(bgColor, 1.0);
-        graphics.fillRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
+        graphicsBg.fillStyle(bgColor, 1.0);
+        graphicsBg.fillRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
+        graphicsBg.setDepth(-10);
+        this.add(graphicsBg);
 
-        // 2. Draw the inner cell borders
-        graphics.lineStyle(innerBorderThickness, innerBorderColor, 1.0);
-        graphics.beginPath();
+        // 2. Draw the inner cell borders segment by segment
+        const symType = this.gridConfig ? this.gridConfig.symmetryType : null;
 
         // Draw vertical inner lines
         for (let i = 1; i < this.cols; i++) {
             const x = i * (this.cellWidth + this.padding);
-            graphics.moveTo(x, 0);
-            graphics.lineTo(x, this.gridHeight);
+            for (let j = 0; j < this.rows; j++) {
+                const y1 = j * (this.cellHeight + this.padding);
+                const y2 = (j + 1) * (this.cellHeight + this.padding);
+                
+                const isRef = this._isReferenceCell(i - 1, j, symType) && this._isReferenceCell(i, j, symType);
+
+                graphicsBorders.lineStyle(innerBorderThickness, isRef ? refBorderColor : innerBorderColor, 1.0);
+                graphicsBorders.beginPath();
+                graphicsBorders.moveTo(x, y1);
+                graphicsBorders.lineTo(x, y2);
+                graphicsBorders.strokePath();
+            }
         }
 
         // Draw horizontal inner lines
         for (let j = 1; j < this.rows; j++) {
             const y = j * (this.cellHeight + this.padding);
-            graphics.moveTo(0, y);
-            graphics.lineTo(this.gridWidth, y);
+            for (let i = 0; i < this.cols; i++) {
+                const x1 = i * (this.cellWidth + this.padding);
+                const x2 = (i + 1) * (this.cellWidth + this.padding);
+
+                const isRef = this._isReferenceCell(i, j - 1, symType) && this._isReferenceCell(i, j, symType);
+
+                graphicsBorders.lineStyle(innerBorderThickness, isRef ? refBorderColor : innerBorderColor, 1.0);
+                graphicsBorders.beginPath();
+                graphicsBorders.moveTo(x1, y);
+                graphicsBorders.lineTo(x2, y);
+                graphicsBorders.strokePath();
+            }
         }
 
-        graphics.strokePath();
-
         // 3. Draw the outer border on top of everything else
-        graphics.lineStyle(outerBorderThickness, borderColor, 1.0);
-        graphics.strokeRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
+        graphicsBorders.lineStyle(outerBorderThickness, borderColor, 1.0);
+        graphicsBorders.strokeRoundedRect(0, 0, this.gridWidth, this.gridHeight, cornerRadius);
 
-        // Put it at a negative depth so it sits behind everything else in the container
-        graphics.setDepth(-10);
-        this.add(graphics);
+        // Put borders at depth 10 so they are above the cell backgrounds (depth 0)
+        graphicsBorders.setDepth(10);
+        this.add(graphicsBorders);
     }
 
 }

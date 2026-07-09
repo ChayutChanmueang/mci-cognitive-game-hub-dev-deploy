@@ -346,8 +346,13 @@ export default class GameplayScene extends Phaser.Scene {
             Math.floor(_gridConfig.rows / 2)
         )) {
             const cell = this.grid.getEntityAt(i, j);
-            if (cell && cell.input) {
-                cell.input.dropZone = false;
+            if (cell) {
+                if (cell.input) {
+                    cell.input.dropZone = false;
+                }
+                // Make reference slot darker
+                cell.setTint(0x888888);
+                cell.setAlpha(0.5);
             }
         }
       }

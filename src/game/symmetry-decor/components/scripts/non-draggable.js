@@ -17,9 +17,15 @@ export default class NonDraggableComponent extends Component{
         }
 
         // Gray out and set opacity to 85% as per user request
-        // Using setTint(0x888888) for 'gray out' to ensure maximum compatibility 
-        // and avoid TypeError in different Phaser 3 versions.
-        this.entity.setAlpha(0.85);
-        this.entity.setTint(0x888888);
+        // Making it 0.75 opaque and applying white tint (0xffffff)
+        this.entity.setAlpha(0.75);
+        this.entity.setTint(0xffffff);
+        
+        // Make it brighter/darker than original
+        if (this.entity.preFX) {
+            this.entity.preFX.addColorMatrix().brightness(0.8); // 80% of original brightness
+        } else {
+            this.entity.setBlendMode(Phaser.BlendModes.SCREEN);
+        }
     }
 }
