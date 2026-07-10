@@ -23,7 +23,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 
 ### Latest Sprint Planning
 - **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น (Sprint 8):** อ่าน `user_game_profile_data.tree_type` จาก Supabase; สุ่มจากตาราง `game_tree_list` (`a`/`b`/`c`/`d`); lazy backfill ผู้เล่น v1.0.0 → target **v1.1.0**
-- **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — แก้ด่วนจากการลงพื้นที่:** [US-E9-01](agile/user-stories/US-E9-01.md) Symmetry UX, [US-E9-02](agile/user-stories/US-E9-02.md) Fry Food skip, [US-E9-03](agile/user-stories/US-E9-03.md) Zoo Detective drag, [US-E9-04](agile/user-stories/US-E9-04.md) Postcard font → target **v1.1.1** — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
+- **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — แก้ด่วนจากการลงพื้นที่:** US-E9-01..11 (11 stories) → target **v1.1.1** — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
 
 ---
 

@@ -52,6 +52,19 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-10] - Field Feedback รอบ 2 → US-E9-06..11 (docs)
+**Docs-only** (no `package.json` bump).
+
+### Added
+- User stories [US-E9-06](agile/user-stories/US-E9-06.md)..[US-E9-11](agile/user-stories/US-E9-11.md) จาก feedback รอบ 2 (ลงพื้นที่)
+- อัปเดต [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md) §2.7–2.12, [Sprint 09](agile/sprint-backlogs/sprint-09.md), backlog, kanban
+
+### Consolidation
+- **US-E9-07** รวม: เอฟเฟคเก่งมากค้าง + Phaser performance + Galaxy A10s เป็นเครื่องอ้างอิงขั้นต่ำ
+- แยกต่างหาก: Wake lock (06), Game Hub labels (08), system font scale (09), HN CLI (10), พ.ศ. signup (11)
+
+---
+
 ## [2026-07-10] - Field Feedback ลงพื้นที่ → Sprint 09 + Epic E9 (docs)
 **Docs-only** (no `package.json` bump).
 
