@@ -384,26 +384,27 @@
   left: calc(-10px * var(--gh-scale, 1));
   top: calc(-1px * var(--gh-scale, 1));
 }
-.gh-lesson-card__category { /* 3031:416 */
+/* US-E9-08: title (game name) sits on top, category below — swapped per field feedback. */
+.gh-lesson-card__title { /* 3031:417 — now the top slot */
   position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: 0;
-  font-family: var(--main-font), var(--main-font-type);
-  font-weight: 700;
-  font-size: calc(78.55112px * var(--gh-scale, 1));
-  line-height: normal;
-  color: rgb(103, 163, 42);
-  white-space: nowrap;
-}
-.gh-lesson-card__title { /* 3031:417 */
-  position: absolute;
-  left: calc(93px * var(--gh-scale, 1));
-  top: calc(101.65625px * var(--gh-scale, 1));
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 500;
   font-size: calc(51.98235px * var(--gh-scale, 1));
   line-height: normal;
   color: rgb(142, 207, 77);
+  white-space: nowrap;
+}
+.gh-lesson-card__category { /* 3031:416 — now the lower slot */
+  position: absolute;
+  left: calc(93px * var(--gh-scale, 1));
+  top: calc(80px * var(--gh-scale, 1));
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: calc(58px * var(--gh-scale, 1));
+  line-height: normal;
+  color: rgb(103, 163, 42);
   white-space: nowrap;
 }
 .gh-lesson-card__desc { /* 3031:418 */
@@ -784,20 +785,31 @@
   width: calc(150px * var(--gh-scale, 1));
 }
 
-/* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill) */
+/* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill).
+ * US-E9-08: two-line layout — game name on top, cognitive category below. */
 .gh-game-pill {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
   max-width: calc(620px * var(--gh-scale, 1));
-  padding: calc(28px * var(--gh-scale, 1)) calc(40px * var(--gh-scale, 1));
+  padding: calc(20px * var(--gh-scale, 1)) calc(40px * var(--gh-scale, 1));
   margin-left: calc(48px * var(--gh-scale, 1));
   border-radius: calc(40px * var(--gh-scale, 1));
   background: rgba(255, 255, 255, 0.9);
   /*border: calc(3px * var(--gh-scale, 1)) solid rgba(183, 176, 168, 0.62);*/
   font-family: var(--main-font), var(--main-font-type);
-  font-weight: 700;
-  font-size: calc(44px * var(--gh-scale, 1));
   line-height: 1.15;
   color: #4a4a4a;
+}
+.gh-game-pill__label {
+  font-weight: 700;
+  font-size: calc(44px * var(--gh-scale, 1));
+}
+.gh-game-pill__category {
+  display: block;
+  font-weight: 500;
+  font-size: calc(32px * var(--gh-scale, 1));
+  color: #888;
+  margin-top: calc(4px * var(--gh-scale, 1));
 }
 
 /* ── Part 8b · production hub layout (floating header + level-path) ─
