@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-08 | **Release:** [v1.0.0](../changelog.md) — Stable production build | **Current Sprint:** [Sprint 08](./sprint-backlogs/sprint-08.md) (post-1.0 → target `1.1.0`)
+**Last Updated:** 2026-07-10 | **Release:** [v1.0.0](../changelog.md) — Stable production build | **Current Sprint:** [Sprint 08](./sprint-backlogs/sprint-08.md) (wrap-up `1.1.0`) + [Sprint 09](./sprint-backlogs/sprint-09.md) (แก้ด่วน → `1.1.1`)
 
 ## 🎯 Product Vision
 "สร้างแอปพลิเคชันเกมฝึกทักษะทางปัญญา (Cognitive Training) ที่สนุก เข้าถึงง่าย และสามารถติดตามผลการพัฒนาของผู้ป่วยภาวะสมองเสื่อมระยะเริ่มต้น (MCI) ได้อย่างแม่นยำ ผ่านระบบ Gamification 14 วัน"
@@ -105,8 +105,18 @@
 | --- | --- | --- | --- |
 | [US-E8-01](./user-stories/US-E8-01.md) | ต้นคิดดีหลายชนิดต่อผู้เล่น — `tree_type` + `game_tree_list` + lazy backfill ผู้เล่น v1.0.0 (`NULL` → สุ่ม + persist) | High | 🧪 Review / Testing |
 
+### E9: Field Feedback Hotfixes — ลงพื้นที่ (P0)
+| ID | User Story | Priority | Status |
+| --- | --- | --- | --- |
+| [US-E9-01](./user-stories/US-E9-01.md) | ภัยพิบัติระดับ Symmetry — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง 2×2/4×4/6×6, เส้นแบ่งชัด, จบเมื่อหมดเวลา | High | 📋 Backlog |
+| [US-E9-02](./user-stories/US-E9-02.md) | เกมทำอาหาร — ปุ่มข้ามเมื่อไม่มี Gyroscope (ไม่ได้คะแนน) | High | 📋 Backlog |
+| [US-E9-03](./user-stories/US-E9-03.md) | เกมสัตว์นักสืบ — เปลี่ยน input เป็นลากเพื่อวาง | High | 📋 Backlog |
+| [US-E9-04](./user-stories/US-E9-04.md) | จดหมายจากหลานรัก — ขยายตัวอักษรโจทย์เพิ่มเติม (ต่อยอด US-E7-09) | High | 📋 Backlog |
+| [US-E9-05](./user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Phase 2 — ระบบ) | Med | 📋 Backlog |
+
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
 > ⤷ US-E8-01 ต่อยอด [US-E7-10](./user-stories/US-E7-10.md) (ต้นไม้หลายรูปแบบ) — ดู [Sprint 08](./sprint-backlogs/sprint-08.md)
+> ⤷ US-E9-01..05 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
 > \* US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 

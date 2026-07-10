@@ -5,6 +5,11 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
+- [ ] [US-E9-01](user-stories/US-E9-01.md) 🔴 Symmetry Decor — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง, เส้นแบ่งชัด, จบเมื่อหมดเวลา (Field FB ลงพื้นที่)
+- [ ] [US-E9-02](user-stories/US-E9-02.md) 🔴 Fry Food — ปุ่มข้ามเมื่อไม่มี Gyroscope (Field FB ลงพื้นที่)
+- [ ] [US-E9-03](user-stories/US-E9-03.md) 🔴 Zoo Detective — ลากเพื่อวางแทนจิ้ม (Field FB ลงพื้นที่)
+- [ ] [US-E9-04](user-stories/US-E9-04.md) 🔴 Postcard Reader — ขยายตัวอักษรโจทย์เพิ่มเติม (Field FB ลงพื้นที่)
+- [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Phase 2)
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
 - [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)

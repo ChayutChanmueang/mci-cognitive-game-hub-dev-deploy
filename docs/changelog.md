@@ -52,6 +52,21 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-10] - Field Feedback ลงพื้นที่ → Sprint 09 + Epic E9 (docs)
+**Docs-only** (no `package.json` bump).
+
+### Added
+- Meeting note: [2026-07-10 Field Feedback — ลงพื้นที่](agile/meeting-backlogs/2026-07-10.md)
+- Epic **E9: Field Feedback Hotfixes** — user stories [US-E9-01](agile/user-stories/US-E9-01.md)..[US-E9-05](agile/user-stories/US-E9-05.md)
+- [Sprint 09](agile/sprint-backlogs/sprint-09.md): แก้ด่วน UX มินิเกมจากการลงพื้นที่ → target **`1.1.1`** PATCH
+- อัปเดต product backlog, sprint planning, meeting logs, project index
+
+### Notes
+- ต้นคิดดีสุ่ม 4 ชนิด → ครอบคลุมแล้วใน [US-E8-01](agile/user-stories/US-E8-01.md) (Sprint 08, target `1.1.0`) — ไม่สร้าง story ซ้ำ
+- ลำดับความสำคัญ: P0 gameplay (US-E9-01..04) ก่อน → P1 ระบบ (US-E9-05)
+
+---
+
 ## [1.1.0] - 2026-07-08
 **Version bump:** `1.0.0 → 1.1.0` (**MINOR**) — adds backward-compatible per-player progression-tree personalization.
 

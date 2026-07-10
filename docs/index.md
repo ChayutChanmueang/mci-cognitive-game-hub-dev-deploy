@@ -1,8 +1,8 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** 🟢 **Stable Release (1.0.0)** — Production-ready full build | **Current Sprint:** [Sprint 8 — Per-Player Progression Tree](agile/sprint-backlogs/sprint-08.md) *(Active, 2026-07-08 → target v1.1.0)*
-**Version:** 1.1.0 | **Last Updated:** 2026-07-08 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 **Stable Release (1.0.0)** — Production-ready full build | **Current Sprint:** [Sprint 8](agile/sprint-backlogs/sprint-08.md) *(wrap-up → v1.1.0)* + [Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) *(Active, แก้ด่วน → v1.1.1)*
+**Version:** 1.1.0 | **Last Updated:** 2026-07-10 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -21,8 +21,9 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Media:** Embeddable `VideoPlayer` (loading overlay, buffering feedback, read-only progress, volume/mute sync, fullscreen with iOS pseudo-fullscreen fallback) used in the check-in short-video step and resting point; random video selection filters hidden entries from `game_video_list`.
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
-### Latest Sprint 8 Planning
-- **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น:** อ่าน `user_game_profile_data.tree_type` จาก Supabase; สุ่มจากตาราง `game_tree_list` (`a`/`b`/`c`/`d`); **ผู้เล่น v1.0.0 ที่ `tree_type` เป็น NULL** → lazy backfill ตอน login (สุ่มแล้ว `UPDATE`); asset ที่ `public/assets/checkin-popup/{type}/`
+### Latest Sprint Planning
+- **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น (Sprint 8):** อ่าน `user_game_profile_data.tree_type` จาก Supabase; สุ่มจากตาราง `game_tree_list` (`a`/`b`/`c`/`d`); lazy backfill ผู้เล่น v1.0.0 → target **v1.1.0**
+- **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — แก้ด่วนจากการลงพื้นที่:** [US-E9-01](agile/user-stories/US-E9-01.md) Symmetry UX, [US-E9-02](agile/user-stories/US-E9-02.md) Fry Food skip, [US-E9-03](agile/user-stories/US-E9-03.md) Zoo Detective drag, [US-E9-04](agile/user-stories/US-E9-04.md) Postcard font → target **v1.1.1** — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
 
 ---
 
