@@ -62,9 +62,11 @@ export function renderLessonCard({
   return `
     <div class="gh-lesson-card">
       ${PANEL_SVG}
-      <span class="gh-lesson-card__title">${escapeText(title)}</span>
-      <span class="gh-lesson-card__category">${escapeText(category)}</span>
-      <p class="gh-lesson-card__desc">${escapeText(description)}</p>
-      ${button}
+      <div class="gh-lesson-card__content">
+        <span class="gh-lesson-card__title">${escapeText(title)}</span>
+        <span class="gh-lesson-card__category">${escapeText(category)}</span>
+        <p class="gh-lesson-card__desc">${escapeText(description)}</p>
+        ${button}
+      </div>
     </div>`;
 }

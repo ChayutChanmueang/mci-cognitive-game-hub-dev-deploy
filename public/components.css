@@ -384,20 +384,32 @@
   left: calc(-10px * var(--gh-scale, 1));
   top: calc(-1px * var(--gh-scale, 1));
 }
+
+.gh-lesson-card__content {
+  position: absolute;
+  display: grid;
+  padding: 5px 30px;
+  align-content: start;
+  align-items: start;
+  grid-auto-flow: row;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+
 /* US-E9-08: title (game name) on top — prominent, bold. category below — lighter subtitle. */
 .gh-lesson-card__title { /* top slot */
-  position: absolute;
-  left: calc(93px * var(--gh-scale, 1));
-  top: 0;
   font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
   font-size: calc(64px * var(--gh-scale, 1));
   line-height: normal;
   color: rgb(103, 163, 42);
   white-space: nowrap;
+  grid-column: 1;
+  grid-row: 1;
 }
 .gh-lesson-card__category { /* lower slot */
-  position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: calc(85px * var(--gh-scale, 1));
   font-family: var(--main-font), var(--main-font-type);
@@ -406,9 +418,10 @@
   line-height: normal;
   color: rgb(142, 207, 77);
   white-space: nowrap;
+  grid-column: 1;
+  grid-row: 2;
 }
 .gh-lesson-card__desc { /* 3031:418 */
-  position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: calc(184.828125px * var(--gh-scale, 1));
   width: calc(515.2029px * var(--gh-scale, 1));
@@ -418,6 +431,8 @@
   font-size: calc(36.96523px * var(--gh-scale, 1));
   line-height: normal;
   color: rgb(94, 94, 94);
+  grid-column: 1;
+  grid-row: 3;
 }
 .gh-lesson-card__button { /* 3108:69 */
   position: absolute;
