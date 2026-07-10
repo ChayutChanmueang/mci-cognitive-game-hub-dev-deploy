@@ -55,6 +55,7 @@ import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
 import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
+import screenWakeLock from "./core/wake-lock-manager.js"; // US-E9-06
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -1373,6 +1374,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.classList.add("game-mode");
+        // US-E9-06: acquire screen wake lock to prevent device screen from
+        // dimming or sleeping during gameplay. Fails silently if unsupported.
+        screenWakeLock.acquire();
         document.body.classList.remove("hub-mode");
         document.body.classList.remove("landing-mode");
         app?.classList.add("game-mode");
