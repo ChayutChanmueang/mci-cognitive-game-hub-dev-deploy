@@ -114,7 +114,7 @@
 | [US-E9-04](./user-stories/US-E9-04.md) | จดหมายจากหลานรัก — ขยายตัวอักษรโจทย์เพิ่มเติม (ต่อยอด US-E7-09) | High | 📋 Backlog |
 | [US-E9-05](./user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Phase 2 — ระบบ) | Med | 📋 Backlog |
 | [US-E9-06](./user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | ✅ Done |
-| [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline) | High | 📋 Backlog |
+| [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline) | High | 🔵 In Progress |
 | [US-E9-08](./user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (v1.1.1) |
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | Med | 📋 Backlog |
 | [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ HN ที่ลงทะเบียนผิด (Phase 2) | Med | 📋 Backlog |

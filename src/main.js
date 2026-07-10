@@ -229,12 +229,39 @@ document.addEventListener("DOMContentLoaded", () => {
                     activeGameInstance.scale.stopFullscreen();
                 } catch (e) { }
             }
+
+            // US-E9-07: Phaser 3.90's WebGLRenderer.destroy() nulls its `gl` reference but
+            // never calls loseContext(), so the GL context survives until GC. Each minigame
+            // launch builds a new canvas + context, so they accumulate; past ~16 the browser
+            // force-drops the oldest, and on low-RAM devices the GPU process dies first.
+            // Grab the context now — the renderer discards it during destroy.
+            const abandonedGl = activeGameInstance.renderer?.gl || null;
+
             try {
                 if (typeof activeGameInstance.destroy === "function") {
                     activeGameInstance.destroy(true);
                 }
             } catch (e) {
                 console.error("[Main] Error during game destruction:", e);
+            }
+
+            // Game.destroy() only sets `pendingDestroy`; the real teardown runs on the next
+            // game step. Release the context after that, so Phaser is not deleting GL objects
+            // on an already-lost context. The timeout is the backstop for when the step never
+            // comes (rAF is paused while the tab is hidden).
+            if (abandonedGl) {
+                let released = false;
+                const releaseGl = () => {
+                    if (released) {
+                        return;
+                    }
+                    released = true;
+                    try {
+                        abandonedGl.getExtension("WEBGL_lose_context")?.loseContext();
+                    } catch (e) { }
+                };
+                requestAnimationFrame(() => requestAnimationFrame(releaseGl));
+                setTimeout(releaseGl, 250);
             }
         }
 

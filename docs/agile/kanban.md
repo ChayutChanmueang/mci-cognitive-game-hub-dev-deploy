@@ -10,7 +10,6 @@ kanban-plugin: board
 - [ ] [US-E9-03](user-stories/US-E9-03.md) 🔴 Zoo Detective — ลากเพื่อวางแทนจิ้ม (Field FB ลงพื้นที่)
 - [ ] [US-E9-04](user-stories/US-E9-04.md) 🔴 Postcard Reader — ขยายตัวอักษรโจทย์เพิ่มเติม (Field FB ลงพื้นที่)
 - [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Phase 2)
-- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s)
 - [ ] [US-E9-08](user-stories/US-E9-08.md) ⏳ Game Hub — ชื่อเกมบน / หมวดล่าง *(code done, awaiting owner confirmation on device)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่
 - [ ] [US-E9-11](user-stories/US-E9-11.md) 🟠 Sign-up ปีเกิดเป็น พ.ศ.
@@ -21,6 +20,7 @@ kanban-plugin: board
 - [ ] [US-E7-12](user-stories/US-E7-12.md) แสดงโดเมน Cognitive + สรุปหลังบ้าน + เตรียมข้อมูล AI (Doctor FB #2)
 
 ## 🔵 In Progress (WIP Limit: 3)
+- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s) — เริ่ม 2026-07-10
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 - [ ] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชีและลงชื่อออก
 
