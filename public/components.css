@@ -384,27 +384,27 @@
   left: calc(-10px * var(--gh-scale, 1));
   top: calc(-1px * var(--gh-scale, 1));
 }
-/* US-E9-08: title (game name) sits on top, category below — swapped per field feedback. */
-.gh-lesson-card__title { /* 3031:417 — now the top slot */
+/* US-E9-08: title (game name) on top — prominent, bold. category below — lighter subtitle. */
+.gh-lesson-card__title { /* top slot */
   position: absolute;
   left: calc(93px * var(--gh-scale, 1));
   top: 0;
   font-family: var(--main-font), var(--main-font-type);
-  font-weight: 500;
-  font-size: calc(51.98235px * var(--gh-scale, 1));
-  line-height: normal;
-  color: rgb(142, 207, 77);
-  white-space: nowrap;
-}
-.gh-lesson-card__category { /* 3031:416 — now the lower slot */
-  position: absolute;
-  left: calc(93px * var(--gh-scale, 1));
-  top: calc(80px * var(--gh-scale, 1));
-  font-family: var(--main-font), var(--main-font-type);
   font-weight: 700;
-  font-size: calc(58px * var(--gh-scale, 1));
+  font-size: calc(64px * var(--gh-scale, 1));
   line-height: normal;
   color: rgb(103, 163, 42);
+  white-space: nowrap;
+}
+.gh-lesson-card__category { /* lower slot */
+  position: absolute;
+  left: calc(93px * var(--gh-scale, 1));
+  top: calc(85px * var(--gh-scale, 1));
+  font-family: var(--main-font), var(--main-font-type);
+  font-weight: 500;
+  font-size: calc(52px * var(--gh-scale, 1));
+  line-height: normal;
+  color: rgb(142, 207, 77);
   white-space: nowrap;
 }
 .gh-lesson-card__desc { /* 3031:418 */
@@ -803,12 +803,13 @@
 .gh-game-pill__label {
   font-weight: 700;
   font-size: calc(44px * var(--gh-scale, 1));
+  color: #3a3a3a;
 }
 .gh-game-pill__category {
   display: block;
   font-weight: 500;
   font-size: calc(32px * var(--gh-scale, 1));
-  color: #888;
+  color: #999;
   margin-top: calc(4px * var(--gh-scale, 1));
 }
 
