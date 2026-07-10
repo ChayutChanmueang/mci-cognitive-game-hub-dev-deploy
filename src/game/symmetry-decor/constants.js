@@ -115,6 +115,33 @@ export const TutorialConfig = Object.freeze({
     },
 });
 
+export const TutorialLevelConfig = Object.freeze({
+    // --- Developer toggles ---
+    enabled: true,                    // Master switch: false = skip tutorial entirely
+    alwaysShowTutorial: false,        // true = show every session; false = first time only
+    localStorageKey: 'symmetry_decor_tutorial_level_completed',
+
+    // --- Grid config (easiest possible) ---
+    gridColumns: 4,
+    gridRows: 4,
+    symmetryType: 'L-R',             // Simple left-right mirror
+    itemCount: 3,                     // 3 items for a fuller tutorial experience
+
+    // --- Tutorial hand behavior ---
+    animationStyle: 'ghost-preview',  // Ghost preview so player sees what moves
+    handDelayMs: 800,                 // Delay before showing hand for each new step
+
+    // --- Blocking behavior ---
+    // true  = "watch first, then do" — hand completes 1 animation loop
+    //         before enabling drag on the guided item
+    // false = "non-blocking" — player can drag immediately while hand animates
+    semiBlocking: true,
+
+    // --- Optional text overlay ---
+    showTextOverlay: false,           // true = show instructional text during tutorial
+    textOverlayContent: 'ลากรูปนี้ไปวางตรงช่องที่ถูกต้อง',  // Thai: "Drag this to the correct slot"
+});
+
 export const GameLevels = {
     [Difficulty.EASY]: [
         {

@@ -5,6 +5,7 @@ import UIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 import StartMenuScene from './scenes/StartMenu';
 import MainMenuScene from './scenes/MainMenu';
 import GameplayScene from './scenes/Gameplay';
+import TutorialLevelScene from './scenes/TutorialLevel';
 import { Boot } from './scenes/Boot';
 import { Preloader } from './scenes/Preloader';
 import { AUTO, Game } from 'phaser';
@@ -30,6 +31,7 @@ const config = {
     },
     scene: [
         StartMenuScene,
+        TutorialLevelScene,
         //MainMenuScene,
         GameplayScene,
         Boot,

@@ -205,6 +205,9 @@ export class MinigameHUD {
         EventBus.on("minigame:hide-hud", this.boundOnHide);
         EventBus.on("minigame:menu-mode", this.boundOnMenuMode);
         
+        this.boundOnTimerText = this.onTimerText.bind(this);
+        EventBus.on("minigame:timer-text", this.boundOnTimerText);
+        
         this.boundOnShowTimer = () => { if (this.timerWrap) this.timerWrap.style.display = ""; };
         this.boundOnHideTimer = () => { if (this.timerWrap) this.timerWrap.style.display = "none"; };
         EventBus.on("minigame:show-timer", this.boundOnShowTimer);
@@ -286,6 +289,15 @@ export class MinigameHUD {
         }
     }
 
+    onTimerText({ text }) {
+        if (this.timeElement) {
+            this.timeElement.textContent = text;
+        }
+        if (this.timeDisplayElement) {
+            this.timeDisplayElement.textContent = text;
+        }
+    }
+
     onGameOver(data) {
         // Handle game over (maybe show result panel)
     }
@@ -351,6 +363,7 @@ export class MinigameHUD {
         EventBus.off("minigame:show-hud", this.boundOnShow);
         EventBus.off("minigame:hide-hud", this.boundOnHide);
         EventBus.off("minigame:menu-mode", this.boundOnMenuMode);
+        EventBus.off("minigame:timer-text", this.boundOnTimerText);
         EventBus.off("minigame:show-timer", this.boundOnShowTimer);
         EventBus.off("minigame:hide-timer", this.boundOnHideTimer);
         

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { EventBus } from '../../../core/EventBus.js';
 import { StartMenuPanel } from '../../../ui/start-menu-panel.js';
 import SessionStorageManager from '../../../core/session-storage-manager.js';
-import { StartMenuSetting } from '../constants.js';
+import { StartMenuSetting, TutorialLevelConfig } from '../constants.js';
 
 export default class StartMenuScene extends Phaser.Scene {
     constructor() {
@@ -64,7 +64,11 @@ export default class StartMenuScene extends Phaser.Scene {
 
         // Listen for the start button press and transition to the gameplay scene
         const handleStartGame = () => {
-            this.scene.start('gameplay-scene');
+            if (this._shouldShowTutorialLevel()) {
+                this.scene.start('tutorial-level-scene');
+            } else {
+                this.scene.start('gameplay-scene');
+            }
         };
         EventBus.on('startmenu:start-game', handleStartGame);
 
@@ -79,5 +83,11 @@ export default class StartMenuScene extends Phaser.Scene {
 
     update(time, delta) {
         // Start menu scene update loop
+    }
+
+    _shouldShowTutorialLevel() {
+        if (!TutorialLevelConfig.enabled) return false;
+        if (TutorialLevelConfig.alwaysShowTutorial) return true;
+        return localStorage.getItem(TutorialLevelConfig.localStorageKey) !== 'true';
     }
 }

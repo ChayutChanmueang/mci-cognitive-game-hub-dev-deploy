@@ -15,6 +15,7 @@ export default class TutorialHand {
 
         this.hand = null;
         this.ghost = null;
+        this.highlightRing = null;
         this.tweens = [];
         this.visible = false;
     }
@@ -85,11 +86,14 @@ export default class TutorialHand {
     }
 
     show() {
-        if (this.visible) return;
-
         const { sourceEntity, targetGridPos, textureKey } = this.findTutorialPair();
+        this.showForPair(sourceEntity, targetGridPos, textureKey);
+    }
+
+    showForPair(sourceEntity, targetGridPos, textureKey, onLoopComplete = null) {
+        if (this.visible) return;
         if (!sourceEntity || !targetGridPos) {
-            console.warn("TutorialHand: Could not find valid pair to demonstrate");
+            console.warn("TutorialHand: Missing source or target for demonstration");
             return;
         }
 
@@ -122,13 +126,39 @@ export default class TutorialHand {
                 this.ghost.setScale(spriteRenderer.sizeScale);
             }
 
-            this._animateGhostPreview(sourcePos, targetPos);
+            this._animateGhostPreview(sourcePos, targetPos, onLoopComplete);
         } else {
-            this._animateHandOnly(sourcePos, targetPos);
+            this._animateHandOnly(sourcePos, targetPos, onLoopComplete);
         }
+        
+        this._showHighlightRing(targetPos);
     }
 
-    _animateHandOnly(sourcePos, targetPos) {
+    showWithCallback(sourceEntity, targetGridPos, textureKey, onLoopComplete) {
+        this.showForPair(sourceEntity, targetGridPos, textureKey, onLoopComplete);
+    }
+
+    _showHighlightRing(targetPos) {
+        this.highlightRing = this.scene.add.graphics();
+        this.highlightRing.lineStyle(6, 0xffff00, 0.8);
+        this.highlightRing.strokeCircle(0, 0, 40); // 40px radius
+        this.highlightRing.setPosition(targetPos.x, targetPos.y);
+        this.highlightRing.setDepth(1998);
+
+        const ringTween = this.scene.tweens.add({
+            targets: this.highlightRing,
+            scaleX: 1.2,
+            scaleY: 1.2,
+            alpha: 0.2,
+            yoyo: true,
+            repeat: -1,
+            duration: 600,
+            ease: 'Sine.easeInOut'
+        });
+        this.tweens.push(ringTween);
+    }
+
+    _animateHandOnly(sourcePos, targetPos, onLoopComplete) {
         // Continuous subtle pulse
         const pulseTween = this.scene.tweens.add({
             targets: this.hand,
@@ -171,7 +201,13 @@ export default class TutorialHand {
                 },
                 {
                     alpha: 0,
-                    duration: 300
+                    duration: 300,
+                    onComplete: () => {
+                        if (onLoopComplete && !hasCalledBack) {
+                            hasCalledBack = true;
+                            onLoopComplete();
+                        }
+                    }
                 }
             ]
         });
@@ -179,7 +215,7 @@ export default class TutorialHand {
         this.tweens.push(chain);
     }
 
-    _animateGhostPreview(sourcePos, targetPos) {
+    _animateGhostPreview(sourcePos, targetPos, onLoopComplete) {
         // Continuous subtle pulse for hand
         const pulseTween = this.scene.tweens.add({
             targets: this.hand,
@@ -191,6 +227,8 @@ export default class TutorialHand {
             ease: 'Sine.easeInOut'
         });
         this.tweens.push(pulseTween);
+
+        let hasCalledBack = false;
 
         // Movement sequence using chain
         const chain = this.scene.tweens.chain({
@@ -225,7 +263,13 @@ export default class TutorialHand {
                 },
                 {
                     alpha: 0,
-                    duration: 300
+                    duration: 300,
+                    onComplete: () => {
+                        if (onLoopComplete && !hasCalledBack) {
+                            hasCalledBack = true;
+                            onLoopComplete();
+                        }
+                    }
                 }
             ]
         });
@@ -251,6 +295,7 @@ export default class TutorialHand {
         const targets = [];
         if (this.hand) targets.push(this.hand);
         if (this.ghost) targets.push(this.ghost);
+        if (this.highlightRing) targets.push(this.highlightRing);
 
         if (targets.length > 0) {
             this.scene.tweens.add({
@@ -276,6 +321,10 @@ export default class TutorialHand {
         if (this.ghost) {
             this.ghost.destroy();
             this.ghost = null;
+        }
+        if (this.highlightRing) {
+            this.highlightRing.destroy();
+            this.highlightRing = null;
         }
         for (const tween of this.tweens) {
              if (tween && typeof tween.stop === 'function') {
