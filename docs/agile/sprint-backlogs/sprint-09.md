@@ -47,7 +47,7 @@ gantt
 ### 🔴 P0 — แก้ด่วน (Device / Game Hub)
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E9-06](../user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | 📋 Backlog |
+| [US-E9-06](../user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | ✅ Done (owner verified 2026-07-10) |
 | [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline) | High | 📋 Backlog |
 | [US-E9-08](../user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (`a3ffc8d`) |
 

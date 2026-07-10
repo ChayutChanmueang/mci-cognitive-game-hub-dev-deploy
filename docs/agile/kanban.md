@@ -10,7 +10,6 @@ kanban-plugin: board
 - [ ] [US-E9-03](user-stories/US-E9-03.md) 🔴 Zoo Detective — ลากเพื่อวางแทนจิ้ม (Field FB ลงพื้นที่)
 - [ ] [US-E9-04](user-stories/US-E9-04.md) 🔴 Postcard Reader — ขยายตัวอักษรโจทย์เพิ่มเติม (Field FB ลงพื้นที่)
 - [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Phase 2)
-- [ ] [US-E9-06](user-stories/US-E9-06.md) ⏳ ป้องกันหน้าจอดับระหว่างเล่น (Wake Lock) — code complete, awaiting owner verification on device
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s)
 - [ ] [US-E9-08](user-stories/US-E9-08.md) ⏳ Game Hub — ชื่อเกมบน / หมวดล่าง *(code done, awaiting owner confirmation on device)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่
@@ -32,6 +31,7 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E9-06](user-stories/US-E9-06.md) ป้องกันหน้าจอดับระหว่างเล่น (Wake Lock) — จอไม่ดับระหว่างเล่น + dim ได้ตามปกติเมื่อกลับ Game Hub (v1.1.2) — ✅ owner verified 2026-07-10
 - [x] [US-E7-29](user-stories/US-E7-29.md) ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม (ก้องไผ่) — ✅ Done 2026-07-07
 - [x] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก — เสียง AI/ถอดเสียง + ขยายตัวอักษรโจทย์ (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
 - [x] [US-E7-14](user-stories/US-E7-14.md) Layout Game Hub — ระยะเลเวล/สลับชื่อ/เงาตัวละคร (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07

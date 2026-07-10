@@ -209,6 +209,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const destroyActiveGame = () => {
+        // US-E9-06: stop holding the screen awake once the player leaves the game.
+        // This is the single teardown chokepoint, so it covers every exit path
+        // (exit button, game-over, back navigation, route change).
+        screenWakeLock.release("minigame");
+
         // Unregister game sounds IMMEDIATELY, before any Phaser destroy logic can potentially throw an error
         if (currentGameSlug) {
             EventBus.emit('audio:unregister', currentGameSlug);
@@ -1374,9 +1379,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.body.classList.add("game-mode");
-        // US-E9-06: acquire screen wake lock to prevent device screen from
-        // dimming or sleeping during gameplay. Fails silently if unsupported.
-        screenWakeLock.acquire();
         document.body.classList.remove("hub-mode");
         document.body.classList.remove("landing-mode");
         app?.classList.add("game-mode");
@@ -1388,6 +1390,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
+
+            // US-E9-06: keep the screen awake for the duration of the game. Acquired
+            // only after a successful launch, and after the destroyActiveGame() above
+            // has released any lock left over from a previous game.
+            screenWakeLock.acquire("minigame");
 
             // Mount Minigame HUD
             uiRoot.innerHTML = "";
