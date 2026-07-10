@@ -10,6 +10,10 @@
 
 ## Overview
 
+> [!NOTE]
+> This document covers the **Idle Hint System** (`TutorialManager`), which provides contextual help during normal gameplay. 
+> For documentation on the dedicated step-by-step tutorial level that plays on first launch, see [Symmetry Decor Tutorial Level](symmetry-decor-tutorial-level.md).
+
 The tutorial hand system guides players by animating a pointer from a draggable item to its correct solution slot. It is fully configurable per difficulty level via the `TutorialConfig` object in `constants.js`.
 
 The system has three layers of configuration:
@@ -211,9 +215,9 @@ To replace it with a custom hand/pointer asset:
 1. Add your image to `public/assets/` (e.g., `public/assets/symmetry-decor/tutorial_hand.png`)
 2. Update the load path in `Gameplay.js`:
    ```js
-   this.load.image('tutorial_hand', 'assets/symmetry-decor/tutorial_hand.png');
+   this.load.image('tutorial_hand', 'assets/common/ui_icon/return_btn.png');
    ```
-3. You may also want to adjust the rotation angle in `tutorial-hand.js` line 109:
+3. You may also want to adjust the rotation angle in `tutorial-hand.js` line 112:
    ```js
    this.hand.setAngle(-45); // Change this to match your new asset's orientation
    ```
