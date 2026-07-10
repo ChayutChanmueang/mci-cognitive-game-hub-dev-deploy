@@ -12,7 +12,7 @@ kanban-plugin: board
 - [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Phase 2)
 - [ ] [US-E9-06](user-stories/US-E9-06.md) 🔴 ป้องกันหน้าจอดับระหว่างเล่น (Wake Lock)
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s)
-- [ ] [US-E9-08](user-stories/US-E9-08.md) 🔴 Game Hub — ชื่อเกมบน / หมวดล่าง
+- [ ] [US-E9-08](user-stories/US-E9-08.md) ⏳ Game Hub — ชื่อเกมบน / หมวดล่าง *(code done, awaiting owner confirmation on device)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่
 - [ ] [US-E9-11](user-stories/US-E9-11.md) 🟠 Sign-up ปีเกิดเป็น พ.ศ.
 - [ ] [US-E9-10](user-stories/US-E9-10.md) 🟡 CLI update-user-hn.js (Phase 2)
@@ -26,6 +26,7 @@ kanban-plugin: board
 - [ ] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชีและลงชื่อออก
 
 
+
 ## 🔍 Review / Testing
 - [ ] [US-E8-01](user-stories/US-E8-01.md) ต้นคิดดีหลายชนิดต่อผู้เล่น — implementation complete; รอ manual/mobile QA (Sprint 8 → v1.1.0)
 
@@ -34,6 +35,7 @@ kanban-plugin: board
 - [x] [US-E7-29](user-stories/US-E7-29.md) ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม (ก้องไผ่) — ✅ Done 2026-07-07
 - [x] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก — เสียง AI/ถอดเสียง + ขยายตัวอักษรโจทย์ (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
 - [x] [US-E7-14](user-stories/US-E7-14.md) Layout Game Hub — ระยะเลเวล/สลับชื่อ/เงาตัวละคร (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
+- [x] [US-E9-08](user-stories/US-E9-08.md) Game Hub — ชื่อเกมบน / หมวดล่าง (v1.1.1, `a3ffc8d`) — ✅ owner verified 2026-07-10
 - [x] [US-E7-15](user-stories/US-E7-15.md) ระบบสีปุ่มมาตรฐาน เขียว=ยืนยัน/แดง=ยกเลิก (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
 - [x] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen — ✅ Resolved 2026-07-07
 - [x] [US-E7-24](user-stories/US-E7-24.md) ย้ายชื่อเกม "ทอดอาหาร" ขึ้นแทนหมวดหมู่ MCI + จัดเป็นหมวด Physical (v0.29.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06
