@@ -27,7 +27,7 @@ export default class TutorialLevelScene extends Phaser.Scene {
     for (const [key, path] of Object.entries(ThemeAssets)) {
         this.load.image(key, path);
     }
-    this.load.image('tutorial_hand', 'assets/common/ui_icon/return_btn.png');
+    this.load.image('tutorial_hand', 'assets/common/ui_icon/hand.png');
   }
 
   create() {
@@ -62,6 +62,10 @@ export default class TutorialLevelScene extends Phaser.Scene {
       showSymmetryLine: true,
       symmetryType: TutorialLevelConfig.symmetryType
     };
+
+    if (config.columns > 0 && config.rows > 0) {
+      config.width = config.height * (config.columns / config.rows);
+    }
 
     const generatedData = this.levelGenerator.generate(config, 1, AvailableAssets);
     const _gridConfig = generatedData.GRIDCONFIG;

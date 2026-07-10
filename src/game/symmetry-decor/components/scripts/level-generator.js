@@ -35,6 +35,8 @@ export default class LevelGenerator {
         // 3. Place items using pools (no collisions possible)
         let dragIdx = 0;
 
+        // 3. First pass: Determine fixed items, animals, and solution targets
+        let itemsToSpawn = [];
         for (let i = 0; i < numItems; i++) {
             const { x: fixedX, y: fixedY } = fixedPool[i];
 
@@ -56,14 +58,66 @@ export default class LevelGenerator {
                     Animal: animal
                 });
             }
+            
+            itemsToSpawn.push({ animal, mirrorTargets });
+        }
 
-            // Spawn draggable items from the drag pool
-            for (let target of mirrorTargets) {
+        // 4. Second pass: Spawn draggables avoiding ANY solution slot of the SAME animal
+        dragIdx = 0;
+        for (let item of itemsToSpawn) {
+            for (let target of item.mirrorTargets) {
+                // Find a safe spot from remaining dragPool that is NOT a solution for this animal
+                let foundIdx = -1;
+                for (let j = dragIdx; j < dragPool.length; j++) {
+                    const candidate = dragPool[j];
+                    let isConflict = solutionData.some(sol => 
+                        sol.Animal === item.animal && sol.POS.X === candidate.x && sol.POS.Y === candidate.y
+                    );
+                    if (!isConflict) {
+                        foundIdx = j;
+                        break;
+                    }
+                }
+                
+                if (foundIdx !== -1) {
+                    // Swap candidate to current dragIdx
+                    const temp = dragPool[dragIdx];
+                    dragPool[dragIdx] = dragPool[foundIdx];
+                    dragPool[foundIdx] = temp;
+                } else {
+                    // No safe spot remaining. Swap with a previously emitted draggable.
+                    let swapped = false;
+                    for (let p = 0; p < levelData.length; p++) {
+                        let prev = levelData[p];
+                        if (prev.DRAGGABLE) {
+                            let candidate = dragPool[dragIdx];
+                            
+                            // 1. Is prev's POS safe for current item?
+                            let isPrevSafeForCurrent = !solutionData.some(sol => sol.Animal === item.animal && sol.POS.X === prev.POS.X && sol.POS.Y === prev.POS.Y);
+                            // 2. Is candidate safe for prev?
+                            let isCandidateSafeForPrev = !solutionData.some(sol => sol.Animal === prev.Animal && sol.POS.X === candidate.x && sol.POS.Y === candidate.y);
+                            
+                            if (isPrevSafeForCurrent && isCandidateSafeForPrev) {
+                                const tempX = prev.POS.X;
+                                const tempY = prev.POS.Y;
+                                prev.POS.X = candidate.x;
+                                prev.POS.Y = candidate.y;
+                                
+                                candidate.x = tempX;
+                                candidate.y = tempY;
+                                swapped = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!swapped) console.warn("Could not find a conflict-free swap!");
+                }
+
                 const { x: dragX, y: dragY } = dragPool[dragIdx++];
                 levelData.push({
                     POS: { X: dragX, Y: dragY },
                     Type: "Rectangle",
-                    Animal: animal,
+                    Animal: item.animal,
                     DRAGGABLE: true
                 });
             }

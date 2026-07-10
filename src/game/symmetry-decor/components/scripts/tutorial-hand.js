@@ -113,6 +113,7 @@ export default class TutorialHand {
         this.hand.setAngle(-45); // Pointing down-left
         this.hand.setAlpha(0);
         this.hand.setOrigin(0, 0); // Origin at top-left (finger tip)
+        this.hand.setScale(0.2);
 
         if (this.config.animationStyle === 'ghost-preview') {
             // Ghost
@@ -162,8 +163,8 @@ export default class TutorialHand {
         // Continuous subtle pulse
         const pulseTween = this.scene.tweens.add({
             targets: this.hand,
-            scaleX: 1.1,
-            scaleY: 1.1,
+            scaleX: 0.22,
+            scaleY: 0.22,
             yoyo: true,
             repeat: -1,
             duration: 400,
@@ -172,6 +173,7 @@ export default class TutorialHand {
         this.tweens.push(pulseTween);
 
         // Movement sequence using chain
+        let hasCalledBack = false;
         const chain = this.scene.tweens.chain({
             targets: this.hand,
             loop: -1,
@@ -219,8 +221,8 @@ export default class TutorialHand {
         // Continuous subtle pulse for hand
         const pulseTween = this.scene.tweens.add({
             targets: this.hand,
-            scaleX: 1.1,
-            scaleY: 1.1,
+            scaleX: 0.22,
+            scaleY: 0.22,
             yoyo: true,
             repeat: -1,
             duration: 400,

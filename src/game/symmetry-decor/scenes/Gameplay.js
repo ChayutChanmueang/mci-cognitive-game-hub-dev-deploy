@@ -39,7 +39,7 @@ export default class GameplayScene extends Phaser.Scene {
     for (const [key, path] of Object.entries(ThemeAssets)) {
         this.load.image(key, path);
     }
-    this.load.image('tutorial_hand', 'assets/common/ui_icon/return_btn.png');
+    this.load.image('tutorial_hand', 'assets/common/ui_icon/hand.png');
   }
 
   create(data) {
@@ -393,42 +393,63 @@ export default class GameplayScene extends Phaser.Scene {
     };
     switch (_Difficulty) {
       case Difficulty.EASY:
-        config.columns = 4;
+        if (_Level > 12) {
+          config.columns = 4;
+        } else if (_Level > 6 && Math.random() > 0.5) {
+          config.columns = 4;
+        } else {
+          config.columns = 2;
+        }
         config.rows = 4;
-        config.itemCount = Math.min(5, 3 + Math.floor((_Level - 1) / 2));
-        config.symmetryType = ['L-R', 'T-B'][Math.floor(Math.random() * 2)];
+        
+        if (_Level <= 3) {
+          config.itemCount = 2;
+        } else if (_Level <= 9) {
+          config.itemCount = 3;
+        } else {
+          config.itemCount = 4;
+        }
+        
+        config.symmetryType = ['L-R', 'R-L'][Math.floor(Math.random() * 2)];
         break;
       case Difficulty.NORMAL:
-        config.columns = (_Level % 2 !== 0) ? 4 : 6;
+        if (_Level >= 15) {
+          config.columns = 6;
+        } else if (_Level >= 9 && Math.random() > 0.5) {
+          config.columns = 6;
+        } else {
+          config.columns = 4;
+        }
         config.rows = config.columns;
-        config.itemCount = Math.min(8, 3 + Math.floor((_Level - 1) / 2));
-        let normalModes = ['L-R', 'T-B'];
-        if (_Level >= 5) normalModes = ['L-R', 'T-B', 'R-L', 'B-T', 'QUADRANT'];
-        else if (_Level >= 3) normalModes = ['L-R', 'T-B', 'R-L', 'B-T'];
-        config.symmetryType = normalModes[Math.floor(Math.random() * normalModes.length)];
+
+        if (_Level <= 2) {
+          config.itemCount = 3;
+        } else if (_Level <= 4) {
+          config.itemCount = 4;
+        } else if (_Level <= 6) {
+          config.itemCount = 5;
+        } else if (_Level <= 10) {
+          config.itemCount = 6;
+        } else if (_Level <= 12) {
+          config.itemCount = 7;
+        } else {
+          config.itemCount = 8;
+        }
+
+        config.symmetryType = ['L-R', 'R-L', 'T-B', 'B-T'][Math.floor(Math.random() * 4)];
         break;
       case Difficulty.HARD:
-        if (_Level >= 7) {
-          const cycle = _Level % 3;
-          if (cycle === 1) { config.columns = 4; config.rows = 4; }
-          else if (cycle === 2) { config.columns = 6; config.rows = 6; }
-          else { config.columns = 6; config.rows = 8; }
-        } else {
-          config.columns = (_Level % 2 !== 0) ? 4 : 6;
-          config.rows = config.columns;
-        }
-        config.itemCount = Math.min(8, 3 + Math.floor((_Level - 1) / 2));
-        let hardModes = ['L-R', 'T-B', 'R-L', 'B-T', 'QUADRANT', 'FOUR_WAY', 'DIAGONAL'];
-        if (config.columns !== config.rows) {
-          hardModes = hardModes.filter(mode => mode !== 'FOUR_WAY' && mode !== 'DIAGONAL');
-        }
-        config.symmetryType = hardModes[Math.floor(Math.random() * hardModes.length)];
+        config.columns = 6;
+        config.rows = 6;
+        config.itemCount = Math.min(18, 5 + Math.floor((_Level - 1) / 2));
+        config.symmetryType = ['L-R', 'R-L', 'T-B', 'B-T'][Math.floor(Math.random() * 4)];
         break;
     }
 
-    // Ensure cells are square by adjusting height based on the column/row ratio
+    // Ensure cells are square by adjusting width based on the column/row ratio
+    // This keeps the grid height constant (900) so cell sizes match visually by height
     if (config.columns > 0 && config.rows > 0) {
-      config.height = config.width * (config.rows / config.columns);
+      config.width = config.height * (config.columns / config.rows);
     }
 
     return config;

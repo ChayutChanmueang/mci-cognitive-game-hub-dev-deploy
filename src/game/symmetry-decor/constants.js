@@ -7,9 +7,9 @@ export const StartMenuSetting = Object.freeze({
     ...activeTheme.StartMenuSetting,
     /** Callback-style template for the level detail string; receives `level` at render time */
     levelDetailTemplate: (level) => {
-        if (level === 1) return 'ตาราง 4x4 / สะท้อน 2 ทิศทาง';
-        if (level === 2) return 'ตารางใหญ่ขึ้น / สะท้อน 4 ทิศทาง';
-        return 'ตารางใหญ่สุด / สะท้อนหลายรูปแบบ';
+        if (level === 1) return 'ตาราง 2x4 / สะท้อน 2 ทิศทาง';
+        if (level === 2) return 'ตาราง 4x4 / สะท้อน 4 ทิศทาง';
+        return 'ตาราง 6x6 / สะท้อน 4 ทิศทาง';
     },
 });
 
@@ -122,7 +122,7 @@ export const TutorialLevelConfig = Object.freeze({
     localStorageKey: 'symmetry_decor_tutorial_level_completed',
 
     // --- Grid config (easiest possible) ---
-    gridColumns: 4,
+    gridColumns: 2,
     gridRows: 4,
     symmetryType: 'L-R',             // Simple left-right mirror
     itemCount: 3,                     // 3 items for a fuller tutorial experience
