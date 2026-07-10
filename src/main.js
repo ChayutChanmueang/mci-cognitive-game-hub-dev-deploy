@@ -674,10 +674,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         let patientGender = "";
+        let treeType = "a";
         if (patientCode) {
             try {
-                const patient = await db.getPatientByHn(patientCode);
+                const [patient, gameProfile] = await Promise.all([
+                    db.getPatientByHn(patientCode),
+                    db.ensureUserGameProfileTreeType({ hn: patientCode }),
+                ]);
                 patientGender = String(patient?.gender || "").trim();
+                treeType = String(gameProfile?.tree_type || "a").trim();
                 // Cache gender so the offline popup can show the right character even
                 // once the connection drops (can't hit the DB then). US-E7-27.
                 internetManager.setGender(patientGender);
@@ -726,6 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
             patientCode,
             patientLabel,
             patientGender,
+            treeType,
             initialScene: options.initialScene,
             initialCategory: options.initialCategory,
             sharedState: hubUiState,
@@ -1482,6 +1488,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 navigateTo(getGameExitRoute(selectedGame));
             };
 
+            const handleExitWithCompletion = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level} (skip)`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
+                
+                cleanup();
+                navigateTo(getGameExitRoute(selectedGame));
+            };
+
             const cleanup = () => {
                 removeBackGuard();
                 EventBus.off("minigame:exit-request", handleExit);
@@ -1489,6 +1519,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 EventBus.off("minigame:retry-request", handleRetry);
                 EventBus.off("minigame:level-select-request", handleLevelSelect);
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                EventBus.off("minigame:exit-with-completion", handleExitWithCompletion);
                 activeResultPanel?.destroy();
                 activeResultPanel = null;
                 hud.destroy();
@@ -1501,6 +1532,7 @@ document.addEventListener("DOMContentLoaded", () => {
             EventBus.on("minigame:retry-request", handleRetry);
             EventBus.on("minigame:level-select-request", handleLevelSelect);
             EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+            EventBus.on("minigame:exit-with-completion", handleExitWithCompletion);
 
             return true;
         } catch (error) {
@@ -1550,6 +1582,7 @@ document.addEventListener("DOMContentLoaded", () => {
             educationLevels,
             educationLevelsError,
             onBack: () => navigateTo(ROUTES.login),
+            loadRandomTreeType: () => db.pickRandomTreeType(),
             onSubmit: async (formData) => {
                 const patientCodeLabel = `ID ${String(formData?.hn || "").trim()}`;
                 const shouldCreatePatient = await showPopup({
@@ -1568,7 +1601,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const createdPatient = await db.createPatientProfile(formData);
 
                 try {
-                    await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
+                    await db.createUserGameProfile({
+                        hn: createdPatient?.hn || formData?.hn,
+                        treeType: formData?.treeType,
+                    });
                 } catch (error) {
                     // TODO: Replace this client-side compensation with a Supabase RPC transaction
                     // that creates user_data and user_game_profile_data atomically.

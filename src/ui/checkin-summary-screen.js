@@ -52,10 +52,12 @@ function bounceCheckInCharacter(target) {
 //
 // `onGrow` fires at the exact moment the new tree pops in — used to time the sparkle burst.
 // Returns a `{ cancel }` handle that stops both phases and leaves the next-stage image in place.
-function growTreeTransition(img, prevStage, nextStage, onGrow) {
+function growTreeTransition(img, prevStage, nextStage, treeType, onGrow) {
+    const prevSrc = getTreeImagePath(prevStage, treeType);
+    const nextSrc = getTreeImagePath(nextStage, treeType);
     const finishToNext = () => {
         if (img) {
-            img.src = getTreeImagePath(nextStage);
+            img.src = nextSrc;
             img.style.transform = "";
             img.style.transformOrigin = "";
         }
@@ -70,7 +72,15 @@ function growTreeTransition(img, prevStage, nextStage, onGrow) {
     }
 
     img.style.transformOrigin = "bottom center";
-    img.src = getTreeImagePath(prevStage);
+    img.src = prevSrc;
+
+    // Preload the grown stage while the previous stage is held on screen. This prevents
+    // the browser from keeping the already-rendered grown image visible while it waits
+    // for a newly selected tree variant to load.
+    if (typeof Image === "function" && nextSrc !== prevSrc) {
+        const nextImage = new Image();
+        nextImage.src = nextSrc;
+    }
 
     // Hold the previous tree on screen before starting the transition.
     const HOLD_PREV_MS = 1000;
@@ -102,7 +112,7 @@ function growTreeTransition(img, prevStage, nextStage, onGrow) {
                 return;
             }
             // Phase 2: swap to the next stage, fire the sparkle, then pop the new tree up.
-            img.src = getTreeImagePath(nextStage);
+            img.src = nextSrc;
             onGrow?.();
             grow = img.animate(
                 [
@@ -185,8 +195,10 @@ function getTreeStage(completedDays, totalDays) {
     return Math.max(1, Math.min(TREE_STAGES, Math.round(ratio * (TREE_STAGES - 1)) + 1));
 }
 
-function getTreeImagePath(stage) {
-    return `/assets/checkin-popup/tree_0${stage}.png`;
+function getTreeImagePath(stage, treeType = "a") {
+    const safeTreeType = String(treeType || "a").trim().toLowerCase();
+    const safeStage = String(Math.max(1, Math.min(TREE_STAGES, Number(stage) || 1))).padStart(2, "0");
+    return `/assets/checkin-popup/${encodeURIComponent(safeTreeType)}/tree_${encodeURIComponent(safeTreeType)}_${safeStage}.png`;
 }
 
 function buildDayItems(dayCount, checkInDates, programStartedAt = new Date()) {
@@ -225,6 +237,7 @@ export function showCheckInPopup(options = {}) {
         videoTitle = "ละครสั้นประจำวัน",
         dismissible = false,
         patientGender = "",
+        treeType = "a",
     } = options;
 
     return new Promise((resolve) => {
@@ -331,6 +344,7 @@ export function showCheckInPopup(options = {}) {
                 const dayItems = buildDayItems(state.dayCount, checkInDates, programStartedAt);
                 const completedDays = dayItems.filter((item) => item.done).length;
                 const stage = getTreeStage(completedDays, state.dayCount);
+                const prevStage = getTreeStage(Math.max(0, completedDays - 1), state.dayCount);
                 const label = TREE_LABELS[stage - 1] || TREE_LABELS[0];
                 const percent = state.dayCount > 0
                     ? Math.round((completedDays / state.dayCount) * 100)
@@ -350,8 +364,8 @@ export function showCheckInPopup(options = {}) {
                             <div class="tree-progress-frame">
                                 <img
                                     class="tree-progress-plant"
-                                    src="${getTreeImagePath(stage)}"
-                                    alt="ต้นไม้ระดับที่ ${escapeHtml(String(stage))}"
+                                    src="${getTreeImagePath(prevStage, treeType)}"
+                                    alt="ต้นไม้ระดับที่ ${escapeHtml(String(prevStage))}"
                                 >
                             </div>
                             <p class="tree-progress-plant-label">${escapeHtml(label)}</p>
@@ -385,8 +399,7 @@ export function showCheckInPopup(options = {}) {
                         }
                         const plant = stageEl.querySelector(".tree-progress-plant");
                         const frame = stageEl.querySelector(".tree-progress-frame");
-                        const prevStage = getTreeStage(Math.max(0, completedDays - 1), state.dayCount);
-                        treeGrow = growTreeTransition(plant, prevStage, stage, () => {
+                        treeGrow = growTreeTransition(plant, prevStage, stage, treeType, () => {
                             if (settled || state.step !== "calendar") {
                                 return;
                             }
