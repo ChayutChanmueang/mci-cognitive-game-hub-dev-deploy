@@ -48,7 +48,8 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.29.0` | 2026-07-06 | US-E7-24 (Fry Food → **Physical** category on Game Hub), US-E7-27 (offline "อินเทอร์เน็ตหายไปแล้ว" popup + `InternetManager`, gender art buffered as data URLs for offline render), US-E7-28 (program-complete popup shows Thai-era **start/end dates**) |
 | `0.30.0` | 2026-07-07 | US-E7-09 (Postcard Reader voice/font), US-E7-14 (Game Hub layout — spacing/swap/shadow), US-E7-15 (standardized green/red buttons); BUG-004 Resolved (black background after full-screen minigame) |
 | `1.0.0` | 2026-07-07 | First production-ready full build: owner-declared milestone after `features/game-hub` → `development` merge; core patient/admin flows, 14-day Game Hub program, minigame suite, PWA, Supabase persistence, Docker/nginx deploy |
-| `1.1.0` | 2026-07-08 | **(current — QA pending)** US-E8-01 per-player progression trees, signup assignment, and lazy backfill for existing profiles |
+| `1.1.0` | 2026-07-08 | US-E8-01 per-player progression trees, signup assignment, and lazy backfill for existing profiles |
+| `1.1.1` | 2026-07-10 | **(current — QA pending)** US-E9-08 Game Hub label swap: game name ↑ / category ↓ (field feedback hotfix) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
