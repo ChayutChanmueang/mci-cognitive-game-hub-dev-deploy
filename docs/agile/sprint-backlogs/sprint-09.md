@@ -49,7 +49,7 @@ gantt
 |----|--------------|----------|--------|
 | [US-E9-06](../user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | 📋 Backlog |
 | [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline) | High | 📋 Backlog |
-| [US-E9-08](../user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | 📋 Backlog |
+| [US-E9-08](../user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (`85d6343`) |
 
 ### 🟠 P1 — สำคัญ (UX / Accessibility)
 | ID | Story / Task | Priority | Status |
