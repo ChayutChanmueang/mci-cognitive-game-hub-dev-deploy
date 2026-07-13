@@ -5,14 +5,24 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
+- [ ] [US-E9-01](user-stories/US-E9-01.md) 🔴 Symmetry Decor — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง, เส้นแบ่งชัด, จบเมื่อหมดเวลา (Field FB ลงพื้นที่)
+- [ ] [US-E9-02](user-stories/US-E9-02.md) 🔴 Fry Food — ปุ่มข้ามเมื่อไม่มี Gyroscope (Field FB ลงพื้นที่)
+- [ ] [US-E9-03](user-stories/US-E9-03.md) 🔴 Zoo Detective — ลากเพื่อวางแทนจิ้ม (Field FB ลงพื้นที่)
+- [ ] [US-E9-04](user-stories/US-E9-04.md) 🔴 Postcard Reader — ขยายตัวอักษรโจทย์เพิ่มเติม (Field FB ลงพื้นที่)
+- [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Phase 2)
+- [ ] [US-E9-08](user-stories/US-E9-08.md) ⏳ Game Hub — ชื่อเกมบน / หมวดล่าง *(code done, awaiting owner confirmation on device)*
+- [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่
+- [ ] [US-E9-10](user-stories/US-E9-10.md) 🟡 CLI update-user-hn.js (Phase 2)
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
 - [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
 - [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)
 - [ ] [US-E7-12](user-stories/US-E7-12.md) แสดงโดเมน Cognitive + สรุปหลังบ้าน + เตรียมข้อมูล AI (Doctor FB #2)
 
 ## 🔵 In Progress (WIP Limit: 3)
+- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s) — เริ่ม 2026-07-10
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 - [ ] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชีและลงชื่อออก
+
 
 
 ## 🔍 Review / Testing
@@ -20,9 +30,12 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E9-11](user-stories/US-E9-11.md) Sign-up วันเกิด/วันที่เริ่มโปรแกรม เป็น พ.ศ. — เลือก วัน/เดือน/ปี พ.ศ. แทน `<input type="date">` (ที่แสดง ค.ศ. เสมอ), DB ยังเก็บ ค.ศ. (v1.1.3) — ✅ owner verified 2026-07-13
+- [x] [US-E9-06](user-stories/US-E9-06.md) ป้องกันหน้าจอดับระหว่างเล่น (Wake Lock) — จอไม่ดับระหว่างเล่น + dim ได้ตามปกติเมื่อกลับ Game Hub (v1.1.2) — ✅ owner verified 2026-07-10
 - [x] [US-E7-29](user-stories/US-E7-29.md) ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม (ก้องไผ่) — ✅ Done 2026-07-07
 - [x] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก — เสียง AI/ถอดเสียง + ขยายตัวอักษรโจทย์ (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
 - [x] [US-E7-14](user-stories/US-E7-14.md) Layout Game Hub — ระยะเลเวล/สลับชื่อ/เงาตัวละคร (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
+- [x] [US-E9-08](user-stories/US-E9-08.md) Game Hub — ชื่อเกมบน / หมวดล่าง (v1.1.1, `a3ffc8d`) — ✅ owner verified 2026-07-10
 - [x] [US-E7-15](user-stories/US-E7-15.md) ระบบสีปุ่มมาตรฐาน เขียว=ยืนยัน/แดง=ยกเลิก (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
 - [x] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen — ✅ Resolved 2026-07-07
 - [x] [US-E7-24](user-stories/US-E7-24.md) ย้ายชื่อเกม "ทอดอาหาร" ขึ้นแทนหมวดหมู่ MCI + จัดเป็นหมวด Physical (v0.29.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06

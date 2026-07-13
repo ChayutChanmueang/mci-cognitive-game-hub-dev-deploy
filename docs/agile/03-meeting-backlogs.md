@@ -15,6 +15,7 @@
 | 2026-05-11 | Database & Data Integration Sync (Sprint 4) | [2026-05-11](meeting-backlogs/2026-05-11.md) |
 | 2026-06-08 | รายงานความคืบหน้า MCI กับทีมแพทย์ (Sprint 6) | [2026-06-08](meeting-backlogs/2026-06-08.md) |
 | 2026-06-24 | สรุปประชุมอัปเดต MCI กับคุณหมอ ครั้งที่ 2 (Doctor Feedback) | [2026-06-24](meeting-backlogs/2026-06-24.md) |
+| 2026-07-10 | Feedback ลงพื้นที่ — อัปเดตเกมคิดดี (แก้ด่วน) | [2026-07-10](meeting-backlogs/2026-07-10.md) |
 | -          | Meeting Note Template (Standard) | [Template (Standard)](meeting-backlogs/meeting-template.md) |
 
 ---

@@ -32,6 +32,8 @@
  *   <md-fab>, <md-filled-tonal-icon-button>, <md-circular-progress>, <md-linear-progress>, <md-icon>
  */
 
+import screenWakeLock from "../../core/wake-lock-manager.js"; // US-E9-06
+
 const VOLUME_STEP = 0.25;
 
 // ---------------------------------------------------------------------------
@@ -234,6 +236,9 @@ export class VideoPlayer {
     // ── Destroy ──────────────────────────────────────────────────────────────
 
     destroy() {
+        // US-E9-06: the "pause" listener below normally releases this, but a player
+        // torn down mid-playback must not leak the lock. Releasing twice is a no-op.
+        screenWakeLock.release("video");
         this._emit('destroy');
         this._exitPseudoFullscreen();
         if (document.fullscreenElement === this._root) {
@@ -341,16 +346,20 @@ export class VideoPlayer {
 
         this._video.addEventListener("play", () => {
             this._btnResume.style.display = "";
+            // US-E9-06: the player is watching, so hold the screen awake.
+            screenWakeLock.acquire("video");
             this._emit("play");
         });
 
         this._video.addEventListener("pause", () => {
+            screenWakeLock.release("video");
             if (!this._hasStarted) return;
             this._showPausedOverlay(!this._video.ended);
             this._emit("pause");
         });
 
         this._video.addEventListener("ended", () => {
+            screenWakeLock.release("video");
             this._progress.value = 1;
             this._showPausedOverlay(false);
             this._emit("ended");

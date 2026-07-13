@@ -217,6 +217,8 @@ function buildDayNodes(dayItem, restGame, dailyRequiredGame) {
         stage: game.stage ?? null,
         day: Number(dayItem.day),
         title: game.displayName || game.th_name || game.name || `เกมที่ ${index + 1}`,
+        // US-E9-08: attach Thai cognitive category so nodes can show it below the title.
+        category: getCategoryLabel(game.mci_group),
         gameNumber: index + 1,
         gameData: game,
     }));
@@ -240,6 +242,8 @@ function buildDayNodes(dayItem, restGame, dailyRequiredGame) {
                 name: dailyRequiredGame.name || DAILY_REQUIRED_GAME_FALLBACK.name,
             },
             categoryLabel: "ภารกิจประจำวัน",
+            // US-E9-08: expose category for pill/lesson-card rendering.
+            category: "ภารกิจประจำวัน",
             description: "เล่นเกมทอดอาหารก่อนเริ่มโปรแกรมประจำวัน",
         }
         : null;
@@ -525,6 +529,9 @@ export async function renderGameHubScreen(root, options = {}) {
                     number: node.gameNumber || index + 1,
                     fryfood: node.type === "game" && node.emoji === "🍳" && nodeState !== "pass",
                     disabled: isProgramEnded || !isProgramStarted,
+                    // US-E9-08: always forward cognitive category so pills can show it
+                    // below the game name (overridden again for isActiveCurrent below).
+                    category: node.category || undefined,
                     sideLabel: (!isProgramStarted && isCurrent && startDateLabel)
                             ? `โปรแกรมเริ่มวันที่ ${startDateLabel}`
                             : node.type === "checkin" && isDone ? "เช็คชื่อแล้ว"

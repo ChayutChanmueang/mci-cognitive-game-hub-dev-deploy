@@ -55,6 +55,7 @@ import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
 import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
+import screenWakeLock from "./core/wake-lock-manager.js"; // US-E9-06
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -208,6 +209,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const destroyActiveGame = () => {
+        // US-E9-06: stop holding the screen awake once the player leaves the game.
+        // This is the single teardown chokepoint, so it covers every exit path
+        // (exit button, game-over, back navigation, route change).
+        screenWakeLock.release("minigame");
+
         // Unregister game sounds IMMEDIATELY, before any Phaser destroy logic can potentially throw an error
         if (currentGameSlug) {
             EventBus.emit('audio:unregister', currentGameSlug);
@@ -223,12 +229,39 @@ document.addEventListener("DOMContentLoaded", () => {
                     activeGameInstance.scale.stopFullscreen();
                 } catch (e) { }
             }
+
+            // US-E9-07: Phaser 3.90's WebGLRenderer.destroy() nulls its `gl` reference but
+            // never calls loseContext(), so the GL context survives until GC. Each minigame
+            // launch builds a new canvas + context, so they accumulate; past ~16 the browser
+            // force-drops the oldest, and on low-RAM devices the GPU process dies first.
+            // Grab the context now — the renderer discards it during destroy.
+            const abandonedGl = activeGameInstance.renderer?.gl || null;
+
             try {
                 if (typeof activeGameInstance.destroy === "function") {
                     activeGameInstance.destroy(true);
                 }
             } catch (e) {
                 console.error("[Main] Error during game destruction:", e);
+            }
+
+            // Game.destroy() only sets `pendingDestroy`; the real teardown runs on the next
+            // game step. Release the context after that, so Phaser is not deleting GL objects
+            // on an already-lost context. The timeout is the backstop for when the step never
+            // comes (rAF is paused while the tab is hidden).
+            if (abandonedGl) {
+                let released = false;
+                const releaseGl = () => {
+                    if (released) {
+                        return;
+                    }
+                    released = true;
+                    try {
+                        abandonedGl.getExtension("WEBGL_lose_context")?.loseContext();
+                    } catch (e) { }
+                };
+                requestAnimationFrame(() => requestAnimationFrame(releaseGl));
+                setTimeout(releaseGl, 250);
             }
         }
 
@@ -1384,6 +1417,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             activeGameInstance = await startGame("game-container");
+
+            // US-E9-06: keep the screen awake for the duration of the game. Acquired
+            // only after a successful launch, and after the destroyActiveGame() above
+            // has released any lock left over from a previous game.
+            screenWakeLock.acquire("minigame");
 
             // Mount Minigame HUD
             uiRoot.innerHTML = "";

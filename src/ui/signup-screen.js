@@ -4,10 +4,16 @@ import {
     isCompleteThaiPhoneNumber,
     normalizeThaiPhoneNumber,
 } from "../util/phone-number-util.js";
+import { getCurrentBuddhistYear } from "../util/thai-era-date.js";
 import { renderFrameFormPanel } from "./components/frame-form-panel.js";
 import { renderIconButtonBack } from "./components/icon-button-back.js";
 import { renderButtonOk } from "./components/button-ok.js";
+import { renderThaiDateSelect, attachThaiDateSelect } from "./components/thai-date-select.js";
 import { showToast, clearToast } from "./components/toast.js";
+
+// US-E9-11: the form speaks พ.ศ.; the database keeps ค.ศ. The date selects convert at the boundary.
+const MAX_PATIENT_AGE_YEARS = 120;
+const PROGRAM_START_BACKDATE_YEARS = 10;
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -30,16 +36,6 @@ function setFieldError(input) {
 
 function clearFieldError(input) {
     input?.closest(".gh-frame-field-box")?.classList.remove("gh-frame-field-box--error");
-}
-
-function isValidDateValue(value) {
-    const rawValue = String(value || "").trim();
-    if (!rawValue) {
-        return false;
-    }
-
-    const parsedDate = new Date(rawValue);
-    return !Number.isNaN(parsedDate.getTime());
 }
 
 function getSignupErrorCode(error) {
@@ -75,6 +71,7 @@ export function renderSignupScreen(root, options = {}) {
     } = options;
 
     const hnLabel = initialHn ? `ID${initialHn}` : "-";
+    const currentBuddhistYear = getCurrentBuddhistYear();
     const educationOptionsMarkup = educationLevels
         .map((level) => `<option value="${escapeHtml(level?.eduid || "")}">${escapeHtml(level?.name || "")}</option>`)
         .join("");
@@ -138,7 +135,12 @@ export function renderSignupScreen(root, options = {}) {
                             })}
 
                             <span class="gh-form__label">วันเกิด :</span>
-                            ${fieldInput({ id: "signup-birth-date", type: "date", extra: 'lang="en-GB"' })}
+                            ${renderThaiDateSelect({
+                                id: "signup-birth-date",
+                                ariaLabel: "วันเกิด",
+                                minYear: currentBuddhistYear - MAX_PATIENT_AGE_YEARS,
+                                maxYear: currentBuddhistYear,
+                            })}
 
                             <span class="gh-form__label">อายุ :</span>
                             <div class="gh-frame-field-box"><div id="signup-age-value" class="gh-frame-field-box__value">- ปี</div></div>
@@ -154,7 +156,13 @@ export function renderSignupScreen(root, options = {}) {
                             })}
 
                             <span class="gh-form__label">วันที่เริ่มโปรแกรม :</span>
-                            ${fieldInput({ id: "signup-started-program", type: "date", value: createDateValue(), extra: 'lang="en-GB"' })}
+                            ${renderThaiDateSelect({
+                                id: "signup-started-program",
+                                ariaLabel: "วันที่เริ่มโปรแกรม",
+                                value: createDateValue(),
+                                minYear: currentBuddhistYear - PROGRAM_START_BACKDATE_YEARS,
+                                maxYear: currentBuddhistYear,
+                            })}
                         </div>
 
                         <div class="gh-form__actions">
@@ -172,19 +180,12 @@ export function renderSignupScreen(root, options = {}) {
     const firstnameField = root.querySelector("#signup-firstname");
     const lastnameField = root.querySelector("#signup-lastname");
     const phoneField = root.querySelector("#signup-phone");
-    const birthDateField = root.querySelector("#signup-birth-date");
     const genderField = root.querySelector("#signup-gender");
     const educationLevelField = root.querySelector("#signup-education-level");
-    const startedProgramField = root.querySelector("#signup-started-program");
     const ageValue = root.querySelector("#signup-age-value");
 
     if (!form || !backButton || !submitButton) {
         return;
-    }
-
-    // US-E7-18: surface a failed education-levels load (blocks submit) as a toast.
-    if (initialFeedback) {
-        showToast(initialFeedback, { type: "error", duration: 6000 });
     }
 
     const updateAgeDisplay = () => {
@@ -192,13 +193,27 @@ export function renderSignupScreen(root, options = {}) {
             return;
         }
 
-        const age = calculateAgeFromBirthDate(birthDateField?.value);
+        // getValue() is ISO ค.ศ., which is what calculateAgeFromBirthDate expects.
+        const age = calculateAgeFromBirthDate(birthDate?.getValue());
         ageValue.textContent = Number.isInteger(age) ? `${age} ปี` : "- ปี";
     };
 
-    birthDateField?.addEventListener("input", updateAgeDisplay);
-    birthDateField?.addEventListener("change", updateAgeDisplay);
+    const birthDate = attachThaiDateSelect(root, "signup-birth-date", {
+        onChange: () => {
+            birthDate?.setError(false);
+            updateAgeDisplay();
+        },
+    });
+    const startedProgram = attachThaiDateSelect(root, "signup-started-program", {
+        onChange: () => startedProgram?.setError(false),
+    });
+
     updateAgeDisplay();
+
+    // US-E7-18: surface a failed education-levels load (blocks submit) as a toast.
+    if (initialFeedback) {
+        showToast(initialFeedback, { type: "error", duration: 6000 });
+    }
 
     const updatePhoneDisplay = () => {
         if (!phoneField) {
@@ -212,14 +227,13 @@ export function renderSignupScreen(root, options = {}) {
     phoneField?.addEventListener("input", updatePhoneDisplay);
     phoneField?.addEventListener("change", updatePhoneDisplay);
 
+    // The two date groups own their own error state via their controllers, so they are not listed here.
     const requiredFields = [
         firstnameField,
         lastnameField,
         phoneField,
-        birthDateField,
         genderField,
         educationLevelField,
-        startedProgramField,
     ].filter(Boolean);
 
     requiredFields.forEach((field) => {
@@ -245,19 +259,29 @@ export function renderSignupScreen(root, options = {}) {
             firstname: String(firstnameField?.value || "").trim(),
             lastname: String(lastnameField?.value || "").trim(),
             phone: normalizeThaiPhoneNumber(phoneField?.value),
-            birthDate: String(birthDateField?.value || "").trim(),
+            // Already ISO ค.ศ. — the พ.ศ. the user picked never leaves the date select.
+            birthDate: birthDate?.getValue() || "",
             gender: String(genderField?.value || "").trim(),
             educationLevel: String(educationLevelField?.value || "").trim(),
-            startedProgram: String(startedProgramField?.value || "").trim(),
+            startedProgram: startedProgram?.getValue() || "",
         };
         let hasInvalidField = false;
         let firstErrorMessage = "";
-        const normalizedBirthDate = new Date(formData.birthDate);
 
         requiredFields.forEach((field) => clearFieldError(field));
+        birthDate?.setError(false);
+        startedProgram?.setError(false);
 
         const fail = (field, message) => {
             setFieldError(field);
+            hasInvalidField = true;
+            if (!firstErrorMessage) {
+                firstErrorMessage = message;
+            }
+        };
+
+        const failDate = (controller, message) => {
+            controller?.setError(true);
             hasInvalidField = true;
             if (!firstErrorMessage) {
                 firstErrorMessage = message;
@@ -278,10 +302,10 @@ export function renderSignupScreen(root, options = {}) {
             fail(phoneField, "กรุณากรอกเบอร์โทร 10 หลัก");
         }
 
-        if (!isValidDateValue(formData.birthDate)) {
-            fail(birthDateField, "กรุณาเลือกวันเกิด");
-        } else if (normalizedBirthDate > new Date()) {
-            fail(birthDateField, "วันเกิดต้องไม่เป็นวันในอนาคต");
+        if (!formData.birthDate) {
+            failDate(birthDate, "กรุณาเลือกวันเกิดให้ครบ วัน เดือน และปี พ.ศ.");
+        } else if (new Date(formData.birthDate) > new Date()) {
+            failDate(birthDate, "วันเกิดต้องไม่เป็นวันในอนาคต");
         }
 
         if (!formData.gender) {
@@ -292,8 +316,8 @@ export function renderSignupScreen(root, options = {}) {
             fail(educationLevelField, "กรุณาเลือกระดับการศึกษา");
         }
 
-        if (!isValidDateValue(formData.startedProgram)) {
-            fail(startedProgramField, "กรุณาเลือกวันที่เริ่มโปรแกรม");
+        if (!formData.startedProgram) {
+            failDate(startedProgram, "กรุณาเลือกวันที่เริ่มโปรแกรมให้ครบ วัน เดือน และปี พ.ศ.");
         }
 
         if (hasInvalidField) {

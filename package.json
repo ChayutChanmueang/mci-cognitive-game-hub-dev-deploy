@@ -1,44 +1,44 @@
 {
-    "name": "template-vite",
-    "description": "A Phaser 3 template using Vite.",
-    "version": "1.1.0",
-    "type": "module",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/phaserjs/template-vite.git"
-    },
-    "author": "Phaser Studio <support@phaser.io> (https://phaser.io/)",
-    "license": "MIT",
-    "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
-    "bugs": {
-        "url": "https://github.com/phaserjs/template-vite/issues"
-    },
-    "homepage": "https://github.com/phaserjs/template-vite#readme",
-    "scripts": {
-        "dev": "node log.js dev & vite --config vite/config.dev.mjs",
-        "build": "node log.js build & vite build --config vite/config.prod.mjs",
-        "dev-nolog": "vite --config vite/config.dev.mjs",
-        "build-nolog": "vite build --config vite/config.prod.mjs",
-        "start": "vite --config vite/config.dev.mjs",
-        "generate-tts": "node tools/generate-tts.mjs"
-    },
-    "devDependencies": {
-        "terser": "^5.39.0",
-        "vite": "^6.3.1"
-    },
-    "dependencies": {
-        "@koreez/phaser3-i18n": "^2.0.6",
-        "@material/web": "^2.4.1",
-        "@mui/icons-material": "^7.3.5",
-        "@mui/material": "^7.3.4",
-        "@supabase/supabase-js": "^2.99.1",
-        "ag-grid-community": "^35.2.1",
-        "bootstrap": "^5.3.8",
-        "csv-parse": "^6.2.1",
-        "csv-stringify": "^6.7.0",
-        "howler": "^2.2.4",
-        "material-design-lite": "^1.3.0",
-        "phaser": "^3.90.0",
-        "phaser3-rex-plugins": "^1.1.81"
-    }
+  "name": "template-vite",
+  "description": "A Phaser 3 template using Vite.",
+  "version": "1.1.3",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phaserjs/template-vite.git"
+  },
+  "author": "Phaser Studio <support@phaser.io> (https://phaser.io/)",
+  "license": "MIT",
+  "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
+  "bugs": {
+    "url": "https://github.com/phaserjs/template-vite/issues"
+  },
+  "homepage": "https://github.com/phaserjs/template-vite#readme",
+  "scripts": {
+    "dev": "node log.js dev & vite --config vite/config.dev.mjs",
+    "build": "node log.js build & vite build --config vite/config.prod.mjs",
+    "dev-nolog": "vite --config vite/config.dev.mjs",
+    "build-nolog": "vite build --config vite/config.prod.mjs",
+    "start": "vite --config vite/config.dev.mjs",
+    "generate-tts": "node tools/generate-tts.mjs"
+  },
+  "devDependencies": {
+    "terser": "^5.39.0",
+    "vite": "^6.3.1"
+  },
+  "dependencies": {
+    "@koreez/phaser3-i18n": "^2.0.6",
+    "@material/web": "^2.4.1",
+    "@mui/icons-material": "^7.3.5",
+    "@mui/material": "^7.3.4",
+    "@supabase/supabase-js": "^2.99.1",
+    "ag-grid-community": "^35.2.1",
+    "bootstrap": "^5.3.8",
+    "csv-parse": "^6.2.1",
+    "csv-stringify": "^6.7.0",
+    "howler": "^2.2.4",
+    "material-design-lite": "^1.3.0",
+    "phaser": "^3.90.0",
+    "phaser3-rex-plugins": "^1.1.81"
+  }
 }
