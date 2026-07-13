@@ -16,16 +16,10 @@ export default class NonDraggableComponent extends Component{
             this.targetSocket.attach(this.entity);
         }
 
-        // Gray out and set opacity to 85% as per user request
-        // Making it 0.75 opaque and applying white tint (0xffffff)
-        this.entity.setAlpha(0.75);
-        this.entity.setTint(0xffffff);
-        
-        // Make it brighter/darker than original
-        if (this.entity.preFX) {
-            this.entity.preFX.addColorMatrix().brightness(0.8); // 80% of original brightness
-        } else {
-            this.entity.setBlendMode(Phaser.BlendModes.SCREEN);
-        }
+        // Gray out and dim the blocker using alpha + tint only (no WebGL
+        // post-FX pass — see symmetry-decor-household's version of this file,
+        // which already uses this cheaper approach in production).
+        this.entity.setAlpha(0.85);
+        this.entity.setTint(0x888888);
     }
 }

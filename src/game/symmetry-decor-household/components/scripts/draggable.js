@@ -29,11 +29,6 @@ export default class DraggableComponent extends Component {
             this.startX = this.entity.x;
             this.startY = this.entity.y;
             this.entity.setDepth(1000); // Bring to front
-
-            // Safely disable physics collisions while being dragged by the mouse
-            if (this.entity.body) {
-                this.entity.body.enable = false;
-            }
         });
 
         this.entity.on('drag', (pointer, dragX, dragY) => {
@@ -102,11 +97,6 @@ export default class DraggableComponent extends Component {
 
         this.entity.on('dragend', (pointer, dragX, dragY, dropped) => {
             this.entity.setDepth(this.baseDepth);
-
-            // Re-enable physics collisions now that the drag is over
-            if (this.entity.body) {
-                this.entity.body.enable = true;
-            }
 
             // If dropped in empty space (not on a dropZone)
             if (!dropped) {

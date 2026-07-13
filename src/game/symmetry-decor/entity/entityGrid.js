@@ -207,27 +207,27 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
         graphicsBg.setDepth(-10);
         this.add(graphicsBg);
 
-        // 2. Draw the inner cell borders segment by segment
+        // 2. Collect the inner cell border segments grouped by color, so each
+        // color needs only a single beginPath/strokePath draw call instead of
+        // one per segment (segment count scales with grid size, up to ~60 on
+        // a 6x6 grid — batching keeps this to 2 draw calls regardless of size).
         const symType = this.gridConfig ? this.gridConfig.symmetryType : null;
+        const normalSegments = [];
+        const refSegments = [];
 
-        // Draw vertical inner lines
+        // Vertical inner lines
         for (let i = 1; i < this.cols; i++) {
             const x = i * (this.cellWidth + this.padding);
             for (let j = 0; j < this.rows; j++) {
                 const y1 = j * (this.cellHeight + this.padding);
                 const y2 = (j + 1) * (this.cellHeight + this.padding);
-                
-                const isRef = this._isReferenceCell(i - 1, j, symType) && this._isReferenceCell(i, j, symType);
 
-                graphicsBorders.lineStyle(innerBorderThickness, isRef ? refBorderColor : innerBorderColor, 1.0);
-                graphicsBorders.beginPath();
-                graphicsBorders.moveTo(x, y1);
-                graphicsBorders.lineTo(x, y2);
-                graphicsBorders.strokePath();
+                const isRef = this._isReferenceCell(i - 1, j, symType) && this._isReferenceCell(i, j, symType);
+                (isRef ? refSegments : normalSegments).push([x, y1, x, y2]);
             }
         }
 
-        // Draw horizontal inner lines
+        // Horizontal inner lines
         for (let j = 1; j < this.rows; j++) {
             const y = j * (this.cellHeight + this.padding);
             for (let i = 0; i < this.cols; i++) {
@@ -235,13 +235,28 @@ export default class EntityGrid extends Phaser.GameObjects.Container {
                 const x2 = (i + 1) * (this.cellWidth + this.padding);
 
                 const isRef = this._isReferenceCell(i, j - 1, symType) && this._isReferenceCell(i, j, symType);
-
-                graphicsBorders.lineStyle(innerBorderThickness, isRef ? refBorderColor : innerBorderColor, 1.0);
-                graphicsBorders.beginPath();
-                graphicsBorders.moveTo(x1, y);
-                graphicsBorders.lineTo(x2, y);
-                graphicsBorders.strokePath();
+                (isRef ? refSegments : normalSegments).push([x1, y, x2, y]);
             }
+        }
+
+        if (normalSegments.length > 0) {
+            graphicsBorders.lineStyle(innerBorderThickness, innerBorderColor, 1.0);
+            graphicsBorders.beginPath();
+            for (const [sx1, sy1, sx2, sy2] of normalSegments) {
+                graphicsBorders.moveTo(sx1, sy1);
+                graphicsBorders.lineTo(sx2, sy2);
+            }
+            graphicsBorders.strokePath();
+        }
+
+        if (refSegments.length > 0) {
+            graphicsBorders.lineStyle(innerBorderThickness, refBorderColor, 1.0);
+            graphicsBorders.beginPath();
+            for (const [sx1, sy1, sx2, sy2] of refSegments) {
+                graphicsBorders.moveTo(sx1, sy1);
+                graphicsBorders.lineTo(sx2, sy2);
+            }
+            graphicsBorders.strokePath();
         }
 
         // 3. Draw the outer border on top of everything else

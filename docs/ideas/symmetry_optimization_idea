@@ -1,0 +1,168 @@
+# Symmetry Decor — Mobile Performance Optimization Plan
+
+After a thorough review of the entire game source code, I've identified **7 performance bottlenecks** that would significantly impact mobile devices. They are ordered by estimated impact (highest first).
+
+---
+
+## 🔴 Critical Issues
+
+### 1. Unnecessary Arcade Physics on Every Entity
+
+**File:** [entity.js](file:///c:/work/mci-cognitive-games/src/game/symmetry-decor/entity/entity.js#L3-L8)
+
+**Problem:** Every `Entity` extends `Phaser.Physics.Arcade.Sprite` and calls `scene.physics.add.existing(this)` in its constructor. This means **every single grid cell** (up to 36 on a 6x6 grid) gets a full Arcade Physics body — velocity, acceleration, collision checks, etc. — even though the game is a drag-and-drop puzzle with **zero physics interactions**.
+
+On a 6x6 grid, you create:
+- 36 cell entities (each with a physics body)
+- Up to 18 draggable entities (each with a physics body)  
+- Up to 18 blocker entities (each with a physics body)
+
+That's **~72 active physics bodies** being stepped every frame for no reason.
+
+**Impact:** The Arcade Physics engine runs `step()` on all bodies every frame. On mobile GPUs/CPUs, this is one of the heaviest per-frame costs.
+
+**Fix:** Switch `Entity` base class from `Phaser.Physics.Arcade.Sprite` to `Phaser.GameObjects.Sprite`. Remove `scene.physics.add.existing(this)`. The `SpriteRenderer.syncPhysicsBody()` calls can be safely removed since physics bodies are not needed.
+
+> [!IMPORTANT]
+> This is the single biggest performance win. It removes ~72 unnecessary physics body updates per frame.
+
+---
+
+### 2. Per-Frame `preUpdate` Component Loop on Every Entity
+
+**File:** [entity.js](file:///c:/work/mci-cognitive-games/src/game/symmetry-decor/entity/entity.js#L25-L32)
+
+**Problem:** Every `Entity.preUpdate()` iterates over its `components[]` array and calls `component.update()` on each one **every frame**. Most components (`SocketComponent`, `DraggableComponent`, `DraggableDataComponent`, `NonDraggableComponent`, `SpriteRenderer`) have **empty `update()` methods** inherited from the base `Component` class, so this is pure overhead.
+
+With ~72 entities × ~2 components each = **~144 no-op function calls per frame**.
+
+**Impact:** Medium-high on mobile. Function call overhead + array iteration on every frame adds up.
+
+**Fix:** Two options:
+- **(A) Quick fix:** Only register components that actually define a meaningful `update()` in a separate `updatableComponents` array.
+- **(B) Better fix:** Remove the `preUpdate` override entirely from `Entity` since no active component in this game uses `update()` (the `EmojiRenderer` does, but it's not used — the game uses `SpriteRenderer` instead).
+
+---
+
+### 3. EventBus `minigame:tick` Emitted Every Frame
+
+**File:** [Gameplay.js](file:///c:/work/mci-cognitive-games/src/game/symmetry-decor/scenes/Gameplay.js#L244)
+
+**Problem:** `EventBus.emit('minigame:tick', ...)` is called **every single frame** (~60 times per second). This crosses the Phaser→React bridge, causing React state updates and potential re-renders on every frame.
+
+**Impact:** High on mobile. React re-renders are expensive and the timer only needs to update once per second visually.
+
+**Fix:** Only emit when `timeLeftS` actually changes (i.e., once per second):
+```js
+if (timeLeftS !== this._lastTimeLeftS) {
+    this._lastTimeLeftS = timeLeftS;
+    EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
+}
+```
+
+---
+
+## 🟡 Moderate Issues
+
+### 4. Excessive `console.log` in Hot Paths
+
+**File:** [solutionSocket.js](file:///c:/work/mci-cognitive-games/src/game/symmetry-decor/components/scripts/solutionSocket.js#L15-L16)
+
+**Problem:** `SolutionSocketComponent.checkEntity()` logs **two `console.log` calls** every time it's invoked. This method is called during every drop event and during the `checkIfAllSocketIsFilledCorrectly()` loop (which iterates all solution slots). Console logging is synchronous and surprisingly expensive on mobile browsers.
+
+**Impact:** Moderate. Each drop triggers many `checkEntity` calls across all solution slots.
+
+**Fix:** Remove or gate behind a debug flag:
+```js
+checkEntity(entity) {
+    if (entity == null) return false;
+    return entity.type === this.type && entity.animal === this.animal;
+}
+```
+
+---
+
+### 5. Grid Background Drawing Creates Too Many Graphics Objects
+
+**File:** [entityGrid.js](file:///c:/work/mci-cognitive-games/src/game/symmetry-decor/entity/entityGrid.js#L191-L254)
+
+**Problem:** `drawGridBackground()` calls `graphics.beginPath()` + `graphics.strokePath()` in a **per-segment loop** for every inner grid line. On a 6x6 grid, this creates dozens of individual draw calls. Additionally, `drawSymmetryLine()` creates a separate `Graphics` object with its own dashed-line path.
+
+**Impact:** Moderate on mobile. Each `beginPath/strokePath` pair generates a separate WebGL draw call. Mobile GPUs have much lower draw-call budgets than desktop.
+
+**Fix:** Batch all same-color line segments into a **single** `beginPath/strokePath` call. Group reference-colored lines and normal-colored lines separately:
+```js
+// Instead of per-segment beginPath/strokePath:
+graphicsBorders.lineStyle(innerBorderThickness, innerBorderColor, 1.0);
+graphicsBorders.beginPath();
+// ... all normal-color moveTo/lineTo calls ...
+graphicsBorders.strokePath();
+
+graphicsBorders.lineStyle(innerBorderThickness, refBorderColor, 1.0);
+graphicsBorders.beginPath();
+// ... all ref-color moveTo/lineTo calls ...
+graphicsBorders.strokePath();
+```
+
+---
+
+### 6. Background Image is 1.5 MB
+
+**Asset:** `public/assets/symmetry-decor/etc/BG.png` — **1,615,919 bytes (1.5 MB)**
+
+**Problem:** This is a very large PNG for a background texture. On mobile devices with limited VRAM, this texture occupies significant GPU memory and takes time to decode/upload. The image is loaded as a `Sprite` and stretched to fill the screen.
+
+**Impact:** Moderate. Increases initial load time and GPU memory pressure on mobile.
+
+**Fix:** 
+- Compress the PNG (aim for < 300 KB) or convert to a WebP/JPEG format.
+- Alternatively, use a much smaller resolution (e.g., 1024×1024) since it's just a background that gets stretched anyway.
+
+---
+
+### 7. Grid Reconstruction Doesn't Fully Clean Up
+
+**File:** [Gameplay.js](file:///c:/work/mci-cognitive-games/src/game/symmetry-decor/scenes/Gameplay.js#L259-L262)
+
+**Problem:** When `constructGrid()` is called between rounds, it calls `this.grid.destroy()` but the `EntityGrid.destroy()` relies on Phaser's Container destroy. There's no explicit cleanup of the old physics bodies, event listeners on old cells, or old Graphics objects from symmetry lines and grid backgrounds. Over multiple rounds, these orphaned objects can accumulate.
+
+**Impact:** Low-moderate. Gets worse over time as more rounds are played. Memory leaks cause GC pauses which feel like stutters on mobile.
+
+**Fix:** Ensure `EntityGrid.destroy()` explicitly:
+1. Destroys all child entities and their components
+2. Destroys both Graphics objects (`graphicsBg`, `graphicsBorders`)
+3. Clears the `gridEntities` array
+
+---
+
+## Summary Table
+
+| # | Issue | Severity | Est. Impact | Effort |
+|---|-------|----------|-------------|--------|
+| 1 | Unnecessary Arcade Physics on all entities | 🔴 Critical | **Very High** | Medium |
+| 2 | Per-frame component update loop (all no-ops) | 🔴 Critical | **High** | Low |
+| 3 | EventBus tick emitted every frame | 🔴 Critical | **High** | Low |
+| 4 | Console.log in hot paths | 🟡 Moderate | **Medium** | Very Low |
+| 5 | Per-segment graphics draw calls | 🟡 Moderate | **Medium** | Medium |
+| 6 | 1.5 MB background image | 🟡 Moderate | **Medium** | Low |
+| 7 | Grid reconstruction memory leaks | 🟡 Moderate | **Low-Med** | Medium |
+
+## Recommended Implementation Order
+
+1. **Issue #1** (Physics removal) — biggest single win
+2. **Issue #3** (Tick throttling) — quick fix, high impact
+3. **Issue #4** (Console.log removal) — trivial fix
+4. **Issue #2** (preUpdate cleanup) — low effort
+5. **Issue #5** (Graphics batching) — moderate effort
+6. **Issue #6** (Background compression) — asset pipeline change
+7. **Issue #7** (Cleanup leaks) — moderate effort
+
+> [!TIP]
+> Issues 1–4 alone should dramatically improve mobile performance and can be done quickly. Issues 5–7 are polish optimizations for an even smoother experience.
+
+## Verification Plan
+
+### Manual Verification
+- Test on a real mobile device (or Chrome DevTools mobile emulation with CPU throttling 4x) before and after each fix
+- Use Chrome DevTools Performance tab to profile frame times
+- Monitor the Phaser debug overlay (`game.config.physics.arcade.debug = true`) to confirm physics bodies are removed after Fix #1

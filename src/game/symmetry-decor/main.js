@@ -22,13 +22,6 @@ const config = {
         width: 1100, // The "logical" resolution
         height: 2000
     },
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 0 }, // 0 for top-down, 300 for platformers
-            debug: false      // Keep this true while debugging!
-        }
-    },
     scene: [
         StartMenuScene,
         TutorialLevelScene,

@@ -43,8 +43,11 @@ export function showLevelCompleteEffect() {
 
     // Confetti particles
     const colors = ['#FFC700', '#FF0055', '#00F0FF', '#00FF66', '#9D00FF'];
+    // Keep per-particle state as plain numbers instead of DOM dataset strings —
+    // dataset reads/writes are string-serialized, which is costly when done
+    // for every particle on every animation frame.
     const confettiElements = [];
-    
+
     for (let i = 0; i < 80; i++) {
         const confetti = document.createElement('div');
         Object.assign(confetti.style, {
@@ -58,21 +61,22 @@ export function showLevelCompleteEffect() {
             opacity: '0',
             boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
         });
-        
+
         // Physics variables
         const angle = Math.random() * Math.PI * 2;
         // Explode outward
-        const velocity = 15 + Math.random() * 25; 
-        
-        confetti.dataset.dx = Math.cos(angle) * velocity;
-        confetti.dataset.dy = Math.sin(angle) * velocity - 10; // Bias upward
-        confetti.dataset.x = 0;
-        confetti.dataset.y = 0;
-        confetti.dataset.rotation = Math.random() * 360;
-        confetti.dataset.rotationSpeed = (Math.random() - 0.5) * 20;
+        const velocity = 15 + Math.random() * 25;
 
         container.appendChild(confetti);
-        confettiElements.push(confetti);
+        confettiElements.push({
+            el: confetti,
+            dx: Math.cos(angle) * velocity,
+            dy: Math.sin(angle) * velocity - 10, // Bias upward
+            x: 0,
+            y: 0,
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 20,
+        });
     }
 
     const gameContainer = document.getElementById('game-container') || document.body;
@@ -98,29 +102,21 @@ export function showLevelCompleteEffect() {
         const progress = elapsed / duration;
 
         confettiElements.forEach(c => {
-            let x = parseFloat(c.dataset.x);
-            let y = parseFloat(c.dataset.y);
-            let dy = parseFloat(c.dataset.dy);
-            
-            x += parseFloat(c.dataset.dx) * Math.max(0, (1 - progress * 2)); // slow down horizontal
-            y += dy;
-            
-            // Gravity effect
-            c.dataset.dy = dy + 0.8; 
+            c.x += c.dx * Math.max(0, (1 - progress * 2)); // slow down horizontal
+            c.y += c.dy;
 
-            c.dataset.x = x;
-            c.dataset.y = y;
-            
-            let rotation = parseFloat(c.dataset.rotation) + parseFloat(c.dataset.rotationSpeed);
-            c.dataset.rotation = rotation;
+            // Gravity effect
+            c.dy += 0.8;
+
+            c.rotation += c.rotationSpeed;
 
             // Fade out towards the end
             let opacity = 1;
             if (progress < 0.1) opacity = progress * 10;
             if (progress > 0.7) opacity = 1 - ((progress - 0.7) / 0.3);
 
-            c.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${rotation}deg)`;
-            c.style.opacity = opacity;
+            c.el.style.transform = `translate(calc(-50% + ${c.x}px), calc(-50% + ${c.y}px)) rotate(${c.rotation}deg)`;
+            c.el.style.opacity = opacity;
         });
 
         // Add slight floating effect to text

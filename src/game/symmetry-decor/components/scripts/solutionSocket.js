@@ -12,8 +12,6 @@ export default class SolutionSocketComponent extends Component{
     }
     checkEntity(entity){
         if(entity == null) return;
-        console.log("Socket Animal : " + this.animal);
-        console.log("Entity Animal : " + entity.animal);
         if(entity.type == this.type && entity.animal == this.animal){
             return true;
         }
