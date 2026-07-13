@@ -118,7 +118,7 @@
 | [US-E9-08](./user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (v1.1.1) |
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | Med | 📋 Backlog |
 | [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ HN ที่ลงทะเบียนผิด (Phase 2) | Med | 📋 Backlog |
-| [US-E9-11](./user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ. | Med | 📋 Backlog |
+| [US-E9-11](./user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ. | Med | ✅ Done (v1.1.3) |
 
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
 > ⤷ US-E8-01 ต่อยอด [US-E7-10](./user-stories/US-E7-10.md) (ต้นไม้หลายรูปแบบ) — ดู [Sprint 08](./sprint-backlogs/sprint-08.md)

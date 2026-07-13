@@ -31,8 +31,11 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
+// US-E9-11: the patient card is the record of what was entered, so it spells the พ.ศ. year out in
+// full — a two-digit year reads as ambiguous next to a ค.ศ. date. The compact program-day labels
+// elsewhere keep the short form.
 function formatDisplayDate(value) {
-    return formatThaiProgramDate(value);
+    return formatThaiProgramDate(value, { shortYear: false });
 }
 
 function formatGenderDisplay(gender) {

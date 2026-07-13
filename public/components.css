@@ -1156,6 +1156,59 @@
   background-repeat: no-repeat;
 }
 
+/* US-E9-11: วัน / เดือน / ปี พ.ศ. — three selects fused into a single field-box-shaped pill (rounded
+   outer corners, square inner ones) so the date keeps the same one-cell, two-column row as every
+   other field. The field column is only ~145px on a 360px phone, so the segments carry no chevron
+   and the month collapses to its abbreviation (ม.ค.) once chosen — the dropdown still lists the
+   full names. */
+.gh-date-select {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr) minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+}
+
+.gh-frame-field-box-date-l,
+.gh-frame-field-box-date-c,
+.gh-frame-field-box-date-r {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  /* allow this grid/flex item to shrink below the native input's intrinsic
+     (size-attribute) min-content width so the field never overflows the panel */
+  min-width: 0;
+  background: #ffffff;
+  box-shadow: 0 0 0 0.825px rgb(173, 229, 249);
+  overflow: hidden;
+}
+
+.gh-frame-field-box-date-l {
+  border-radius: 9px 0 0 9px;
+}
+
+.gh-frame-field-box-date-c {
+  border-radius: 0;
+}
+
+.gh-frame-field-box-date-r {
+  border-radius: 0 9px 9px 0;
+}
+
+.gh-date-select__segment--error {
+  box-shadow: 0 0 0 2px rgb(214, 80, 80);
+}
+
+/* Font size is inherited from .gh-frame-field-box__select so the date reads at the same size as
+   ชื่อ / เพศ / การศึกษา. That leaves no room for padding, hence the tight sides. */
+.gh-date-select .gh-frame-field-box__select {
+  padding: clamp(14px, 2.4vh, 20px) clamp(2px, 1vw, 8px);
+  text-align: center;
+  text-align-last: center;
+  /* no chevron: three of them will not fit the field column */
+  background-image: none;
+}
+
 /* Action buttons — Button_OK (3161:643) green / Button_Close (3161:649) red.
    Responsive pills: base (dark) shows a thin lip below the slightly-shorter gradient. */
 .gh-form__actions {

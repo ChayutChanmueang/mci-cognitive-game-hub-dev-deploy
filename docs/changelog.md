@@ -50,9 +50,35 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.0.0` | 2026-07-07 | First production-ready full build: owner-declared milestone after `features/game-hub` → `development` merge; core patient/admin flows, 14-day Game Hub program, minigame suite, PWA, Supabase persistence, Docker/nginx deploy |
 | `1.1.0` | 2026-07-08 | US-E8-01 per-player progression trees, signup assignment, and lazy backfill for existing profiles |
 | `1.1.1` | 2026-07-10 | US-E9-08 Game Hub label swap: game name ↑ / category ↓ (commit `a3ffc8d`) |
-| `1.1.2` | 2026-07-10 | **(current)** US-E9-06 Screen Wake Lock: screen stays awake during minigames and story videos and dims again on return to the Game Hub; silent-video fallback for non-HTTPS origins (field feedback hotfix) — owner verified on device |
+| `1.1.2` | 2026-07-10 | US-E9-06 Screen Wake Lock: screen stays awake during minigames and story videos and dims again on return to the Game Hub; silent-video fallback for non-HTTPS origins (field feedback hotfix) — owner verified on device |
+| `1.1.3` | 2026-07-13 | **(current)** US-E9-11 Sign-up dates are entered and shown in **พ.ศ.** (วัน/เดือน/ปี selects replacing `<input type="date">`, which can only render ค.ศ.); DB keeps ค.ศ. Patient-Info card now prints the full Buddhist year (`15/01/2510`) instead of a 2-digit one — owner verified on device |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.1.3] - 2026-07-13
+**Version bump:** `1.1.2 → 1.1.3` (**PATCH**) — fixes incorrect behavior (the sign-up form asked for and displayed a calendar era ผู้สูงอายุ do not use). No new user-facing capability: the form already collected a birth date and a program start date; it now collects them in the era the user actually knows. The new `thai-era-date.js` / `thai-date-select.js` modules are the implementation of that fix, not a new feature surface.
+
+### Fixed
+- **US-E9-11** — Sign-up birth date (`วันเกิด`) and program start date (`วันที่เริ่มโปรแกรม`) are entered and displayed in **พ.ศ.**; the database still stores ISO **ค.ศ.** (`YYYY-MM-DD`). Conversion happens only at the UI boundary, so no Buddhist year ever reaches the backend.
+- Patient-Info card printed the Buddhist year with two digits (`15/01/10`), which reads as ambiguous next to a ค.ศ. date. It now spells the year out (`15/01/2510`). The compact program-day labels elsewhere keep the short form.
+
+### Changed
+- `<input type="date">` replaced by three native selects (วัน / เดือน / ปี พ.ศ.). A native date input always renders its calendar and text in the **browser's own locale** and exposes no era/locale override, so พ.ศ. is not achievable with it — this is why the control had to change. The selects also remove typing for elderly users and make a malformed date impossible to enter.
+- The three selects are fused into one field-box-shaped pill (`gh-frame-field-box-date-l/-c/-r`) so the date keeps the same two-column row as every other field. The month shows its abbreviation once chosen (`ม.ค.`) because the full name is wider than the collapsed select; the dropdown still lists full names (`มกราคม`).
+- Day options follow the selected month and year — กุมภาพันธ์ offers 28 or 29 days by Buddhist leap year, and a day past the end of a shorter month clamps down.
+
+### Added
+- `src/util/thai-era-date.js` — พ.ศ. ↔ ค.ศ. conversion, Thai month names/abbreviations, Buddhist-aware days-in-month.
+- `src/ui/components/thai-date-select.js` — the วัน/เดือน/ปี control; `getValue()`/`setValue()` speak ISO ค.ศ.
+
+### Validated
+- Buddhist-era conversion: พ.ศ. 15/ม.ค./2510 persists as `1967-01-15`; age renders `59 ปี`; the submitted payload contains no Buddhist year.
+- Calendar edges: 29 ก.พ. 2567 (=2024, leap) accepted; 29 ก.พ. 2566 rejected; 31 เม.ย. rejected (no silent month rollover); switching 31 ธ.ค. → ก.พ. clamps to the 28th.
+- An incomplete date blocks submit and outlines the whole pill in red.
+- Layout verified at 360px and 768px, including the widest case (`30 | เม.ย. | 2510`) and the empty placeholder state — no cropping. Production build passes.
+- Owner verified on device (2026-07-13).
+
+---
 
 ## [2026-07-10] - Field Feedback รอบ 2 → US-E9-06..11 (docs)
 **Docs-only** (no `package.json` bump).

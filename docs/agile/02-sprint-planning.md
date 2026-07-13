@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-10
+**Last Updated:** 2026-07-13
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
@@ -105,6 +105,16 @@ gantt
 - **Phase 2:** ส่งออกข้อมูลผู้เล่นครบถ้วน → [US-E9-05](user-stories/US-E9-05.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 - **Target:** ship **v1.1.1** (PATCH) สำหรับ P0 gameplay fixes
+
+**Shipped so far (Sprint 9):**
+
+| Story | Version | Verified |
+| :--- | :--- | :--- |
+| [US-E9-08](user-stories/US-E9-08.md) Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง | `1.1.1` | ✅ owner 2026-07-10 |
+| [US-E9-06](user-stories/US-E9-06.md) Screen Wake Lock | `1.1.2` | ✅ owner 2026-07-10 |
+| [US-E9-11](user-stories/US-E9-11.md) Sign-up วันเกิด/วันที่เริ่มโปรแกรม เป็น พ.ศ. | `1.1.3` | ✅ owner 2026-07-13 |
+
+- [US-E9-07](user-stories/US-E9-07.md) (Optimize สเปคต่ำ) อยู่ระหว่างทำ — target ขยับเป็น **`1.1.4`** เพราะ `1.1.3` ถูก US-E9-11 ship ไปก่อน
 
 ---
 
