@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-14 | **Release:** [v1.1.3](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) (US-E9-05/09/10 In Progress → `1.1.4`–`1.1.6`)
+**Last Updated:** 2026-07-14 | **Release:** [v1.1.3](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) (US-E9-05/09 In Progress → `1.1.4`–`1.1.5`; US-E9-10 Done)
 
 ## 🎯 Product Vision
 
@@ -160,14 +160,14 @@
 | [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline)                                        | High     | 🔵 In Progress  |
 | [US-E9-08](./user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่)                                                   | High     | ✅ Done (v1.1.1) |
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                        | Med      | 🔵 In Progress (planned `1.1.5`) |
-| [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด                                              | Med      | 🔵 In Progress (planned `1.1.6`) |
+| [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด                                              | Med      | ✅ Done          |
 | [US-E9-11](./user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ.                                                                    | Med      | ✅ Done (v1.1.3) |
 
 
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
 > ⤷ US-E8-01 ต่อยอด [US-E7-10](./user-stories/US-E7-10.md) (ต้นไม้หลายรูปแบบ) — ดู [Sprint 08](./sprint-backlogs/sprint-08.md)
 > ⤷ US-E9-01..11 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
-> ⤷ US-E9-05 → planned `1.1.4`, US-E9-09 → `1.1.5`, US-E9-10 → `1.1.6` (committed Sprint 09, 2026-07-14; bump ตอน ship)
+> ⤷ US-E9-05 → planned `1.1.4`, US-E9-09 → `1.1.5` (committed Sprint 09, 2026-07-14; bump ตอน ship) — US-E9-10 ✅ Done (CLI ops, **ไม่ bump version**)
 > ⤷ US-E9-07 รวม feedback เอฟเฟคเก่งมาก + Phaser/A10s; US-E9-08 แก้ผลสลับ label จาก [US-E7-14](./user-stories/US-E7-14.md)
 >  US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)

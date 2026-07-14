@@ -55,6 +55,13 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-14] - US-E9-10 status → Done (docs)
+**Docs-only** — no `package.json` bump (CLI ops tool, ไม่เกี่ยวกับโค้ดเกมโดยตรง).
+
+### Changed
+- [US-E9-10](agile/user-stories/US-E9-10.md) → **✅ Done** — CLI [`update-user-hn.js`](../../update-user-hn.js) (`--from-hn`, `--to-hn`, `--dry-run`)
+- Product backlog, kanban, sprint-09, meeting 2026-07-10 action item #11
+
 ## [2026-07-14] - US-E7-08, US-E7-11, US-E7-12 status → Done (docs)
 **Docs-only** — no `package.json` bump.
 

@@ -2,7 +2,7 @@
 
 **Goal:** แก้ปัญหาเร่งด่วนจากการลงพื้นที่จริงกับผู้สูงอายุที่เริ่มเล่นโปรแกรม 14 วันแล้ว — เน้น **UX ระหว่างเล่นเกม**, **เครื่องสเปคต่ำ**, และ **ระบบหลังบ้านที่ commit แล้ว**
 **Timeline:** 2026-07-10 → 2026-07-23 (14 วัน) — *ขยายตาม scope*
-**Release target:** PATCH line ต่อจาก `1.1.3` — [US-E9-05](../user-stories/US-E9-05.md) → `1.1.4`, [US-E9-09](../user-stories/US-E9-09.md) → `1.1.5`, [US-E9-10](../user-stories/US-E9-10.md) → `1.1.6` *(planned; bump ตอน ship แต่ละ story)*
+**Release target:** PATCH line ต่อจาก `1.1.3` — [US-E9-05](../user-stories/US-E9-05.md) → `1.1.4`, [US-E9-09](../user-stories/US-E9-09.md) → `1.1.5` *(planned; bump ตอน ship)* — [US-E9-10](../user-stories/US-E9-10.md) ✅ Done (CLI ops, **ไม่ bump version**)
 **Source:** [Field Feedback — ลงพื้นที่ (2026-07-10)](../meeting-backlogs/2026-07-10.md)
 
 ---
@@ -54,11 +54,11 @@ gantt
 |----|--------------|-----------------|--------|
 | [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | `1.1.4` | 🔵 In Progress |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | `1.1.5` | 🔵 In Progress |
-| [US-E9-10](../user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด | `1.1.6` | 🔵 In Progress |
 
 ### ✅ Shipped ใน Sprint 09
 | ID | Story / Task | หมายเหตุ |
 |----|--------------|----------|
+| [US-E9-10](../user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด | ✅ Done (2026-07-14, CLI ops — **ไม่ bump version**) |
 | [US-E9-11](../user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ. | ✅ Done (v1.1.3, 2026-07-13) |
 
 ### ✅ ครอบคลุมแล้ว (Sprint 08)
@@ -75,12 +75,12 @@ gantt
 - [Sprint 08](sprint-08.md) ปิดแล้ว — [US-E8-01](../user-stories/US-E8-01.md) ✅ Done (**v1.1.0**, 2026-07-14)
 - Sprint 09 เริ่มขนานกับ Sprint 08 wrap-up (ตอนนี้ Sprint 08 ปิดแล้ว)
 - Feedback มาจาก [Meeting 2026-07-10](../meeting-backlogs/2026-07-10.md) (รอบ 1 + รอบ 2)
-- **2026-07-14:** Owner commit US-E9-05, 09, 10 ในรอบ release นี้ (ไม่เลื่อน Phase 2)
+- **2026-07-14:** Owner commit US-E9-05, 09 ในรอบ release นี้; US-E9-10 ✅ Done (CLI, ไม่ bump version)
 
 ### ลำดับความสำคัญ (ตาม owner)
 1. **P0:** ปัญหาระหว่างเล่นเกม + เครื่องสเปคต่ำ (US-E9-01..04, 06..08)
-2. **P1 committed:** ระบบหลังบ้าน + A11y (US-E9-05 → `1.1.4`, 09 → `1.1.5`, 10 → `1.1.6`)
-3. **Done:** US-E8-01 (v1.1.0), US-E9-11 (v1.1.3), US-E9-06/08
+2. **P1 committed:** ระบบหลังบ้าน + A11y (US-E9-05 → `1.1.4`, 09 → `1.1.5`)
+3. **Done:** US-E8-01 (v1.1.0), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-06/08
 
 ### การรวม Story
 | รวมแล้ว | จาก feedback |
@@ -109,7 +109,7 @@ gantt
 
 ## 📊 Sprint Summary
 - **งานที่ commit:** 11 stories (7 P0 + 3 P1 committed + US-E9-11 Done) + US-E8-01 ใน Sprint 08
-- **เป้าหมายถัดไป:** ship **`1.1.4` → `1.1.5` → `1.1.6`** สำหรับ US-E9-05, 09, 10
+- **เป้าหมายถัดไป:** ship **`1.1.4` → `1.1.5`** สำหรับ US-E9-05, 09 — US-E9-10 ✅ Done (CLI, ไม่ bump version)
 - **สถานะ:** 🟢 **Sprint 9 Open** (อัปเดต 2026-07-14)
 
 ---

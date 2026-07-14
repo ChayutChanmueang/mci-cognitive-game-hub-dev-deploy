@@ -15,7 +15,6 @@ kanban-plugin: board
 ## 🔵 In Progress (WIP Limit: 3)
 - [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลครบชุด (planned `1.1.4`)
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ (planned `1.1.5`)
-- [ ] [US-E9-10](user-stories/US-E9-10.md) 🟡 CLI update-user-hn.js (planned `1.1.6`)
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 
@@ -25,6 +24,7 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` — แก้ ID/`hn` ผิด — ✅ Done 2026-07-14 (ไม่ bump version)
 - [x] [US-E7-08](user-stories/US-E7-08.md) แก้คำ "สมอบก" ใน Context Clues — ทีมเนื้อหา/แพทย์ — ✅ Done 2026-07-14
 - [x] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone + วิดีโอใหม่ — ทีมเนื้อหา — ✅ Done 2026-07-14
 - [x] [US-E7-12](user-stories/US-E7-12.md) โดเมน Cognitive + สรุปหลังบ้าน — ทีมหลังบ้าน/ข้อมูล — ✅ Done 2026-07-14
