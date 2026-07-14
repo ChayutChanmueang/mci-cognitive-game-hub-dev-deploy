@@ -16,7 +16,7 @@
 | [sprint-06](sprint-backlogs/sprint-06.md) | May 20-31     | Integration, Analytics & Admin | Completed |
 | Post-Sprint Hardening | Jun 01-16 | Deployment stabilization, branch cleanup, documentation sync | Completed |
 | [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
-| [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) + post-1.0 line → target **v1.1.0** | **Active** (wrap-up) |
+| [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) → **v1.1.0** | Completed |
 | [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — ลงพื้นที่ (แก้ด่วน UX มินิเกม) → target **v1.1.1** | **Active** |
 
 ## 📊 Project Timeline (Gantt Chart)
@@ -64,7 +64,7 @@ gantt
 - **[sprint-06](sprint-backlogs/sprint-06.md)**: Integration, Analytics & Admin Dashboard
 - **Post-Sprint Hardening**: Stabilize deployment branches, verify Docker/nginx production build, fix stale leaderboard branch drift, and refresh documentation
 - **[sprint-07](sprint-backlogs/sprint-07.md)**: Game Art Assets, Version Display & Mini-game Vertical Responsiveness — **Completed → [v1.0.0](../changelog.md) stable release (2026-07-07)**
-- **[sprint-08](sprint-backlogs/sprint-08.md)**: Per-player progression tree (`tree_type` a/b/c/d) — **Active (wrap-up)** (post-1.0, target `1.1.0`)
+- **[sprint-08](sprint-backlogs/sprint-08.md)**: Per-player progression tree (`tree_type` a/b/c/d) — **Completed → [v1.1.0](../changelog.md)** (US-E8-01 Done, 2026-07-14)
 - **[sprint-09](sprint-backlogs/sprint-09.md)**: Field Feedback Hotfix — ลงพื้นที่ (แก้ด่วน UX มินิเกม) — **Active** (post-1.0, target `1.1.1`) — จาก [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
 ## 📈 Epic Completeness Strategy (Alignment)
@@ -94,11 +94,11 @@ gantt
 
 ### 🎨 E7: Game Art Assets & UI/UX Polish
 - **Sprint 7:** เพิ่ม game art assets ให้หน้าจอ DOM หลัก (Leaderboard, Login, Sign-up, Player-Info, Popup), แสดงเลขเวอร์ชันบนตัวเกมหลัก (ซ่อนในมินิเกม) และทำให้มินิเกมยืดแนวตั้งได้ (Vertical Responsive)
-- **Target:** ชั้นการนำเสนอ (presentation layer) มีเอกลักษณ์ภาพครบทุกหน้าจอหลัก — **shipped in v1.0.0** (2026-07-07). Post-1.0 follow-ups: US-E7-06 (vertical responsive), US-E7-08/11/12.
+- **Target:** ชั้นการนำเสนอ (presentation layer) มีเอกลักษณ์ภาพครบทุกหน้าจอหลัก — **shipped in v1.0.0** (2026-07-07). Post-1.0 follow-ups: US-E7-06 (vertical responsive). ~~US-E7-08/11/12~~ → **Done** (ฝ่ายอื่น, 2026-07-14).
 
 ### 🌳 E8: Check-in Personalization (Post-1.0)
 - **Sprint 8:** ต้นคิดดีหลายชนิดต่อผู้เล่น — `game_tree_list` + `user_game_profile_data.tree_type`; สุ่มตอน signup; **lazy backfill** ผู้เล่น v1.0.0 ที่ `tree_type` เป็น NULL → [US-E8-01](user-stories/US-E8-01.md)
-- **Target:** ship **v1.1.0** (MINOR) เมื่อ US-E8-01 ผ่าน DoD
+- **Target:** shipped **v1.1.0** — [US-E8-01](user-stories/US-E8-01.md) ✅ Done (owner verified 2026-07-14)
 
 ### 🔧 E9: Field Feedback Hotfixes (Post-1.0 — ลงพื้นที่)
 - **Sprint 9:** แก้ด่วนจากการลงพื้นที่จริงกับผู้สูงอายุ — Symmetry Decor, Fry Food skip, Zoo Detective drag, Postcard font → [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md)

@@ -55,6 +55,36 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-14] - US-E7-08, US-E7-11, US-E7-12 status → Done (docs)
+**Docs-only** — no `package.json` bump.
+
+- [US-E7-08](agile/user-stories/US-E7-08.md) → **✅ Done** — แก้คำศัพท์ Context Clues โดยทีมเนื้อหา/แพทย์
+- [US-E7-11](agile/user-stories/US-E7-11.md) → **✅ Done** — ละครสั้น/วิดีโอใหม่โดยทีมเนื้อหา
+- [US-E7-12](agile/user-stories/US-E7-12.md) → **✅ Done** — โดเมน Cognitive + สรุปหลังบ้านโดยทีมหลังบ้าน/ข้อมูล
+- Product backlog, kanban, sprint-07/08, meeting 2026-06-24 action items, sprint planning
+
+## [2026-07-14] - US-E5-03 status → Done (docs)
+**Docs-only** — no `package.json` bump.
+
+### Changed
+- [US-E5-03](agile/user-stories/US-E5-03.md) → **✅ Done** — ลบบัญชีผ่าน CLI [`delete-user.js`](../../delete-user.js) + logout ในแอป (Admin UI แทนด้วย script)
+- Product backlog, kanban, sprint-08 carried-over table
+
+## [2026-07-14] - US-E8-01 status → Done (docs)
+**Docs-only** — no `package.json` bump (shipped ใน **v1.1.0** แล้ว).
+
+### Changed
+- [US-E8-01](agile/user-stories/US-E8-01.md) → **✅ Done** (owner verified 2026-07-14: ต้นคิดดีหลายชนิดแสดงผลได้ปกติ)
+- Sprint 8 → Completed; product backlog, kanban, meeting action item #5, sprint planning
+
+## [2026-07-14] - Sprint 09 scope commit: US-E9-05, 09, 10 (docs)
+**Docs-only** — no `package.json` bump.
+
+### Changed
+- Owner commits [US-E9-05](agile/user-stories/US-E9-05.md), [US-E9-09](agile/user-stories/US-E9-09.md), [US-E9-10](agile/user-stories/US-E9-10.md) to current Sprint 09 release line — status → **In Progress**
+- Planned PATCH targets: US-E9-05 → `1.1.4`, US-E9-09 → `1.1.5`, US-E9-10 → `1.1.6` (bump ตอน ship แต่ละ story)
+- อัปเดต [Sprint 09](agile/sprint-backlogs/sprint-09.md), [product backlog](agile/01-product-backlog.md), [kanban](agile/kanban.md), [meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
+
 ## [1.1.3] - 2026-07-13
 **Version bump:** `1.1.2 → 1.1.3` (**PATCH**) — fixes incorrect behavior (the sign-up form asked for and displayed a calendar era ผู้สูงอายุ do not use). No new user-facing capability: the form already collected a birth date and a program start date; it now collects them in the era the user actually knows. The new `thai-era-date.js` / `thai-date-select.js` modules are the implementation of that fix, not a new feature surface.
 
@@ -183,7 +213,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - **Stability fixes shipped in 0.x line:** BUG-004/005/006/007 resolved; boot loading overlay; route-version guard; scroll containment.
 
 ### Known follow-up (post-1.0 backlog — not blocking this release)
-- US-E7-06 (minigame vertical responsive), US-E7-08/11/12 (doctor feedback), US-E5-03 (delete-account UI), TD-DB-01.
+- US-E7-06 (minigame vertical responsive), ~~US-E7-08/11/12~~ (doctor feedback — **Done** 2026-07-14, ฝ่ายอื่น), ~~US-E5-03~~ (delete-account — **Done** 2026-07-14), TD-DB-01.
 
 ### Docs
 - Bumped `package.json`, `docs/index.md`, `docs/changelog.md`, sprint planning — project status → **Stable Release 1.0.0**.

@@ -1,8 +1,8 @@
 # Sprint 09: Field Feedback Hotfix — ลงพื้นที่ (แก้ด่วน)
 
-**Goal:** แก้ปัญหาเร่งด่วนจากการลงพื้นที่จริงกับผู้สูงอายุที่เริ่มเล่นโปรแกรม 14 วันแล้ว — เน้น **UX ระหว่างเล่นเกม** และ **เครื่องสเปคต่ำ** ก่อน แล้วค่อยทำระบบหลังบ้าน
-**Timeline:** 2026-07-10 → 2026-07-23 (14 วัน) — *อาจขยายถ้า scope เพิ่ม*
-**Release target:** `1.1.1` (PATCH) สำหรับ P0 + P1 gameplay/device fixes; `1.2.0` (MINOR) ถ้ารวม US-E9-05 / US-E9-10
+**Goal:** แก้ปัญหาเร่งด่วนจากการลงพื้นที่จริงกับผู้สูงอายุที่เริ่มเล่นโปรแกรม 14 วันแล้ว — เน้น **UX ระหว่างเล่นเกม**, **เครื่องสเปคต่ำ**, และ **ระบบหลังบ้านที่ commit แล้ว**
+**Timeline:** 2026-07-10 → 2026-07-23 (14 วัน) — *ขยายตาม scope*
+**Release target:** PATCH line ต่อจาก `1.1.3` — [US-E9-05](../user-stories/US-E9-05.md) → `1.1.4`, [US-E9-09](../user-stories/US-E9-09.md) → `1.1.5`, [US-E9-10](../user-stories/US-E9-10.md) → `1.1.6` *(planned; bump ตอน ship แต่ละ story)*
 **Source:** [Field Feedback — ลงพื้นที่ (2026-07-10)](../meeting-backlogs/2026-07-10.md)
 
 ---
@@ -22,14 +22,12 @@ gantt
     Screen wake lock (US-E9-06)      :t6, 2026-07-10, 2d
     Low-end perf A10s (US-E9-07)     :t7, 2026-07-12, 5d
     Game Hub label swap (US-E9-08)   :t8, 2026-07-14, 1d
-    section P1 — UX / Admin
+    section P1 — Admin / A11y committed
+    Full data export (US-E9-05)      :t5, 2026-07-14, 5d
     System font scale (US-E9-09)     :t9, 2026-07-16, 3d
-    Sign-up พ.ศ. year (US-E9-11)    :t10, 2026-07-16, 2d
+    update-user-hn.js (US-E9-10)     :t11, 2026-07-18, 3d
     section QA
     Mobile QA + A10s playtest      :q1, 2026-07-18, 4d
-    section P1 — Phase 2 (capacity)
-    Full data export (US-E9-05)      :t5, 2026-07-18, 5d
-    update-user-hn.js (US-E9-10)     :t11, 2026-07-20, 3d
 ```
 
 ---
@@ -47,47 +45,48 @@ gantt
 ### 🔴 P0 — แก้ด่วน (Device / Game Hub)
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E9-06](../user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | ✅ Done (owner verified 2026-07-10) |
-| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline) | High | 🔵 In Progress (เริ่ม 2026-07-10) |
-| [US-E9-08](../user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (`a3ffc8d`) |
+| [US-E9-06](../user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | ✅ Done (v1.1.2, owner verified 2026-07-10) |
+| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline) | High | 🔵 In Progress |
+| [US-E9-08](../user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (v1.1.1) |
 
-### 🟠 P1 — สำคัญ (UX / Accessibility)
-| ID | Story / Task | Priority | Status |
-|----|--------------|----------|--------|
-| [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | Med | 📋 Backlog |
-| [US-E9-11](../user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ. | Med | 📋 Backlog |
+### 🟡 P1 — Committed (In Progress)
+| ID | Story / Task | Planned version | Status |
+|----|--------------|-----------------|--------|
+| [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | `1.1.4` | 🔵 In Progress |
+| [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | `1.1.5` | 🔵 In Progress |
+| [US-E9-10](../user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด | `1.1.6` | 🔵 In Progress |
 
-### 🟡 P1 — Phase 2 (ระบบ / Admin — ทำหลัง P0 หรือขนานถ้ามี capacity)
-| ID | Story / Task | Priority | Status |
-|----|--------------|----------|--------|
-| [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | Med | 📋 Backlog |
-| [US-E9-10](../user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ HN ที่ลงทะเบียนผิด | Med | 📋 Backlog |
+### ✅ Shipped ใน Sprint 09
+| ID | Story / Task | หมายเหตุ |
+|----|--------------|----------|
+| [US-E9-11](../user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ. | ✅ Done (v1.1.3, 2026-07-13) |
 
 ### ✅ ครอบคลุมแล้ว (Sprint 08)
 | ID | Story / Task | หมายเหตุ |
 |----|--------------|----------|
-| [US-E8-01](../user-stories/US-E8-01.md) | ต้นคิดดีสุ่ม 4 ชนิด (`a`/`b`/`c`/`d`) | 🧪 Review / Testing ใน Sprint 08 → target `1.1.0` |
+| [US-E8-01](../user-stories/US-E8-01.md) | ต้นคิดดีสุ่ม 4 ชนิด (`a`/`b`/`c`/`d`) | ✅ Done (v1.1.0, 2026-07-14) |
 
 ---
 
 ## 📌 Context — ต่อจาก v1.0.0 / Sprint 08
 
 - [v1.0.0](../../changelog.md) (2026-07-07) — ผู้สูงอายุเริ่มเล่นโปรแกรม 14 วันแล้ว → **แก้อย่างระมัดระวัง**
-- [Sprint 08](sprint-08.md) ยังปิด [US-E8-01](../user-stories/US-E8-01.md) (ต้นคิดดีสุ่ม) → target `1.1.0`
-- Sprint 09 เริ่ม **ขนานกับ** Sprint 08 wrap-up เพราะ feedback เป็น **แก้ด่วน**
+- **Current shipped:** `1.1.3` (US-E9-11 พ.ศ. signup)
+- [Sprint 08](sprint-08.md) ปิดแล้ว — [US-E8-01](../user-stories/US-E8-01.md) ✅ Done (**v1.1.0**, 2026-07-14)
+- Sprint 09 เริ่มขนานกับ Sprint 08 wrap-up (ตอนนี้ Sprint 08 ปิดแล้ว)
 - Feedback มาจาก [Meeting 2026-07-10](../meeting-backlogs/2026-07-10.md) (รอบ 1 + รอบ 2)
+- **2026-07-14:** Owner commit US-E9-05, 09, 10 ในรอบ release นี้ (ไม่เลื่อน Phase 2)
 
 ### ลำดับความสำคัญ (ตาม owner)
 1. **P0:** ปัญหาระหว่างเล่นเกม + เครื่องสเปคต่ำ (US-E9-01..04, 06..08)
-2. **P1:** UX/A11y + Signup (US-E9-09, 11)
-3. **P1 Phase 2:** ระบบหลังบ้าน (US-E9-05, 10)
-4. **Done/In-review:** ต้นคิดดีสุ่ม (US-E8-01)
+2. **P1 committed:** ระบบหลังบ้าน + A11y (US-E9-05 → `1.1.4`, 09 → `1.1.5`, 10 → `1.1.6`)
+3. **Done:** US-E8-01 (v1.1.0), US-E9-11 (v1.1.3), US-E9-06/08
 
 ### การรวม Story
 | รวมแล้ว | จาก feedback |
 | --- | --- |
 | [US-E9-07](../user-stories/US-E9-07.md) | เอฟเฟคเก่งมากค้าง + Phaser เข้าเกมไม่ได้บน A10s |
-| แยกต่างหาก | Wake lock, Game Hub labels, font scale, HN script, พ.ศ. |
+| แยกต่างหาก | Wake lock, Game Hub labels, font scale, export, HN script, พ.ศ. |
 
 ### เครื่องอ้างอิงขั้นต่ำสุด
 **Samsung Galaxy A10s** (SM-A107F/M) — Helio P22, 2–3 GB RAM, PowerVR GE8320 — ใช้ทดสอบ US-E9-07
@@ -97,11 +96,11 @@ gantt
 ## 🛠 Sprint Specifics
 - **Definition of Done (DoD):**
   - P0 stories ผ่าน AC ครบ + ทดสอบบนมือถือจริง (รวม A10s สำหรับ US-E9-07)
+  - P1 committed (05, 09, 10) ผ่าน AC + bump PATCH ตาม planned version ตอน ship
   - ไม่กระทบข้อมูลผู้เล่นที่เล่นโปรแกรมอยู่แล้ว (backward-compatible)
-  - Bump เป็น **`1.1.1`** PATCH เมื่อ ship P0+P1 UX (ตาม semantic-versioning skill)
   - อัปเดต GDD/mechanics ที่เกี่ยวข้อง
 - **Risks & Blockers:**
-  - **Scope เพิ่ม:** จาก 5 → 11 stories — อาจต้องขยาย timeline หรือเลื่อน US-E9-05/10 ไป Sprint 10
+  - **Scope ใหญ่:** P0 ยังค้าง + P1 committed 3 stories — timeline อาจขยาย
   - **ผู้เล่นกำลังเล่นอยู่:** เปลี่ยน grid size / input mode อาจสับสนผู้ที่คุ้นเคยกับเวอร์ชันเก่า
   - **A10s optimization:** อาจต้อง trade-off เอฟเฟคบนเครื่องสเปคต่ำ
   - **HN update script:** ต้อง transaction ครบทุกตาราง FK — ทดสอบ dry-run บน staging ก่อน
@@ -109,9 +108,9 @@ gantt
 ---
 
 ## 📊 Sprint Summary
-- **งานที่ commit:** 10 stories (7 P0 + 2 P1 UX + 2 P1 Phase 2) + US-E8-01 ใน Sprint 08
-- **เป้าหมาย:** ship **`1.1.1`** — แก้ UX + device จากการลงพื้นที่
-- **สถานะ:** 🟢 **Sprint 9 Open** (อัปเดต 2026-07-10)
+- **งานที่ commit:** 11 stories (7 P0 + 3 P1 committed + US-E9-11 Done) + US-E8-01 ใน Sprint 08
+- **เป้าหมายถัดไป:** ship **`1.1.4` → `1.1.5` → `1.1.6`** สำหรับ US-E9-05, 09, 10
+- **สถานะ:** 🟢 **Sprint 9 Open** (อัปเดต 2026-07-14)
 
 ---
 Back to Product Backlog: [Product Backlog](../01-product-backlog.md) | Roadmap: [Sprint Planning](../02-sprint-planning.md) | Back to Index: [Index](../../index.md)
