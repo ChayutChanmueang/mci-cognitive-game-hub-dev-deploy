@@ -16,6 +16,9 @@ export default class Quiz extends Entity{
     }, quizBoxSize = {
         width: 700,
         height:650
+    }, paddingBoxQuestion = {
+        paddingX: 32,
+        paddingY: 32,
     }){
         super(scene,x,y,null);
 
@@ -45,6 +48,8 @@ export default class Quiz extends Entity{
         this.blankSlot = setting.blankSlot ?? null;
         this.boxWidth = quizBoxSize.width;
         this.boxHeight = quizBoxSize.height;
+        this.boxPaddingX = paddingBoxQuestion.paddingX;
+        this.boxPaddingY = paddingBoxQuestion.paddingY;
         this.ownedContainer = scene.add.container(x, y);
         this.ownedContainer.setDepth(20);
         this.dragDrop = new DragDropManager(scene);
@@ -283,8 +288,8 @@ export default class Quiz extends Entity{
         // contentWidth/contentHeight: available area before text auto-scales down.
         const width = this.boxWidth;
         const height = this.boxHeight;
-        const paddingX = 86;
-        const paddingY = 36;
+        const paddingX = this.boxPaddingX;
+        const paddingY = this.boxPaddingY;
 
         return {
             x: sceneWidth / 2,

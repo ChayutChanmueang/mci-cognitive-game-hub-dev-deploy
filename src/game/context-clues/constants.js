@@ -85,13 +85,42 @@ export const QuizUI_Setting = Object.freeze({
     // White question panel size. Increase height here if the text area should be taller.
     quizBoxSize: {
         easy: [
-            {width: 980, height:640}
+            {
+                width: 1020, 
+                height:640
+            }
         ],
         medium: [
-            {width: 980, height:780}
+            {
+                width: 1020, 
+                height:780
+            }
         ],
         hard: [
-            {width: 980, height:780}
+            {
+                width: 1020, 
+                height:780
+            }
+        ]
+    },
+    paddingBoxQuestion: {
+        easy: [
+            {
+                paddingX: 52,
+                paddingY: 34,
+            }
+        ],
+        medium: [
+            {
+                paddingX: 48,
+                paddingY: 34,
+            }
+        ],
+        hard: [
+            {
+                paddingX: 34,
+                paddingY: 34,
+            }
         ]
     },
     decreaseScorePosition: {
