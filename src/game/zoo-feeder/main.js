@@ -14,7 +14,7 @@ import { AUTO, Game } from 'phaser';
 const config = {
     type: AUTO,
     parent: 'game-container',
-    backgroundColor: '#83B351',
+    backgroundColor: 'linear-gradient(180deg, #93B351 0%, #77B351 65% , #77B351 100%)',
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
