@@ -122,7 +122,8 @@ export const DefaultAnimals = Object.freeze([
 export const GameplayConfig = Object.freeze({
     stageLabel: "เลเวล",
     promptJoiner: "\n",
-    defaultPromptFallback: "ลากสัตว์ตามคำใบ้ไปวางในช่อง",
+    defaultPromptFallback: "ลากรูปภาพสัตว์ตามคำใบ้ไปวางในช่องว่างด้านล่างนี้",
+    fontSize_FallbackPrompt: "44px",
     hintDirection: {
         up: "อยู่ด้านบน",
         down: "อยู่ด้านล่าง",

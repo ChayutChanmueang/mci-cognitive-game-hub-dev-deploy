@@ -893,7 +893,7 @@ export default class GameplayScene extends Phaser.Scene {
             instructionY,
             `${GameplayConfig.defaultPromptFallback}`,
             {
-                fontSize: "36px",
+                fontSize: `${GameplayConfig.fontSize_FallbackPrompt}`,
                 fontStyle: "bold",
                 color: Theme.toCssColor(Theme.colors.warmText)
             },
