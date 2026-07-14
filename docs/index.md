@@ -1,8 +1,8 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** 🟢 **Stable Release (1.0.0)** — Production-ready full build | **Current Sprint:** [Sprint 8](agile/sprint-backlogs/sprint-08.md) *(wrap-up → v1.1.0)* + [Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) *(Active, แก้ด่วน → v1.1.1)*
-**Version:** 1.1.3 | **Last Updated:** 2026-07-13 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 **Release 1.1.4** | **Current Sprint:** [Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) *(Active)*
+**Version:** 1.1.4 | **Last Updated:** 2026-07-14 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -22,7 +22,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
 ### Latest Sprint Planning
-- **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น (Sprint 8):** อ่าน `user_game_profile_data.tree_type` จาก Supabase; สุ่มจากตาราง `game_tree_list` (`a`/`b`/`c`/`d`); lazy backfill ผู้เล่น v1.0.0 → target **v1.1.0**
+- **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น:** ✅ Done (v1.1.0) — `tree_type` a/b/c/d + lazy backfill
 - **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — แก้ด่วนจากการลงพื้นที่:** US-E9-01..11 (11 stories) → target **v1.1.1** — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
 
 ---

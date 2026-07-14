@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-13
+**Last Updated:** 2026-07-14
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
@@ -16,8 +16,9 @@
 | [sprint-06](sprint-backlogs/sprint-06.md) | May 20-31     | Integration, Analytics & Admin | Completed |
 | Post-Sprint Hardening | Jun 01-16 | Deployment stabilization, branch cleanup, documentation sync | Completed |
 | [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
-| [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) + post-1.0 line → target **v1.1.0** | **Active** (wrap-up) |
-| [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — ลงพื้นที่ (แก้ด่วน UX มินิเกม) → target **v1.1.1** | **Active** |
+| [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) → **v1.1.0** | Completed |
+| [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay (US-E9-03 In Progress) | **Active** |
+| [sprint-10](sprint-backlogs/sprint-10.md) | TBD | Field Feedback carry-over — export, A10s perf, font scale (US-E9-05/07/09) | Planned |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -64,7 +65,7 @@ gantt
 - **[sprint-06](sprint-backlogs/sprint-06.md)**: Integration, Analytics & Admin Dashboard
 - **Post-Sprint Hardening**: Stabilize deployment branches, verify Docker/nginx production build, fix stale leaderboard branch drift, and refresh documentation
 - **[sprint-07](sprint-backlogs/sprint-07.md)**: Game Art Assets, Version Display & Mini-game Vertical Responsiveness — **Completed → [v1.0.0](../changelog.md) stable release (2026-07-07)**
-- **[sprint-08](sprint-backlogs/sprint-08.md)**: Per-player progression tree (`tree_type` a/b/c/d) — **Active (wrap-up)** (post-1.0, target `1.1.0`)
+- **[sprint-08](sprint-backlogs/sprint-08.md)**: Per-player progression tree (`tree_type` a/b/c/d) — **Completed → [v1.1.0](../changelog.md)** (US-E8-01 Done, 2026-07-14)
 - **[sprint-09](sprint-backlogs/sprint-09.md)**: Field Feedback Hotfix — ลงพื้นที่ (แก้ด่วน UX มินิเกม) — **Active** (post-1.0, target `1.1.1`) — จาก [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
 ## 📈 Epic Completeness Strategy (Alignment)
@@ -94,17 +95,16 @@ gantt
 
 ### 🎨 E7: Game Art Assets & UI/UX Polish
 - **Sprint 7:** เพิ่ม game art assets ให้หน้าจอ DOM หลัก (Leaderboard, Login, Sign-up, Player-Info, Popup), แสดงเลขเวอร์ชันบนตัวเกมหลัก (ซ่อนในมินิเกม) และทำให้มินิเกมยืดแนวตั้งได้ (Vertical Responsive)
-- **Target:** ชั้นการนำเสนอ (presentation layer) มีเอกลักษณ์ภาพครบทุกหน้าจอหลัก — **shipped in v1.0.0** (2026-07-07). Post-1.0 follow-ups: US-E7-06 (vertical responsive), US-E7-08/11/12.
+- **Target:** ชั้นการนำเสนอ (presentation layer) มีเอกลักษณ์ภาพครบทุกหน้าจอหลัก — **shipped in v1.0.0** (2026-07-07). Post-1.0 follow-ups: US-E7-06 (vertical responsive). ~~US-E7-08/11/12~~ → **Done** (ฝ่ายอื่น, 2026-07-14).
 
 ### 🌳 E8: Check-in Personalization (Post-1.0)
 - **Sprint 8:** ต้นคิดดีหลายชนิดต่อผู้เล่น — `game_tree_list` + `user_game_profile_data.tree_type`; สุ่มตอน signup; **lazy backfill** ผู้เล่น v1.0.0 ที่ `tree_type` เป็น NULL → [US-E8-01](user-stories/US-E8-01.md)
-- **Target:** ship **v1.1.0** (MINOR) เมื่อ US-E8-01 ผ่าน DoD
+- **Target:** shipped **v1.1.0** — [US-E8-01](user-stories/US-E8-01.md) ✅ Done (owner verified 2026-07-14)
 
 ### 🔧 E9: Field Feedback Hotfixes (Post-1.0 — ลงพื้นที่)
-- **Sprint 9:** แก้ด่วนจากการลงพื้นที่จริงกับผู้สูงอายุ — Symmetry Decor, Fry Food skip, Zoo Detective drag, Postcard font → [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md)
-- **Phase 2:** ส่งออกข้อมูลผู้เล่นครบถ้วน → [US-E9-05](user-stories/US-E9-05.md)
+- **Sprint 9:** P0 gameplay — Symmetry Decor, Fry Food skip, **Zoo Detective drag (In Progress)**, Postcard font → [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md)
+- **Sprint 10 (planned):** ส่งออกข้อมูลครบชุด, A10s perf, system font scale → [US-E9-05](user-stories/US-E9-05.md), [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
-- **Target:** ship **v1.1.1** (PATCH) สำหรับ P0 gameplay fixes
 
 **Shipped so far (Sprint 9):**
 
@@ -113,8 +113,10 @@ gantt
 | [US-E9-08](user-stories/US-E9-08.md) Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง | `1.1.1` | ✅ owner 2026-07-10 |
 | [US-E9-06](user-stories/US-E9-06.md) Screen Wake Lock | `1.1.2` | ✅ owner 2026-07-10 |
 | [US-E9-11](user-stories/US-E9-11.md) Sign-up วันเกิด/วันที่เริ่มโปรแกรม เป็น พ.ศ. | `1.1.3` | ✅ owner 2026-07-13 |
+| [US-E9-12](user-stories/US-E9-12.md) Popup ออกจากเกม — layout/art ตรง popup-dialog | `1.1.4` | ✅ owner 2026-07-14 |
+| [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 
-- [US-E9-07](user-stories/US-E9-07.md) (Optimize สเปคต่ำ) อยู่ระหว่างทำ — target ขยับเป็น **`1.1.4`** เพราะ `1.1.3` ถูก US-E9-11 ship ไปก่อน
+- **2026-07-14:** US-E9-03 → In Progress; US-E9-05/07/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
 
 ---
 

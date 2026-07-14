@@ -25,7 +25,7 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E8-01](../user-stories/US-E8-01.md) | ต้นคิดดีหลายชนิดต่อผู้เล่น — `tree_type` + `game_tree_list` + lazy backfill ผู้เล่น v1.0.0 ที่ `tree_type` เป็น NULL | High | 🧪 Review / Testing |
+| [US-E8-01](../user-stories/US-E8-01.md) | ต้นคิดดีหลายชนิดต่อผู้เล่น — `tree_type` + `game_tree_list` + lazy backfill ผู้เล่น v1.0.0 ที่ `tree_type` เป็น NULL | High | ✅ Done (v1.1.0) |
 
 ---
 
@@ -47,10 +47,10 @@ gantt
 | ID | สรุป | สถานะ |
 |----|------|--------|
 | [US-E7-06](../user-stories/US-E7-06.md) | มินิเกม vertical responsive | 📋 Backlog |
-| [US-E7-08](../user-stories/US-E7-08.md) | แก้คำ "สมอบก" ใน Context Clues | 📋 Backlog |
-| [US-E7-11](../user-stories/US-E7-11.md) | ละครสั้น mood & tone | 📋 Backlog |
-| [US-E7-12](../user-stories/US-E7-12.md) | โดเมน Cognitive + สรุปหลังบ้าน | 📋 Backlog |
-| [US-E5-03](../user-stories/US-E5-03.md) | ลบบัญชี / ลงชื่อออก | 🏗 In-Progress |
+| [US-E7-08](../user-stories/US-E7-08.md) | แก้คำ "สมอบก" ใน Context Clues | ✅ Done |
+| [US-E7-11](../user-stories/US-E7-11.md) | ละครสั้น mood & tone | ✅ Done |
+| [US-E7-12](../user-stories/US-E7-12.md) | โดเมน Cognitive + สรุปหลังบ้าน | ✅ Done |
+| [US-E5-03](../user-stories/US-E5-03.md) | ลบบัญชี / ลงชื่อออก (CLI `delete-user.js`) | ✅ Done |
 | [TD-DB-01](../user-stories/TD-DB-01.md) | DB normalization | 🏗 In-Progress |
 
 ---
@@ -75,7 +75,7 @@ gantt
 ## 📊 Sprint Summary
 - **งานที่ commit:** 1 story (US-E8-01)
 - **เป้าหมาย:** ship **1.1.0** — personalization ต้นคิดดีต่อผู้เล่น
-- **สถานะ:** 🟡 **Sprint 8 Open** (เริ่ม 2026-07-08)
+- **สถานะ:** ✅ **Sprint 8 Completed** — [US-E8-01](../user-stories/US-E8-01.md) Done (v1.1.0, owner verified 2026-07-14)
 
 ---
 Back to Product Backlog: [Product Backlog](../01-product-backlog.md) | Roadmap: [Sprint Planning](../02-sprint-planning.md) | Back to Index: [Index](../../index.md)
