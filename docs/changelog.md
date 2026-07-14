@@ -55,6 +55,14 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-14] - Sprint 09 scope rebalance (docs)
+**Docs-only** — no `package.json` bump.
+
+### Changed
+- [US-E9-03](agile/user-stories/US-E9-03.md) → **🔵 In Progress** (Sprint 09)
+- [US-E9-05](agile/user-stories/US-E9-05.md), [US-E9-07](agile/user-stories/US-E9-07.md), [US-E9-09](agile/user-stories/US-E9-09.md) → **📋 Backlog** — เลื่อน [Sprint 10](agile/sprint-backlogs/sprint-10.md)
+- Product backlog, kanban, sprint-09, sprint-10 (new), meeting 2026-07-10, sprint planning
+
 ## [2026-07-14] - US-E9-10 status → Done (docs)
 **Docs-only** — no `package.json` bump (CLI ops tool, ไม่เกี่ยวกับโค้ดเกมโดยตรง).
 

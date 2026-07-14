@@ -7,15 +7,15 @@ kanban-plugin: board
 ## 📋 Backlog (Prioritized)
 - [ ] [US-E9-01](user-stories/US-E9-01.md) 🔴 Symmetry Decor — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง, เส้นแบ่งชัด, จบเมื่อหมดเวลา (Field FB ลงพื้นที่)
 - [ ] [US-E9-02](user-stories/US-E9-02.md) 🔴 Fry Food — ปุ่มข้ามเมื่อไม่มี Gyroscope (Field FB ลงพื้นที่)
-- [ ] [US-E9-03](user-stories/US-E9-03.md) 🔴 Zoo Detective — ลากเพื่อวางแทนจิ้ม (Field FB ลงพื้นที่)
 - [ ] [US-E9-04](user-stories/US-E9-04.md) 🔴 Postcard Reader — ขยายตัวอักษรโจทย์เพิ่มเติม (Field FB ลงพื้นที่)
+- [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลครบชุด → Sprint 10
+- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s) → Sprint 10
+- [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
 - [ ] [US-E9-08](user-stories/US-E9-08.md) ⏳ Game Hub — ชื่อเกมบน / หมวดล่าง *(code done, awaiting owner confirmation on device)*
 - [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
 
 ## 🔵 In Progress (WIP Limit: 3)
-- [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลครบชุด (planned `1.1.4`)
-- [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ (planned `1.1.5`)
-- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s)
+- [ ] [US-E9-03](user-stories/US-E9-03.md) 🔴 Zoo Detective — ลากเพื่อวางแทนจิ้ม (Sprint 09)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 
 
