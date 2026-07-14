@@ -9,11 +9,19 @@ import { AnimalIconAssets, DefaultAnimals, GameplayConfig, LevelMap, PuzzleLevel
 import {Config} from "../../zoo-detective/constants.js";
 import DateTimeTimer from "../../../util/datetime-timer.js";
 import { EventBus } from "../../../core/EventBus.js";
+import DragDropManager from "../../../core/drag-drop-manager.js";
 import ReplayLogBuffer from "../../../core/replay-log-buffer.js";
 import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-complete-effect";
+
+// Board < animals < tray. Every animal lives on the placement layer, which is lifted to DRAGGING_DEPTH
+// while one is being dragged so it clears the bottom bar instead of vanishing behind it.
+const BOARD_DEPTH = 3;
+const PLACEMENT_LAYER_DEPTH = 4;
+const TRAY_DEPTH = 5;
+const DRAGGING_DEPTH = 20;
 
 export default class GameplayScene extends Phaser.Scene {
     constructor() {
@@ -32,7 +40,18 @@ export default class GameplayScene extends Phaser.Scene {
         this.gridShadowGraphics = null;
         this.answerButtonBounds = null;
         this.round = 0;
-        this.selectedAnimal = null;
+        // US-E9-03: animals are dragged from the tray onto a cell (no tap-to-place), reusing the
+        // shared DragDropManager that Context Clues uses.
+        this.dragDrop = null;
+        this.dropZoneObjects = [];
+        // A placed animal leaves the tray and lives on its own layer, where it stays draggable so a
+        // wrong guess can be dragged to another cell — until its hint comes true and it locks.
+        this.placementLayer = null;
+        // One game object per animal for the whole round — dragged out of the tray and around the
+        // board, parked invisibly on its tray slot whenever it is not on the grid.
+        this.animalVisuals = new Map();
+        this.traySlotPositions = new Map();
+        this.trayViewsByAnimalId = new Map();
         this.currentHintIndex = 0;
         this.currentPlacements = [];
         this.lockedCellIndexes = new Set();
@@ -72,6 +91,10 @@ export default class GameplayScene extends Phaser.Scene {
 
     create(data) {
         EventBus.emit('minigame:show-hud');
+
+        // DragDropManager hooks scene input; without this it would keep those listeners across a
+        // scene restart and the next round would fire every handler twice.
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.teardownDragDrop());
 
         this.createSceneBackdrop();
 
@@ -262,11 +285,12 @@ export default class GameplayScene extends Phaser.Scene {
         const layoutConfig = this.resolveLayoutConfig(this.sceneData);
         const animals = this.puzzleData.availableAnimals;
 
-        this.selectedAnimal = null;
         this.currentHintIndex = 0;
         this.currentPlacements = Array(this.puzzleData.totalSlots).fill(null);
         this.lockedCellIndexes.clear();
         this.lockedAnimalIds.clear();
+
+        this.teardownDragDrop();
 
         this.frameGraphics?.destroy();
         this.headerElements.forEach((element) => element.destroy());
@@ -277,6 +301,10 @@ export default class GameplayScene extends Phaser.Scene {
         this.gridBoard?.destroy();
         this.gridShadowGraphics?.destroy();
         this.gridShadowGraphics = null;
+
+        // overlapDrop (US-E7-23): a drop lands if the dragged animal's box merely overlaps a cell,
+        // so no pixel-perfect aim is needed — the point of the change for elderly players.
+        this.dragDrop = new DragDropManager(this, { overlapDrop: true });
 
         this.frameGraphics = this.createFrame(sceneWidth, sceneHeight - 102);
         const headerMetrics = this.createHeader(layoutConfig, this.sceneData);
@@ -299,21 +327,11 @@ export default class GameplayScene extends Phaser.Scene {
             )
         );
 
+        // The tray's own highlight is kept purely as "picked up" feedback while dragging — it no
+        // longer selects an animal for placement, because placement is now drag-only (US-E9-03).
         this.animalTray = new AnimalIconTray(this, 0, -15,
-            (data) => {
-                console.log(`selected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
-                if (this.lockedAnimalIds.has(data.id)) {
-                    return;
-                }
-
-                this.selectedAnimal = animals.find((animal) => animal.id === data.id) ?? data;
-            },
-            (data) => {
-                console.log(`unselected id: ${data.id}, icon: ${data.icon}, index: ${data.index}`);
-                if (this.selectedAnimal?.id === data.id) {
-                    this.selectedAnimal = null;
-                }
-            },
+            () => {},
+            () => {},
             {
                 width: answerTrayWidth,
                 maxItemsPerRow: answerItemsPerRow,
@@ -345,7 +363,7 @@ export default class GameplayScene extends Phaser.Scene {
                 items: animals
             });
         this.animalTray.setPosition(0, sceneHeight - this.animalTray.height);
-        this.animalTray.setDepth(5);
+        this.animalTray.setDepth(TRAY_DEPTH);
 
         const boardTop = headerMetrics.bottom + 42;
         const boardBottom = this.animalTray.y - 52;
@@ -368,45 +386,272 @@ export default class GameplayScene extends Phaser.Scene {
             cellStrokeWidth: 7
         });
         this.createGridCellShadows();
-        this.gridBoard.setDepth(3);
-        this.setupGridInteractions();
+        this.gridBoard.setDepth(BOARD_DEPTH);
+
+        // Above the board so a placed animal is never drawn behind a neighbouring cell, below the
+        // tray so an animal being dragged out of the tray passes over the ones already placed.
+        this.placementLayer = this.add.container(0, 0);
+        this.placementLayer.setDepth(PLACEMENT_LAYER_DEPTH);
+
+        this.setupCellDropZones();
+        this.setupTrayDropZone();
+        this.setupAnimalDragSources(animals);
 
         this.answerButtonBounds = this.animalTray.getFooterBounds(true);
     }
 
-    setupGridInteractions() {
+    // The tray itself takes drops, so a player who changes their mind can pull an animal back off the
+    // board and into its old slot. Only a placed, not-yet-locked animal qualifies — dropping a tray
+    // animal back on the tray is a no-op, and a locked one cannot leave its cell at all.
+    setupTrayDropZone() {
+        const zone = this.add.zone(
+            this.animalTray.x + (this.animalTray.width / 2),
+            this.animalTray.y + (this.animalTray.height / 2),
+            this.animalTray.width,
+            this.animalTray.height
+        );
+
+        this.dropZoneObjects.push(zone);
+
+        this.dragDrop.registerDropZone({
+            zone,
+            id: "tray",
+            accepts: ({ data }) => (
+                this.isAnimalPlaced(data.animal.id)
+                && !this.lockedAnimalIds.has(data.animal.id)
+            ),
+            // Safe to run inline: the animal object is only parked, never destroyed, so we are not
+            // pulling the game object out from under Phaser while it is still dragging it.
+            onDrop: ({ data }) => this.removeAnimalFromBoard(data.animal.id)
+        });
+    }
+
+    removeAnimalFromBoard(animalId) {
+        const cellIndex = this.findPlacementIndexByAnimalId(animalId);
+
+        if (cellIndex >= 0) {
+            this.clearCellPlacement(cellIndex);
+        }
+
+        this.parkAnimalInTray(animalId);
+        this.evaluateHintProgression();
+    }
+
+    // Each cell gets a real Zone rather than making the cell Container interactive: a Zone carries an
+    // explicit width/height, so both Phaser's pointer hit test and DragDropManager's overlap check
+    // (which relies on getBounds) match the cell the player actually sees.
+    setupCellDropZones() {
         for (const cell of this.gridBoard.getCells()) {
-            cell.container.setSize(cell.size, cell.size);
-            cell.container.setInteractive(
-                new Phaser.Geom.Rectangle(cell.size / 2, cell.size / 2, cell.size, cell.size),
-                Phaser.Geom.Rectangle.Contains
+            const zone = this.add.zone(
+                this.gridBoard.x + cell.centerX,
+                this.gridBoard.y + cell.centerY,
+                cell.size,
+                cell.size
             );
-            cell.container.on("pointerdown", () => {
-                this.handleGridCellClick(cell);
+
+            this.dropZoneObjects.push(zone);
+
+            this.dragDrop.registerDropZone({
+                zone,
+                id: `cell-${cell.index}`,
+                accepts: () => !this.lockedCellIndexes.has(cell.index),
+                onDrop: ({ data }) => this.placeAnimalInCell(cell, data.animal),
+                onDragEnter: () => this.setCellState(cell, "hover"),
+                onDragLeave: () => this.restoreCellState(cell)
             });
         }
     }
 
-    handleGridCellClick(cell) {
-        if (!this.selectedAnimal || this.lockedCellIndexes.has(cell.index)) {
+    // Every animal gets exactly ONE game object, built at grid-cell size and living on the placement
+    // layer for the whole round. It is what the player drags in both directions — out of the tray and
+    // around the board — so the thing under the finger is always the same object at the same size,
+    // never a stand-in that gets swapped for a different one on drop.
+    //
+    // While the animal is in the tray that object sits invisible on its slot, and the tray's own card
+    // is what you see. Grabbing the card hands the drag straight to the object: the card disappears,
+    // the animal appears, and it is already the size it will be in the cell.
+    setupAnimalDragSources(animals) {
+        this.trayViewsByAnimalId.clear();
+        this.traySlotPositions.clear();
+
+        const cellSize = this.gridBoard.getCells()[0]?.size ?? 0;
+        const iconSize = Math.floor(cellSize * 0.7);
+        const { itemWidth, itemHeight } = this.animalTray.options;
+
+        for (const itemView of this.animalTray.getItemViews()) {
+            const animal = animals.find((candidate) => candidate.id === itemView.item.id) ?? itemView.item;
+            const slot = {
+                x: this.animalTray.x + itemView.container.x,
+                y: this.animalTray.y + itemView.container.y
+            };
+
+            this.trayViewsByAnimalId.set(animal.id, itemView);
+            this.traySlotPositions.set(animal.id, slot);
+
+            const visual = this.createAnimalVisual(animal, iconSize);
+            visual.setPosition(slot.x, slot.y);
+            visual.setVisible(false);
+            this.placementLayer.add(visual);
+            this.animalVisuals.set(animal.id, visual);
+
+            // Grab from the tray. The card is the handle; the animal object is what actually moves.
+            // Because the object is parked exactly on the slot the handle occupies, DragDropManager's
+            // handle→target offset resolves to the tray's own origin and the animal tracks the pointer.
+            this.dragDrop.registerDraggable({
+                handle: itemView.container,
+                target: visual,
+                data: { animal },
+                returnOnMiss: false,
+                snapOnDrop: true,
+                // The tray card's art is centred on its container, so the grab area must be too.
+                interactiveConfig: {
+                    hitArea: new Phaser.Geom.Rectangle(-itemWidth / 2, -itemHeight / 2, itemWidth, itemHeight),
+                    hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+                    draggable: true
+                },
+                onDragStart: () => {
+                    this.hideTrayItem(animal.id);
+                    visual.setVisible(true);
+                    this.liftPlacementLayer(visual);
+                },
+                onDragEnd: () => {
+                    this.placementLayer.setDepth(PLACEMENT_LAYER_DEPTH);
+
+                    // Dropped on nothing: the animal goes back to its slot and the card returns.
+                    if (!this.isAnimalPlaced(animal.id)) {
+                        this.parkAnimalInTray(animal.id);
+                    }
+
+                    this.resetHoverStates();
+                }
+            });
+
+            // Grab the same object again once it is on the board, to move it between cells or drag it
+            // back down to the tray. It is only draggable while placed and not yet locked.
+            this.dragDrop.registerDraggable({
+                handle: visual,
+                target: visual,
+                data: { animal },
+                returnOnMiss: false,
+                snapOnDrop: true,
+                onDragStart: () => this.liftPlacementLayer(visual),
+                onDragEnd: ({ handle }) => {
+                    this.placementLayer.setDepth(PLACEMENT_LAYER_DEPTH);
+
+                    // Dropped on nothing: back to the cell it came from.
+                    if (this.isAnimalPlaced(animal.id)) {
+                        this.dragDrop.moveHome(handle);
+                    }
+
+                    this.resetHoverStates();
+                }
+            });
+
+            this.input.setDraggable(visual, false);
+        }
+    }
+
+    // The dragged animal has to clear the bottom bar, or it vanishes behind it on the way down.
+    liftPlacementLayer(visual) {
+        this.placementLayer.setDepth(DRAGGING_DEPTH);
+        this.placementLayer.bringToTop(visual);
+    }
+
+    isAnimalPlaced(animalId) {
+        return this.findPlacementIndexByAnimalId(animalId) >= 0;
+    }
+
+    placeAnimalInCell(cell, animal) {
+        if (!animal || this.lockedCellIndexes.has(cell.index)) {
             return;
         }
 
-        const previousCellIndex = this.findPlacementIndexByAnimalId(this.selectedAnimal.id);
+        const previousCellIndex = this.findPlacementIndexByAnimalId(animal.id);
         const occupyingAnimal = this.currentPlacements[cell.index];
 
-        if (occupyingAnimal && occupyingAnimal.id !== this.selectedAnimal.id) {
+        // Another animal already sits here. Its tray slot is empty, so send it back there rather than
+        // leaving it stranded with nowhere to be picked up again.
+        if (occupyingAnimal && occupyingAnimal.id !== animal.id) {
             this.currentPlacements[cell.index] = null;
+            this.parkAnimalInTray(occupyingAnimal.id);
         }
 
         if (previousCellIndex >= 0 && previousCellIndex !== cell.index) {
             this.clearCellPlacement(previousCellIndex);
         }
 
-        this.currentPlacements[cell.index] = this.selectedAnimal;
-        this.renderAnimalInCell(cell, this.selectedAnimal);
-        this.emitPlacementEvaluation(cell.index, this.selectedAnimal, previousCellIndex);
+        this.currentPlacements[cell.index] = animal;
+        this.showAnimalInCell(cell, animal);
+        this.emitPlacementEvaluation(cell.index, animal, previousCellIndex);
         this.evaluateHintProgression();
+    }
+
+    showAnimalInCell(cell, animal) {
+        const visual = this.animalVisuals.get(animal.id);
+
+        if (!visual) {
+            return;
+        }
+
+        // The snap tween from the drop is already carrying the animal into the cell, so only its home
+        // needs setting — a later miss must return it to this cell, not wherever it came from.
+        visual.setVisible(true);
+        this.dragDrop.setHome(visual, this.gridBoard.x + cell.centerX, this.gridBoard.y + cell.centerY);
+        this.input.setDraggable(visual, true);
+        this.hideTrayItem(animal.id);
+    }
+
+    // Back to the bottom bar: the animal object goes invisible on its slot and the card reappears.
+    // Nothing is destroyed — it is the same object either way, just parked.
+    parkAnimalInTray(animalId) {
+        const visual = this.animalVisuals.get(animalId);
+        const slot = this.traySlotPositions.get(animalId);
+
+        if (visual && slot) {
+            // A snap tween may still be flying it toward a drop zone; it would fight setPosition.
+            this.tweens.killTweensOf(visual);
+            visual.setVisible(false);
+            visual.setPosition(slot.x, slot.y);
+            this.dragDrop?.setHome(visual, slot.x, slot.y);
+            this.input.setDraggable(visual, false);
+        }
+
+        const itemView = this.trayViewsByAnimalId.get(animalId);
+
+        if (itemView) {
+            itemView.container.setVisible(true);
+            itemView.container.setAlpha(1);
+            this.input.setDraggable(itemView.container, true);
+        }
+    }
+
+    // Once an animal is on the board its tray slot empties — it cannot be placed twice.
+    hideTrayItem(animalId) {
+        const itemView = this.trayViewsByAnimalId.get(animalId);
+
+        if (!itemView) {
+            return;
+        }
+
+        itemView.container.setVisible(false);
+        this.input.setDraggable(itemView.container, false);
+    }
+
+    teardownDragDrop() {
+        this.dragDrop?.destroy();
+        this.dragDrop = null;
+
+        // DragDropManager only unhooks its listeners; these game objects are ours to destroy.
+        this.dropZoneObjects.forEach((zone) => zone.destroy());
+        this.dropZoneObjects = [];
+
+        this.animalVisuals.forEach((visual) => visual.destroy());
+        this.animalVisuals.clear();
+        this.traySlotPositions.clear();
+        this.trayViewsByAnimalId.clear();
+
+        this.placementLayer?.destroy();
+        this.placementLayer = null;
     }
 
     emitPlacementEvaluation(cellIndex, animal, previousCellIndex = -1) {
@@ -435,6 +680,8 @@ export default class GameplayScene extends Phaser.Scene {
         return this.currentPlacements.findIndex((animal) => animal?.id === animalId);
     }
 
+    // Empties the cell's slot. The animal's visual is not touched — it is moving to another cell and
+    // the placement layer, not the grid, owns it now.
     clearCellPlacement(cellIndex) {
         const cell = this.gridBoard?.getCell(cellIndex);
 
@@ -443,25 +690,21 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         this.currentPlacements[cellIndex] = null;
-        this.gridBoard.clearCell(cellIndex, true);
         this.setCellState(cell, "default");
     }
 
-    renderAnimalInCell(cell, animal) {
-        const animalVisual = this.createAnimalVisual(animal, Math.floor(cell.size * 0.7));
-
-        this.gridBoard.clearCell(cell.index, true);
-        this.gridBoard.addToCell(cell.index, animalVisual);
-    }
-
     setCellState(cell, state = "default") {
+        // locked = the existing green (a hint just came true); the red for a wrong drop is the
+        // existing blink in flashCellErrorBorder. hover is the drop-target highlight (US-E9-03).
         const strokeColorMap = {
             default: Theme.colors.warmAccent,
-            locked: Theme.colors.primary
+            locked: Theme.colors.primary,
+            hover: GameplayConfig.dropTargetStrokeColor
         };
         const fillColorMap = {
             default: Theme.colors.warmSurface,
-            locked: Theme.colors.primaryContainer
+            locked: Theme.colors.primaryContainer,
+            hover: GameplayConfig.dropTargetFillColor
         };
 
         cell.background.clear();
@@ -471,48 +714,32 @@ export default class GameplayScene extends Phaser.Scene {
         cell.background.strokeRoundedRect(0, 0, cell.size, cell.size, 42);
     }
 
+    // A cell that lit up under the dragged animal goes back to whichever state it actually holds.
+    restoreCellState(cell) {
+        this.setCellState(cell, this.lockedCellIndexes.has(cell.index) ? "locked" : "default");
+    }
+
+    resetHoverStates() {
+        for (const cell of this.gridBoard?.getCells() ?? []) {
+            this.restoreCellState(cell);
+        }
+    }
+
     resetGridStates() {
         for (const cell of this.gridBoard?.getCells() ?? []) {
             this.setCellState(cell, "default");
         }
     }
 
-    applyConfirmedLocks(confirmedCellIndexes) {
-        for (const cell of this.gridBoard?.getCells() ?? []) {
-            if (confirmedCellIndexes.has(cell.index)) {
-                cell.container.disableInteractive();
-                continue;
-            }
-
-            if (!cell.container.input) {
-                cell.container.setInteractive(
-                    new Phaser.Geom.Rectangle(cell.size / 2, cell.size / 2, cell.size, cell.size),
-                    Phaser.Geom.Rectangle.Contains
-                );
-            }
-        }
-
-        for (const itemView of this.animalTray?.getItemViews() ?? []) {
-            const isLocked = this.lockedAnimalIds.has(itemView.item.id);
-
-            if (isLocked) {
-                itemView.container.disableInteractive();
-                itemView.container.setAlpha(0.4);
-                continue;
-            }
-
-            if (!itemView.container.input) {
-                itemView.container.setInteractive(
-                    new Phaser.Geom.Rectangle(0, 0, this.animalTray.options.itemWidth, this.animalTray.options.itemHeight),
-                    Phaser.Geom.Rectangle.Contains
-                );
-            }
-            itemView.container.setAlpha(1);
-        }
-
-        if (this.selectedAnimal && this.lockedAnimalIds.has(this.selectedAnimal.id)) {
-            this.selectedAnimal = null;
-            this.animalTray?.setSelectedItem(null);
+    applyConfirmedLocks() {
+        // Cells no longer carry their own input — a locked cell simply stops accepting drops (see the
+        // `accepts` guard in setupCellDropZones). What has to be frozen is the animal sitting on it:
+        // a wrong guess stays draggable so it can be moved, but once its hint comes true it is final.
+        // An animal parked in the tray is dragged by its card, not by this object, so it stays
+        // undraggable until it is actually on the board.
+        for (const [animalId, visual] of this.animalVisuals) {
+            const canDrag = this.isAnimalPlaced(animalId) && !this.lockedAnimalIds.has(animalId);
+            this.input.setDraggable(visual, canDrag);
         }
     }
 
@@ -562,7 +789,7 @@ export default class GameplayScene extends Phaser.Scene {
             }
         }
 
-        this.applyConfirmedLocks(confirmedCellIndexes);
+        this.applyConfirmedLocks();
 
         this.currentHintIndex = nextHintIndex;
         this.syncHintViewer();
@@ -583,17 +810,6 @@ export default class GameplayScene extends Phaser.Scene {
         }
 
         this.hintViewer.reset(this.currentHintIndex);
-    }
-
-    disableAnimalTrayItem(animalId) {
-        const itemView = this.animalTray?.getItemViews().find((view) => view.item.id === animalId);
-
-        if (!itemView) {
-            return;
-        }
-
-        itemView.container.disableInteractive();
-        itemView.container.setAlpha(0.4);
     }
 
     tryCompletePuzzle() {

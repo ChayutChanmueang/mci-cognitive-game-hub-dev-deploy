@@ -95,7 +95,10 @@ export const DefaultAnimals = Object.freeze([
 export const GameplayConfig = Object.freeze({
     stageLabel: "เลเวล",
     promptJoiner: "\n",
-    defaultPromptFallback: "วางสัตว์ตามคำใบ้ลงไปในช่องด้านล่าง",
+    defaultPromptFallback: "ลากสัตว์ตามคำใบ้ไปวางในช่อง",
+    // US-E9-03: how a cell looks while the dragged animal hovers over it.
+    dropTargetFillColor: 0xcdc6ba,
+    dropTargetStrokeColor: 0x663b15,
     hintDirection: {
         up: "อยู่ด้านบน",
         down: "อยู่ด้านล่าง",
