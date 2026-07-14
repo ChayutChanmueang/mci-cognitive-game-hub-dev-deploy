@@ -380,10 +380,10 @@ export default class GameplayScene extends Phaser.Scene {
             height: boardHeight,
             gap: Config.SlotGapSize[this.levelMap],
             padding: 4,
-            cellRadius: 42,
-            cellFillColor: Theme.colors.warmSurface,
-            cellStrokeColor: Theme.colors.warmAccent,
-            cellStrokeWidth: 7
+            cellRadius: Config.Cell.Radius,
+            cellFillColor: Config.Cell.FillColor,
+            cellStrokeColor: Config.Cell.StrokeColor,
+            cellStrokeWidth: Config.Cell.StrokeWidth
         });
         this.createGridCellShadows();
         this.gridBoard.setDepth(BOARD_DEPTH);
@@ -693,25 +693,24 @@ export default class GameplayScene extends Phaser.Scene {
         this.setCellState(cell, "default");
     }
 
+    // Repaints a cell. Colours come from Config.Cell — see constants.js to change any of them.
     setCellState(cell, state = "default") {
-        // locked = the existing green (a hint just came true); the red for a wrong drop is the
-        // existing blink in flashCellErrorBorder. hover is the drop-target highlight (US-E9-03).
         const strokeColorMap = {
-            default: Theme.colors.warmAccent,
-            locked: Theme.colors.primary,
-            hover: GameplayConfig.dropTargetStrokeColor
+            default: Config.Cell.StrokeColor,
+            hover: Config.Cell.HoverStrokeColor,
+            locked: Config.Cell.LockedStrokeColor
         };
         const fillColorMap = {
-            default: Theme.colors.warmSurface,
-            locked: Theme.colors.primaryContainer,
-            hover: GameplayConfig.dropTargetFillColor
+            default: Config.Cell.FillColor,
+            hover: Config.Cell.HoverFillColor,
+            locked: Config.Cell.LockedFillColor
         };
 
         cell.background.clear();
         cell.background.fillStyle(fillColorMap[state] ?? fillColorMap.default, 1);
-        cell.background.lineStyle(7, strokeColorMap[state] ?? strokeColorMap.default, 1);
-        cell.background.fillRoundedRect(0, 0, cell.size, cell.size, 42);
-        cell.background.strokeRoundedRect(0, 0, cell.size, cell.size, 42);
+        cell.background.lineStyle(Config.Cell.StrokeWidth, strokeColorMap[state] ?? strokeColorMap.default, 1);
+        cell.background.fillRoundedRect(0, 0, cell.size, cell.size, Config.Cell.Radius);
+        cell.background.strokeRoundedRect(0, 0, cell.size, cell.size, Config.Cell.Radius);
     }
 
     // A cell that lit up under the dragged animal goes back to whichever state it actually holds.
@@ -920,7 +919,7 @@ export default class GameplayScene extends Phaser.Scene {
                 this.gridBoard.y + cell.y + 18,
                 cell.size,
                 cell.size,
-                42
+                Config.Cell.Radius
             );
         }
     }
@@ -1153,8 +1152,8 @@ export default class GameplayScene extends Phaser.Scene {
         const y = this.gridBoard.y + cell.y;
         const flash = this.add.graphics();
         flash.setDepth(10);
-        flash.lineStyle(8, 0xff0000, 1);
-        flash.strokeRoundedRect(x, y, cell.size, cell.size, 42);
+        flash.lineStyle(Config.Cell.ErrorStrokeWidth, Config.Cell.ErrorStrokeColor, 1);
+        flash.strokeRoundedRect(x, y, cell.size, cell.size, Config.Cell.Radius);
 
         this.tweens.add({
             targets: flash,

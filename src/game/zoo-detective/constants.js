@@ -49,7 +49,34 @@ export const Config = Object.freeze({
         easy: 48,
         medium: 24,
         hard: 24,
-    }
+    },
+    // Every grid-cell colour, in one place. These are the values that actually win: setCellState()
+    // repaints a cell's background on every state change, so the SquareGridLayout constructor only
+    // ever gets to draw the first frame. Both read from here, so there is nothing to keep in sync.
+    //
+    // The hex values are spelled out rather than pulled from game-theme.js on purpose — the theme
+    // tokens are shared with other screens, and this way the board can be recoloured without
+    // touching them. The token each one came from is noted alongside.
+    Cell: Object.freeze({
+        Radius: 42,
+        StrokeWidth: 7,
+
+        // Empty cell.
+        FillColor: 0xfffaf1,          // was Theme.colors.warmSurface
+        StrokeColor: 0xf0b34c,        // was Theme.colors.warmAccent
+
+        // The dragged animal is hovering over this cell (US-E9-03).
+        HoverFillColor: 0xFFEAD5,
+        HoverStrokeColor: 0xB48557,
+
+        // A hint has come true — the animal here is correct and can no longer be moved.
+        LockedFillColor: 0xEFFDEE,    // was Theme.colors.primaryContainer
+        LockedStrokeColor: 0x40BC4F,  // was Theme.colors.primary
+
+        // Wrong placement — the border blinks this colour, then returns to normal.
+        ErrorStrokeColor: 0xff0000,
+        ErrorStrokeWidth: 8,
+    }),
 })
 
 export const PuzzleLevelConfig = Object.freeze({
@@ -96,9 +123,6 @@ export const GameplayConfig = Object.freeze({
     stageLabel: "เลเวล",
     promptJoiner: "\n",
     defaultPromptFallback: "ลากสัตว์ตามคำใบ้ไปวางในช่อง",
-    // US-E9-03: how a cell looks while the dragged animal hovers over it.
-    dropTargetFillColor: 0xcdc6ba,
-    dropTargetStrokeColor: 0x663b15,
     hintDirection: {
         up: "อยู่ด้านบน",
         down: "อยู่ด้านล่าง",
