@@ -21,7 +21,7 @@
 
 ## 📌 Context
 
-- Sprint 09 โฟกัส gameplay hotfix — [US-E9-01](../user-stories/US-E9-01.md)..[US-E9-03](../user-stories/US-E9-03.md) ✅ Done; [US-E9-04](../user-stories/US-E9-04.md) ยังค้าง
+- Sprint 09 P0 gameplay — [US-E9-01](../user-stories/US-E9-01.md)..[US-E9-04](../user-stories/US-E9-04.md) ✅ Done ทั้งหมด
 - [US-E9-10](../user-stories/US-E9-10.md) ✅ Done แล้วใน Sprint 09 (CLI, ไม่ bump version)
 - ดู backlog ที่ยังเปิดใน [Sprint 09](sprint-09.md) — อาจ carry forward เพิ่มถ้ายังไม่ ship
 

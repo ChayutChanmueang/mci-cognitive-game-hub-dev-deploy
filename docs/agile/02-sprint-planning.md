@@ -17,7 +17,7 @@
 | Post-Sprint Hardening | Jun 01-16 | Deployment stabilization, branch cleanup, documentation sync | Completed |
 | [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
 | [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) → **v1.1.0** | Completed |
-| [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay (US-E9-04 Backlog) | **Active** |
+| [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay (US-E9-01..04 ✅ Done) | **Active** |
 | [sprint-10](sprint-backlogs/sprint-10.md) | TBD | Field Feedback carry-over — export, A10s perf, font scale (US-E9-05/07/09) | Planned |
 
 ## 📊 Project Timeline (Gantt Chart)
@@ -102,7 +102,7 @@ gantt
 - **Target:** shipped **v1.1.0** — [US-E8-01](user-stories/US-E8-01.md) ✅ Done (owner verified 2026-07-14)
 
 ### 🔧 E9: Field Feedback Hotfixes (Post-1.0 — ลงพื้นที่)
-- **Sprint 9:** P0 gameplay — ~~Symmetry Decor, Fry Food skip, Zoo Detective drag~~ ✅ Done; **Postcard font** → [US-E9-04](user-stories/US-E9-04.md)
+- **Sprint 9:** P0 gameplay — [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md) ✅ Done
 - **Sprint 10 (planned):** ส่งออกข้อมูลครบชุด, A10s perf, system font scale → [US-E9-05](user-stories/US-E9-05.md), [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
@@ -115,11 +115,12 @@ gantt
 | [US-E9-01](user-stories/US-E9-01.md) Symmetry Decor — UX ผู้สูงอายุ | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 | [US-E9-02](user-stories/US-E9-02.md) Fry Food — ปุ่มข้าม (ไม่มี Gyro) | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 | [US-E9-03](user-stories/US-E9-03.md) Zoo Detective — ลากเพื่อวาง | — | ✅ Done 2026-07-14 (มินิเกม version แยก) |
+| [US-E9-04](user-stories/US-E9-04.md) Postcard Reader — ขยายฟอนต์โจทย์ | — | ✅ Done 2026-07-14 (มินิเกม version แยก) |
 | [US-E9-11](user-stories/US-E9-11.md) Sign-up วันเกิด/วันที่เริ่มโปรแกรม เป็น พ.ศ. | `1.1.3` | ✅ owner 2026-07-13 |
 | [US-E9-12](user-stories/US-E9-12.md) Popup ออกจากเกม — layout/art ตรง popup-dialog | `1.1.4` | ✅ owner 2026-07-14 |
 | [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 
-- **2026-07-14:** US-E9-01/02/03 ✅ Done; US-E9-05/07/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
+- **2026-07-14:** US-E9-01..04 ✅ Done; US-E9-05/07/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
 
 ---
 
