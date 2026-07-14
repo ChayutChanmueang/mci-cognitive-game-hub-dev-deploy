@@ -66,6 +66,21 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 - `popup-dialog.js` confirm branch refactored to use the same `renderConfirmDialog` shell.
 - Agile docs: [US-E9-12](agile/user-stories/US-E9-12.md) → Done (v1.1.4); product backlog, kanban, sprint-09, `docs/index.md`.
 
+## [2026-07-14] - US-E9-03 status → Done (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.4`; มินิเกมนับเวอร์ชันเอง เช่น Zoo Detective `v1.0.1` ในเกม)
+
+### Changed
+- [US-E9-03](agile/user-stories/US-E9-03.md) Zoo Detective drag-to-place → **✅ Done**
+- Product backlog, kanban, sprint-09, meeting note 2026-07-10, sprint planning
+
+## [2026-07-14] - US-E9-01, US-E9-02 status → Done (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.4`).
+
+### Changed
+- [US-E9-01](agile/user-stories/US-E9-01.md) Symmetry Decor UX → **✅ Done** (บล็อกฝั่งโจทย์, grid 2×2/4×4/6×6, โหมดสะท้อนซ้าย-ขวา, เส้นแบ่งชัด, จบเมื่อหมดเวลา)
+- [US-E9-02](agile/user-stories/US-E9-02.md) Fry Food skip button → **✅ Done** (ปุ่มข้ามเมื่อไม่มี Gyro — score 0 + skip event)
+- Product backlog, kanban, sprint-09, meeting note 2026-07-10, sprint planning
+
 ## [2026-07-14] - US-E9-12 status → In Progress (docs)
 **Docs-only** — no `package.json` bump.
 

@@ -14,9 +14,9 @@ gantt
     dateFormat  YYYY-MM-DD
     axisFormat  %m/%d
     section P0 — Gameplay Hotfix
-    Symmetry Decor UX (US-E9-01)     :t1, 2026-07-10, 4d
-    Fry Food skip button (US-E9-02)  :t2, 2026-07-10, 2d
-    Zoo Detective drag (US-E9-03)    :active, t3, 2026-07-14, 3d
+    Symmetry Decor UX (US-E9-01)     :done, t1, 2026-07-10, 4d
+    Fry Food skip button (US-E9-02)  :done, t2, 2026-07-10, 2d
+    Zoo Detective drag (US-E9-03)    :done, t3, 2026-07-14, 3d
     Postcard font size (US-E9-04)    :t4, 2026-07-14, 2d
     section P0 — Device / Hub
     Screen wake lock (US-E9-06)      :done, t6, 2026-07-10, 2d
@@ -39,9 +39,6 @@ gantt
 ### 🔴 P0 — แก้ด่วน (Gameplay)
 | ID | Story / Task | Priority | Status |
 |----|--------------|----------|--------|
-| [US-E9-01](../user-stories/US-E9-01.md) | ภัยพิบัติระดับ Symmetry — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง 2×2/4×4/6×6, เส้นแบ่งชัด, จบเมื่อหมดเวลา | High | 📋 Backlog |
-| [US-E9-02](../user-stories/US-E9-02.md) | เกมทำอาหาร — ปุ่มข้ามเมื่อไม่มี Gyroscope (ไม่ได้คะแนน) | High | 📋 Backlog |
-| [US-E9-03](../user-stories/US-E9-03.md) | เกมสัตว์นักสืบ — เปลี่ยน input เป็นลากเพื่อวาง | High | 🔵 In Progress |
 | [US-E9-04](../user-stories/US-E9-04.md) | จดหมายจากหลานรัก — ขยายตัวอักษรโจทย์เพิ่มเติม | High | 📋 Backlog |
 
 ### 🔴 P0 — แก้ด่วน (Device / Game Hub)
@@ -61,6 +58,9 @@ gantt
 | ID | Story / Task | หมายเหตุ |
 |----|--------------|----------|
 | [US-E9-12](../user-stories/US-E9-12.md) | Popup ออกจากเกม — layout/art ตรง `popup-dialog` | ✅ Done (v1.1.4, owner verified 2026-07-14) |
+| [US-E9-01](../user-stories/US-E9-01.md) | Symmetry Decor — UX ผู้สูงอายุ (บล็อกฝั่งโจทย์, grid 2×2/4×4/6×6, จบเมื่อหมดเวลา) | ✅ Done (2026-07-14, **ไม่ bump version**) |
+| [US-E9-02](../user-stories/US-E9-02.md) | Fry Food — ปุ่มข้ามเมื่อไม่มี Gyroscope | ✅ Done (2026-07-14, **ไม่ bump version**) |
+| [US-E9-03](../user-stories/US-E9-03.md) | Zoo Detective — ลากเพื่อวางแทนจิ้ม | ✅ Done (2026-07-14, มินิเกม version แยก — **ไม่ bump `package.json`**) |
 | [US-E9-10](../user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด | ✅ Done (2026-07-14, CLI ops — **ไม่ bump version**) |
 | [US-E9-11](../user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ. | ✅ Done (v1.1.3, 2026-07-13) |
 
@@ -78,14 +78,15 @@ gantt
 - [Sprint 08](sprint-08.md) ปิดแล้ว — [US-E8-01](../user-stories/US-E8-01.md) ✅ Done (**v1.1.0**, 2026-07-14)
 - Sprint 09 เริ่มขนานกับ Sprint 08 wrap-up (ตอนนี้ Sprint 08 ปิดแล้ว)
 - Feedback มาจาก [Meeting 2026-07-10](../meeting-backlogs/2026-07-10.md) (รอบ 1 + รอบ 2)
-- **2026-07-14:** [US-E9-03](../user-stories/US-E9-03.md) → **In Progress**; US-E9-05/07/09 **เลื่อนไป [Sprint 10](sprint-10.md)** (Backlog)
+- **2026-07-14:** US-E9-01, US-E9-02, US-E9-03 ✅ Done (gameplay fixes — **ไม่ bump `package.json`**; มินิเกมนับเวอร์ชันเอง)
+- **2026-07-14:** US-E9-05/07/09 **เลื่อนไป [Sprint 10](sprint-10.md)** (Backlog)
 - **2026-07-14:** US-E9-12 ✅ Done (owner verified — popup ออกจากเกม)
 
 ### ลำดับความสำคัญ (ตาม owner — อัปเดต 2026-07-14)
-1. **P0 ใน Sprint 09:** gameplay (US-E9-01..04) — **US-E9-03 In Progress**
+1. **P0 ใน Sprint 09:** gameplay — ~~US-E9-01/02/03~~ ✅ Done; **US-E9-04 Backlog**
 2. **P1:** ~~US-E9-12~~ ✅ Done; US-E9-09 → Sprint 10; US-E9-11 Done
 3. **เลื่อน Sprint 10:** US-E9-05, 07, 09
-4. **Done:** US-E8-01 (v1.1.0), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-12 (v1.1.4), US-E9-06/08
+4. **Done:** US-E8-01 (v1.1.0), US-E9-01/02/03 (2026-07-14), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-12 (v1.1.4), US-E9-06/08
 
 ### การรวม Story
 | รวมแล้ว | จาก feedback |
@@ -113,7 +114,7 @@ gantt
 
 ## 📊 Sprint Summary
 - **งานที่ commit:** P0 gameplay + shipped (06/08/10/11) — US-E9-05/07/09 → Sprint 10
-- **เป้าหมายถัดไป:** ship gameplay fixes จาก US-E9-01..04 (เริ่ม US-E9-03)
+- **เป้าหมายถัดไป:** ship US-E9-04 (Postcard font) — P0 gameplay ที่เหลือ
 - **สถานะ:** 🟢 **Sprint 9 Open** (อัปเดต 2026-07-14)
 
 ---

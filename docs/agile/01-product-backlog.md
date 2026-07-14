@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-14 | **Release:** [v1.1.4](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) (US-E9-03 In Progress; US-E9-05/07/09 → Sprint 10)
+**Last Updated:** 2026-07-14 | **Release:** [v1.1.4](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) (US-E9-04 Backlog; US-E9-05/07/09 → Sprint 10)
 
 ## 🎯 Product Vision
 
@@ -151,9 +151,9 @@
 
 | ID                                     | User Story                                                                                              | Priority | Status          |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | --------------- |
-| [US-E9-01](./user-stories/US-E9-01.md) | ภัยพิบัติระดับ Symmetry — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง 2×2/4×4/6×6, เส้นแบ่งชัด, จบเมื่อหมดเวลา | High     | 📋 Backlog      |
-| [US-E9-02](./user-stories/US-E9-02.md) | เกมทำอาหาร — ปุ่มข้ามเมื่อไม่มี Gyroscope (ไม่ได้คะแนน)                                                 | High     | 📋 Backlog      |
-| [US-E9-03](./user-stories/US-E9-03.md) | เกมสัตว์นักสืบ — เปลี่ยน input เป็นลากเพื่อวาง                                                          | High     | 🔵 In Progress  |
+| [US-E9-01](./user-stories/US-E9-01.md) | ภัยพิบัติระดับ Symmetry — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง 2×2/4×4/6×6, เส้นแบ่งชัด, จบเมื่อหมดเวลา | High     | ✅ Done          |
+| [US-E9-02](./user-stories/US-E9-02.md) | เกมทำอาหาร — ปุ่มข้ามเมื่อไม่มี Gyroscope (ไม่ได้คะแนน)                                                 | High     | ✅ Done          |
+| [US-E9-03](./user-stories/US-E9-03.md) | เกมสัตว์นักสืบ — เปลี่ยน input เป็นลากเพื่อวาง                                                          | High     | ✅ Done          |
 | [US-E9-04](./user-stories/US-E9-04.md) | จดหมายจากหลานรัก — ขยายตัวอักษรโจทย์เพิ่มเติม (ต่อยอด US-E7-09)                                         | High     | 📋 Backlog      |
 | [US-E9-05](./user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย                                                    | Med      | 📋 Backlog (Sprint 10) |
 | [US-E9-06](./user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock)                                                       | High     | ✅ Done          |
