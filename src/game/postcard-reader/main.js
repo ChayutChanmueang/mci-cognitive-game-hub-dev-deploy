@@ -67,7 +67,7 @@ const StartGame = (parent) => {
         versionContainer.style.fontFamily = 'sans-serif';
         versionContainer.style.fontSize = '12px';
         versionContainer.style.fontWeight = 'bold';
-        versionContainer.innerHTML = 'v1.0.0';
+        versionContainer.innerHTML = 'v1.0.1';
         parentEl.appendChild(versionContainer);
     }
 
