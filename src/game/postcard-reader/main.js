@@ -14,7 +14,7 @@ import { AUTO, Game } from 'phaser';
 const config = {
     type: AUTO,
     parent: 'game-container',
-    backgroundColor: '#FFAB38',
+    backgroundColor: 'linear-gradient(180deg, #FFD549 0%, #FFA736 50%, #FFA736 100%)',
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -67,7 +67,7 @@ const StartGame = (parent) => {
         versionContainer.style.fontFamily = 'sans-serif';
         versionContainer.style.fontSize = '12px';
         versionContainer.style.fontWeight = 'bold';
-        versionContainer.innerHTML = 'v0.1.0';
+        versionContainer.innerHTML = 'v1.0.0';
         parentEl.appendChild(versionContainer);
     }
 
