@@ -52,6 +52,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     this.createSceneBackdrop();
     this.quizBoxSize = this.resolveQuizBoxSize();
+    this.paddingBoxQuestion = this.resolvePaddingBoxQuestion();
     this.gameplayUI = new GameplayUI(this, 0, 0);
     this.replayLog = new ReplayLogBuffer();
     this.gameplayUI.setLevel(this.levelMap, this.level, 1, Config.MaxRound[this.levelMap]);
@@ -108,9 +109,19 @@ export default class GameplayScene extends Phaser.Scene {
       const boxSize = Array.isArray(levelBoxSize) ? levelBoxSize[0] : levelBoxSize;
 
       return {
-          width: boxSize?.width ?? 700,
+          width: boxSize?.width ?? 960,
           height: boxSize?.height ?? 650,
       };
+  }
+
+  resolvePaddingBoxQuestion() {
+    const paddingBoxQuestion = QuizUI_Setting.paddingBoxQuestion?.[this.levelMap];
+    const padding = Array.isArray(paddingBoxQuestion) ? paddingBoxQuestion[0] : paddingBoxQuestion;
+
+    return {
+      paddingX: padding?.paddingX ?? 32,
+      paddingY: padding?.paddingY ?? 32,
+    };
   }
 
     resolveDecreaseScorePosition() {
@@ -141,7 +152,7 @@ export default class GameplayScene extends Phaser.Scene {
           this.quizGame.destroy();
       }
 
-      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting.setting, this.quizBoxSize);
+      this.quizGame = new Quiz(this, 0, 0, id, textParts, answers, options, qData, QuizUI_Setting.setting, this.quizBoxSize, this.paddingBoxQuestion);
       this.quizGame.onAnswerItemCorrect = () => {
           if (this.isGameEnded) {
               return;
