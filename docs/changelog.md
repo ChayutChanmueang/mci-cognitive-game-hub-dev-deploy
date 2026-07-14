@@ -55,6 +55,12 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-14] - US-E9-12 status → In Progress (docs)
+**Docs-only** — no `package.json` bump.
+
+- [US-E9-12](agile/user-stories/US-E9-12.md) → **🔵 In Progress** — popup ออกจากเกม (`game-exit-popup.js`)
+- Product backlog, kanban, sprint-09
+
 ## [2026-07-14] - Sprint 09 scope rebalance (docs)
 **Docs-only** — no `package.json` bump.
 
