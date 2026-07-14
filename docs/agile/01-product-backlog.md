@@ -162,12 +162,14 @@
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                        | Med      | 📋 Backlog (Sprint 10) |
 | [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด                                              | Med      | ✅ Done          |
 | [US-E9-11](./user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ.                                                                    | Med      | ✅ Done (v1.1.3) |
+| [US-E9-12](./user-stories/US-E9-12.md) | Popup ออกจากเกม — layout/art ให้ตรง `popup-dialog.js` | Med | 📋 Backlog |
 
-
+> ⤷ US-E9-12 ต่อยอด [US-E7-04](./user-stories/US-E7-04.md) — แก้ `game-exit-popup.js` ให้ match confirm layout ของ `popup-dialog.js`
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
 > ⤷ US-E8-01 ต่อยอด [US-E7-10](./user-stories/US-E7-10.md) (ต้นไม้หลายรูปแบบ) — ดู [Sprint 08](./sprint-backlogs/sprint-08.md)
 > ⤷ US-E9-01..11 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
 > ⤷ US-E9-05/07/09 เลื่อน [Sprint 10](./sprint-backlogs/sprint-10.md) (2026-07-14) — US-E9-10 ✅ Done (CLI, **ไม่ bump version**)
+> ⤷ US-E9-01..12 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) + owner (E9-12) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
 > ⤷ US-E9-07 รวม feedback เอฟเฟคเก่งมาก + Phaser/A10s; US-E9-08 แก้ผลสลับ label จาก [US-E7-14](./user-stories/US-E7-14.md)
 >  US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)

@@ -25,6 +25,7 @@ gantt
     Low-end perf A10s (US-E9-07)     :t7, 2026-07-24, 5d
     Full data export (US-E9-05)      :t5, 2026-07-24, 5d
     System font scale (US-E9-09)     :t9, 2026-07-24, 3d
+    Game exit popup art (US-E9-12)   :t12, 2026-07-14, 1d
     update-user-hn.js (US-E9-10)     :done, t11, 2026-07-14, 1d
     section QA
     Mobile QA + A10s playtest      :q1, 2026-07-18, 4d
@@ -47,6 +48,11 @@ gantt
 |----|--------------|----------|--------|
 | [US-E9-06](../user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | ✅ Done (v1.1.2, owner verified 2026-07-10) |
 | [US-E9-08](../user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (v1.1.1) |
+
+### 🟠 P1 — สำคัญ (UX / Accessibility)
+| ID | Story / Task | Priority | Status |
+|----|--------------|----------|--------|
+| [US-E9-12](../user-stories/US-E9-12.md) | Popup ออกจากเกม — จัด layout/art ให้ตรง popup-dialog | Med | 📋 Backlog |
 
 ### ⏭️ เลื่อนไป Sprint 10 (2026-07-14)
 | ID | Story / Task | Priority | สถานะ |
@@ -80,8 +86,9 @@ gantt
 
 ### ลำดับความสำคัญ (ตาม owner — อัปเดต 2026-07-14)
 1. **P0 ใน Sprint 09:** gameplay (US-E9-01..04) — **US-E9-03 In Progress**
-2. **เลื่อน Sprint 10:** US-E9-05, 07, 09
-3. **Done:** US-E8-01 (v1.1.0), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-06/08
+2. **P1:** UX/A11y + Signup + popup polish (US-E9-09, 11, **12**)
+3. **เลื่อน Sprint 10:** US-E9-05, 07, 09
+4. **Done:** US-E8-01 (v1.1.0), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-06/08
 
 ### การรวม Story
 | รวมแล้ว | จาก feedback |

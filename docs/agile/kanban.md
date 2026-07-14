@@ -8,6 +8,7 @@ kanban-plugin: board
 - [ ] [US-E9-01](user-stories/US-E9-01.md) 🔴 Symmetry Decor — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง, เส้นแบ่งชัด, จบเมื่อหมดเวลา (Field FB ลงพื้นที่)
 - [ ] [US-E9-02](user-stories/US-E9-02.md) 🔴 Fry Food — ปุ่มข้ามเมื่อไม่มี Gyroscope (Field FB ลงพื้นที่)
 - [ ] [US-E9-04](user-stories/US-E9-04.md) 🔴 Postcard Reader — ขยายตัวอักษรโจทย์เพิ่มเติม (Field FB ลงพื้นที่)
+- [ ] [US-E9-12](user-stories/US-E9-12.md) 🟠 Popup ออกจากเกม — layout/art ให้ตรง popup-dialog (Sprint 09)
 - [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลครบชุด → Sprint 10
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (Galaxy A10s) → Sprint 10
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
