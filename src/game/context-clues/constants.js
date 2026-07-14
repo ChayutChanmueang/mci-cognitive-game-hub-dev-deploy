@@ -43,7 +43,9 @@ export const Config = Object.freeze({
         easy: 10,
         medium: 10,
         hard: 10,
-    }
+    },
+    defaultGuide: "ลากคำศัพท์ไปเติมในช่องว่าง",
+    fontSize_Guide: "56px",
 })
 
 export const QuizUI_Setting = Object.freeze({

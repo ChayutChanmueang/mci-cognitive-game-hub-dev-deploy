@@ -145,9 +145,9 @@ export default class Quiz extends Entity{
             this.scene,
             sceneWidth / 2,
             instructionY,
-            "ลากคำศัพท์ไปเติมในช่องว่าง",
+            `${Config.defaultGuide}`,
             {
-                fontSize: "42px",
+                fontSize: `${Config.fontSize_Guide}`,
                 fontFamily: getThaiFontFamily(),
                 fontStyle: "bold",
                 color: "#ffffff",
