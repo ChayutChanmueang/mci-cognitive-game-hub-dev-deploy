@@ -80,14 +80,10 @@ function renderSide(node) {
   }
   const label = node.sideLabel || node.title || "";
   if (!label) return "";
-  // US-E9-08: game name/title on top, cognitive category below (swap per field feedback).
-  const categoryLine = node.category
-    ? `<span class="gh-game-pill__category">${escapeText(node.category)}</span>`
-    : "";
+  
   return `
     <div class="gh-game-pill">
       <span class="gh-game-pill__label">${escapeText(label)}</span>
-      ${categoryLine}
     </div>`;
 }
 

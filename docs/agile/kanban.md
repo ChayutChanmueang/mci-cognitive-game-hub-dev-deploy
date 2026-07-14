@@ -16,7 +16,6 @@ kanban-plugin: board
 
 ## 🔵 In Progress (WIP Limit: 3)
 - [ ] [US-E9-03](user-stories/US-E9-03.md) 🔴 Zoo Detective — ลากเพื่อวางแทนจิ้ม (Sprint 09)
-- [ ] [US-E9-12](user-stories/US-E9-12.md) 🟠 Popup ออกจากเกม — layout/art ให้ตรง popup-dialog (Sprint 09)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 
 
@@ -25,6 +24,7 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E9-12](user-stories/US-E9-12.md) Popup ออกจากเกม — layout/art ตรง popup-dialog (v1.1.4) — ✅ owner verified 2026-07-14
 - [x] [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` — แก้ ID/`hn` ผิด — ✅ Done 2026-07-14 (ไม่ bump version)
 - [x] [US-E7-08](user-stories/US-E7-08.md) แก้คำ "สมอบก" ใน Context Clues — ทีมเนื้อหา/แพทย์ — ✅ Done 2026-07-14
 - [x] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone + วิดีโอใหม่ — ทีมเนื้อหา — ✅ Done 2026-07-14

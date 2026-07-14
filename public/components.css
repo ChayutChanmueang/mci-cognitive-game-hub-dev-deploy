@@ -803,15 +803,15 @@
 /* label pill for non-current nodes (1080-scale analogue of .hub-clean-game-pill).
  * US-E9-08: two-line layout — game name on top, cognitive category below. */
 .gh-game-pill {
-  display: inline-flex;
-  flex-direction: column;
+  display: inline-block;
   max-width: calc(620px * var(--gh-scale, 1));
-  padding: calc(20px * var(--gh-scale, 1)) calc(40px * var(--gh-scale, 1));
+  padding: calc(28px * var(--gh-scale, 1)) calc(40px * var(--gh-scale, 1));
   margin-left: calc(48px * var(--gh-scale, 1));
   border-radius: calc(40px * var(--gh-scale, 1));
-  background: rgba(255, 255, 255, 0.9);
-  /*border: calc(3px * var(--gh-scale, 1)) solid rgba(183, 176, 168, 0.62);*/
+  background: #ffffffe6;
   font-family: var(--main-font), var(--main-font-type);
+  font-weight: 700;
+  font-size: calc(44px * var(--gh-scale, 1));
   line-height: 1.15;
   color: #4a4a4a;
 }
@@ -819,13 +819,6 @@
   font-weight: 700;
   font-size: calc(44px * var(--gh-scale, 1));
   color: #3a3a3a;
-}
-.gh-game-pill__category {
-  display: block;
-  font-weight: 500;
-  font-size: calc(32px * var(--gh-scale, 1));
-  color: #999;
-  margin-top: calc(4px * var(--gh-scale, 1));
 }
 
 /* ── Part 8b · production hub layout (floating header + level-path) ─

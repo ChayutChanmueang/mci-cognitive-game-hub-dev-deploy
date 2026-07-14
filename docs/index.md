@@ -1,8 +1,8 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** 🟢 **Release 1.1.3** | **Current Sprint:** [Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) *(Active)*
-**Version:** 1.1.3 | **Last Updated:** 2026-07-14 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 **Release 1.1.4** | **Current Sprint:** [Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) *(Active)*
+**Version:** 1.1.4 | **Last Updated:** 2026-07-14 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 

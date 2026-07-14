@@ -2,7 +2,7 @@
 
 **Goal:** แก้ปัญหาเร่งด่วนจากการลงพื้นที่จริงกับผู้สูงอายุ — เน้น **UX ระหว่างเล่นเกม (P0 gameplay)**
 **Timeline:** 2026-07-10 → 2026-07-23 (14 วัน) — *ขยายตาม scope*
-**Release target:** PATCH ต่อจาก `1.1.3` — gameplay fixes ตาม stories ที่ ship ในรอบนี้ (ไม่มี P1 committed ใน Sprint 09 แล้ว)
+**Release target:** PATCH ต่อจาก `1.1.3` — **US-E9-12 shipped `1.1.4`**; gameplay fixes อื่น ๆ ตาม stories ที่ ship ในรอบนี้
 **Source:** [Field Feedback — ลงพื้นที่ (2026-07-10)](../meeting-backlogs/2026-07-10.md)
 
 ---
@@ -21,11 +21,12 @@ gantt
     section P0 — Device / Hub
     Screen wake lock (US-E9-06)      :done, t6, 2026-07-10, 2d
     Game Hub label swap (US-E9-08)   :done, t8, 2026-07-14, 1d
+    section P1 — UX polish
+    Game exit popup art (US-E9-12)   :done, t12, 2026-07-14, 1d
     section Deferred → Sprint 10
     Low-end perf A10s (US-E9-07)     :t7, 2026-07-24, 5d
     Full data export (US-E9-05)      :t5, 2026-07-24, 5d
     System font scale (US-E9-09)     :t9, 2026-07-24, 3d
-    Game exit popup art (US-E9-12)   :active, t12, 2026-07-14, 1d
     update-user-hn.js (US-E9-10)     :done, t11, 2026-07-14, 1d
     section QA
     Mobile QA + A10s playtest      :q1, 2026-07-18, 4d
@@ -49,11 +50,6 @@ gantt
 | [US-E9-06](../user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock) | High | ✅ Done (v1.1.2, owner verified 2026-07-10) |
 | [US-E9-08](../user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่) | High | ✅ Done (v1.1.1) |
 
-### 🟠 P1 — สำคัญ (UX / Accessibility)
-| ID | Story / Task | Priority | Status |
-|----|--------------|----------|--------|
-| [US-E9-12](../user-stories/US-E9-12.md) | Popup ออกจากเกม — จัด layout/art ให้ตรง popup-dialog | Med | 🔵 In Progress |
-
 ### ⏭️ เลื่อนไป Sprint 10 (2026-07-14)
 | ID | Story / Task | Priority | สถานะ |
 |----|--------------|----------|--------|
@@ -64,6 +60,7 @@ gantt
 ### ✅ Shipped ใน Sprint 09
 | ID | Story / Task | หมายเหตุ |
 |----|--------------|----------|
+| [US-E9-12](../user-stories/US-E9-12.md) | Popup ออกจากเกม — layout/art ตรง `popup-dialog` | ✅ Done (v1.1.4, owner verified 2026-07-14) |
 | [US-E9-10](../user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด | ✅ Done (2026-07-14, CLI ops — **ไม่ bump version**) |
 | [US-E9-11](../user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ. | ✅ Done (v1.1.3, 2026-07-13) |
 
@@ -77,18 +74,18 @@ gantt
 ## 📌 Context — ต่อจาก v1.0.0 / Sprint 08
 
 - [v1.0.0](../../changelog.md) (2026-07-07) — ผู้สูงอายุเริ่มเล่นโปรแกรม 14 วันแล้ว → **แก้อย่างระมัดระวัง**
-- **Current shipped:** `1.1.3` (US-E9-11 พ.ศ. signup)
+- **Current shipped:** `1.1.4` (US-E9-12 game exit popup)
 - [Sprint 08](sprint-08.md) ปิดแล้ว — [US-E8-01](../user-stories/US-E8-01.md) ✅ Done (**v1.1.0**, 2026-07-14)
 - Sprint 09 เริ่มขนานกับ Sprint 08 wrap-up (ตอนนี้ Sprint 08 ปิดแล้ว)
 - Feedback มาจาก [Meeting 2026-07-10](../meeting-backlogs/2026-07-10.md) (รอบ 1 + รอบ 2)
 - **2026-07-14:** [US-E9-03](../user-stories/US-E9-03.md) → **In Progress**; US-E9-05/07/09 **เลื่อนไป [Sprint 10](sprint-10.md)** (Backlog)
-- **2026-07-14:** US-E9-10 ✅ Done (CLI, ไม่ bump version)
+- **2026-07-14:** US-E9-12 ✅ Done (owner verified — popup ออกจากเกม)
 
 ### ลำดับความสำคัญ (ตาม owner — อัปเดต 2026-07-14)
 1. **P0 ใน Sprint 09:** gameplay (US-E9-01..04) — **US-E9-03 In Progress**
-2. **P1:** UX/A11y + popup polish — **US-E9-12 In Progress**; US-E9-09 → Sprint 10; US-E9-11 Done
+2. **P1:** ~~US-E9-12~~ ✅ Done; US-E9-09 → Sprint 10; US-E9-11 Done
 3. **เลื่อน Sprint 10:** US-E9-05, 07, 09
-4. **Done:** US-E8-01 (v1.1.0), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-06/08
+4. **Done:** US-E8-01 (v1.1.0), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-12 (v1.1.4), US-E9-06/08
 
 ### การรวม Story
 | รวมแล้ว | จาก feedback |

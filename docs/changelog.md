@@ -51,9 +51,20 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.1.0` | 2026-07-08 | US-E8-01 per-player progression trees, signup assignment, and lazy backfill for existing profiles |
 | `1.1.1` | 2026-07-10 | US-E9-08 Game Hub label swap: game name ↑ / category ↓ (commit `a3ffc8d`) |
 | `1.1.2` | 2026-07-10 | US-E9-06 Screen Wake Lock: screen stays awake during minigames and story videos and dims again on return to the Game Hub; silent-video fallback for non-HTTPS origins (field feedback hotfix) — owner verified on device |
-| `1.1.3` | 2026-07-13 | **(current)** US-E9-11 Sign-up dates are entered and shown in **พ.ศ.** (วัน/เดือน/ปี selects replacing `<input type="date">`, which can only render ค.ศ.); DB keeps ค.ศ. Patient-Info card now prints the full Buddhist year (`15/01/2510`) instead of a 2-digit one — owner verified on device |
+| `1.1.3` | 2026-07-13 | US-E9-11 Sign-up dates are entered and shown in **พ.ศ.** (วัน/เดือน/ปี selects replacing `<input type="date">`, which can only render ค.ศ.); DB keeps ค.ศ. Patient-Info card now prints the full Buddhist year (`15/01/2510`) instead of a 2-digit one — owner verified on device |
+| `1.1.4` | 2026-07-14 | **(current)** US-E9-12 game-exit popup layout aligned with `popup-dialog.js` via shared `renderConfirmDialog` — owner verified on device |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.1.4] - 2026-07-14
+**Version bump:** `1.1.3 → 1.1.4` (**PATCH**) — fixes incorrect popup layout (exit dialog looked unlike every other confirm popup). Shared shell prevents future drift between `popup-dialog.js` and `game-exit-popup.js`.
+
+### Fixed
+- **US-E9-12 — game exit popup layout/art.** `showGameExitPopup` (`src/ui/game-exit-popup.js`) now renders through shared `renderConfirmDialog` (`src/ui/components/confirm-dialog.js`) — title, message, and stroke buttons **inside** `Frame_Panel` (Frame 1257), matching `popup-dialog.js` confirm mode. Red = ออก (destructive), green = เล่นต่อ (US-E7-15). Promise contract unchanged (`true` = exit). Owner verified 2026-07-14.
+
+### Changed
+- `popup-dialog.js` confirm branch refactored to use the same `renderConfirmDialog` shell.
+- Agile docs: [US-E9-12](agile/user-stories/US-E9-12.md) → Done (v1.1.4); product backlog, kanban, sprint-09, `docs/index.md`.
 
 ## [2026-07-14] - US-E9-12 status → In Progress (docs)
 **Docs-only** — no `package.json` bump.

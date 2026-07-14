@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-14 | **Release:** [v1.1.3](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) (US-E9-03 In Progress; US-E9-05/07/09 → Sprint 10)
+**Last Updated:** 2026-07-14 | **Release:** [v1.1.4](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) (US-E9-03 In Progress; US-E9-05/07/09 → Sprint 10)
 
 ## 🎯 Product Vision
 
@@ -162,7 +162,7 @@
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                        | Med      | 📋 Backlog (Sprint 10) |
 | [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด                                              | Med      | ✅ Done          |
 | [US-E9-11](./user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ.                                                                    | Med      | ✅ Done (v1.1.3) |
-| [US-E9-12](./user-stories/US-E9-12.md) | Popup ออกจากเกม — layout/art ให้ตรง `popup-dialog.js` | Med | 🔵 In Progress |
+| [US-E9-12](./user-stories/US-E9-12.md) | Popup ออกจากเกม — layout/art ให้ตรง `popup-dialog.js` | Med | ✅ Done (v1.1.4) |
 
 > ⤷ US-E9-12 ต่อยอด [US-E7-04](./user-stories/US-E7-04.md) — แก้ `game-exit-popup.js` ให้ match confirm layout ของ `popup-dialog.js`
 > ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
