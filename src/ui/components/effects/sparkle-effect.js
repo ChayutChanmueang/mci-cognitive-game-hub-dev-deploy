@@ -19,6 +19,21 @@ function starSvg(color) {
         + `<path d="${STAR_PATH}" fill="${color}"/></svg>`;
 }
 
+// Resolve the per-particle colour from the `color` option:
+//   null / "random"        → a fresh random rainbow hue every particle
+//   string (e.g. "#ffd700") → that exact colour for every particle
+//   string[] (e.g. ["#f00","#0f0"]) → a random pick from the list per particle
+function resolveColor(color) {
+    if (Array.isArray(color) && color.length > 0) {
+        return color[Math.floor(Math.random() * color.length)];
+    }
+    if (typeof color === "string" && color !== "random") {
+        return color;
+    }
+    const hue = Math.floor(Math.random() * 360);
+    return `hsl(${hue}, 95%, 62%)`;
+}
+
 function prefersReducedMotion() {
     return typeof window !== "undefined"
         && typeof window.matchMedia === "function"
@@ -48,16 +63,20 @@ function centerOf(anchor, sRadius = 1 /*0.6*/) {
  * @param {number}  [options.zIndex=2001]       Stacking; default sits above `.app-popup` (2000).
  * @param {number|null} [options.spread=null]   Spread radius in px (null = derived from anchor).
  * @param {{min:number,max:number}} [options.sMinMax={min:25,max:50}] Per-particle star size range in px.
+ * @param {string|string[]|null} [options.color=null] Particle colour: `null`/`"random"` = random
+ *   rainbow hue per particle; a CSS colour string = that static colour; an array of colour strings
+ *   = a random pick from the list per particle. Any CSS colour syntax works (hex, rgb, hsl, names).
  * @returns {{ cancel: () => void }} Handle to stop the effect early.
  */
 export function showSparkleEffect(options = {}) {
     const {
         anchor = null,
         mount = document.body,
-        count = 48,
+        count = 6,
         zIndex = 2001,
         spread = null,
-        sMinMax = {min: 25, max: 50}
+        sMinMax = {min: 60, max: 90},
+        color = null
     } = options;
 
     const reduced = prefersReducedMotion();
@@ -97,8 +116,7 @@ export function showSparkleEffect(options = {}) {
 
     for (let i = 0; i < total; i++) {
         const size = sMinMax.min + (Math.random() * (sMinMax.max / 2));
-        const hue = Math.floor(Math.random() * 360);
-        const color = `hsl(${hue}, 95%, 62%)`;
+        const particleColor = resolveColor(color);
 
         const sparkle = document.createElement("div");
         Object.assign(sparkle.style, {
@@ -110,11 +128,11 @@ export function showSparkleEffect(options = {}) {
             marginLeft: `${-size / 2}px`,
             marginTop: `${-size / 2}px`,
             // Glow follows the star silhouette (drop-shadow respects the SVG alpha).
-            filter: `drop-shadow(0 0 ${size * 0.45}px ${color})`,
+            filter: `drop-shadow(0 0 ${size * 0.45}px ${particleColor})`,
             opacity: "0",
             willChange: "transform, opacity",
         });
-        sparkle.innerHTML = starSvg(color);
+        sparkle.innerHTML = starSvg(particleColor);
         container.appendChild(sparkle);
 
         // Spread outward in a random direction, biased upward (like rising sparkles).
