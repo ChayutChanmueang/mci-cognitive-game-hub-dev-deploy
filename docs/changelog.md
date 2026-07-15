@@ -52,9 +52,20 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.1.1` | 2026-07-10 | US-E9-08 Game Hub label swap: game name ↑ / category ↓ (commit `a3ffc8d`) |
 | `1.1.2` | 2026-07-10 | US-E9-06 Screen Wake Lock: screen stays awake during minigames and story videos and dims again on return to the Game Hub; silent-video fallback for non-HTTPS origins (field feedback hotfix) — owner verified on device |
 | `1.1.3` | 2026-07-13 | US-E9-11 Sign-up dates are entered and shown in **พ.ศ.** (วัน/เดือน/ปี selects replacing `<input type="date">`, which can only render ค.ศ.); DB keeps ค.ศ. Patient-Info card now prints the full Buddhist year (`15/01/2510`) instead of a 2-digit one — owner verified on device |
-| `1.1.4` | 2026-07-14 | **(current)** US-E9-12 game-exit popup layout aligned with `popup-dialog.js` via shared `renderConfirmDialog` — owner verified on device |
+| `1.1.4` | 2026-07-14 | US-E9-12 game-exit popup layout aligned with `popup-dialog.js` via shared `renderConfirmDialog` — owner verified on device |
+| `1.1.5` | 2026-07-15 | **(current)** US-E9-07 (partial) — `sparkle-effect.js` tuned for check-in tree growth burst (`sMinMax`, spread/cancel lifecycle) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.1.5] - 2026-07-15
+**Version bump:** `1.1.4 → 1.1.5` (**PATCH**) — fixes/refines check-in sparkle burst behaviour (part of [US-E9-07](agile/user-stories/US-E9-07.md) low-end celebration work).
+
+### Fixed
+- **US-E9-07 (partial) — sparkle effect on check-in tree growth.** `showSparkleEffect` (`src/ui/components/effects/sparkle-effect.js`): configurable per-particle size via `sMinMax`, wider spread radius (`centerOf` `sRadius`), denser burst defaults (`count` 48), and reliable teardown via `cancel()` — wired in `checkin-summary-screen.js` to fire on `growTreeTransition` `onGrow` (anchor `.tree-progress-frame`) and cancelled in `cleanup()`. `prefers-reduced-motion` caps particles to 8.
+
+### Changed
+- [US-E9-07](agile/user-stories/US-E9-07.md) → **🔵 In Progress** (sparkle slice shipped `1.1.5`; Phaser/A10s perf tasks remain Sprint 10)
+- Agile docs: product backlog, kanban, sprint-10, `docs/index.md`
 
 ## [1.1.4] - 2026-07-14
 **Version bump:** `1.1.3 → 1.1.4` (**PATCH**) — fixes incorrect popup layout (exit dialog looked unlike every other confirm popup). Shared shell prevents future drift between `popup-dialog.js` and `game-exit-popup.js`.

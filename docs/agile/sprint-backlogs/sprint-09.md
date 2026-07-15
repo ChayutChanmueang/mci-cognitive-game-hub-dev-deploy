@@ -2,7 +2,7 @@
 
 **Goal:** แก้ปัญหาเร่งด่วนจากการลงพื้นที่จริงกับผู้สูงอายุ — เน้น **UX ระหว่างเล่นเกม (P0 gameplay)**
 **Timeline:** 2026-07-10 → 2026-07-23 (14 วัน) — *ขยายตาม scope*
-**Release target:** PATCH ต่อจาก `1.1.3` — **US-E9-12 shipped `1.1.4`**; gameplay fixes อื่น ๆ ตาม stories ที่ ship ในรอบนี้
+**Release target:** PATCH ต่อจาก `1.1.3` — **US-E9-12** `1.1.4`, **US-E9-07 sparkle** `1.1.5` (partial)
 **Source:** [Field Feedback — ลงพื้นที่ (2026-07-10)](../meeting-backlogs/2026-07-10.md)
 
 ---
@@ -51,7 +51,7 @@ gantt
 | ID | Story / Task | Priority | สถานะ |
 |----|--------------|----------|--------|
 | [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | P1 | 📋 Backlog → [Sprint 10](sprint-10.md) |
-| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog → [Sprint 10](sprint-10.md) |
+| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 🔵 In Progress (sparkle v1.1.5) |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog → [Sprint 10](sprint-10.md) |
 
 ### ✅ Shipped ใน Sprint 09
@@ -74,7 +74,7 @@ gantt
 ## 📌 Context — ต่อจาก v1.0.0 / Sprint 08
 
 - [v1.0.0](../../changelog.md) (2026-07-07) — ผู้สูงอายุเริ่มเล่นโปรแกรม 14 วันแล้ว → **แก้อย่างระมัดระวัง**
-- **Current shipped:** `1.1.4` (US-E9-12 game exit popup)
+- **Current shipped:** `1.1.5` (US-E9-07 sparkle-effect partial)
 - [Sprint 08](sprint-08.md) ปิดแล้ว — [US-E8-01](../user-stories/US-E8-01.md) ✅ Done (**v1.1.0**, 2026-07-14)
 - Sprint 09 เริ่มขนานกับ Sprint 08 wrap-up (ตอนนี้ Sprint 08 ปิดแล้ว)
 - Feedback มาจาก [Meeting 2026-07-10](../meeting-backlogs/2026-07-10.md) (รอบ 1 + รอบ 2)
@@ -86,7 +86,7 @@ gantt
 1. **P0 ใน Sprint 09:** gameplay — ~~US-E9-01/02/03~~ ✅ Done; **US-E9-04 Backlog**
 2. **P1:** ~~US-E9-12~~ ✅ Done; US-E9-09 → Sprint 10; US-E9-11 Done
 3. **เลื่อน Sprint 10:** US-E9-05, 07, 09
-4. **Done:** US-E8-01 (v1.1.0), US-E9-01/02/03 (2026-07-14), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-12 (v1.1.4), US-E9-06/08
+4. **Done:** US-E8-01 (v1.1.0), US-E9-01..04 (2026-07-14), US-E9-07 partial (v1.1.5), US-E9-10 (CLI), US-E9-11 (v1.1.3), US-E9-12 (v1.1.4), US-E9-06/08
 
 ### การรวม Story
 | รวมแล้ว | จาก feedback |

@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-14 | **Release:** [v1.1.4](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) (US-E9-04 Backlog; US-E9-05/07/09 → Sprint 10)
+**Last Updated:** 2026-07-15 | **Release:** [v1.1.5](../changelog.md) — Current | **Current Sprint:** [Sprint 09](./sprint-backlogs/sprint-09.md) / [Sprint 10](./sprint-backlogs/sprint-10.md) (US-E9-07 In Progress)
 
 ## 🎯 Product Vision
 
@@ -157,7 +157,7 @@
 | [US-E9-04](./user-stories/US-E9-04.md) | จดหมายจากหลานรัก — ขยายตัวอักษรโจทย์เพิ่มเติม (ต่อยอด US-E7-09)                                         | High     | 📋 Backlog      |
 | [US-E9-05](./user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย                                                    | Med      | 📋 Backlog (Sprint 10) |
 | [US-E9-06](./user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock)                                                       | High     | ✅ Done          |
-| [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline)                                        | High     | 📋 Backlog (Sprint 10) |
+| [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline)                                        | High     | 🔵 In Progress (v1.1.5 partial) |
 | [US-E9-08](./user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่)                                                   | High     | ✅ Done (v1.1.1) |
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                        | Med      | 📋 Backlog (Sprint 10) |
 | [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด                                              | Med      | ✅ Done          |
@@ -170,7 +170,7 @@
 > ⤷ US-E9-01..11 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
 > ⤷ US-E9-05/07/09 เลื่อน [Sprint 10](./sprint-backlogs/sprint-10.md) (2026-07-14) — US-E9-10 ✅ Done (CLI, **ไม่ bump version**)
 > ⤷ US-E9-01..12 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) + owner (E9-12) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
-> ⤷ US-E9-07 รวม feedback เอฟเฟคเก่งมาก + Phaser/A10s; US-E9-08 แก้ผลสลับ label จาก [US-E7-14](./user-stories/US-E7-14.md)
+> ⤷ US-E9-07 เริ่ม ship บางส่วนใน **v1.1.5** (sparkle-effect) — งาน Phaser/A10s ค้าง Sprint 10
 >  US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 
