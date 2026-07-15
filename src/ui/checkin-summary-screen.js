@@ -403,7 +403,7 @@ export function showCheckInPopup(options = {}) {
                             if (settled || state.step !== "calendar") {
                                 return;
                             }
-                            sparkle = showSparkleEffect({ anchor: frame });
+                            sparkle = showSparkleEffect({ anchor: frame, color: "#ffd700" });
                         });
                     });
 

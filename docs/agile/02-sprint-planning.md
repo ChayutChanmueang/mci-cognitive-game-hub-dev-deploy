@@ -103,7 +103,7 @@ gantt
 
 ### 🔧 E9: Field Feedback Hotfixes (Post-1.0 — ลงพื้นที่)
 - **Sprint 9:** P0 gameplay — [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md) ✅ Done
-- **Sprint 10 (planned):** US-E9-07 remainder (Phaser/A10s), export, system font scale → [US-E9-05](user-stories/US-E9-05.md), [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
+- **Sprint 10 (planned):** ส่งออกข้อมูลครบชุด, A10s perf, system font scale → [US-E9-05](user-stories/US-E9-05.md), [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
 **Shipped so far (Sprint 9):**
@@ -121,8 +121,8 @@ gantt
 | [US-E9-12](user-stories/US-E9-12.md) Popup ออกจากเกม — layout/art ตรง popup-dialog | `1.1.4` | ✅ owner 2026-07-14 |
 | [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 
+- **2026-07-14:** US-E9-01..04 ✅ Done; US-E9-05/07/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
 - **2026-07-15:** US-E9-07 sparkle-effect partial → **v1.1.5** (In Progress)
-- **2026-07-14:** US-E9-01..04 ✅ Done; US-E9-05/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
 
 ---
 
