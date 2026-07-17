@@ -5,11 +5,11 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
-- [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลครบชุด → Sprint 10
+- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (A10s) → Sprint 10 *(sparkle v1.1.5 shipped)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
 
 ## 🔵 In Progress (WIP Limit: 3)
-- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — sparkle-effect shipped v1.1.5; Phaser/A10s ค้าง → Sprint 10
+- [ ] [US-E9-05](user-stories/US-E9-05.md) 🟡 ส่งออกข้อมูลครบชุด (Sprint 10 — เริ่ม 2026-07-17)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 
 

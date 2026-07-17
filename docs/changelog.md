@@ -57,6 +57,16 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-17] - Sprint 10 kickoff + US-E9-05 In Progress (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.5`).
+
+### Changed
+- [Sprint 10](agile/sprint-backlogs/sprint-10.md) → **🟢 Active** (2026-07-17 → 2026-07-30)
+- [Sprint 09](agile/sprint-backlogs/sprint-09.md) → ✅ **Completed**
+- [US-E9-05](agile/user-stories/US-E9-05.md) → **🔵 In Progress** (full data export)
+- [US-E9-07](agile/user-stories/US-E9-07.md) → **📋 Backlog** (Sprint 10; sparkle partial v1.1.5)
+- Product backlog, kanban, sprint planning, `docs/index.md`, meeting note 2026-07-10
+
 ## [1.1.5] - 2026-07-15
 **Version bump:** `1.1.4 → 1.1.5` (**PATCH**) — fixes/refines check-in sparkle burst behaviour (part of [US-E9-07](agile/user-stories/US-E9-07.md) low-end celebration work).
 

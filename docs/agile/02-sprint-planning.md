@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-15
+**Last Updated:** 2026-07-17
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
@@ -17,8 +17,8 @@
 | Post-Sprint Hardening | Jun 01-16 | Deployment stabilization, branch cleanup, documentation sync | Completed |
 | [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
 | [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) → **v1.1.0** | Completed |
-| [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay ✅ Done | **Active** |
-| [sprint-10](sprint-backlogs/sprint-10.md) | TBD | US-E9-07 In Progress (sparkle v1.1.5) + export, font scale | Planned |
+| [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay ✅ Done | Completed |
+| [sprint-10](sprint-backlogs/sprint-10.md) | Jul 17-30 | Full data export (US-E9-05 In Progress) + A10s/font scale | **Active** |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -44,11 +44,12 @@ gantt
     Art assets, version display & vertical responsive :done, s7, 2026-06-23, 14d
     v1.0.0 stable release :milestone, rel10, 2026-07-07, 1d
     section Sprint 8
-    Per-player tree_type (US-E8-01) :active, s8, 2026-07-08, 14d
+    Per-player tree_type (US-E8-01) :done, s8, 2026-07-08, 14d
     v1.1.0 target :milestone, rel11, 2026-07-21, 1d
     section Sprint 9
-    Field feedback hotfix (US-E9-01..04) :active, s9, 2026-07-10, 14d
-    v1.1.1 target :milestone, rel111, 2026-07-23, 1d
+    Field feedback hotfix (US-E9-01..04) :done, s9, 2026-07-10, 14d
+    section Sprint 10
+    Full data export (US-E9-05) :active, s10, 2026-07-17, 14d
 ```
 
 ---
@@ -66,7 +67,8 @@ gantt
 - **Post-Sprint Hardening**: Stabilize deployment branches, verify Docker/nginx production build, fix stale leaderboard branch drift, and refresh documentation
 - **[sprint-07](sprint-backlogs/sprint-07.md)**: Game Art Assets, Version Display & Mini-game Vertical Responsiveness — **Completed → [v1.0.0](../changelog.md) stable release (2026-07-07)**
 - **[sprint-08](sprint-backlogs/sprint-08.md)**: Per-player progression tree (`tree_type` a/b/c/d) — **Completed → [v1.1.0](../changelog.md)** (US-E8-01 Done, 2026-07-14)
-- **[sprint-09](sprint-backlogs/sprint-09.md)**: Field Feedback Hotfix — ลงพื้นที่ (แก้ด่วน UX มินิเกม) — **Active** (post-1.0, target `1.1.1`) — จาก [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
+- **[sprint-09](sprint-backlogs/sprint-09.md)**: Field Feedback Hotfix — ลงพื้นที่ — **Completed** (2026-07-17) — จาก [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
+- **[sprint-10](sprint-backlogs/sprint-10.md)**: Full data export + A10s/font scale — **Active** (US-E9-05 In Progress)
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
@@ -102,8 +104,8 @@ gantt
 - **Target:** shipped **v1.1.0** — [US-E8-01](user-stories/US-E8-01.md) ✅ Done (owner verified 2026-07-14)
 
 ### 🔧 E9: Field Feedback Hotfixes (Post-1.0 — ลงพื้นที่)
-- **Sprint 9:** P0 gameplay — [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md) ✅ Done
-- **Sprint 10 (planned):** ส่งออกข้อมูลครบชุด, A10s perf, system font scale → [US-E9-05](user-stories/US-E9-05.md), [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
+- **Sprint 9:** P0 gameplay — [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md) ✅ Done — **Completed** 2026-07-17
+- **Sprint 10 (Active):** full data export **In Progress** → [US-E9-05](user-stories/US-E9-05.md); A10s/font scale Backlog → [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
 **Shipped so far (Sprint 9):**
@@ -116,13 +118,14 @@ gantt
 | [US-E9-02](user-stories/US-E9-02.md) Fry Food — ปุ่มข้าม (ไม่มี Gyro) | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 | [US-E9-03](user-stories/US-E9-03.md) Zoo Detective — ลากเพื่อวาง | — | ✅ Done 2026-07-14 (มินิเกม version แยก) |
 | [US-E9-04](user-stories/US-E9-04.md) Postcard Reader — ขยายฟอนต์โจทย์ | — | ✅ Done 2026-07-14 (มินิเกม version แยก) |
-| [US-E9-07](user-stories/US-E9-07.md) Sparkle-effect check-in (partial) | `1.1.5` | 🔵 In Progress 2026-07-15 |
+| [US-E9-07](user-stories/US-E9-07.md) Sparkle-effect check-in (partial) | `1.1.5` | ✅ partial 2026-07-15 (remainder → Sprint 10 Backlog) |
 | [US-E9-11](user-stories/US-E9-11.md) Sign-up วันเกิด/วันที่เริ่มโปรแกรม เป็น พ.ศ. | `1.1.3` | ✅ owner 2026-07-13 |
 | [US-E9-12](user-stories/US-E9-12.md) Popup ออกจากเกม — layout/art ตรง popup-dialog | `1.1.4` | ✅ owner 2026-07-14 |
 | [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 
+- **2026-07-17:** Sprint 10 kickoff — [US-E9-05](user-stories/US-E9-05.md) → In Progress; Sprint 09 Completed
+- **2026-07-15:** US-E9-07 sparkle-effect partial → **v1.1.5**
 - **2026-07-14:** US-E9-01..04 ✅ Done; US-E9-05/07/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
-- **2026-07-15:** US-E9-07 sparkle-effect partial → **v1.1.5** (In Progress)
 
 ---
 

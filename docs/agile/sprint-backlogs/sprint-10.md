@@ -1,34 +1,65 @@
-# Sprint 10: Field Feedback — ต่อจาก Sprint 09 (เลื่อนจากรอบก่อน)
+# Sprint 10: Field Feedback — ต่อจาก Sprint 09
 
-**Goal:** รับงานที่เลื่อนจาก Sprint 09 — export ครบชุด, low-end perf (A10s), system font scale
-**Timeline:** TBD (หลัง Sprint 09)
-**Release target:** PATCH ต่อจาก `1.1.5` — US-E9-07 remainder, US-E9-05/09 ตาม stories ที่ ship
+**Status:** 🟢 **Active** (kickoff 2026-07-17)
+**Goal:** รับงานที่เลื่อนจาก Sprint 09 — **full data export**, low-end perf (A10s), system font scale
+**Timeline:** 2026-07-17 → 2026-07-30 (14 วัน)
+**Release target:** PATCH ต่อจาก `1.1.5` — ตาม stories ที่ ship ในรอบนี้
 **Source:** [Field Feedback — ลงพื้นที่ (2026-07-10)](../meeting-backlogs/2026-07-10.md)
 
 ---
 
-## 📋 Carried over จาก Sprint 09 (2026-07-14)
+## 📅 Internal Timeline
+```mermaid
+gantt
+    title Sprint 10 Tasks & Gantt Chart
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m/%d
+    section P1 — Export
+    Full data export (US-E9-05)      :active, t5, 2026-07-17, 7d
+    section P0 — Device perf
+    Low-end perf A10s (US-E9-07)     :t7, 2026-07-22, 5d
+    section P1 — A11y
+    System font scale (US-E9-09)     :t9, 2026-07-24, 4d
+    section QA
+    Export QA + A10s playtest        :q1, 2026-07-27, 4d
+```
 
+---
+
+## 📋 Committed Stories & Tasks
+
+### 🔵 In Progress
 | ID | Story / Task | Priority | สถานะ |
 |----|--------------|----------|--------|
-| [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Edge Function / pagination) | P1 | 📋 Backlog |
+| [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Edge Function / pagination) | P1 | 🔵 In Progress (เริ่ม 2026-07-17) |
+
+### 📋 Backlog (Sprint 10)
+| ID | Story / Task | Priority | สถานะ |
+|----|--------------|----------|--------|
+| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog *(sparkle slice ✅ v1.1.5; confetti + Phaser ค้าง)* |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog |
 
-### 🔵 In Progress (เริ่มก่อน kickoff Sprint 10)
-| ID | Story / Task | Priority | สถานะ |
-|----|--------------|----------|--------|
-| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 🔵 In Progress — sparkle slice **v1.1.5** (2026-07-15); confetti + Phaser ค้าง |
+> **2026-07-17:** Sprint 10 kickoff — focus = [US-E9-05](../user-stories/US-E9-05.md)
+> **2026-07-15:** US-E9-07 sparkle slice shipped ใน **v1.1.5** — remainder ค้าง Backlog
+> **2026-07-14:** Owner เลื่อน US-E9-05/07/09 จาก Sprint 09
 
-> Owner ยืนยัน 2026-07-14: US-E9-05/09 **ไม่ทำใน Sprint 09** — คง priority เดิม รอวางแผน release ตอน kickoff Sprint 10
-> **2026-07-15:** US-E9-07 เริ่ม ship บางส่วน — task `sparkle-effect.js` ✅ ใน **v1.1.5**
+### 📱 เครื่องอ้างอิงขั้นต่ำสุด
+**Samsung Galaxy A10s** (SM-A107F/M) — ใช้ทดสอบ [US-E9-07](../user-stories/US-E9-07.md)
 
 ---
 
 ## 📌 Context
 
-- Sprint 09 P0 gameplay — [US-E9-01](../user-stories/US-E9-01.md)..[US-E9-04](../user-stories/US-E9-04.md) ✅ Done ทั้งหมด
-- [US-E9-10](../user-stories/US-E9-10.md) ✅ Done แล้วใน Sprint 09 (CLI, ไม่ bump version)
+- [Sprint 09](sprint-09.md) ✅ **Completed** (2026-07-17) — P0 gameplay [US-E9-01](../user-stories/US-E9-01.md)..[US-E9-04](../user-stories/US-E9-04.md) Done
+- [US-E9-10](../user-stories/US-E9-10.md) ✅ Done ใน Sprint 09 (CLI, ไม่ bump version)
 - **Current shipped:** `1.1.5` (US-E9-07 sparkle-effect partial)
+- **Focus รอบนี้:** full player data export ไม่สูญหาย
+
+---
+
+## 📊 Sprint Summary
+- **งานที่ commit:** US-E9-05 (In Progress), US-E9-07/09 (Backlog)
+- **สถานะ:** 🟢 **Sprint 10 Open** (kickoff 2026-07-17)
 
 ---
 

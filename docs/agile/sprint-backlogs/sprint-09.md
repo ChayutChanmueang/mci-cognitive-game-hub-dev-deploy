@@ -49,7 +49,7 @@ gantt
 | ID | Story / Task | Priority | สถานะ |
 |----|--------------|----------|--------|
 | [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | P1 | 📋 Backlog → [Sprint 10](sprint-10.md) |
-| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 🔵 In Progress (sparkle v1.1.5) |
+| [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog → [Sprint 10](sprint-10.md) *(sparkle v1.1.5 shipped)* |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog → [Sprint 10](sprint-10.md) |
 
 ### ✅ Shipped ใน Sprint 09
@@ -112,9 +112,9 @@ gantt
 ---
 
 ## 📊 Sprint Summary
-- **งานที่ commit:** P0 gameplay + shipped (06/08/10/11) — US-E9-05/07/09 → Sprint 10
-- **เป้าหมายถัดไป:** Sprint 10 — US-E9-05/07/09 (P0 gameplay Sprint 09 ปิดครบแล้ว)
-- **สถานะ:** 🟢 **Sprint 9 Open** (อัปเดต 2026-07-14)
+- **งานที่ commit:** P0 gameplay + shipped (01..04, 06/08/10/11/12) — US-E9-05/07/09 → Sprint 10
+- **เป้าหมายถัดไป:** [Sprint 10](sprint-10.md) — US-E9-05 In Progress; US-E9-07/09 Backlog
+- **สถานะ:** ✅ **Sprint 9 Completed** (ปิด 2026-07-17 — kickoff Sprint 10)
 
 ---
 Back to Product Backlog: [Product Backlog](../01-product-backlog.md) | Roadmap: [Sprint Planning](../02-sprint-planning.md) | Back to Index: [Index](../../index.md)
