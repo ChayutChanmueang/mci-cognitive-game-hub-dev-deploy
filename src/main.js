@@ -2204,24 +2204,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 const missingItems = [];
 
                 if (wantsPlayerExport) {
-                    let programName = "";
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    // ใช้ path เดียวกับ export ทุกคน — เดิมประกอบเองจาก exportPlayer + playerProgram
+                    // แล้วเรียก getGameLevelPresetList() แยกเพื่อหา programName ทำให้ profile
+                    // รายคนกับทุกคนมาคนละทาง เสี่ยงไม่ตรงกัน (US-E9-05)
+                    const [playerRow] = await db.getAllPatientCsvExportRows({ hn });
 
-                    try {
-                        const programPresets = await db.getGameLevelPresetList();
-                        const programId = Number(playerProgram?.programId);
-                        programName = programPresets.find((preset) => Number(preset.id) === programId)?.name || "";
-                    } catch (error) {
-                        console.warn("Unable to load program preset name for CSV export:", error);
+                    if (!playerRow) {
+                        missingItems.push("ข้อมูลผู้เล่น");
+                    } else {
+                        // ไม่ต้องส่ง options — row จาก RPC มี educationName/programName/programDayCount
+                        // ครบอยู่แล้ว เหมือน path "ทุกคน" ที่เรียก buildPlayersCsv(players) เปล่า ๆ
+                        downloadCsv(getPlayerCsvFilename(playerRow), buildPlayerCsv(playerRow));
+                        exportedItems.push("ข้อมูลผู้เล่น");
                     }
-
-                    const csvContent = buildPlayerCsv(exportPlayer, {
-                        educationName: exportPlayer.educationName,
-                        programDayCount: playerProgram?.programDayCount ?? null,
-                        programName,
-                    });
-
-                    downloadCsv(getPlayerCsvFilename(exportPlayer), csvContent);
-                    exportedItems.push("ข้อมูลผู้เล่น");
                 }
 
                 if (wantsGameExport) {

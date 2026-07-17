@@ -82,6 +82,42 @@ class EdgeFunction {
         }
         return response.json();
     }
+
+    /**
+     * เรียก export action แล้วคืนเฉพาะ rows
+     *
+     * `hn` ว่าง/null = ทุกคน — ฝั่ง edge function ตีความ `""` ว่า "ทุกคน" โดยตั้งใจ
+     * (ต่างจาก getUserRank ที่ `""` → 400) จึงส่ง null ไปให้ชัดแทนที่จะพึ่งการตีความ
+     *
+     * paging กัน max_rows = 1000 เกิดฝั่ง server ทั้งหมด — ที่นี่ได้ก้อนเดียวครบแล้ว
+     */
+    async _postExport(action, hn) {
+        const parsedHn = String(hn ?? "").trim();
+        const response = await this._post(`read-database/${action}`, { hn: parsedHn || null });
+
+        if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body?.error || `Edge function error: ${response.status}`);
+        }
+
+        const body = await response.json();
+        return body?.rows || [];
+    }
+
+    /** ข้อมูลผู้เล่นสำหรับ PLAYER_CSV_COLUMNS — hn ว่าง = ทุกคน */
+    async getPlayerExportRows(hn = null) {
+        return this._postExport("getPlayerExportRows", hn);
+    }
+
+    /** ข้อมูลการเล่นรายครั้งสำหรับ GAME_CSV_COLUMNS — hn ว่าง = ทุกคน */
+    async getGameExportRows(hn = null) {
+        return this._postExport("getGameExportRows", hn);
+    }
+
+    /** ประวัติรายวัน (ผู้เล่น × วันโปรแกรม) สำหรับ GAME_HISTORY_CSV_COLUMNS — hn ว่าง = ทุกคน */
+    async getGameHistoryExportRows(hn = null) {
+        return this._postExport("getGameHistoryExportRows", hn);
+    }
 }
 
 export default new EdgeFunction();
