@@ -4,10 +4,9 @@
       "type": "http",
       "url": "https://mcp.supabase.com/mcp?project_ref=cgxaanoyyjcopezsrivs&features=docs%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions"
     },
-    "supabase-local": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgres://postgres.mci-server:84f2af2a32d718c057c7449deb0ab0c5@mci-database.kohtnas.com/postgres?sslmode=disable"]
+    "supabase-self-host": {
+      "type": "http",
+      "url": "http://100.75.206.233:18000/mcp"
     }
   }
 }

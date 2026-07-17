@@ -146,8 +146,7 @@
 
 
 
-### E9: Field Feedback Hotfixes — ลงพื้นที่ (Sprint 09 Done → Sprint 10 Active)
-
+### E9: Field Feedback Hotfixes — ลงพื้นที่ ([Sprint 09](./sprint-backlogs/sprint-09.md) ✅ Completed)
 
 | ID                                     | User Story                                                                                              | Priority | Status          |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- | --------------- |
@@ -155,20 +154,31 @@
 | [US-E9-02](./user-stories/US-E9-02.md) | เกมทำอาหาร — ปุ่มข้ามเมื่อไม่มี Gyroscope (ไม่ได้คะแนน)                                                 | High     | ✅ Done          |
 | [US-E9-03](./user-stories/US-E9-03.md) | เกมสัตว์นักสืบ — เปลี่ยน input เป็นลากเพื่อวาง                                                          | High     | ✅ Done          |
 | [US-E9-04](./user-stories/US-E9-04.md) | จดหมายจากหลานรัก — ขยายตัวอักษรโจทย์เพิ่มเติม (ต่อยอด US-E7-09)                                         | High     | ✅ Done          |
-| [US-E9-05](./user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย                                                    | Med      | 🔵 In Progress (Sprint 10) |
 | [US-E9-06](./user-stories/US-E9-06.md) | ป้องกันหน้าจอดับระหว่างเล่นเกม (Screen Wake Lock)                                                       | High     | ✅ Done          |
-| [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline)                                        | High     | 📋 Backlog (Sprint 10) |
 | [US-E9-08](./user-stories/US-E9-08.md) | Game Hub — ชื่อเกมบน / หมวดหมู่ล่าง (แก้จากลงพื้นที่)                                                   | High     | ✅ Done (v1.1.1) |
-| [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                        | Med      | 📋 Backlog (Sprint 10) |
 | [US-E9-10](./user-stories/US-E9-10.md) | CLI `update-user-hn.js` — แก้ ID/`hn` ที่ลงทะเบียนผิด                                              | Med      | ✅ Done          |
 | [US-E9-11](./user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ.                                                                    | Med      | ✅ Done (v1.1.3) |
 | [US-E9-12](./user-stories/US-E9-12.md) | Popup ออกจากเกม — layout/art ให้ตรง `popup-dialog.js` | Med | ✅ Done (v1.1.4) |
 
-> ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (Active, 2026-07-17) — focus [US-E9-05](./user-stories/US-E9-05.md); Backlog [US-E9-07](./user-stories/US-E9-07.md), [US-E9-09](./user-stories/US-E9-09.md)
-> ⤷ [Sprint 09](./sprint-backlogs/sprint-09.md) ✅ Completed (2026-07-17) — P0 gameplay US-E9-01..04 + device/hub/UX shipped
+> ⤷ [Sprint 09](./sprint-backlogs/sprint-09.md) ✅ Completed (2026-07-17) — P0 gameplay + device/hub/UX
 > ⤷ US-E9-01..12 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) + owner (E9-12)
-> ⤷ US-E9-12 ต่อยอด [US-E7-04](./user-stories/US-E7-04.md) — `game-exit-popup.js` match confirm layout ของ `popup-dialog.js`
-> ⤷ US-E9-07 sparkle slice shipped **v1.1.5**; confetti + Phaser remainder ค้าง Sprint 10 Backlog; US-E9-08 แก้ label จาก [US-E7-14](./user-stories/US-E7-14.md)
+> ⤷ US-E9-12 ต่อยอด [US-E7-04](./user-stories/US-E7-04.md); US-E9-08 แก้ label จาก [US-E7-14](./user-stories/US-E7-14.md)
+> ⤷ **US-E9-05 / US-E9-07 / US-E9-09 ย้ายไป [Sprint 10](#sprint-10-field-feedback-carry-over--active) ด้านล่าง**
+
+
+### Sprint 10: Field Feedback carry-over — **Active** (2026-07-17 → 2026-07-30)
+
+งานที่เลื่อนจาก Sprint 09 — ดูรายละเอียดที่ [sprint-10.md](./sprint-backlogs/sprint-10.md)
+
+| ID                                     | User Story                                                                                       | Priority | Status                     |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------ | -------- | -------------------------- |
+| [US-E9-05](./user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Edge Function / pagination)                                | Med      | 🔵 In Progress             |
+| [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline)                                 | High     | 📋 Backlog                 |
+| [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                 | Med      | 📋 Backlog                 |
+
+> ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) — focus [US-E9-05](./user-stories/US-E9-05.md)
+> ⤷ [US-E9-07](./user-stories/US-E9-07.md) sparkle slice shipped **v1.1.5**; confetti + Phaser remainder ค้าง Backlog
+> ⤷ Epic ยังเป็น E9 (Field Feedback); แยกตารางตาม sprint เพื่อติดตามงานที่ carry-over
 > ⤷ US-E8-01 → [Sprint 08](./sprint-backlogs/sprint-08.md); US-E7-* → [Sprint 07](./sprint-backlogs/sprint-07.md)
 >  US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
@@ -184,5 +194,7 @@
 - Roadmap: [Sprint Planning](./02-sprint-planning.md)
 - **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md)
 - Previous: [Sprint 09](./sprint-backlogs/sprint-09.md) (Completed)
+
+---
 
 Back to Index: [Index](../index.md)
