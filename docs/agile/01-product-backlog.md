@@ -146,7 +146,7 @@
 
 
 
-### E9: Field Feedback Hotfixes — ลงพื้นที่ (P0)
+### E9: Field Feedback Hotfixes — ลงพื้นที่ (Sprint 09 Done → Sprint 10 Active)
 
 
 | ID                                     | User Story                                                                                              | Priority | Status          |
@@ -164,13 +164,12 @@
 | [US-E9-11](./user-stories/US-E9-11.md) | หน้าสร้างบัญชี — แสดงปีเกิดเป็น พ.ศ.                                                                    | Med      | ✅ Done (v1.1.3) |
 | [US-E9-12](./user-stories/US-E9-12.md) | Popup ออกจากเกม — layout/art ให้ตรง `popup-dialog.js` | Med | ✅ Done (v1.1.4) |
 
-> ⤷ US-E9-12 ต่อยอด [US-E7-04](./user-stories/US-E7-04.md) — แก้ `game-exit-popup.js` ให้ match confirm layout ของ `popup-dialog.js`
-> ⤷ US-E7-07..13 มาจาก [Doctor Feedback — Meeting #2 (2026-06-24)](./meeting-backlogs/2026-06-24.md); US-E7-14..29 มาจาก Owner Task Block (ก้องไผ่) — ดู [Sprint 07](./sprint-backlogs/sprint-07.md)
-> ⤷ US-E8-01 ต่อยอด [US-E7-10](./user-stories/US-E7-10.md) (ต้นไม้หลายรูปแบบ) — ดู [Sprint 08](./sprint-backlogs/sprint-08.md)
-> ⤷ US-E9-01..11 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
-> ⤷ US-E9-05/07/09 เลื่อน [Sprint 10](./sprint-backlogs/sprint-10.md) (2026-07-14) — US-E9-10 ✅ Done (CLI, **ไม่ bump version**)
-> ⤷ US-E9-01..12 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) + owner (E9-12) — ดู [Sprint 09](./sprint-backlogs/sprint-09.md)
-> ⤷ US-E9-07 เลื่อน [Sprint 10](./sprint-backlogs/sprint-10.md) — sparkle slice **v1.1.5**; confetti + Phaser ค้าง Backlog; US-E9-08 แก้ผลสลับ label จาก [US-E7-14](./user-stories/US-E7-14.md)
+> ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (Active, 2026-07-17) — focus [US-E9-05](./user-stories/US-E9-05.md); Backlog [US-E9-07](./user-stories/US-E9-07.md), [US-E9-09](./user-stories/US-E9-09.md)
+> ⤷ [Sprint 09](./sprint-backlogs/sprint-09.md) ✅ Completed (2026-07-17) — P0 gameplay US-E9-01..04 + device/hub/UX shipped
+> ⤷ US-E9-01..12 มาจาก [Field Feedback — ลงพื้นที่ (2026-07-10)](./meeting-backlogs/2026-07-10.md) + owner (E9-12)
+> ⤷ US-E9-12 ต่อยอด [US-E7-04](./user-stories/US-E7-04.md) — `game-exit-popup.js` match confirm layout ของ `popup-dialog.js`
+> ⤷ US-E9-07 sparkle slice shipped **v1.1.5**; confetti + Phaser remainder ค้าง Sprint 10 Backlog; US-E9-08 แก้ label จาก [US-E7-14](./user-stories/US-E7-14.md)
+> ⤷ US-E8-01 → [Sprint 08](./sprint-backlogs/sprint-08.md); US-E7-* → [Sprint 07](./sprint-backlogs/sprint-07.md)
 >  US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง
 > บั๊กที่เกี่ยวข้อง: [BUG-004](./reports/bugs/BUG-004.md), [BUG-005](./reports/bugs/BUG-005.md), [BUG-006](./reports/bugs/BUG-006.md), [BUG-007](./reports/bugs/BUG-007.md)
 
@@ -183,7 +182,7 @@
 - Derived from: [Game Design Document V.1.md](../Game%20Design%20Document%20V.1.md)
 - Mechanics: [Core Mechanics](../gdd/01-mechanics.md) (TBD)
 - Roadmap: [Sprint Planning](./02-sprint-planning.md)
-
----
+- **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md)
+- Previous: [Sprint 09](./sprint-backlogs/sprint-09.md) (Completed)
 
 Back to Index: [Index](../index.md)

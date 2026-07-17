@@ -57,6 +57,14 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-17] - Sprint 10 hub docs sync (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.5`).
+
+### Changed
+- [01-product-backlog.md](agile/01-product-backlog.md) — E9 footnotes + Related Documents ชี้ Sprint 10 Active / US-E9-05 In Progress
+- [docs/index.md](index.md) — Latest Sprint Planning + Agile links → Sprint 10 (ไม่ใช่ Sprint 08/09)
+- [04-retrospectives-backlog.md](agile/04-retrospectives-backlog.md), [wiki/wiki.md](wiki/wiki.md), meeting note Traceability
+
 ## [2026-07-17] - Sprint 10 kickoff + US-E9-05 In Progress (docs)
 **Docs-only** — no `package.json` bump (ยัง `1.1.5`).
 
