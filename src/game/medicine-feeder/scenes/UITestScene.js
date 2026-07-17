@@ -136,6 +136,7 @@ export default class UITestScene extends Phaser.Scene {
       panelHeaderColor:   StartMenuSetting.panelHeaderColor,
       primaryFontColor:   StartMenuSetting.primaryFontColor,
       secondaryFontColor: StartMenuSetting.secondaryFontColor,
+      acceptText:         StartMenuSetting.acceptText,
       receiverSetting:    ReceiverSetting,
       itemSpriteLibrary:  ItemSpriteLibrary,
       themeAssets:        ThemeAssets,

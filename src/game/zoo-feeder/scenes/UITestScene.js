@@ -10,7 +10,7 @@ import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import game_db from "/src/util/minigame-db-util.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
 import DebugMenu from "./DebugMenu.js";
-import { GameOverSetting, StartMenuSetting, GameplaySetting, ConveyerDifficultyLevel, DifficultyLabel, ThemeAssets, ReceiverSetting, ItemSpriteLibrary } from '../constants.js';
+import { GameOverSetting, StartMenuSetting, GameplaySetting, ConveyerDifficultyLevel, DifficultyLabel, ThemeAssets, ReceiverSetting, ItemSpriteLibrary, ItemNames, CategoryStyles } from '../constants.js';
 import { TutorialPanel } from '../../../ui/tutorial-panel.js';
 const GAME_ID = "ATTN001";
 
@@ -136,9 +136,12 @@ export default class UITestScene extends Phaser.Scene {
       panelHeaderColor:   StartMenuSetting.panelHeaderColor,
       primaryFontColor:   StartMenuSetting.primaryFontColor,
       secondaryFontColor: StartMenuSetting.secondaryFontColor,
+      acceptText:         StartMenuSetting.acceptText,
+      itemNames:          ItemNames,
       receiverSetting:    ReceiverSetting,
       itemSpriteLibrary:  ItemSpriteLibrary,
       themeAssets:        ThemeAssets,
+      categoryStyles:     CategoryStyles,
       onStart: () => {
         this.physics.resume();
         this.spawnItem();

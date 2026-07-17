@@ -1436,8 +1436,7 @@ body.hub-mode {
     font-size: 30px;
 }
 
-.leaderboard-screen {
-}
+.leaderboard-screen {}
 
 .leaderboard-topbar {
     grid-template-columns: 76px minmax(0, 1fr);
@@ -1699,7 +1698,7 @@ body.hub-mode {
 /* Gender-specific celebration character replacing the success emoji. Adjust
    width/height here to resize; object-fit keeps the square art undistorted. */
 .checkin-success-image {
-/*    width: clamp(150px, 40vw, 200px);
+    /*    width: clamp(150px, 40vw, 200px);
     height: clamp(150px, 40vw, 200px);*/
     object-fit: contain;
 }
@@ -2404,46 +2403,102 @@ body.hub-mode {
 /* =====================================================
    DEBUG: text container bounds — REMOVE WHEN DONE
    ===================================================== */
-/* .result-how-to-play-title  { outline: 2px dashed #e91e63; } */   /* pink   – "วิธีการเล่น" label */
-/* .result-how-to-play-text   { outline: 2px dashed #2196f3; } */   /* blue   – instruction text   */
-/* .result-level-info         { outline: 2px dashed #ff9800; } */   /* orange – level row          */
-/* .result-level-detail       { outline: 2px dashed #4caf50; } */   /* green  – level detail text  */
+/* .result-how-to-play-title  { outline: 2px dashed #e91e63; } */
+/* pink   – "วิธีการเล่น" label */
+/* .result-how-to-play-text   { outline: 2px dashed #2196f3; } */
+/* blue   – instruction text   */
+/* .result-level-info         { outline: 2px dashed #ff9800; } */
+/* orange – level row          */
+/* .result-level-detail       { outline: 2px dashed #4caf50; } */
+/* green  – level detail text  */
 
-/* Tutorial Panel specific styles */
 .result-panel--tutorial {
-    height: 1700px;
+    height: auto;
+    padding-bottom: 0;
 }
 
-.result-btn-home--tutorial {
-    top: 1740px;
-    /* 1700 + 40 */
+.tutorial-wrapper {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 876px;
+}
+
+.tutorial-nav-row {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    width: 876px;
+    margin-top: 40px;
+}
+
+.tutorial-nav-btn {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 360px;
+    height: 180px;
+    font-size: 60px;
+    border-radius: 80px;
+}
+
+.tutorial-nav-btn:active {
+    transform: scale(0.95) !important;
+}
+
+.tutorial-nav-btn--back {
+    background: linear-gradient(to bottom, #FFAF5E, #FF6E30);
+    box-shadow: inset 0 -10px 0 0 #CF6635, 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tutorial-nav-btn--forward {
+    background: linear-gradient(to bottom, #7DD74C, #4A9D1D);
+    box-shadow: inset 0 -10px 0 0 #41861D, 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tutorial-nav-btn--start {
+    background: linear-gradient(to bottom, #7DD74C, #4A9D1D);
+    box-shadow: inset 0 -10px 0 0 #41861D, 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tutorial-nav-btn--hidden {
+    display: none !important;
 }
 
 /* Context Clues & Zoo Detective: taller panel (+60px) with level indicator anchored to the bottom */
 .result-panel--context-clues,
 .result-panel--zoo-detective {
-    height: 1379px; /* 1319 + 60 */
-    margin-top: -60px; /* shift panel up so start button matches other games */
+    height: 1379px;
+    /* 1319 + 60 */
+    margin-top: -60px;
+    /* shift panel up so start button matches other games */
 }
 
 .result-panel--context-clues .result-btn-home,
 .result-panel--zoo-detective .result-btn-home {
-    top: 1419px; /* 1379 + 40 */
+    top: 1419px;
+    /* 1379 + 40 */
 }
 
 .result-panel--context-clues .result-divider,
 .result-panel--zoo-detective .result-divider {
-    top: 1140px; /* after 2-line how-to-play text (~1064px) + gap */
+    top: 1140px;
+    /* after 2-line how-to-play text (~1064px) + gap */
 }
 
 .result-panel--context-clues .result-level-info,
 .result-panel--zoo-detective .result-level-info {
-    top: 1165px; /* 40px below divider */
+    top: 1165px;
+    /* 40px below divider */
 }
 
 .result-panel--context-clues .result-level-detail,
 .result-panel--zoo-detective .result-level-detail {
-    top: 1265px; /* below level-info row */
+    top: 1265px;
+    /* below level-info row */
 }
 
 /* Zoo Feeder Custom DOM Top UI */
@@ -2656,11 +2711,12 @@ z-index: 2 !important;
 /* Dynamic Panel (Flex Layout) */
 .dynamic-panel {
     height: auto !important;
-    min-height: 1319px;
+    min-height: 1000px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-bottom: 40px; /* Some padding at bottom of content */
+    padding-bottom: 40px;
+    /* Some padding at bottom of content */
 }
 
 /* Ensure absolute elements are relative inside dynamic-panel */
@@ -2730,5 +2786,6 @@ z-index: 2 !important;
 /* Let the button remain absolute at the bottom, pinned to the very end of the auto-height panel */
 .dynamic-panel .result-btn-home {
     top: auto;
-    bottom: -268px; /* 40px gap + 228px height */
-}
+    bottom: -268px;
+    /* 40px gap + 228px height */
+}

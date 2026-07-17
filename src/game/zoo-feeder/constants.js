@@ -21,7 +21,9 @@ export const GameOverSetting = Object.freeze({
 // ---------------------------------------------------------------------------
 export const ItemCategory = Object.freeze(activeTheme.ItemCategory);
 export const ItemSpriteLibrary = activeTheme.ItemSpriteLibrary;
+export const ItemNames = Object.freeze(activeTheme.ItemNames || {});
 export const ReceiverSetting = Object.freeze(activeTheme.ReceiverSetting);
+export const CategoryStyles = Object.freeze(activeTheme.CategoryStyles || {});
 
 // ---------------------------------------------------------------------------
 // Gameplay Messages
