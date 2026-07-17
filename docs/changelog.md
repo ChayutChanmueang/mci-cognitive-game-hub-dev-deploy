@@ -54,16 +54,17 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.1.3` | 2026-07-13 | US-E9-11 Sign-up dates are entered and shown in **พ.ศ.** (วัน/เดือน/ปี selects replacing `<input type="date">`, which can only render ค.ศ.); DB keeps ค.ศ. Patient-Info card now prints the full Buddhist year (`15/01/2510`) instead of a 2-digit one — owner verified on device |
 | `1.1.4` | 2026-07-14 | US-E9-12 game-exit popup layout aligned with `popup-dialog.js` via shared `renderConfirmDialog` — owner verified on device |
 | `1.1.5` | 2026-07-15 | US-E9-07 (partial) — `sparkle-effect.js` tuned for check-in tree growth burst (`sMinMax`, spread/cancel lifecycle) |
-| `1.1.6` | 2026-07-17 | **(current)** US-E9-05 full player data export (complete set, no data loss) |
+| `1.1.6` | 2026-07-17 | US-E9-05 full player data export (complete set, no data loss) |
+| `1.1.7` | 2026-07-17 | **(current)** US-E9-13 internet-loss character art refresh + SW cache bump |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
-## [2026-07-17] - US-E9-13 In Progress — internet-loss art refresh (docs)
-**Docs-only** — no `package.json` bump (ยัง `1.1.6`).
+## [1.1.7] - 2026-07-17
+**Version bump:** `1.1.6 → 1.1.7` (**PATCH**) — US-E9-13 refresh offline popup character art (`*_internet_loss.png`) so players see the updated คุณตา/คุณยาย climbing-palm art; bump SW `CACHE_VERSION` so stale precached PNGs are replaced.
 
 ### Changed
-- เพิ่ม [US-E9-13](agile/user-stories/US-E9-13.md) → **🔵 In Progress** — อัปเดต `OldWoman_internet_loss.png` / `OldMan_internet_loss.png` (ต่อยอด US-E7-27)
-- Product backlog (Sprint 10), kanban, sprint-10, US-E7-27 cross-ref
+- **US-E9-13 — อัปเดต art popup อินเทอร์เน็ตหายไปแล้ว.** แทนที่ `OldWoman_internet_loss.png` / `OldMan_internet_loss.png`; `public/sw.js` `CACHE_VERSION` `v2` → `v3`
+- Agile docs: [US-E9-13](agile/user-stories/US-E9-13.md) → ✅ Done (v1.1.7); product backlog, kanban, sprint-10, sprint planning, `docs/index.md`
 
 ## [1.1.6] - 2026-07-17
 **Version bump:** `1.1.5 → 1.1.6` (**PATCH**) — US-E9-05 full player data export so admin/research can pull a complete player dataset without loss.

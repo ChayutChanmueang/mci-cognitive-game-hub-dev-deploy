@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-17 | **Release:** [v1.1.6](../changelog.md) — Current | **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (US-E9-13 In Progress; US-E9-05 Done; US-E9-07/09 Backlog)
+**Last Updated:** 2026-07-17 | **Release:** [v1.1.7](../changelog.md) — Current | **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (US-E9-13/05 Done; US-E9-07/09 Backlog)
 
 ## 🎯 Product Vision
 
@@ -173,11 +173,12 @@
 | ID                                     | User Story                                                                                       | Priority | Status                     |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------ | -------- | -------------------------- |
 | [US-E9-05](./user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Edge Function / pagination)                                | Med      | ✅ Done (v1.1.6)            |
+| [US-E9-13](./user-stories/US-E9-13.md) | อัปเดต art popup อินเทอร์เน็ตหาย — `*_internet_loss.png`                                          | Med      | ✅ Done (v1.1.7)            |
 | [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline)                                 | High     | 📋 Backlog                 |
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                 | Med      | 📋 Backlog                 |
 
-> ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) — [US-E9-13](./user-stories/US-E9-13.md) 🔵 In Progress (internet-loss art); [US-E9-05](./user-stories/US-E9-05.md) ✅ Done; [US-E9-07](./user-stories/US-E9-07.md)/[US-E9-09](./user-stories/US-E9-09.md) Backlog
-> ⤷ US-E9-13 ต่อยอด [US-E7-27](./user-stories/US-E7-27.md) — เปลี่ยน `OldWoman_internet_loss.png` / `OldMan_internet_loss.png`
+> ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) — [US-E9-13](./user-stories/US-E9-13.md)/[US-E9-05](./user-stories/US-E9-05.md) ✅ Done; [US-E9-07](./user-stories/US-E9-07.md)/[US-E9-09](./user-stories/US-E9-09.md) Backlog
+> ⤷ US-E9-13 ต่อยอด [US-E7-27](./user-stories/US-E7-27.md) — art `*_internet_loss.png` + SW `CACHE_VERSION` v3 (**v1.1.7**)
 > ⤷ [US-E9-07](./user-stories/US-E9-07.md) sparkle slice shipped **v1.1.5**; confetti + Phaser remainder ค้าง Backlog
 > ⤷ Epic ยังเป็น E9 (Field Feedback); แยกตารางตาม sprint เพื่อติดตามงานที่ carry-over
 > ⤷ US-E8-01 → [Sprint 08](./sprint-backlogs/sprint-08.md); US-E7-* → [Sprint 07](./sprint-backlogs/sprint-07.md)

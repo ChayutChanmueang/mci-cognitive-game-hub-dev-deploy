@@ -106,7 +106,7 @@ gantt
 
 ### 🔧 E9: Field Feedback Hotfixes (Post-1.0 — ลงพื้นที่)
 - **Sprint 9:** P0 gameplay — [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md) ✅ Done — **Completed** 2026-07-17
-- **Sprint 10 (Active):** ~~full data export~~ ✅ Done → [US-E9-05](user-stories/US-E9-05.md); A10s/font scale Backlog → [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
+- **Sprint 10 (Active):** ~~full data export~~ ✅ [US-E9-05](user-stories/US-E9-05.md); ~~internet-loss art~~ ✅ [US-E9-13](user-stories/US-E9-13.md); A10s/font scale Backlog → [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
 **Shipped so far (Sprint 9):**
@@ -129,8 +129,9 @@ gantt
 | Story | Version | Verified |
 | :--- | :--- | :--- |
 | [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | `1.1.6` | ✅ Done 2026-07-17 |
+| [US-E9-13](user-stories/US-E9-13.md) อัปเดต art popup อินเทอร์เน็ตหาย | `1.1.7` | ✅ Done 2026-07-17 |
 
-- **2026-07-17:** [US-E9-05](user-stories/US-E9-05.md) ✅ Done; Sprint 10 kickoff; Sprint 09 Completed
+- **2026-07-17:** [US-E9-13](user-stories/US-E9-13.md) ✅ Done (**v1.1.7**); [US-E9-05](user-stories/US-E9-05.md) ✅ Done; Sprint 10 kickoff; Sprint 09 Completed
 - **2026-07-15:** US-E9-07 sparkle-effect partial → **v1.1.5**
 - **2026-07-14:** US-E9-01..04 ✅ Done; US-E9-05/07/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
 

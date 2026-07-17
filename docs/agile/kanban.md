@@ -9,7 +9,6 @@ kanban-plugin: board
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
 
 ## 🔵 In Progress (WIP Limit: 3)
-- [ ] [US-E9-13](user-stories/US-E9-13.md) 🟠 อัปเดต art popup อินเทอร์เน็ตหาย — `*_internet_loss.png` (Sprint 10)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 
 
@@ -18,6 +17,7 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E9-13](user-stories/US-E9-13.md) อัปเดต art popup อินเทอร์เน็ตหาย — `*_internet_loss.png` (v1.1.7) — ✅ Done 2026-07-17 (Sprint 10)
 - [x] [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลครบชุด (v1.1.6) — ✅ Done 2026-07-17 (Sprint 10)
 - [x] [US-E9-01](user-stories/US-E9-01.md) Symmetry Decor — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง, เส้นแบ่งชัด, จบเมื่อหมดเวลา — ✅ Done 2026-07-14
 - [x] [US-E9-02](user-stories/US-E9-02.md) Fry Food — ปุ่มข้ามเมื่อไม่มี Gyroscope — ✅ Done 2026-07-14
