@@ -29,7 +29,7 @@ gantt
 ## 📋 Committed Stories & Tasks
 | ID | Story / Task / Tech Debt | Priority | Status |
 |----|--------------------------|----------|--------|
-| [US-E3-06](../user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | High | 🏗 In-Progress |
+| [US-E3-06](../user-stories/US-E3-06.md) | เกมจำสัตว์ (ความจำขณะทำงาน/Working Memory) - ระบบคำถามคั่นเวลา | High | ✅ Done |
 | [US-E3-07](../user-stories/archives/US-E3-07.md) | เกม Fry Food (ทอดไข่/ทอดอาหาร) และการควบคุมด้วย Accelerometer | Med | ✅ Done |
 | [US-E3-08](../user-stories/archives/US-E3-08.md) | ระบบติดตั้งแอปพลิเคชันแบบ Progressive Web App (PWA) | Low | ✅ Done |
 | [US-E4-03](../user-stories/archives/US-E4-03.md) | บันทึกข้อมูลเชิงลึก (Accuracy, Reaction Time, Fatigue Effect) | Med | ✅ Done |

@@ -23,6 +23,16 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
     const slotStrokeWidth = style.slotStrokeWidth ?? 3;
     const slotFillColor = style.slotFillColor ?? 0xffffff;
     const slotFillAlpha = style.slotFillAlpha ?? 0.15;
+    // Blank-slot sizing config (from QuizUI_Setting.setting.blankSlot). Each is optional:
+    //   size    -> visible dashed box size (width overrides the auto width; height
+    //              overrides the line-height-derived box height `maxHeight`)
+    //   hitArea -> invisible drop/collision rect size (defaults to the visible size)
+    //   offset  -> nudge the slot (border + rect + hint) without moving the sentence flow
+    const blankSlot = style.blankSlot ?? null;
+    const slotWidthOverride = Number(blankSlot?.size?.x) || 0;
+    const slotVisHeight = Number(blankSlot?.size?.y) || maxHeight;
+    const slotOffsetX = Number(blankSlot?.offset?.x) || 0;
+    const slotOffsetY = Number(blankSlot?.offset?.y) || 0;
     const slot = [];
     const slotLabel = [];
     const slotBorder = [];
@@ -76,10 +86,14 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
         }
 
         if (i + 1 < textParts.length) {
-            const answerWidth = Math.max(
+            // Visible slot width: explicit config wins, else auto-fit to slotWidth/text.
+            const answerWidth = slotWidthOverride || Math.max(
                 minSlotWidth,
                 measureTextWidth(scene, blankWord.text || " ", labelTextStyle)
             );
+            // Drop/collision rect size — defaults to the visible size (US-E7-23).
+            const hitWidth = Number(blankSlot?.hitArea?.x) || answerWidth;
+            const hitHeight = Number(blankSlot?.hitArea?.y) || slotVisHeight;
 
             if (cursorX + answerWidth > lineLimit && cursorX > 0) {
                 cursorX = 0;
@@ -87,32 +101,39 @@ export function createInlineSentence(scene, x, y, maxWidth, maxHeight, textParts
                 lineIndex += 1;
             }
 
-            const slotCenterX = cursorX + (answerWidth * origin.x);
+            const slotCenterX = cursorX + (answerWidth * origin.x) + slotOffsetX;
+            const slotCenterY = cursorY + (maxHeight * (origin.y - 0.5)) + slotOffsetY;
+            // Geometric center of the visible box (independent of origin), used to keep
+            // the drop rect concentric with the slot even when hitArea differs from size.
+            const slotGeoCenterX = slotCenterX + (answerWidth * (0.5 - origin.x));
+            const slotGeoCenterY = slotCenterY + (slotVisHeight * (0.5 - origin.y));
 
             // Dashed border visual — canvas texture (white dashes), tinted to slotStrokeColor
-            const borderTexKey = createDashedSlotTexture(scene, answerWidth, maxHeight, slotStrokeWidth);
+            const borderTexKey = createDashedSlotTexture(scene, answerWidth, slotVisHeight, slotStrokeWidth);
             const borderImg = scene.add.image(
                 slotCenterX,
-                cursorY + (maxHeight * (origin.y - 0.5)),
+                slotCenterY,
                 borderTexKey
             ).setOrigin(origin.x, origin.y).setTint(slotStrokeColor);
 
-            // Drop zone rect — invisible, used only for DragDrop interaction
+            // Drop zone rect — invisible, used only for DragDrop interaction. Kept
+            // concentric with the visible box (origin 0.5) so a larger hitArea grows
+            // symmetrically around the slot instead of drifting to one side.
             const rect = scene.add.rectangle(
-                slotCenterX,
-                cursorY + (maxHeight * (origin.y - 0.5)),
-                answerWidth,
-                maxHeight,
+                slotGeoCenterX,
+                slotGeoCenterY,
+                hitWidth,
+                hitHeight,
                 slotFillColor,
                 slotFillAlpha
-            ).setOrigin(origin.x, origin.y);
+            ).setOrigin(0.5, 0.5);
 
             rect.setData("slotId", `slot-${i}`);
             rect.setData("lineIndex", lineIndex);
 
             const hint = scene.add.text(
-                cursorX + (answerWidth / 2),
-                cursorY,
+                slotCenterX + ((answerWidth / 2) - (answerWidth * origin.x)),
+                cursorY + slotOffsetY,
                 blankWord.isRender ? blankWord.text : "",
                 labelTextStyle
             ).setOrigin(0.5, 0.5);

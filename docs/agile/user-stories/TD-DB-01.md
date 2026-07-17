@@ -33,9 +33,9 @@
 
 ## 🔗 Related Files
 - Schema Document: [03-data-schema.md](../../software/03-data-schema.md)
-- Database Client: [src/core/database.js](../../../../src/core/database.js)
-- Main Controller: [src/main.js](../../../../src/main.js)
-- UI player info: [src/ui/player-info-screen.js](../../../../src/ui/player-info-screen.js)
-- UI signup form: [src/ui/signup-screen.js](../../../../src/ui/signup-screen.js)
+- Database Client: [src/core/database.js](../../../src/core/database.js)
+- Main Controller: [src/main.js](../../../src/main.js)
+- UI player info: [src/ui/player-info-screen.js](../../../src/ui/player-info-screen.js)
+- UI signup form: [src/ui/signup-screen.js](../../../src/ui/signup-screen.js)
 - Product Backlog: [01-product-backlog](../01-product-backlog.md)
 - Sprint 6 Backlog: [sprint-06.md](../sprint-backlogs/sprint-06.md)

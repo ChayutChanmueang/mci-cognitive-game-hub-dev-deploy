@@ -59,6 +59,7 @@ export class MinigameHUD {
             "zoo-detective",
             "context-clues",
             "symmetry-decor",
+            "symmetry-decor-household",
             "postcard-reader",
             "fry-food",
         ];
@@ -71,13 +72,16 @@ export class MinigameHUD {
             const iconSrc = "assets/icon_star.png";
 
             topbarHtml = `
-                <div class="minigame-hud__score-box">
-                    <img src="${iconSrc}" class="minigame-hud__score-star" alt="icon" />
-                    <span class="minigame-hud__score-text"><span id="hud-score">${scoreLabelText}</span></span>
-                </div>
-                <div class="minigame-hud__time-box">
-                    <img src="assets/icon_time.png" class="minigame-hud__time-icon" alt="time" />
-                    <span class="minigame-hud__time-text"><span id="hud-time-display">${formatTime(timeLeft)}</span></span>
+                <img id="hud-exit-button" src="assets/common/ui_icon/return_btn.png" alt="Return" class="minigame-hud__exit-btn-inline" />
+                <div class="minigame-hud__center-group">
+                    <div class="minigame-hud__score-box">
+                        <img src="${iconSrc}" class="minigame-hud__score-star" alt="icon" />
+                        <span class="minigame-hud__score-text"><span id="hud-score">${scoreLabelText}</span></span>
+                    </div>
+                    <div class="minigame-hud__time-box">
+                        <img src="assets/icon_time.png" class="minigame-hud__time-icon" alt="time" />
+                        <span class="minigame-hud__time-text"><span id="hud-time-display">${formatTime(timeLeft)}</span></span>
+                    </div>
                 </div>
             `;
         } else {
@@ -135,6 +139,59 @@ export class MinigameHUD {
 
         this.root.appendChild(container);
         this.initEvents();
+
+        this.resizeObserver = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                const width = entry.contentRect.width;
+                const height = entry.contentRect.height;
+                const topbar = this.element.querySelector(".minigame-hud__topbar");
+                const centerGroup = this.element.querySelector(".minigame-hud__center-group");
+                const exitBtn = this.element.querySelector("img.minigame-hud__exit-btn-inline");
+                
+                if (topbar && centerGroup && exitBtn) {
+                    const heightRatio = height > 0 ? height / 932 : 1;
+
+                    // Score star icon overflows left by 30px, so we need extra buffer
+                    const breakpointOverlapCenter = 590 * heightRatio;
+                    const breakpointOverlapRight = 480 * heightRatio;
+                    
+                    let scale = heightRatio;
+
+                    if (width < breakpointOverlapRight && width > 0) {
+                        // Needs additional scaling to fit width if height scaling wasn't enough
+                        scale = width / 480; 
+                        centerGroup.classList.add("minigame-hud__center-group--push-right");
+                    } else if (width < breakpointOverlapCenter && width > 0) {
+                        // Right alignment only
+                        centerGroup.classList.add("minigame-hud__center-group--push-right");
+                    } else {
+                        // Normal centered state
+                        centerGroup.classList.remove("minigame-hud__center-group--push-right");
+                    }
+
+                    // Apply final scale to components
+                    centerGroup.style.transform = `scale(${scale})`;
+                    centerGroup.style.transformOrigin = centerGroup.classList.contains("minigame-hud__center-group--push-right") ? "right center" : "center center";
+                    
+                    exitBtn.style.transform = `translateY(-50%) scale(${scale})`;
+                    exitBtn.style.transformOrigin = "left center";
+
+                    // Scale the topbar background height
+                    topbar.style.height = `${99 * scale}px`;
+                    
+                    // Also scale the timer wrap if it exists for postcard-reader and fry-food
+                    const timerWrap = this.element.querySelector(".minigame-hud__timer-wrap");
+                    if (timerWrap && (this.options.gameSlug === "postcard-reader" || this.options.gameSlug === "fry-food")) {
+                        timerWrap.style.setProperty('transform', `translateX(-50%) scale(${scale})`, 'important');
+                        timerWrap.style.setProperty('transform-origin', 'top center', 'important');
+                        timerWrap.style.setProperty('top', `${105 * scale}px`, 'important');
+                    }
+                }
+            }
+        });
+        if (this.root) {
+            this.resizeObserver.observe(this.root);
+        }
     }
 
     initEvents() {
@@ -147,6 +204,9 @@ export class MinigameHUD {
         EventBus.on("minigame:show-hud", this.boundOnShow);
         EventBus.on("minigame:hide-hud", this.boundOnHide);
         EventBus.on("minigame:menu-mode", this.boundOnMenuMode);
+        
+        this.boundOnTimerText = this.onTimerText.bind(this);
+        EventBus.on("minigame:timer-text", this.boundOnTimerText);
         
         this.boundOnShowTimer = () => { if (this.timerWrap) this.timerWrap.style.display = ""; };
         this.boundOnHideTimer = () => { if (this.timerWrap) this.timerWrap.style.display = "none"; };
@@ -229,6 +289,15 @@ export class MinigameHUD {
         }
     }
 
+    onTimerText({ text }) {
+        if (this.timeElement) {
+            this.timeElement.textContent = text;
+        }
+        if (this.timeDisplayElement) {
+            this.timeDisplayElement.textContent = text;
+        }
+    }
+
     onGameOver(data) {
         // Handle game over (maybe show result panel)
     }
@@ -294,8 +363,15 @@ export class MinigameHUD {
         EventBus.off("minigame:show-hud", this.boundOnShow);
         EventBus.off("minigame:hide-hud", this.boundOnHide);
         EventBus.off("minigame:menu-mode", this.boundOnMenuMode);
+        EventBus.off("minigame:timer-text", this.boundOnTimerText);
         EventBus.off("minigame:show-timer", this.boundOnShowTimer);
         EventBus.off("minigame:hide-timer", this.boundOnHideTimer);
+        
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
+
         this.element?.remove();
     }
 

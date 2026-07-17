@@ -56,6 +56,31 @@
         };
       })();
     </script>
+    <!-- Boot loading overlay (BUG-005 / PB-01-01 follow-up): modal cover shown immediately on
+         load and removed by main.js once the first screen has finished rendering. Critical inline
+         styles so it paints before style.css / fonts arrive.
+         US-E7-20: this is COPY #1 of TWO intentional loading screens. COPY #2 is the reusable JS
+         component `src/ui/loading-overlay.js`, shown on later Game Hub / minigame navigations
+         (when this boot overlay is already gone). Keep the markup + look of both in sync. -->
+    <div id="app-loading" role="status" aria-live="polite" aria-label="กำลังโหลด"
+         style="position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:linear-gradient(180deg,#8be298 0%,#6ed8ff 100%);">
+        <img
+            class="app-loading__logo"
+            src="/Logo.png"
+            alt="Game Logo"
+            width="360"
+            height="327"
+            decoding="async"
+        />
+        <div class="dotted-loader" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
     <div id="app">
         <div id="ui-root"></div>
         <div id="game-container"></div>

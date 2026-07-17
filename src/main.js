@@ -1,3 +1,4 @@
+import "../public/components.css";
 import db from "./core/database.js";
 import edgeFunction from "./core/edge-function.js";
 import { renderCheckInSummaryScreen } from "./ui/checkin-summary-screen.js";
@@ -10,6 +11,8 @@ import { renderLoginScreen } from "./ui/login-screen.js";
 import { renderPlayerInfoScreen } from "./ui/player-info-screen.js";
 import { showPopup } from "./ui/popup-dialog.js";
 import { showGameExitPopup } from "./ui/game-exit-popup.js";
+import { showLoadingOverlay, hideLoadingOverlay } from "./ui/loading-overlay.js";
+import { renderWithFade } from "./ui/transition/screen-transition.js";
 import { renderSignupScreen } from "./ui/signup-screen.js";
 import { renderDailyPresetTool } from "./tools/daily-preset-tool.js";
 import { renderDailyPresetEditor } from "./tools/daily-preset-editor.js";
@@ -46,11 +49,13 @@ import { getProgramDateRange } from "./util/program-date-util.js";
 import StringUtil from "./util/string-util.js";
 import { EventBus } from "./core/EventBus.js";
 import AudioManager from "./core/audio-manager.js";
+import internetManager from "./core/internet-manager.js";
 import { MinigameHUD } from "./ui/minigame-hud.js";
 import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
 import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
+import screenWakeLock from "./core/wake-lock-manager.js"; // US-E9-06
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -71,7 +76,7 @@ const GAME_ROUTE_PREFIX = "#/game/";
 const HUB_ROUTE_PREFIX = "#/hub/";
 const DEFAULT_HUB_SCENE = "intro";
 const DEFAULT_HUB_CATEGORY = "Attention";
-const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive"]);
+const HUB_CATEGORIES = new Set(["Memory", "Visuospatial", "Attention", "Language", "Executive", "Physical"]);
 const PATIENT_LOGIN_ID_KEY = "patient_login_id";
 const PATIENT_SIGNUP_DRAFT_KEY = "patient_signup_draft";
 const PENDING_GAME_LAUNCH_KEY = "pending_game_launch_gid";
@@ -80,6 +85,7 @@ const BACK_BUTTON_PROTECTED_SLUGS = new Set([
     "medicine-feeder",
     "postcard-reader",
     "symmetry-decor",
+    "symmetry-decor-household",
     "context-clues",
     "zoo-detective",
     "fry-food",
@@ -89,6 +95,7 @@ const GAME_COLORS = Object.freeze({
     "medicine-feeder": { border: "#2A7CC7", header: "#4A9FE0", textPrimary: "#1A4F82", textSecondary: "#2A7CC7" },
     "zoo-detective": { border: "#2D8FBA", header: "#45A9D4", textPrimary: "#235B75", textSecondary: "#3D86A8" },
     "symmetry-decor": { border: "#DB4670", header: "#FF5585", textPrimary: "#A83855", textSecondary: "#F26A8D" },
+    "symmetry-decor-household": { border: "#446A46", header: "#619B64", textPrimary: "#2C452E", textSecondary: "#3E6641" },
     "postcard-reader": { border: "#54AC24", header: "#65BD35", textPrimary: "#446930", textSecondary: "#6F9F55" },
     "context-clues": { border: "#C73969", header: "#E34F81", textPrimary: "#8F2448", textSecondary: "#C8577C" },
     "fry-food": { border: "#DE8D23", header: "#FEA837", textPrimary: "#945E17", textSecondary: "#DE8519" },
@@ -118,6 +125,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const app = document.getElementById("app");
     const uiRoot = document.getElementById("ui-root");
     const gameContainer = document.getElementById("game-container");
+
+    // App version badge (US-E7-05): shows on every DOM page (Game Hub, Login, Sign-up,
+    // Leaderboard, Player-Info, Popups, …) and is hidden while a minigame is active —
+    // hide/show is driven purely by the `body.game-mode` class via CSS, so no JS toggling
+    // is needed on route changes. Version comes from package.json (single source of truth),
+    // injected at build time by Vite's `define` as `__APP_VERSION__`.
+    const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "";
+    if (APP_VERSION && !document.getElementById("app-version-badge")) {
+        const badge = document.createElement("div");
+        badge.id = "app-version-badge";
+        badge.className = "app-version-badge";
+        badge.setAttribute("aria-hidden", "true");
+        badge.textContent = `v${APP_VERSION}`;
+        document.body.appendChild(badge);
+    }
     const hubUiState = createGameHubState();
     const testGameHubUiState = createTestGameHubState();
     let activeGameInstance = null;
@@ -125,6 +147,24 @@ document.addEventListener("DOMContentLoaded", () => {
     let routeRenderVersion = 0;
     let exitLogHn = "";
     let gameOpenedLogged = false;
+
+    // Boot loading overlay (markup in index.html). It's a modal cover that blocks interaction
+    // until the first screen is fully rendered, so the user can't tap a game/leaderboard before
+    // data is ready. Dismissed exactly once; a safety timeout guarantees it can never trap the
+    // user behind it if a load hangs.
+    let bootLoadingDismissed = false;
+    const finishBootLoading = () => {
+        if (bootLoadingDismissed) {
+            return;
+        }
+        bootLoadingDismissed = true;
+        const overlay = document.getElementById("app-loading");
+        if (!overlay) {
+            return;
+        }
+        overlay.classList.add("app-loading--hidden");
+        setTimeout(() => overlay.remove(), 400);
+    };
 
     // Back-button guard state: tracks whether a protected minigame is active.
     // Uses a pushState sentinel so back press keeps the URL stable (popstate handler),
@@ -137,6 +177,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize the global audio system
     AudioManager.init();
+
+    // US-E7-27: watch connectivity and show the "อินเทอร์เน็ตหายไปแล้ว" popup when the
+    // connection drops (auto-closes when it returns). On reconnect, re-render the current
+    // route so any data that failed to load while offline is refreshed.
+    internetManager
+        .configure({
+            onReconnect: () => {
+                void renderCurrentRoute();
+            },
+        })
+        .start();
 
     const handleBeforeUnload = () => {
         if (exitLogHn) {
@@ -158,6 +209,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const destroyActiveGame = () => {
+        // US-E9-06: stop holding the screen awake once the player leaves the game.
+        // This is the single teardown chokepoint, so it covers every exit path
+        // (exit button, game-over, back navigation, route change).
+        screenWakeLock.release("minigame");
+
         // Unregister game sounds IMMEDIATELY, before any Phaser destroy logic can potentially throw an error
         if (currentGameSlug) {
             EventBus.emit('audio:unregister', currentGameSlug);
@@ -173,12 +229,39 @@ document.addEventListener("DOMContentLoaded", () => {
                     activeGameInstance.scale.stopFullscreen();
                 } catch (e) { }
             }
+
+            // US-E9-07: Phaser 3.90's WebGLRenderer.destroy() nulls its `gl` reference but
+            // never calls loseContext(), so the GL context survives until GC. Each minigame
+            // launch builds a new canvas + context, so they accumulate; past ~16 the browser
+            // force-drops the oldest, and on low-RAM devices the GPU process dies first.
+            // Grab the context now — the renderer discards it during destroy.
+            const abandonedGl = activeGameInstance.renderer?.gl || null;
+
             try {
                 if (typeof activeGameInstance.destroy === "function") {
                     activeGameInstance.destroy(true);
                 }
             } catch (e) {
                 console.error("[Main] Error during game destruction:", e);
+            }
+
+            // Game.destroy() only sets `pendingDestroy`; the real teardown runs on the next
+            // game step. Release the context after that, so Phaser is not deleting GL objects
+            // on an already-lost context. The timeout is the backstop for when the step never
+            // comes (rAF is paused while the tab is hidden).
+            if (abandonedGl) {
+                let released = false;
+                const releaseGl = () => {
+                    if (released) {
+                        return;
+                    }
+                    released = true;
+                    try {
+                        abandonedGl.getExtension("WEBGL_lose_context")?.loseContext();
+                    } catch (e) { }
+                };
+                requestAnimationFrame(() => requestAnimationFrame(releaseGl));
+                setTimeout(releaseGl, 250);
             }
         }
 
@@ -412,19 +495,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const nextHash = hash.startsWith("#") ? hash : `#${hash}`;
 
         if (window.location.hash === nextHash) {
-            void renderCurrentRoute();
-            return;
+            // Return the promise so callers (e.g. boot) can await the first render. The hash
+            // is unchanged, so no hashchange event fires — we render directly here.
+            return renderCurrentRoute();
         }
 
         if (replace) {
             const url = new URL(window.location.href);
             url.hash = nextHash.slice(1);
             window.history.replaceState(null, "", url);
-            void renderCurrentRoute();
-            return;
+            return renderCurrentRoute();
         }
 
+        // Changing the hash triggers the hashchange listener, which renders asynchronously;
+        // there's no promise to hand back in this path.
         window.location.hash = nextHash;
+        return undefined;
     };
 
     const persistSelectedGame = (selectedGame) => {
@@ -594,11 +680,17 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // BUG-005 / PB-01-01: snapshot the route version so we can detect if the user
+        // navigates away (e.g. opens a game or the leaderboard) while this handler's data
+        // is still loading. A stale handler must NOT render the Hub over the newer route.
+        const renderVersion = routeRenderVersion;
+
         EventBus.emit("minigame:hide-hud");
 
         document.body.classList.remove("game-mode");
         document.body.classList.add("hub-mode");
         document.body.classList.remove("landing-mode");
+        document.body.classList.add("game-hub-route"); // scopes the version badge to this page
         app?.classList.remove("game-mode");
         app?.classList.add("hub-mode");
         app?.classList.remove("landing-mode");
@@ -615,13 +707,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         let patientGender = "";
+        let treeType = "a";
         if (patientCode) {
             try {
-                const patient = await db.getPatientByHn(patientCode);
+                const [patient, gameProfile] = await Promise.all([
+                    db.getPatientByHn(patientCode),
+                    db.ensureUserGameProfileTreeType({ hn: patientCode }),
+                ]);
                 patientGender = String(patient?.gender || "").trim();
+                treeType = String(gameProfile?.tree_type || "a").trim();
+                // Cache gender so the offline popup can show the right character even
+                // once the connection drops (can't hit the DB then). US-E7-27.
+                internetManager.setGender(patientGender);
             } catch (error) {
                 console.warn("Unable to load patient gender for avatar:", error);
             }
+        }
+
+        // BUG-005 / PB-01-01: bail out if the route changed during the patient load above.
+        if (renderVersion !== routeRenderVersion) {
+            return;
         }
 
         setupExitLog(patientCode);
@@ -632,6 +737,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         await renderGameHubScreen(uiRoot, {
+            // BUG-005 / PB-01-01: renderGameHubScreen renders once, then re-renders after its
+            // own async loads. This lets it skip those re-renders if the user has since left.
+            isStale: () => renderVersion !== routeRenderVersion,
+            // PB-01-02: dismiss the boot loading overlay at first paint (hub visible), not after
+            // the slow data loads. Idempotent + once-guarded, so calling it on every hub nav is safe.
+            onReady: finishBootLoading,
             loadGameList: () => db.getGameList(),
             loadProgramPresets: () => db.getGameLevelPresetList(),
             loadDailyProgram: (params) => db.getDailyGameProgramByHn(params),
@@ -653,6 +764,7 @@ document.addEventListener("DOMContentLoaded", () => {
             patientCode,
             patientLabel,
             patientGender,
+            treeType,
             initialScene: options.initialScene,
             initialCategory: options.initialCategory,
             sharedState: hubUiState,
@@ -795,7 +907,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการลบประวัติ",
                     message: "ต้องการลบประวัติการเล่นทั้งหมดของวันนี้ใช่หรือไม่",
-                    confirmText: "ลบข้อมูลวันนี้",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "delete",
                     tone: "error",
@@ -851,7 +963,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "บันทึกว่าเล่นครบทั้งหมด",
                     message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพัก โดยไม่บันทึกเช็คชื่อ",
-                    confirmText: "บันทึกข้อมูลทดสอบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "checklist",
                 });
@@ -931,7 +1043,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "logout",
                     tone: "error",
@@ -1306,6 +1418,11 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             activeGameInstance = await startGame("game-container");
 
+            // US-E9-06: keep the screen awake for the duration of the game. Acquired
+            // only after a successful launch, and after the destroyActiveGame() above
+            // has released any lock left over from a previous game.
+            screenWakeLock.acquire("minigame");
+
             // Mount Minigame HUD
             uiRoot.innerHTML = "";
             uiRoot.hidden = false;
@@ -1350,7 +1467,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const handleExit = async (eventData = {}) => {
                 const colors = eventData?.colors || activeThemeColors || GAME_COLORS[slug] || {};
                 const confirmed = await showGameExitPopup({
-                    confirmText: "ออกจากการแข่งขัน",
+                    confirmText: "ออก",
                     panelBorderColor: colors.border,
                     panelHeaderColor: colors.header,
                     primaryFontColor: colors.textPrimary,
@@ -1409,6 +1526,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 navigateTo(getGameExitRoute(selectedGame));
             };
 
+            const handleExitWithCompletion = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level} (skip)`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
+                
+                cleanup();
+                navigateTo(getGameExitRoute(selectedGame));
+            };
+
             const cleanup = () => {
                 removeBackGuard();
                 EventBus.off("minigame:exit-request", handleExit);
@@ -1416,6 +1557,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 EventBus.off("minigame:retry-request", handleRetry);
                 EventBus.off("minigame:level-select-request", handleLevelSelect);
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                EventBus.off("minigame:exit-with-completion", handleExitWithCompletion);
                 activeResultPanel?.destroy();
                 activeResultPanel = null;
                 hud.destroy();
@@ -1428,6 +1570,7 @@ document.addEventListener("DOMContentLoaded", () => {
             EventBus.on("minigame:retry-request", handleRetry);
             EventBus.on("minigame:level-select-request", handleLevelSelect);
             EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+            EventBus.on("minigame:exit-with-completion", handleExitWithCompletion);
 
             return true;
         } catch (error) {
@@ -1477,6 +1620,7 @@ document.addEventListener("DOMContentLoaded", () => {
             educationLevels,
             educationLevelsError,
             onBack: () => navigateTo(ROUTES.login),
+            loadRandomTreeType: () => db.pickRandomTreeType(),
             onSubmit: async (formData) => {
                 const patientCodeLabel = `ID ${String(formData?.hn || "").trim()}`;
                 const shouldCreatePatient = await showPopup({
@@ -1495,7 +1639,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const createdPatient = await db.createPatientProfile(formData);
 
                 try {
-                    await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
+                    await db.createUserGameProfile({
+                        hn: createdPatient?.hn || formData?.hn,
+                        treeType: formData?.treeType,
+                    });
                 } catch (error) {
                     // TODO: Replace this client-side compensation with a Supabase RPC transaction
                     // that creates user_data and user_game_profile_data atomically.
@@ -1540,7 +1687,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const shouldCreatePatient = await showPopup({
                     title: "ไม่พบเลข ID",
                     message: `ไม่พบข้อมูลผู้เล่นเลข ${patientCodeLabel} ต้องการลงทะเบียนผู้เล่นใหม่หรือไม่`,
-                    confirmText: "สร้างผู้เล่นใหม่",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "person_add",
                 });
@@ -1695,7 +1842,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "กลับไปหน้าเกม",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปหน้าเกมของผู้เล่นใช่หรือไม่",
-                    confirmText: "ออกจากระบบผู้ดูแล",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "arrow_back",
                     tone: "error",
@@ -1734,7 +1881,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและผู้เล่น แล้วกลับไปหน้าเข้าสู่ระบบใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "logout",
                     tone: "error",
@@ -1845,7 +1992,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการลบประวัติ",
                     message: "ต้องการลบประวัติการเล่นทั้งหมดของวันนี้ใช่หรือไม่",
-                    confirmText: "ลบข้อมูลวันนี้",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "delete",
                     tone: "error",
@@ -1927,7 +2074,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "บันทึกว่าเล่นครบทั้งหมด",
                     message: "ระบบจะเพิ่มประวัติทดสอบของวันนี้ให้ครบทุกเกม รวมจุดพัก โดยไม่บันทึกเช็คชื่อ",
-                    confirmText: "บันทึกข้อมูลทดสอบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "checklist",
                 });
@@ -1976,7 +2123,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const hasConfirmed = await showPopup({
                     title: "ยืนยันการออกจากระบบ",
                     message: "ต้องการออกจากระบบผู้ดูแลและกลับไปยังหน้าเกมใช่หรือไม่",
-                    confirmText: "ออกจากระบบ",
+                    confirmText: "ตกลง",
                     cancelText: "ยกเลิก",
                     icon: "logout",
                     tone: "error",
@@ -2165,14 +2312,17 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // Version badge is scoped to the Game Hub only (US-E7-05). Clear the marker on every
+        // route change; `showHub()` re-adds it so the badge shows on the Game Hub and nowhere
+        // else (CSS gates `.app-version-badge` on `body.game-hub-route`).
+        document.body.classList.remove("game-hub-route");
+
         if (route.name === "unknown") {
-            navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.home, { replace: true });
-            return;
+            return navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.home, { replace: true });
         }
 
         if ((route.name === "login" || route.name === "signup") && rememberedPatient) {
-            navigateTo(ROUTES.hub, { replace: true });
-            return;
+            return navigateTo(ROUTES.hub, { replace: true });
         }
 
         if (
@@ -2193,24 +2343,23 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             clearPatientClientState();
-            navigateTo(ROUTES.home, { replace: true });
-            return;
+            return navigateTo(ROUTES.home, { replace: true });
         }
 
         if (route.name === "home") {
-            showLanding();
+            await renderWithFade(uiRoot, () => showLanding());
             return;
         }
 
         if (route.name === "login") {
-            showLogin({
+            await renderWithFade(uiRoot, () => showLogin({
                 patientCode: SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "",
-            });
+            }));
             return;
         }
 
         if (route.name === "admin-login") {
-            showAdminLogin();
+            await renderWithFade(uiRoot, () => showAdminLogin());
             return;
         }
 
@@ -2225,44 +2374,42 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (!isAdminSession) {
-                navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
-                return;
+                return navigateTo(rememberedPatient ? ROUTES.hub : ROUTES.login, { replace: true });
             }
 
-            await showPlayerInfo();
+            await renderWithFade(uiRoot, () => showPlayerInfo());
             return;
         }
 
         if (route.name === "leaderboard") {
-            await showLeaderboard();
+            await renderWithFade(uiRoot, () => showLeaderboard());
             return;
         }
 
         if (route.name === "signup") {
             const pendingPatientCode = SessionStorageManager.get(PATIENT_LOGIN_ID_KEY, "") || "";
             if (!pendingPatientCode) {
-                navigateTo(ROUTES.login, { replace: true });
-                return;
+                return navigateTo(ROUTES.login, { replace: true });
             }
 
-            await showSignup({
+            await renderWithFade(uiRoot, () => showSignup({
                 patientCode: pendingPatientCode,
-            });
+            }));
             return;
         }
 
         if (route.name === "checkin-summary") {
-            await showCheckInSummary();
+            await renderWithFade(uiRoot, () => showCheckInSummary());
             return;
         }
 
         if (route.name === "daily-preset-tool") {
-            showDailyPresetTool();
+            await renderWithFade(uiRoot, () => showDailyPresetTool());
             return;
         }
 
         if (route.name === "daily-preset-editor") {
-            showDailyPresetEditor(route.presetId);
+            await renderWithFade(uiRoot, () => showDailyPresetEditor(route.presetId));
             return;
         }
 
@@ -2273,14 +2420,19 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (window.location.hash !== canonicalTestHubRoute) {
-                navigateTo(canonicalTestHubRoute, { replace: true });
-                return;
+                return navigateTo(canonicalTestHubRoute, { replace: true });
             }
 
-            await showTestGameHub({
-                initialScene: route.scene,
-                initialCategory: route.category,
-            });
+            // US-E7-20: Game Hub entry shows the loading overlay (not a fade).
+            showLoadingOverlay();
+            try {
+                await showTestGameHub({
+                    initialScene: route.scene,
+                    initialCategory: route.category,
+                });
+            } finally {
+                hideLoadingOverlay();
+            }
             return;
         }
 
@@ -2291,81 +2443,93 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (window.location.hash !== canonicalHubRoute) {
-                navigateTo(canonicalHubRoute, { replace: true });
-                return;
+                return navigateTo(canonicalHubRoute, { replace: true });
             }
 
-            await showHub({
-                initialScene: route.scene,
-                initialCategory: route.category,
-            });
+            // US-E7-20: Game Hub entry shows the loading overlay (not a fade).
+            showLoadingOverlay();
+            try {
+                await showHub({
+                    initialScene: route.scene,
+                    initialCategory: route.category,
+                });
+            } finally {
+                hideLoadingOverlay();
+            }
             return;
         }
 
         if (route.name === "game") {
-            let selectedGame = null;
-
+            // US-E7-20: minigame entry shows the loading overlay while the game module
+            // + Phaser boot; hidden in `finally` once the game is up (or on any exit).
+            showLoadingOverlay();
             try {
-                selectedGame = await db.getGameByGid(route.gid);
-            } catch (error) {
-                console.error(`Unable to fetch game by gid ${route.gid}:`, error);
-            }
+                let selectedGame = null;
 
-            const persistedGame = getPersistedSelectedGameByGid(route.gid);
-            selectedGame = selectedGame || persistedGame;
-            if (selectedGame && persistedGame) {
-                selectedGame = {
-                    ...selectedGame,
-                    stage: persistedGame.stage,
-                    level: persistedGame.level,
-                    day: persistedGame.day,
-                    presetDataId: persistedGame.presetDataId,
-                    displayName: persistedGame.displayName || selectedGame.displayName,
-                    th_name: persistedGame.th_name || selectedGame.th_name,
-                };
-            }
+                try {
+                    selectedGame = await db.getGameByGid(route.gid);
+                } catch (error) {
+                    console.error(`Unable to fetch game by gid ${route.gid}:`, error);
+                }
 
-            if (currentRenderVersion !== routeRenderVersion) {
-                return;
-            }
+                const persistedGame = getPersistedSelectedGameByGid(route.gid);
+                selectedGame = selectedGame || persistedGame;
+                if (selectedGame && persistedGame) {
+                    selectedGame = {
+                        ...selectedGame,
+                        stage: persistedGame.stage,
+                        level: persistedGame.level,
+                        day: persistedGame.day,
+                        presetDataId: persistedGame.presetDataId,
+                        displayName: persistedGame.displayName || selectedGame.displayName,
+                        th_name: persistedGame.th_name || selectedGame.th_name,
+                    };
+                }
 
-            if (!selectedGame) {
-                clearSelectedGameState();
-                await showPopup({
-                    title: "ไม่พบข้อมูลเกม",
-                    message: "ระบบไม่พบเกมที่ระบุในฐานข้อมูล จึงไม่สามารถเปิดเกมนี้ได้",
-                    confirmText: "กลับไปหน้าเกม",
-                    icon: "warning",
-                    tone: "error",
-                });
-                navigateTo(ROUTES.hub, { replace: true });
-                return;
-            }
+                if (currentRenderVersion !== routeRenderVersion) {
+                    return;
+                }
 
-            const canonicalRoute = getGameRouteHash(selectedGame);
-            if (window.location.hash !== canonicalRoute) {
-                navigateTo(canonicalRoute, { replace: true });
-                return;
-            }
+                if (!selectedGame) {
+                    clearSelectedGameState();
+                    await showPopup({
+                        title: "ไม่พบข้อมูลเกม",
+                        message: "ระบบไม่พบเกมที่ระบุในฐานข้อมูล จึงไม่สามารถเปิดเกมนี้ได้",
+                        confirmText: "รับทราบ",
+                        icon: "warning",
+                        tone: "error",
+                    });
+                    navigateTo(ROUTES.hub, { replace: true });
+                    return;
+                }
 
-            persistSelectedGame(selectedGame);
-            const hasStarted = await showGame(selectedGame);
+                const canonicalRoute = getGameRouteHash(selectedGame);
+                if (window.location.hash !== canonicalRoute) {
+                    navigateTo(canonicalRoute, { replace: true });
+                    return;
+                }
 
-            if (currentRenderVersion !== routeRenderVersion) {
-                return;
-            }
+                persistSelectedGame(selectedGame);
+                const hasStarted = await showGame(selectedGame);
 
-            const pendingLaunchKey = SessionStorageManager.get(PENDING_GAME_LAUNCH_KEY, "") || "";
-            const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
-            if (hasStarted && pendingLaunchKey === selectedNodeKey) {
+                if (currentRenderVersion !== routeRenderVersion) {
+                    return;
+                }
+
+                const pendingLaunchKey = SessionStorageManager.get(PENDING_GAME_LAUNCH_KEY, "") || "";
+                const selectedNodeKey = getGameHistoryNodeKey(selectedGame);
+                if (hasStarted && pendingLaunchKey === selectedNodeKey) {
+                    SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
+                    return;
+                }
+
                 SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
-                return;
-            }
-
-            SessionStorageManager.delete(PENDING_GAME_LAUNCH_KEY);
-            if (!hasStarted) {
-                removePendingGameHistoryByKey(selectedNodeKey);
-                navigateTo(getGameExitRoute(selectedGame), { replace: true });
+                if (!hasStarted) {
+                    removePendingGameHistoryByKey(selectedNodeKey);
+                    navigateTo(getGameExitRoute(selectedGame), { replace: true });
+                }
+            } finally {
+                hideLoadingOverlay();
             }
         }
     };
@@ -2442,11 +2606,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    const rememberedPatient = getPatientSessionCookie();
-    if (!window.location.hash) {
-        navigateTo(ROUTES.home, { replace: true });
-        return;
-    }
+    // Safety net: never let the boot overlay trap the user if the first render hangs. Normal
+    // dismissal is at first paint (fast), so this is just a last-resort backstop.
+    const bootLoadingSafety = setTimeout(finishBootLoading, 8000);
 
-    void renderCurrentRoute();
+    // Kick off the first route render, then dismiss the boot loading overlay once the first
+    // screen is ready. navigateTo(replace) and renderCurrentRoute both return the render promise
+    // (and redirects chain through it), so this resolves only after the real screen has painted.
+    const firstRender = !window.location.hash
+        ? navigateTo(ROUTES.home, { replace: true })
+        : renderCurrentRoute();
+
+    Promise.resolve(firstRender).finally(() => {
+        clearTimeout(bootLoadingSafety);
+        finishBootLoading();
+    });
 });

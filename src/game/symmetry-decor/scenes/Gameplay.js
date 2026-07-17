@@ -11,6 +11,7 @@ import DraggableDataComponent from "../components/scripts/draggableData";
 import { EventBus } from "../../../core/EventBus";
 
 import LevelGenerator from "../components/scripts/level-generator";
+import TutorialManager from "../components/scripts/tutorial-manager";
 import game_db from "/src/util/minigame-db-util.js";
 import EmojiRenderer from "../components/scripts/emoji-renderer";
 import SpriteRenderer from "../components/scripts/sprite-renderer";
@@ -19,17 +20,7 @@ import { showLevelCompleteEffect } from "../../common/ui-elements/scripts/level-
 import { GlobalReplayEvent } from "../../../core/replay-event.js";
 import { ReplayLogBuffer } from "../../../core/replay-log-buffer.js";
 import SessionStorageManager from "../../../core/session-storage-manager.js";
-import { GameOverSetting } from "../constants.js";
-
-// Pool of animal sprite keys (loaded in preload)
-const ANIMAL_SPRITES = [
-  'icon_bear',
-  'icon_cow',
-  'icon_elephant',
-  'icon_fox',
-  'icon_lion',
-  'icon_panda',
-];
+import { GameOverSetting, ThemeAssets, AvailableAssets } from "../constants.js";
 
 export default class GameplayScene extends Phaser.Scene {
   constructor() {
@@ -44,15 +35,11 @@ export default class GameplayScene extends Phaser.Scene {
     this.load.image('button-idle', 'assets/button_rectangle_depth_flat.png')
     this.load.image('button-press', 'assets/button_rectangle_flat.png')
 
-    // Animal icons for draggable entities
-    this.load.image('icon_bear', 'assets/common/animal/icons/H_Bear.png')
-    this.load.image('icon_cow', 'assets/common/animal/icons/H_Cow.png')
-    this.load.image('icon_elephant', 'assets/common/animal/icons/H_ele.png')
-    this.load.image('icon_fox', 'assets/common/animal/icons/H_Fox.png')
-    this.load.image('icon_lion', 'assets/common/animal/icons/H_Li.png')
-    this.load.image('icon_panda', 'assets/common/animal/icons/H_Pan.png')
-    // BG
-    this.load.image('background', 'assets/symmetry-decor/etc/BG.png')
+    // Theme assets
+    for (const [key, path] of Object.entries(ThemeAssets)) {
+        this.load.image(key, path);
+    }
+    this.load.image('tutorial_hand', 'assets/common/ui_icon/hand.png');
   }
 
   create(data) {
@@ -104,24 +91,24 @@ export default class GameplayScene extends Phaser.Scene {
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:score', { score: this.allScore });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
+    this._lastTimeLeftS = maxTimeS;
     EventBus.emit('minigame:tick', { timeLeft: maxTimeS, maxTime: maxTimeS });
 
     // Flag: timer expired while puzzle was in progress — finish puzzle first
     this.pendingGameOver = false;
+    this.isTransitioning = false;
 
     this.events.on('socketFilled', (socketComponent, entity) => {
-      if (this.isGameEnded) return;
+      if (this.isGameEnded || this.pendingGameOver) return;
 
       // Ignore non-draggable entities (blockers) — they have no DraggableDataComponent
       const draggableData = entity.getComponent(DraggableDataComponent);
       if (!draggableData) return;
 
-      console.log(`Locked into ${socketComponent.name}`);
       if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
         var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
         this.totalMove++;
         if (socketChecker.checkEntity(draggableData)) {
-          console.log("Correct Socket");
           EventBus.emit('audio:play', 'symmetry-decor:correct');
           if (!socketComponent.hasAwardedPoints) {
             socketComponent.hasAwardedPoints = true;
@@ -131,13 +118,10 @@ export default class GameplayScene extends Phaser.Scene {
               draggableData.animal,
               true,
             );
-            console.log("Correct Slot Logged");
-            console.log("Current Correct Log : " + this.correctSlotMove);
             this.allScore += 5;
             EventBus.emit('minigame:score', { score: this.allScore });
           }
           if (this.checkIfAllSocketIsFilledCorrectly()) {
-            console.log("Game Complete");
             this.handleRoundComplete();
           }
         }
@@ -148,7 +132,6 @@ export default class GameplayScene extends Phaser.Scene {
           } else {
             if (this._swapInProgress) this._swapWrongLogged = true;
             this.wrongSlotMove++;
-            console.log("Current Wrong Slot : " + this.wrongSlotMove);
             this.replayLogger.addAnswerEvent(
               GlobalReplayEvent.ANSWER_SUBMITTED,
               draggableData.animal,
@@ -170,7 +153,12 @@ export default class GameplayScene extends Phaser.Scene {
   }
 
   handleRoundComplete() {
-    if (this.isGameEnded) return;
+    if (this.isGameEnded || this.pendingGameOver) return;
+
+    if (this.tutorialManager) {
+        this.tutorialManager.destroy();
+        this.tutorialManager = null;
+    }
 
     // const addScore = Config.IncreaseScore[this.level];
     // this.allScore += addScore;
@@ -179,22 +167,21 @@ export default class GameplayScene extends Phaser.Scene {
     // Always trigger level complete effect for the final puzzle success
     showLevelCompleteEffect();
 
-    // If timer already expired, end the game after the effect
-    if (this.pendingGameOver) {
-      this.time.delayedCall(1500, () => {
-        this.onGameOver("success");
-      });
-      return;
-    }
-
-    // Otherwise, advance to the next round
+    // Advance to the next round
     this.stage++;
     EventBus.emit('minigame:score', { score: this.allScore });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
 
+    this.isTransitioning = true;
+
     // Short delay for success feedback before loading next puzzle
     this.time.delayedCall(1500, () => {
-      this.constructGrid(true);
+      this.isTransitioning = false;
+      if (!this.pendingGameOver && !this.isGameEnded) {
+        this.constructGrid(true);
+      } else if (this.pendingGameOver && !this.isGameEnded) {
+        this.onGameOver("success");
+      }
     });
   }
 
@@ -202,6 +189,12 @@ export default class GameplayScene extends Phaser.Scene {
     if (this.isGameEnded) return;
     this.isGameEnded = true;
     this.levelIsActive = false;
+    
+    if (this.tutorialManager) {
+        this.tutorialManager.destroy();
+        this.tutorialManager = null;
+    }
+
     this.gameEndedAt = new Date();
     this.replayLogger.addTimestampEvent(GlobalReplayEvent.ROUND_COMPLETED);
     this.replayLogger.pushToDatabase();
@@ -243,11 +236,22 @@ export default class GameplayScene extends Phaser.Scene {
     const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);
 
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
-    EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
+    const clampedTimeLeftS = Math.max(0, timeLeftS);
+    if (clampedTimeLeftS !== this._lastTimeLeftS) {
+      this._lastTimeLeftS = clampedTimeLeftS;
+      EventBus.emit('minigame:tick', { timeLeft: clampedTimeLeftS, maxTime: maxTimeS });
+    }
 
     if (elapsePlaytimeMS >= Config.TimeLimitMs && !this.pendingGameOver) {
-      // Let the player finish the current puzzle before ending
       this.pendingGameOver = true;
+      this.levelIsActive = false; // Stop timer updates
+
+      if (!this.isTransitioning) {
+        showLevelCompleteEffect();
+        this.time.delayedCall(1500, () => {
+          this.onGameOver("success");
+        });
+      }
     }
   }
 
@@ -260,7 +264,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     if (isProcedural) {
       const baseConfig = this.configMaker(this.level, this.stage);
-      const generatedData = this.levelGenerator.generate(baseConfig, this.stage);
+      const generatedData = this.levelGenerator.generate(baseConfig, this.stage, AvailableAssets);
       _gridConfig = generatedData.GRIDCONFIG;
       _level = generatedData.LEVEL;
       _solution = generatedData.SOLUTION;
@@ -338,6 +342,41 @@ export default class GameplayScene extends Phaser.Scene {
       }
     }
     this.grid.sort('depth');
+
+    // Disable drop-zones on the reference side
+    for (let i = 0; i < _gridConfig.columns; i++) {
+      for (let j = 0; j < _gridConfig.rows; j++) {
+        if (this.levelGenerator.isCellInRegion(
+            _gridConfig.symmetryType, 'fixed', i, j,
+            Math.floor(_gridConfig.columns / 2),
+            Math.floor(_gridConfig.rows / 2)
+        )) {
+            const cell = this.grid.getEntityAt(i, j);
+            if (cell) {
+                if (cell.input) {
+                    cell.input.dropZone = false;
+                }
+                // Make reference slot darker
+                cell.setTint(0x888888);
+                cell.setAlpha(0.5);
+            }
+        }
+      }
+    }
+
+    // Handle Tutorial
+    if (this.tutorialManager) {
+        this.tutorialManager.destroy();
+    }
+    this.tutorialManager = new TutorialManager(
+        this,
+        this.level,
+        this.grid,
+        _level,
+        _solution,
+        _gridConfig.symmetryType
+    );
+    this.tutorialManager.init();
   }
 
   configMaker(_Difficulty = Difficulty.EASY, _Level = 1) {
@@ -353,42 +392,63 @@ export default class GameplayScene extends Phaser.Scene {
     };
     switch (_Difficulty) {
       case Difficulty.EASY:
-        config.columns = 4;
+        if (_Level > 12) {
+          config.columns = 4;
+        } else if (_Level > 6 && Math.random() > 0.5) {
+          config.columns = 4;
+        } else {
+          config.columns = 2;
+        }
         config.rows = 4;
-        config.itemCount = Math.min(5, 3 + Math.floor((_Level - 1) / 2));
-        config.symmetryType = ['L-R', 'T-B'][Math.floor(Math.random() * 2)];
+        
+        if (_Level <= 3) {
+          config.itemCount = 2;
+        } else if (_Level <= 9) {
+          config.itemCount = 3;
+        } else {
+          config.itemCount = 4;
+        }
+        
+        config.symmetryType = ['L-R', 'R-L'][Math.floor(Math.random() * 2)];
         break;
       case Difficulty.NORMAL:
-        config.columns = (_Level % 2 !== 0) ? 4 : 6;
+        if (_Level >= 15) {
+          config.columns = 6;
+        } else if (_Level >= 9 && Math.random() > 0.5) {
+          config.columns = 6;
+        } else {
+          config.columns = 4;
+        }
         config.rows = config.columns;
-        config.itemCount = Math.min(8, 3 + Math.floor((_Level - 1) / 2));
-        let normalModes = ['L-R', 'T-B'];
-        if (_Level >= 5) normalModes = ['L-R', 'T-B', 'R-L', 'B-T', 'QUADRANT'];
-        else if (_Level >= 3) normalModes = ['L-R', 'T-B', 'R-L', 'B-T'];
-        config.symmetryType = normalModes[Math.floor(Math.random() * normalModes.length)];
+
+        if (_Level <= 2) {
+          config.itemCount = 3;
+        } else if (_Level <= 4) {
+          config.itemCount = 4;
+        } else if (_Level <= 6) {
+          config.itemCount = 5;
+        } else if (_Level <= 10) {
+          config.itemCount = 6;
+        } else if (_Level <= 12) {
+          config.itemCount = 7;
+        } else {
+          config.itemCount = 8;
+        }
+
+        config.symmetryType = ['L-R', 'R-L', 'T-B', 'B-T'][Math.floor(Math.random() * 4)];
         break;
       case Difficulty.HARD:
-        if (_Level >= 7) {
-          const cycle = _Level % 3;
-          if (cycle === 1) { config.columns = 4; config.rows = 4; }
-          else if (cycle === 2) { config.columns = 6; config.rows = 6; }
-          else { config.columns = 6; config.rows = 8; }
-        } else {
-          config.columns = (_Level % 2 !== 0) ? 4 : 6;
-          config.rows = config.columns;
-        }
-        config.itemCount = Math.min(8, 3 + Math.floor((_Level - 1) / 2));
-        let hardModes = ['L-R', 'T-B', 'R-L', 'B-T', 'QUADRANT', 'FOUR_WAY', 'DIAGONAL'];
-        if (config.columns !== config.rows) {
-          hardModes = hardModes.filter(mode => mode !== 'FOUR_WAY' && mode !== 'DIAGONAL');
-        }
-        config.symmetryType = hardModes[Math.floor(Math.random() * hardModes.length)];
+        config.columns = 6;
+        config.rows = 6;
+        config.itemCount = Math.min(18, 5 + Math.floor((_Level - 1) / 2));
+        config.symmetryType = ['L-R', 'R-L', 'T-B', 'B-T'][Math.floor(Math.random() * 4)];
         break;
     }
 
-    // Ensure cells are square by adjusting height based on the column/row ratio
+    // Ensure cells are square by adjusting width based on the column/row ratio
+    // This keeps the grid height constant (900) so cell sizes match visually by height
     if (config.columns > 0 && config.rows > 0) {
-      config.height = config.width * (config.rows / config.columns);
+      config.width = config.height * (config.columns / config.rows);
     }
 
     return config;

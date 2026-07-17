@@ -5,6 +5,7 @@ import {
     getProgramDateRange,
     getProgramDayDate,
     getProgramDayStatus,
+    formatThaiProgramDate,
 } from "../util/program-date-util.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
@@ -25,7 +26,7 @@ const DAILY_REQUIRED_GAME_FALLBACK = Object.freeze({
     name: "fry-food",
     th_name: "ทอดอาหาร",
     displayName: "เกมทอดอาหาร",
-    mci_group: "Executive",
+    mci_group: "Physical",
     max_score: null,
     created_at: null,
 });
@@ -61,6 +62,11 @@ const CATEGORY_META = Object.freeze({
     Executive: {
         nameTh: "บริหารสมอง",
         description: "ฝึกการวางแผน ตัดสินใจ จัดลำดับ และควบคุมการทำงานหลายขั้นตอน",
+    },
+    // US-E7-24: Fry Food (PHY001) is a movement/accelerometer game, grouped as Physical.
+    Physical: {
+        nameTh: "กายภาพ",
+        description: "ฝึกการเคลื่อนไหวและการควบคุมร่างกายผ่านการขยับ/เอียงอุปกรณ์ให้สัมพันธ์กับเกม",
     },
 });
 
@@ -211,6 +217,8 @@ function buildDayNodes(dayItem, restGame, dailyRequiredGame) {
         stage: game.stage ?? null,
         day: Number(dayItem.day),
         title: game.displayName || game.th_name || game.name || `เกมที่ ${index + 1}`,
+        // US-E9-08: attach Thai cognitive category so nodes can show it below the title.
+        category: getCategoryLabel(game.mci_group),
         gameNumber: index + 1,
         gameData: game,
     }));
@@ -234,6 +242,8 @@ function buildDayNodes(dayItem, restGame, dailyRequiredGame) {
                 name: dailyRequiredGame.name || DAILY_REQUIRED_GAME_FALLBACK.name,
             },
             categoryLabel: "ภารกิจประจำวัน",
+            // US-E9-08: expose category for pill/lesson-card rendering.
+            category: "ภารกิจประจำวัน",
             description: "เล่นเกมทอดอาหารก่อนเริ่มโปรแกรมประจำวัน",
         }
         : null;
@@ -483,7 +493,11 @@ export async function renderGameHubScreen(root, options = {}) {
     const buildLevelSections = () => {
         const prodSections = buildDaySections(state.programDays, state.restGame, state.dailyRequiredGame);
         const activeDay = getActiveDay();
-        const { programEnded: isProgramEnded } = getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+        const { programEnded: isProgramEnded, programStarted: isProgramStarted } =
+            getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+        // US-E7-29: before the program start date, no node may be "current"
+        // (no lesson card / start button) so the player cannot play early.
+        const startDateLabel = !isProgramStarted ? formatThaiProgramDate(getStartedProgram()) : "";
 
         return prodSections.map((section) => {
             const day = Number(section.day);
@@ -496,9 +510,11 @@ export async function renderGameHubScreen(root, options = {}) {
             const nodes = section.nodes.map((node, index) => {
                 const isDone = index < completion.completedCount;
                 const isCurrent = index === currentNodeIndex;
-                const nodeState = isDone ? "pass" : (isCurrent && !isProgramEnded) ? "current" : "next";
+                // A node is only "current" (with a start button) once the program
+                // has started and not yet ended.
+                const isActiveCurrent = isCurrent && !isProgramEnded && isProgramStarted;
+                const nodeState = isDone ? "pass" : isActiveCurrent ? "current" : "next";
 
-                const isGameCurrent = isCurrent && !isProgramEnded && node.type === "game";
                 const nodeObj = {
                     id: node.id,
                     type: node.type,
@@ -512,13 +528,18 @@ export async function renderGameHubScreen(root, options = {}) {
                         : undefined,
                     number: node.gameNumber || index + 1,
                     fryfood: node.type === "game" && node.emoji === "🍳" && nodeState !== "pass",
-                    disabled: isProgramEnded,
-                    sideLabel: node.type === "checkin" && isDone ? "เช็คชื่อแล้ว"
+                    disabled: isProgramEnded || !isProgramStarted,
+                    // US-E9-08: always forward cognitive category so pills can show it
+                    // below the game name (overridden again for isActiveCurrent below).
+                    category: node.category || undefined,
+                    sideLabel: (!isProgramStarted && isCurrent && startDateLabel)
+                            ? `โปรแกรมเริ่มวันที่ ${startDateLabel}`
+                            : node.type === "checkin" && isDone ? "เช็คชื่อแล้ว"
                             : node.type === "checkin" ? "รอเช็คชื่อ"
                             : node.title || `เกมที่ ${index + 1}`,
                 };
 
-                if (isCurrent && !isProgramEnded) {
+                if (isActiveCurrent) {
                     const game = node.gameData || {};
                     const categoryId = game.mci_group || "Attention";
                     nodeObj.category = getCategoryLabel(categoryId);
@@ -542,6 +563,12 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     const render = () => {
+        // BUG-005 / PB-01-01: the caller (main.js route dispatcher) owns a route version.
+        // If the user navigated away while this hub was still loading, skip the render so
+        // we don't paint the Game Hub over whatever screen the user actually moved to.
+        if (typeof options.isStale === "function" && options.isStale()) {
+            return;
+        }
         cleanup();
         const levelSections = buildLevelSections();
         const currentDay = getCurrentProgramDay();
@@ -646,6 +673,14 @@ export async function renderGameHubScreen(root, options = {}) {
 
     const handleNodeAction = async (node) => {
         if (!node) {
+            return;
+        }
+
+        // US-E7-29: safety net — never launch a minigame before the program
+        // start date, even if a start button somehow slipped through the UI.
+        const { programStarted: isProgramStarted } =
+            getProgramDayStatus(getStartedProgram(), getProgramDayCount());
+        if (!isProgramStarted) {
             return;
         }
 
@@ -901,6 +936,7 @@ export async function renderGameHubScreen(root, options = {}) {
                     defaultDayCount: options.defaultDayCount || 14,
                     loadVideoSrc: () => db.getRandomGameVideoUrl(),
                     patientGender: options.patientGender,
+                    treeType: options.treeType,
                 });
             }
         } catch (error) {
@@ -953,7 +989,12 @@ export async function renderGameHubScreen(root, options = {}) {
 
         if (isProgramEnded) {
             state.completionPopupShown = true;
-            await showProgramCompletionPopup({ programDayCount: getProgramDayCount() });
+            await showProgramCompletionPopup({
+                programDayCount: getProgramDayCount(),
+                gender: options.patientGender,
+                startedProgram: getStartedProgram(),
+                programEndDate: state.dailyProgram?.programEndDate || "",
+            });
             return;
         }
 
@@ -965,7 +1006,7 @@ export async function renderGameHubScreen(root, options = {}) {
 
         if (isComplete) {
             state.completionPopupShown = true;
-            await showDayCompletionPopup({ programDay: currentDay, programDayCount: getProgramDayCount() });
+            await showDayCompletionPopup({ gender: options.patientGender });
         }
     };
 
@@ -1021,6 +1062,10 @@ export async function renderGameHubScreen(root, options = {}) {
     };
 
     render();
+    // PB-01-02: first paint is done — the hub is on screen and usable. Signal readiness now so
+    // the boot loading overlay dismisses immediately, instead of waiting for the data loads
+    // below (loadProgram/loadHistory) which can take several seconds and made boot feel ~10-20s.
+    options.onReady?.();
     await loadProgram();
     await loadHistory();
 }

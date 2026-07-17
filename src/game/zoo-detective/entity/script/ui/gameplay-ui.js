@@ -6,6 +6,7 @@ import {createThaiText, getThaiFontFamily, ThaiTextPresets} from "../../../../..
 import NextQuizPanel from "../../../ui-elements/scripts/next-quiz-panel.js";
 import GameOverPanel from "../../../ui-elements/scripts/gameover-panel.js";
 import { EventBus } from "../../../../../core/EventBus.js";
+import { autoScaleText } from "../../../../../util/ui-utils.js";
 
 export default class GameplayUI extends Entity{
     constructor(scene,x,y, options = {}){
@@ -58,6 +59,8 @@ export default class GameplayUI extends Entity{
             this.TutorialPanel.show();
         }
 
+        this.maxTextWidth = (scene.scale.width / 2) - 40;
+
         this.gameoverPanel = new GameOverPanel(scene);
         this.NextQuizPanel = new NextQuizPanel(scene);
 
@@ -87,6 +90,7 @@ export default class GameplayUI extends Entity{
     setScore(newScore){
         this.currentScoreValue = Math.max(0, Number(newScore) || 0);
         this.currentScore.setText(`⭐ ${this.currentScoreValue}`);
+        autoScaleText(this.currentScore, this.maxTextWidth);
     }
 
     setLives(newLives){

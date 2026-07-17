@@ -6,6 +6,10 @@ export default class DragDropManager {
         this.snapDuration = options.snapDuration ?? 150;
         this.returnDuration = options.returnDuration ?? 180;
         this.defaultEase = options.ease ?? "Sine.easeOut";
+        // When true, a drag that ends without the pointer over a drop zone still counts
+        // as a drop if the dragged item's box overlaps (edges touching) an accepting
+        // zone — no pixel-perfect pointer aim needed (US-E7-23).
+        this.overlapDrop = options.overlapDrop ?? true;
 
         this.draggables = new Map();
         this.dropZones = new Map();
@@ -77,6 +81,20 @@ export default class DragDropManager {
         });
 
         return zone;
+    }
+
+    // Drop a draggable that is going away (its game object is about to be destroyed), so the
+    // manager stops tracking a dead handle.
+    unregisterDraggable(handle) {
+        if (!this.draggables.has(handle)) {
+            return;
+        }
+
+        if (handle.input) {
+            this.scene.input.setDraggable(handle, false);
+        }
+
+        this.draggables.delete(handle);
     }
 
     moveHome(handle, duration = this.returnDuration) {
@@ -181,19 +199,7 @@ export default class DragDropManager {
             return;
         }
 
-        draggable.dropZoneId = dropZone.id;
-
-        if (draggable.snapOnDrop) {
-            this.snapToZone(draggable, dropZone);
-        }
-
-        if (dropZone.onDrop) {
-            dropZone.onDrop({ pointer, handle, target: draggable.target, zone, data: draggable.data, zoneId: dropZone.id });
-        }
-
-        if (draggable.onDrop) {
-            draggable.onDrop({ pointer, handle, target: draggable.target, zone, data: draggable.data, zoneId: dropZone.id });
-        }
+        this.performDrop(draggable, dropZone, pointer, handle);
     }
 
     handleDragEnd(pointer, handle, dropped) {
@@ -203,7 +209,21 @@ export default class DragDropManager {
             return;
         }
 
-        if (!dropped && draggable.returnOnMiss) {
+        // Overlap fallback: the pointer wasn't released over any drop zone, so accept
+        // the drop if the dragged item's box overlaps an accepting zone (edges touching
+        // is enough). Lets a word be placed by proximity, not pixel-perfect aim.
+        let overlapDropped = false;
+
+        if (!dropped && this.overlapDrop) {
+            const dropZone = this.findOverlappingDropZone(draggable);
+
+            if (dropZone) {
+                this.performDrop(draggable, dropZone, pointer, handle);
+                overlapDropped = true;
+            }
+        }
+
+        if (!dropped && !overlapDropped && draggable.returnOnMiss) {
             this.moveHome(handle);
         }
 
@@ -212,18 +232,75 @@ export default class DragDropManager {
                 pointer,
                 handle,
                 target: draggable.target,
-                dropped,
+                dropped: dropped || overlapDropped,
                 zoneId: draggable.dropZoneId,
                 data: draggable.data
             });
         }
     }
 
+    // Shared drop resolution for both the pointer-based `drop` event and the
+    // overlap-based fallback in handleDragEnd.
+    performDrop(draggable, dropZone, pointer, handle) {
+        draggable.dropZoneId = dropZone.id;
+
+        if (draggable.snapOnDrop) {
+            this.snapToZone(draggable, dropZone);
+        }
+
+        if (dropZone.onDrop) {
+            dropZone.onDrop({ pointer, handle, target: draggable.target, zone: dropZone.zone, data: draggable.data, zoneId: dropZone.id });
+        }
+
+        if (draggable.onDrop) {
+            draggable.onDrop({ pointer, handle, target: draggable.target, zone: dropZone.zone, data: draggable.data, zoneId: dropZone.id });
+        }
+    }
+
+    // Best accepting drop zone whose bounds intersect the dragged item's bounds
+    // (world-space). Returns the zone with the largest overlap; a bare edge touch
+    // (overlap area 0) still qualifies. Null when nothing overlaps / accepts.
+    findOverlappingDropZone(draggable) {
+        const dragBounds = draggable.target.getBounds();
+        let best = null;
+        let bestArea = -1;
+
+        for (const dropZone of this.dropZones.values()) {
+            if (!this.acceptsDrop(draggable, dropZone)) {
+                continue;
+            }
+
+            const zoneBounds = dropZone.zone.getBounds();
+
+            if (!Phaser.Geom.Intersects.RectangleToRectangle(dragBounds, zoneBounds)) {
+                continue;
+            }
+
+            const overlap = Phaser.Geom.Rectangle.Intersection(dragBounds, zoneBounds);
+            const area = overlap.width * overlap.height;
+
+            if (area > bestArea) {
+                bestArea = area;
+                best = dropZone;
+            }
+        }
+
+        return best;
+    }
+
+    // Phaser fires dragenter/dragleave for any drop zone under the pointer, accepting or not. A zone
+    // that will refuse the drop must not light up as if it will take it, so hover feedback is gated
+    // on the same `accepts` check that handleDrop uses — e.g. a Zoo Detective cell whose hint is
+    // already locked in, or a Context Clues slot that is already filled.
     handleDragEnter(pointer, handle, zone) {
         const draggable = this.draggables.get(handle);
         const dropZone = this.dropZones.get(zone);
 
         if (!draggable || !dropZone || !dropZone.onDragEnter) {
+            return;
+        }
+
+        if (!this.acceptsDrop(draggable, dropZone)) {
             return;
         }
 
@@ -235,6 +312,10 @@ export default class DragDropManager {
         const dropZone = this.dropZones.get(zone);
 
         if (!draggable || !dropZone || !dropZone.onDragLeave) {
+            return;
+        }
+
+        if (!this.acceptsDrop(draggable, dropZone)) {
             return;
         }
 

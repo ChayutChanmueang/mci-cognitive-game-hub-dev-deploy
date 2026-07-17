@@ -1,0 +1,43 @@
+{
+  "StartMenuSetting": {
+    "title": "ภาพสะท้อน (ของใช้)",
+    "description": "เกมจัดวางของใช้ให้สมมาตรกัน",
+    "instructions": "จัดของใช้ให้สมมาตรกัน ตามการสะท้อนของกระจก",
+    "coverImage": "assets/common/cover/cover_symmetry_decor.png",
+    "titleFontSize": "80px",
+    "defaultLevel": 1,
+    "panelBorderColor": "#446A46",
+    "panelHeaderColor": "#619B64",
+    "primaryFontColor": "#2C452E",
+    "secondaryFontColor": "#3E6641"
+  },
+  "GameOverSetting": {
+    "panelBorderColor": "#446A46",
+    "panelHeaderColor": "#619B64",
+    "primaryFontColor": "#2C452E",
+    "secondaryFontColor": "#3E6641"
+  },
+  "availableAssets": [
+    "item_bowl",
+    "item_broom",
+    "item_glasses",
+    "item_keys",
+    "item_phone",
+    "item_purse",
+    "item_remote",
+    "item_scissor2",
+    "item_umbrella"
+  ],
+  "assets": {
+    "background": "assets/symmetry-decor/etc/BG.png",
+    "item_bowl": "assets/symmetry-decor/household-item/bowl.png",
+    "item_broom": "assets/symmetry-decor/household-item/broom.png",
+    "item_glasses": "assets/symmetry-decor/household-item/glasses.png",
+    "item_keys": "assets/symmetry-decor/household-item/keys.png",
+    "item_phone": "assets/symmetry-decor/household-item/phone.png",
+    "item_purse": "assets/symmetry-decor/household-item/purse.png",
+    "item_remote": "assets/symmetry-decor/household-item/remote.png",
+    "item_scissor2": "assets/symmetry-decor/household-item/scissor2.png",
+    "item_umbrella": "assets/symmetry-decor/household-item/umbrella.png"
+  }
+}

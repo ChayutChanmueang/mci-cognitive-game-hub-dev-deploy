@@ -16,9 +16,9 @@ export default class NonDraggableComponent extends Component{
             this.targetSocket.attach(this.entity);
         }
 
-        // Gray out and set opacity to 85% as per user request
-        // Using setTint(0x888888) for 'gray out' to ensure maximum compatibility 
-        // and avoid TypeError in different Phaser 3 versions.
+        // Gray out and dim the blocker using alpha + tint only (no WebGL
+        // post-FX pass — see symmetry-decor-household's version of this file,
+        // which already uses this cheaper approach in production).
         this.entity.setAlpha(0.85);
         this.entity.setTint(0x888888);
     }

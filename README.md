@@ -131,6 +131,17 @@ This project leverages cutting-edge AI orchestration for both development and do
    npm run build
    ```
 
+## 🛠 Maintenance Scripts
+
+- **`delete-user.js`** — CLI-only tool to permanently delete patient accounts and all of their linked data (cascade delete). Uses the project's Supabase env; requires a `service_role` key (add `SUPABASE_SERVICE_ROLE_KEY` to `.env`) because the anon key cannot delete other users' data.
+  ```bash
+  node delete-user.js --hn 12345            # delete one user
+  node delete-user.js --hn 12345,67890      # delete several users
+  node delete-user.js --all --yes           # delete ALL users
+  node delete-user.js --hn 12345 --dry-run  # preview only, no writes
+  node delete-user.js --help
+  ```
+
 ## 📈 Game Features
 
 ### Difficulty Scaling

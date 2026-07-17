@@ -4,6 +4,16 @@ import {
     isCompleteThaiPhoneNumber,
     normalizeThaiPhoneNumber,
 } from "../util/phone-number-util.js";
+import { getCurrentBuddhistYear } from "../util/thai-era-date.js";
+import { renderFrameFormPanel } from "./components/frame-form-panel.js";
+import { renderIconButtonBack } from "./components/icon-button-back.js";
+import { renderButtonOk } from "./components/button-ok.js";
+import { renderThaiDateSelect, attachThaiDateSelect } from "./components/thai-date-select.js";
+import { showToast, clearToast } from "./components/toast.js";
+
+// US-E9-11: the form speaks พ.ศ.; the database keeps ค.ศ. The date selects convert at the boundary.
+const MAX_PATIENT_AGE_YEARS = 120;
+const PROGRAM_START_BACKDATE_YEARS = 10;
 
 function createDateValue() {
     return new Date().toISOString().slice(0, 10);
@@ -18,37 +28,14 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
-function setFieldError(input, message = "") {
-    if (!input) {
-        return;
-    }
-
-    input.error = true;
-    input.setAttribute("error", "");
-
-    if (message) {
-        input.errorText = message;
-        input.setAttribute("error-text", message);
-    }
+// US-E7-02: native controls live inside Frame_TextFieldBox surfaces, so errors are shown
+// via the box's red-stroke modifier instead of the old Material `error` attribute.
+function setFieldError(input) {
+    input?.closest(".gh-frame-field-box")?.classList.add("gh-frame-field-box--error");
 }
 
 function clearFieldError(input) {
-    if (!input) {
-        return;
-    }
-
-    input.error = false;
-    input.removeAttribute("error");
-}
-
-function isValidDateValue(value) {
-    const rawValue = String(value || "").trim();
-    if (!rawValue) {
-        return false;
-    }
-
-    const parsedDate = new Date(rawValue);
-    return !Number.isNaN(parsedDate.getTime());
+    input?.closest(".gh-frame-field-box")?.classList.remove("gh-frame-field-box--error");
 }
 
 function getSignupErrorCode(error) {
@@ -79,171 +66,125 @@ export function renderSignupScreen(root, options = {}) {
         educationLevels = [],
         educationLevelsError = "",
         onBack = () => {},
+        loadRandomTreeType = null,
         onSubmit = () => {},
     } = options;
 
     const hnLabel = initialHn ? `ID${initialHn}` : "-";
+    const currentBuddhistYear = getCurrentBuddhistYear();
     const educationOptionsMarkup = educationLevels
-        .map((level) => `
-                                <md-select-option value="${escapeHtml(level?.eduid || "")}">
-                                    <div slot="headline">${escapeHtml(level?.name || "")}</div>
-                                </md-select-option>
-        `)
+        .map((level) => `<option value="${escapeHtml(level?.eduid || "")}">${escapeHtml(level?.name || "")}</option>`)
         .join("");
     const isEducationLevelAvailable = educationLevels.length > 0 && !educationLevelsError;
     const initialFeedback = educationLevelsError || "";
 
+    const fieldInput = ({ id, type = "text", inputmode, placeholder = "", value = "", extra = "" }) => `
+        <div class="gh-frame-field-box">
+            <input
+                id="${escapeHtml(id)}"
+                class="gh-frame-field-box__input"
+                type="${escapeHtml(type)}"
+                ${inputmode ? `inputmode="${escapeHtml(inputmode)}"` : ""}
+                ${placeholder ? `placeholder="${escapeHtml(placeholder)}"` : ""}
+                ${value ? `value="${escapeHtml(value)}"` : ""}
+                aria-label="${escapeHtml(placeholder || id)}"
+                ${extra}
+            />
+        </div>`;
+
+    const fieldSelect = ({ id, options: opts, disabled = false }) => `
+        <div class="gh-frame-field-box">
+            <select id="${escapeHtml(id)}" class="gh-frame-field-box__select" aria-label="${escapeHtml(id)}" ${disabled ? "disabled" : ""}>
+                ${opts}
+            </select>
+        </div>`;
+
+    // US-E7-02: Figma art — Frame_Form_Panel + Frame_TextFieldBox + Button_OK.
     root.innerHTML = `
-        <section class="signup-screen" aria-labelledby="signup-title">
-            <div class="signup-card">
-                <div class="signup-card__header">
-                    <md-icon-button id="signup-back-button" type="button" aria-label="กลับ">
-                        <span class="material-symbols-rounded">arrow_back</span>
-                    </md-icon-button>
-                    <h1 id="signup-title">ข้อมูลผู้เล่น</h1>
-                </div>
+        <section class="gh-form" aria-labelledby="signup-title">
+            <form id="patient-signup-form" class="gh-form__stack" novalidate>
+                ${renderFrameFormPanel({
+                    header: `
+                        ${renderIconButtonBack({ id: "signup-back-button", ariaLabel: "กลับ" })}
+                        <h1 id="signup-title" class="gh-frame-form-panel__title">ลงทะเบียน</h1>
+                    `,
+                    body: `
+                        <div class="gh-form__rows">
+                            <span class="gh-form__label">หมายเลข ID :</span>
+                            <div class="gh-frame-field-box"><div class="gh-frame-field-box__value">${escapeHtml(hnLabel)}</div></div>
 
-                <form id="patient-signup-form" class="signup-form" novalidate>
-                    <div class="signup-row signup-row--hn">
-                        <label>หมายเลข ID :</label>
-                        <div class="signup-hn-value">${hnLabel}</div>
-                    </div>
+                            <span class="gh-form__label">ชื่อ :</span>
+                            ${fieldInput({ id: "signup-firstname", placeholder: "เช่น สมชาย" })}
 
-                    <div class="signup-fields">
-                        <label class="signup-row">
-                            <span>ชื่อ :</span>
-                            <md-outlined-text-field
-                                id="signup-firstname"
-                                placeholder="เช่น สมชาย"
-                                aria-label="ชื่อ"
-                                required
-                                no-asterisk
-                                error-text="กรุณากรอกชื่อ"
-                            ></md-outlined-text-field>
-                        </label>
+                            <span class="gh-form__label">นามสกุล :</span>
+                            ${fieldInput({ id: "signup-lastname", placeholder: "เช่น ใจดี" })}
 
-                        <label class="signup-row">
-                            <span>นามสกุล :</span>
-                            <md-outlined-text-field
-                                id="signup-lastname"
-                                placeholder="เช่น ใจดี"
-                                aria-label="นามสกุล"
-                                required
-                                no-asterisk
-                                error-text="กรุณากรอกนามสกุล"
-                            ></md-outlined-text-field>
-                        </label>
+                            <span class="gh-form__label">เบอร์โทร :</span>
+                            ${fieldInput({ id: "signup-phone", type: "tel", inputmode: "tel", placeholder: "เช่น 081-234-5678" })}
 
-                        <label class="signup-row">
-                            <span>เบอร์โทร :</span>
-                            <md-outlined-text-field
-                                id="signup-phone"
-                                placeholder="เช่น 081-234-5678"
-                                aria-label="เบอร์โทร"
-                                type="tel"
-                                inputmode="tel"
-                                required
-                                no-asterisk
-                                error-text="กรุณากรอกเบอร์โทร"
-                            ></md-outlined-text-field>
-                        </label>
+                            <span class="gh-form__label">เพศ :</span>
+                            ${fieldSelect({
+                                id: "signup-gender",
+                                options: `
+                                    <option value="" disabled selected>เลือกเพศ</option>
+                                    <option value="male">ชาย</option>
+                                    <option value="female">หญิง</option>
+                                    <option value="other">อื่น ๆ</option>
+                                    <option value="unknown">ยังไม่ระบุ</option>
+                                `,
+                            })}
 
-                        <label class="signup-row">
-                            <span>เพศ :</span>
-                            <md-outlined-select
-                                id="signup-gender"
-                                aria-label="เพศ"
-                                required
-                                error-text="กรุณาเลือกเพศ"
-                            >
-                                <md-select-option value="male">
-                                    <div slot="headline">ชาย</div>
-                                </md-select-option>
-                                <md-select-option value="female">
-                                    <div slot="headline">หญิง</div>
-                                </md-select-option>
-                                <md-select-option value="other">
-                                    <div slot="headline">อื่น ๆ</div>
-                                </md-select-option>
-                                <md-select-option value="unknown">
-                                    <div slot="headline">ยังไม่ระบุ</div>
-                                </md-select-option>
-                            </md-outlined-select>
-                        </label>
+                            <span class="gh-form__label">วันเกิด :</span>
+                            ${renderThaiDateSelect({
+                                id: "signup-birth-date",
+                                ariaLabel: "วันเกิด",
+                                minYear: currentBuddhistYear - MAX_PATIENT_AGE_YEARS,
+                                maxYear: currentBuddhistYear,
+                            })}
 
-                        <label class="signup-row">
-                            <span>วันเกิด :</span>
-                            <md-outlined-text-field
-                                id="signup-birth-date"
-                                aria-label="วันเกิด"
-                                type="date"
-                                lang="en-GB"
-                                required
-                                no-asterisk
-                                error-text="กรุณาเลือกวันเกิด"
-                            ></md-outlined-text-field>
-                        </label>
+                            <span class="gh-form__label">อายุ :</span>
+                            <div class="gh-frame-field-box"><div id="signup-age-value" class="gh-frame-field-box__value">- ปี</div></div>
 
-                        <div class="signup-row">
-                            <span>อายุ :</span>
-                            <div id="signup-age-value" class="signup-age-value">- ปี</div>
+                            <span class="gh-form__label">การศึกษา :</span>
+                            ${fieldSelect({
+                                id: "signup-education-level",
+                                disabled: !isEducationLevelAvailable,
+                                options: `
+                                    <option value="" disabled selected>เลือกระดับการศึกษา</option>
+                                    ${educationOptionsMarkup}
+                                `,
+                            })}
+
+                            <span class="gh-form__label">วันที่เริ่มโปรแกรม :</span>
+                            ${renderThaiDateSelect({
+                                id: "signup-started-program",
+                                ariaLabel: "วันที่เริ่มโปรแกรม",
+                                value: createDateValue(),
+                                minYear: currentBuddhistYear - PROGRAM_START_BACKDATE_YEARS,
+                                maxYear: currentBuddhistYear,
+                            })}
                         </div>
 
-                        <label class="signup-row">
-                            <span>การศึกษา :</span>
-                            <md-outlined-select
-                                id="signup-education-level"
-                                aria-label="การศึกษา"
-                                required
-                                error-text="กรุณาเลือกระดับการศึกษา"
-                                ${isEducationLevelAvailable ? "" : "disabled"}
-                            >
-                                <md-select-option value="">
-                                    <div slot="headline">เลือกระดับการศึกษา</div>
-                                </md-select-option>
-                                ${educationOptionsMarkup}
-                            </md-outlined-select>
-                        </label>
-
-                        <label class="signup-row signup-row--date">
-                            <span>วันที่เริ่มโปรแกรม :</span>
-                            <md-outlined-text-field
-                                id="signup-started-program"
-                                aria-label="วันที่เริ่มโปรแกรม"
-                                type="date"
-                                lang="en-GB"
-                                value="${createDateValue()}"
-                                required
-                                no-asterisk
-                                error-text="กรุณาเลือกวันที่เริ่มโปรแกรม"
-                            ></md-outlined-text-field>
-                        </label>
-                    </div>
-
-                    <p id="signup-feedback" class="signup-feedback" aria-live="polite">${escapeHtml(initialFeedback)}</p>
-
-                    <md-filled-button id="signup-submit-button" class="signup-submit-button" type="submit" ${isEducationLevelAvailable ? "" : "disabled"}>
-                        ยืนยันข้อมูลผู้เล่น
-                    </md-filled-button>
-                </form>
-            </div>
+                        <div class="gh-form__actions">
+                            ${renderButtonOk({ id: "signup-submit-button", label: "ยืนยันข้อมูลผู้เล่น", disabled: !isEducationLevelAvailable })}
+                        </div>
+                    `,
+                })}
+            </form>
         </section>
     `;
 
     const form = root.querySelector("#patient-signup-form");
     const backButton = root.querySelector("#signup-back-button");
     const submitButton = root.querySelector("#signup-submit-button");
-    const feedback = root.querySelector("#signup-feedback");
     const firstnameField = root.querySelector("#signup-firstname");
     const lastnameField = root.querySelector("#signup-lastname");
     const phoneField = root.querySelector("#signup-phone");
-    const birthDateField = root.querySelector("#signup-birth-date");
     const genderField = root.querySelector("#signup-gender");
     const educationLevelField = root.querySelector("#signup-education-level");
-    const startedProgramField = root.querySelector("#signup-started-program");
     const ageValue = root.querySelector("#signup-age-value");
 
-    if (!form || !backButton || !submitButton || !feedback) {
+    if (!form || !backButton || !submitButton) {
         return;
     }
 
@@ -252,13 +193,27 @@ export function renderSignupScreen(root, options = {}) {
             return;
         }
 
-        const age = calculateAgeFromBirthDate(birthDateField?.value);
+        // getValue() is ISO ค.ศ., which is what calculateAgeFromBirthDate expects.
+        const age = calculateAgeFromBirthDate(birthDate?.getValue());
         ageValue.textContent = Number.isInteger(age) ? `${age} ปี` : "- ปี";
     };
 
-    birthDateField?.addEventListener("input", updateAgeDisplay);
-    birthDateField?.addEventListener("change", updateAgeDisplay);
+    const birthDate = attachThaiDateSelect(root, "signup-birth-date", {
+        onChange: () => {
+            birthDate?.setError(false);
+            updateAgeDisplay();
+        },
+    });
+    const startedProgram = attachThaiDateSelect(root, "signup-started-program", {
+        onChange: () => startedProgram?.setError(false),
+    });
+
     updateAgeDisplay();
+
+    // US-E7-18: surface a failed education-levels load (blocks submit) as a toast.
+    if (initialFeedback) {
+        showToast(initialFeedback, { type: "error", duration: 6000 });
+    }
 
     const updatePhoneDisplay = () => {
         if (!phoneField) {
@@ -272,14 +227,13 @@ export function renderSignupScreen(root, options = {}) {
     phoneField?.addEventListener("input", updatePhoneDisplay);
     phoneField?.addEventListener("change", updatePhoneDisplay);
 
+    // The two date groups own their own error state via their controllers, so they are not listed here.
     const requiredFields = [
         firstnameField,
         lastnameField,
         phoneField,
-        birthDateField,
         genderField,
         educationLevelField,
-        startedProgramField,
     ].filter(Boolean);
 
     requiredFields.forEach((field) => {
@@ -291,6 +245,12 @@ export function renderSignupScreen(root, options = {}) {
         onBack();
     });
 
+    submitButton.addEventListener("click", () => {
+        if (!submitButton.disabled) {
+            form.requestSubmit();
+        }
+    });
+
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
@@ -299,70 +259,83 @@ export function renderSignupScreen(root, options = {}) {
             firstname: String(firstnameField?.value || "").trim(),
             lastname: String(lastnameField?.value || "").trim(),
             phone: normalizeThaiPhoneNumber(phoneField?.value),
-            birthDate: String(birthDateField?.value || "").trim(),
+            // Already ISO ค.ศ. — the พ.ศ. the user picked never leaves the date select.
+            birthDate: birthDate?.getValue() || "",
             gender: String(genderField?.value || "").trim(),
             educationLevel: String(educationLevelField?.value || "").trim(),
-            startedProgram: String(startedProgramField?.value || "").trim(),
+            startedProgram: startedProgram?.getValue() || "",
         };
         let hasInvalidField = false;
-        const normalizedBirthDate = new Date(formData.birthDate);
+        let firstErrorMessage = "";
 
         requiredFields.forEach((field) => clearFieldError(field));
+        birthDate?.setError(false);
+        startedProgram?.setError(false);
+
+        const fail = (field, message) => {
+            setFieldError(field);
+            hasInvalidField = true;
+            if (!firstErrorMessage) {
+                firstErrorMessage = message;
+            }
+        };
+
+        const failDate = (controller, message) => {
+            controller?.setError(true);
+            hasInvalidField = true;
+            if (!firstErrorMessage) {
+                firstErrorMessage = message;
+            }
+        };
 
         if (!formData.firstname) {
-            setFieldError(firstnameField, "กรุณากรอกชื่อ");
-            hasInvalidField = true;
+            fail(firstnameField, "กรุณากรอกชื่อ");
         }
 
         if (!formData.lastname) {
-            setFieldError(lastnameField, "กรุณากรอกนามสกุล");
-            hasInvalidField = true;
+            fail(lastnameField, "กรุณากรอกนามสกุล");
         }
 
         if (!formData.phone) {
-            setFieldError(phoneField, "กรุณากรอกเบอร์โทร");
-            hasInvalidField = true;
+            fail(phoneField, "กรุณากรอกเบอร์โทร");
         } else if (!isCompleteThaiPhoneNumber(formData.phone)) {
-            setFieldError(phoneField, "กรุณากรอกเบอร์โทร 10 หลัก");
-            hasInvalidField = true;
+            fail(phoneField, "กรุณากรอกเบอร์โทร 10 หลัก");
         }
 
-        if (!isValidDateValue(formData.birthDate)) {
-            setFieldError(birthDateField, "กรุณาเลือกวันเกิด");
-            hasInvalidField = true;
-        } else if (normalizedBirthDate > new Date()) {
-            setFieldError(birthDateField, "วันเกิดต้องไม่เป็นวันในอนาคต");
-            hasInvalidField = true;
+        if (!formData.birthDate) {
+            failDate(birthDate, "กรุณาเลือกวันเกิดให้ครบ วัน เดือน และปี พ.ศ.");
+        } else if (new Date(formData.birthDate) > new Date()) {
+            failDate(birthDate, "วันเกิดต้องไม่เป็นวันในอนาคต");
         }
 
         if (!formData.gender) {
-            setFieldError(genderField, "กรุณาเลือกเพศ");
-            hasInvalidField = true;
+            fail(genderField, "กรุณาเลือกเพศ");
         }
 
         if (!formData.educationLevel) {
-            setFieldError(educationLevelField, "กรุณาเลือกระดับการศึกษา");
-            hasInvalidField = true;
+            fail(educationLevelField, "กรุณาเลือกระดับการศึกษา");
         }
 
-        if (!isValidDateValue(formData.startedProgram)) {
-            setFieldError(startedProgramField, "กรุณาเลือกวันที่เริ่มโปรแกรม");
-            hasInvalidField = true;
+        if (!formData.startedProgram) {
+            failDate(startedProgram, "กรุณาเลือกวันที่เริ่มโปรแกรมให้ครบ วัน เดือน และปี พ.ศ.");
         }
 
         if (hasInvalidField) {
-            feedback.textContent = "";
+            showToast(firstErrorMessage, { type: "error" });
             return;
         }
 
         sessionStorage.setItem("patient_signup_draft", JSON.stringify(formData));
         submitButton.disabled = true;
-        feedback.textContent = "กำลังบันทึกข้อมูลผู้ป่วย...";
+        showToast("กำลังบันทึกข้อมูลผู้ป่วย...", { type: "info", duration: 0 });
 
         try {
+            if (typeof loadRandomTreeType === "function") {
+                formData.treeType = await loadRandomTreeType();
+            }
             const submitted = await onSubmit(formData);
             if (submitted === false) {
-                feedback.textContent = "";
+                clearToast();
                 submitButton.disabled = false;
                 return;
             }
@@ -373,14 +346,14 @@ export function renderSignupScreen(root, options = {}) {
             const message = `ไม่สามารถบันทึกข้อมูลผู้ป่วยได้ (${errorCode})`;
 
             if (errorCode === "ERR_SIGNUP_PHONE") {
-                setFieldError(phoneField, message);
+                setFieldError(phoneField);
             }
 
-            feedback.textContent = message;
+            showToast(message, { type: "error" });
             submitButton.disabled = false;
             return;
         }
 
-        feedback.textContent = "";
+        clearToast();
     });
 }

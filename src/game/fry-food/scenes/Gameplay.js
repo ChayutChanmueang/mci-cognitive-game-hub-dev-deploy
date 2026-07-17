@@ -110,7 +110,7 @@ export default class GameplayScene extends Phaser.Scene {
         b5.setScale(2.5);
 
         // -- State ----------------------------------------------------------
-        this._gameState = 'COOKING'; // 'COOKING', 'READY', 'FLIPPING'
+        this._gameState = 'INITIALIZING'; // 'INITIALIZING', 'COOKING', 'READY', 'FLIPPING'
         this._cookTimer = null;
         this._flipInitiated = false; // tracked when device tilted forward past threshold
         this._startBetaAngle = 0;    // Baseline angle captured when smoke appears
@@ -124,7 +124,7 @@ export default class GameplayScene extends Phaser.Scene {
         EventBus.emit('minigame:show-hud');
         EventBus.emit('minigame:score', { score: this.score });
         EventBus.emit('minigame:tick', { timeLeft: this.gameTime, maxTime: this.gameTime, updateProgress: false });
-        this._startTimer(this.gameTime);
+        // Timer will start after hardware is detected
 
         // -- Draw frying pan ------------------------------------------------
         this._createPan(cx, cy);
@@ -147,16 +147,16 @@ export default class GameplayScene extends Phaser.Scene {
         // -- Designer Menu --------------------------------------------------
         // this._createDesignerMenu();
 
-        // -- Start accelerometer --------------------------------------------
+        // -- Start accelerometer & hardware check ---------------------------
         this._initAccelerometer();
 
-        // -- Start Game Loop ------------------------------------------------
-        this._startCooking();
+        // Game loop will start (_startCooking, _startTimer) after hardware check finishes.
 
         // -- Cleanup on scene shutdown --------------------------------------
         this.events.once('shutdown', () => {
             AccelerometerManager.stop();
             this._removeIOSButton();
+            this._removeUnsupportedPopup();
             this._removeDesignerMenu();
             if (this._cookTimer) {
                 this._cookTimer.remove();
@@ -889,6 +889,7 @@ export default class GameplayScene extends Phaser.Scene {
 
     /**
      * Start the AccelerometerManager. On iOS, show a permission button first.
+     * After permission, probe for actual hardware.
      */
     async _initAccelerometer() {
         if (AccelerometerManager.requiresPermissionRequest()) {
@@ -898,6 +899,15 @@ export default class GameplayScene extends Phaser.Scene {
             this._tryLockOrientation();
             const status = await AccelerometerManager.start();
             console.log('[FryFood] Accelerometer status:', status);
+            
+            // Non-iOS: check hardware support
+            const hasHardware = await AccelerometerManager.detectHardwareSupport();
+            if (!hasHardware) {
+                this._showUnsupportedDevicePopup();
+            } else {
+                this._startTimer(this.gameTime);
+                this._startCooking();
+            }
         }
     }
 
@@ -977,6 +987,15 @@ export default class GameplayScene extends Phaser.Scene {
                 this._removeIOSButton();
                 // Lock orientation only after permission is secured
                 this._tryLockOrientation();
+
+                // iOS: check hardware support
+                const hasHardware = await AccelerometerManager.detectHardwareSupport();
+                if (!hasHardware) {
+                    this._showUnsupportedDevicePopup();
+                } else {
+                    this._startTimer(this.gameTime);
+                    this._startCooking();
+                }
             }
         }, { once: true });
 
@@ -995,6 +1014,112 @@ export default class GameplayScene extends Phaser.Scene {
         }
         // Nullify button reference (it was inside the backdrop)
         this._iosButton = null;
+    }
+
+    /**
+     * Show a popup if the device has no gyroscope/orientation sensor,
+     * allowing the user to skip the game and return to the GameHub.
+     */
+    _showUnsupportedDevicePopup() {
+        const uiRoot = document.getElementById('ui-root');
+        if (!uiRoot) return;
+
+        this._unsupportedBackdrop = document.createElement('div');
+        Object.assign(this._unsupportedBackdrop.style, {
+            position: 'absolute',
+            inset: '0',
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            zIndex: '9998',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '20px',
+            pointerEvents: 'auto',
+        });
+
+        // Icon
+        const iconLabel = document.createElement('div');
+        iconLabel.textContent = '📱❌';
+        Object.assign(iconLabel.style, {
+            fontSize: '64px',
+            marginBottom: '10px'
+        });
+
+        const titleLabel = document.createElement('p');
+        titleLabel.textContent = 'อุปกรณ์ไม่รองรับ';
+        Object.assign(titleLabel.style, {
+            color: '#fff',
+            fontSize: '32px',
+            fontWeight: 'bold',
+            fontFamily: 'sans-serif',
+            textAlign: 'center',
+            margin: '0',
+            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+        });
+
+        const messageLabel = document.createElement('p');
+        messageLabel.textContent = 'อุปกรณ์ของท่านไม่มีเซ็นเซอร์วัดการเอียง ซึ่งจำเป็นต่อการเล่นเกมนี้ \nท่านสามารถกดตกลงเพื่อเล่นเกมต่อไปได้เลย';
+        Object.assign(messageLabel.style, {
+            color: '#fff',
+            fontSize: '22px',
+            fontFamily: 'sans-serif',
+            textAlign: 'center',
+            margin: '0 24px',
+            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+            maxWidth: '500px', // slightly wider to fit text nicely
+            whiteSpace: 'pre-line',
+        });
+
+        const okBtn = document.createElement('button');
+        okBtn.textContent = 'ตกลง';
+        Object.assign(okBtn.style, {
+            zIndex: '9999',
+            marginTop: '20px',
+            padding: '20px 60px',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            fontFamily: 'sans-serif',
+            color: '#fff',
+            backgroundColor: '#FEA837',
+            border: '3px solid #DE8D23',
+            borderRadius: '16px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+        });
+
+        okBtn.addEventListener('click', () => {
+            this._removeUnsupportedPopup();
+            
+            // Log skip event in replay logger
+            if (this.replayLogger) {
+                this.replayLogger.addEvent(ReplayEvent.FryFood.FINAL_SCORE, { data: 0 });
+                for (let i = 0; i < 5; i++) {
+                    this.replayLogger.addAnswerEvent(ReplayEvent.Global.ANSWER_SUBMITTED, "missed_flip", false);
+                }
+                this.replayLogger.pushToDatabase();
+            }
+
+            // Emit exit with completion (score 0) to return to GameHub and mark node as completed
+            EventBus.emit('minigame:exit-with-completion', { score: 0 });
+        }, { once: true });
+
+        this._unsupportedBackdrop.appendChild(iconLabel);
+        this._unsupportedBackdrop.appendChild(titleLabel);
+        this._unsupportedBackdrop.appendChild(messageLabel);
+        this._unsupportedBackdrop.appendChild(okBtn);
+        
+        uiRoot.appendChild(this._unsupportedBackdrop);
+    }
+
+    /**
+     * Remove the unsupported device popup from the DOM.
+     */
+    _removeUnsupportedPopup() {
+        if (this._unsupportedBackdrop && this._unsupportedBackdrop.parentNode) {
+            this._unsupportedBackdrop.parentNode.removeChild(this._unsupportedBackdrop);
+            this._unsupportedBackdrop = null;
+        }
     }
 
     /**
