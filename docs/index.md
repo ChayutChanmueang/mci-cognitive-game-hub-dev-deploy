@@ -22,7 +22,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
 ### Latest Sprint Planning
-- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-05](agile/user-stories/US-E9-05.md) ✅ Done; [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
+- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-13](agile/user-stories/US-E9-13.md) In Progress (internet-loss art); [US-E9-05](agile/user-stories/US-E9-05.md) ✅ Done; [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
 - **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — Completed:** P0 gameplay US-E9-01..04 + device/hub/UX — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
 - **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น:** ✅ Done (v1.1.0) — `tree_type` a/b/c/d + lazy backfill
 
@@ -54,7 +54,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - [Kanban Board](agile/kanban.md) - สถานะงานปัจจุบัน
 - [01. Product Backlog](agile/01-product-backlog.md) - รายการฟีเจอร์และ User Stories ทั้งหมด
 - [02. Sprint Roadmap](agile/02-sprint-planning.md) - แผนการดำเนินงานภาพรวมและรายละเอียด Sprint ปัจจุบัน
-- [Sprint 10 Backlog](agile/sprint-backlogs/sprint-10.md) - **Sprint ปัจจุบัน** (US-E9-05 ✅ Done; US-E9-07/09 Backlog)
+- [Sprint 10 Backlog](agile/sprint-backlogs/sprint-10.md) - **Sprint ปัจจุบัน** (US-E9-13 In Progress; US-E9-05 ✅ Done; US-E9-07/09 Backlog)
 - [Sprint 09 Backlog](agile/sprint-backlogs/sprint-09.md) - Completed (Field Feedback Hotfix)
 - [03. Meeting Logs](agile/03-meeting-backlogs.md) - บันทึกการประชุมของทีม
 - [04. Sprint Retrospectives](agile/04-retrospectives-backlog.md) - บันทึกสรุปบทเรียนและแนวทางการปรับปรุงในแต่ละ Sprint

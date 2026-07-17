@@ -58,6 +58,13 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## [2026-07-17] - US-E9-13 In Progress — internet-loss art refresh (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.6`).
+
+### Changed
+- เพิ่ม [US-E9-13](agile/user-stories/US-E9-13.md) → **🔵 In Progress** — อัปเดต `OldWoman_internet_loss.png` / `OldMan_internet_loss.png` (ต่อยอด US-E7-27)
+- Product backlog (Sprint 10), kanban, sprint-10, US-E7-27 cross-ref
+
 ## [1.1.6] - 2026-07-17
 **Version bump:** `1.1.5 → 1.1.6` (**PATCH**) — US-E9-05 full player data export so admin/research can pull a complete player dataset without loss.
 

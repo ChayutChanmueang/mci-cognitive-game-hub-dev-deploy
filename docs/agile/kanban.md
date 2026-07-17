@@ -9,6 +9,7 @@ kanban-plugin: board
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
 
 ## 🔵 In Progress (WIP Limit: 3)
+- [ ] [US-E9-13](user-stories/US-E9-13.md) 🟠 อัปเดต art popup อินเทอร์เน็ตหาย — `*_internet_loss.png` (Sprint 10)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
 
 
