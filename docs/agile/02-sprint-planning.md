@@ -18,7 +18,7 @@
 | [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
 | [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) → **v1.1.0** | Completed |
 | [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay ✅ Done | Completed |
-| [sprint-10](sprint-backlogs/sprint-10.md) | Jul 17-30 | Full data export (US-E9-05 In Progress) + A10s/font scale | **Active** |
+| [sprint-10](sprint-backlogs/sprint-10.md) | Jul 17-30 | US-E9-05 ✅ Done; A10s/font scale Backlog | **Active** |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -49,7 +49,8 @@ gantt
     section Sprint 9
     Field feedback hotfix (US-E9-01..04) :done, s9, 2026-07-10, 14d
     section Sprint 10
-    Full data export (US-E9-05) :active, s10, 2026-07-17, 14d
+    Full data export (US-E9-05) :done, s10, 2026-07-17, 14d
+    A10s / font scale remainder :active, s10b, 2026-07-17, 14d
 ```
 
 ---
@@ -68,7 +69,7 @@ gantt
 - **[sprint-07](sprint-backlogs/sprint-07.md)**: Game Art Assets, Version Display & Mini-game Vertical Responsiveness — **Completed → [v1.0.0](../changelog.md) stable release (2026-07-07)**
 - **[sprint-08](sprint-backlogs/sprint-08.md)**: Per-player progression tree (`tree_type` a/b/c/d) — **Completed → [v1.1.0](../changelog.md)** (US-E8-01 Done, 2026-07-14)
 - **[sprint-09](sprint-backlogs/sprint-09.md)**: Field Feedback Hotfix — ลงพื้นที่ — **Completed** (2026-07-17) — จาก [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
-- **[sprint-10](sprint-backlogs/sprint-10.md)**: Full data export + A10s/font scale — **Active** (US-E9-05 In Progress)
+- **[sprint-10](sprint-backlogs/sprint-10.md)**: Full data export + A10s/font scale — **Active** (US-E9-05 ✅ Done)
 
 ## 📈 Epic Completeness Strategy (Alignment)
 
@@ -105,7 +106,7 @@ gantt
 
 ### 🔧 E9: Field Feedback Hotfixes (Post-1.0 — ลงพื้นที่)
 - **Sprint 9:** P0 gameplay — [US-E9-01](user-stories/US-E9-01.md)..[US-E9-04](user-stories/US-E9-04.md) ✅ Done — **Completed** 2026-07-17
-- **Sprint 10 (Active):** full data export **In Progress** → [US-E9-05](user-stories/US-E9-05.md); A10s/font scale Backlog → [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
+- **Sprint 10 (Active):** ~~full data export~~ ✅ Done → [US-E9-05](user-stories/US-E9-05.md); A10s/font scale Backlog → [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
 **Shipped so far (Sprint 9):**
@@ -123,7 +124,13 @@ gantt
 | [US-E9-12](user-stories/US-E9-12.md) Popup ออกจากเกม — layout/art ตรง popup-dialog | `1.1.4` | ✅ owner 2026-07-14 |
 | [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` | — | ✅ Done 2026-07-14 (ไม่ bump version) |
 
-- **2026-07-17:** Sprint 10 kickoff — [US-E9-05](user-stories/US-E9-05.md) → In Progress; Sprint 09 Completed
+**Shipped so far (Sprint 10):**
+
+| Story | Version | Verified |
+| :--- | :--- | :--- |
+| [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | `1.1.6` | ✅ Done 2026-07-17 |
+
+- **2026-07-17:** [US-E9-05](user-stories/US-E9-05.md) ✅ Done; Sprint 10 kickoff; Sprint 09 Completed
 - **2026-07-15:** US-E9-07 sparkle-effect partial → **v1.1.5**
 - **2026-07-14:** US-E9-01..04 ✅ Done; US-E9-05/07/09 เลื่อน [Sprint 10](sprint-backlogs/sprint-10.md)
 
