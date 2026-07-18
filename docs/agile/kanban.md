@@ -7,6 +7,9 @@ kanban-plugin: board
 ## 📋 Backlog (Prioritized)
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (A10s) → Sprint 10 *(sparkle v1.1.5 shipped)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
+- [ ] [US-E10-01](user-stories/US-E10-01.md) 🟠 Tag แบ่งกลุ่มผู้เล่น (Test Group) — `group_tag` → Sprint 10
+- [ ] [US-E10-02](user-stories/US-E10-02.md) 🟠 Leaderboard เฉพาะกลุ่ม Tag ตรงกัน *(ขึ้นกับ US-E10-01)* → Sprint 10
+- [ ] [US-E7-30](user-stories/US-E7-30.md) 🟡 Art assets popup export CSV หน้าข้อมูลผู้เล่น → Sprint 10
 
 ## 🔵 In Progress (WIP Limit: 3)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming

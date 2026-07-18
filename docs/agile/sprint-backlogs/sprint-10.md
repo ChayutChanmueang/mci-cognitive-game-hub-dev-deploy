@@ -46,7 +46,11 @@ gantt
 |----|--------------|----------|--------|
 | [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog *(sparkle slice ✅ v1.1.5; confetti + Phaser ค้าง)* |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog |
+| [US-E10-01](../user-stories/US-E10-01.md) | Tag แบ่งกลุ่มผู้เล่น (Test Group Segmentation) — `group_tag` | P1 | 📋 Backlog |
+| [US-E10-02](../user-stories/US-E10-02.md) | Leaderboard แสดงเฉพาะกลุ่มทดสอบที่ Tag ตรงกัน *(ขึ้นกับ US-E10-01)* | P1 | 📋 Backlog |
+| [US-E7-30](../user-stories/US-E7-30.md) | Art assets popup export CSV หน้าข้อมูลผู้เล่น | P2 | 📋 Backlog |
 
+> **2026-07-18:** Owner เพิ่มงานใหม่เข้า Sprint 10 — [US-E10-01](../user-stories/US-E10-01.md)/[US-E10-02](../user-stories/US-E10-02.md) (Tag กลุ่มทดสอบ + Leaderboard กรองตามกลุ่ม) และ [US-E7-30](../user-stories/US-E7-30.md) (art popup export CSV)
 > **2026-07-17:** [US-E9-13](../user-stories/US-E9-13.md) ✅ Done (**v1.1.7**) — internet-loss art + SW `CACHE_VERSION` v3
 > **2026-07-17:** [US-E9-05](../user-stories/US-E9-05.md) ✅ Done (**v1.1.6**) — full data export
 > **2026-07-17:** Sprint 10 kickoff
@@ -63,13 +67,13 @@ gantt
 - [Sprint 09](sprint-09.md) ✅ **Completed** (2026-07-17) — P0 gameplay [US-E9-01](../user-stories/US-E9-01.md)..[US-E9-04](../user-stories/US-E9-04.md) Done
 - [US-E9-10](../user-stories/US-E9-10.md) ✅ Done ใน Sprint 09 (CLI, ไม่ bump version)
 - **Current shipped:** `1.1.7` (US-E9-13 internet-loss art)
-- **Focus รอบนี้:** US-E9-07 / US-E9-09
+- **Focus รอบนี้:** US-E9-07 / US-E9-09; งานใหม่ 2026-07-18 — US-E10-01/02 (Tag กลุ่มทดสอบ + Leaderboard ตามกลุ่ม), US-E7-30 (art popup export CSV)
 
 ---
 
 ## 📊 Sprint Summary
-- **งานที่ commit:** US-E9-13 ✅ Done; US-E9-05 ✅ Done; US-E9-07/09 Backlog
-- **สถานะ:** 🟢 **Sprint 10 Open** (US-E9-13 shipped 2026-07-17)
+- **งานที่ commit:** US-E9-13 ✅ Done; US-E9-05 ✅ Done; US-E9-07/09 + US-E10-01/02 + US-E7-30 Backlog
+- **สถานะ:** 🟢 **Sprint 10 Open** (US-E9-13 shipped 2026-07-17; งานใหม่เพิ่ม 2026-07-18)
 
 ---
 
