@@ -18,7 +18,7 @@
 | [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
 | [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) → **v1.1.0** | Completed |
 | [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay ✅ Done | Completed |
-| [sprint-10](sprint-backlogs/sprint-10.md) | Jul 17-30 | US-E9-05/13 + US-E10-01/02 ✅ Done; A10s/font scale Backlog | **Active** |
+| [sprint-10](sprint-backlogs/sprint-10.md) | Jul 17-30 | US-E9-05/13 + US-E10-01/02 + US-E7-30 ✅ Done; A10s/font scale Backlog | **Active** |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -135,6 +135,7 @@ gantt
 | :--- | :--- | :--- |
 | [US-E10-01](user-stories/US-E10-01.md) Tag แบ่งกลุ่มผู้เล่น (`user_group_tag` + `GRPID`) | `1.2.0` | ✅ Done 2026-07-20 *(AC#3/#4 descoped)* |
 | [US-E10-02](user-stories/US-E10-02.md) Leaderboard แยกตามกลุ่ม — `UNTAGGED` เห็นทุกกลุ่ม | `1.2.0` | ✅ owner 2026-07-20 |
+| [US-E7-30](user-stories/US-E7-30.md) Popup export CSV — art + `Check_Circle` | `1.2.1` | ✅ Done 2026-07-20 |
 | [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | `1.1.6` | ✅ Done 2026-07-17 |
 | [US-E9-13](user-stories/US-E9-13.md) อัปเดต art popup อินเทอร์เน็ตหาย | `1.1.7` | ✅ Done 2026-07-17 |
 

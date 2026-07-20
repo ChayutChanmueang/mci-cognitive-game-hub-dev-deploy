@@ -56,9 +56,33 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.1.5` | 2026-07-15 | US-E9-07 (partial) — `sparkle-effect.js` tuned for check-in tree growth burst (`sMinMax`, spread/cancel lifecycle) |
 | `1.1.6` | 2026-07-17 | US-E9-05 full player data export (complete set, no data loss) |
 | `1.1.7` | 2026-07-17 | US-E9-13 internet-loss character art refresh + SW cache bump |
-| `1.2.0` | 2026-07-20 | **(current)** US-E10-01/02 test-group segmentation — leaderboard scoped to the viewer's `GRPID` + group-specific title |
+| `1.2.0` | 2026-07-20 | US-E10-01/02 test-group segmentation — leaderboard scoped to the viewer's `GRPID` + group-specific title |
+| `1.2.1` | 2026-07-20 | **(current)** US-E7-30 export-CSV popup ใช้ art ชุดเดียวกับ popup อื่น (Frame_Form_Panel + ปุ่ม stroke + Check_Circle) |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.2.1] - 2026-07-20
+**Version bump:** `1.2.0 → 1.2.1` (**PATCH**) — US-E7-30 เปลี่ยน art ของ popup ส่งออก CSV ให้ตรงกับ popup อื่น ๆ; ความสามารถของผู้ใช้ไม่ได้เพิ่มขึ้น (ยัง export scope/type ชุดเดิม) จึงเป็น PATCH ไม่ใช่ MINOR
+
+### Changed
+- **US-E7-30 — Popup ส่งออกข้อมูล CSV ใช้ art ชุดเดียวกับ popup อื่น.** ย้ายออกจาก `player-info-screen.js` (เดิม build markup เอง ใช้ `app-popup` + Material) มาเป็น `src/ui/export-options-popup.js` ที่ประกอบจากชิ้นส่วนกลาง — Frame_Form_Panel (แถบหัวฟ้า) + Icon_ButtonBack + ปุ่ม stroke แดง/เขียว (US-E7-15)
+- `md-switch` (ผู้เล่นคนนี้/ทุกคน) → **radio 2 ตัว** ตาม mockup; `md-checkbox` → **checkbox วงกลมแบบ Figma** ยังเลือกได้หลายอย่างเหมือนเดิม (US-E9-05 ไม่ regress)
+- ใช้ `dismissPopup` แล้ว — เดิม popup นี้ `overlay.remove()` ตรง ๆ ข้ามอนิเมชันปิดของ US-E7-20 ที่ popup อื่นทุกตัวเล่น (AC#4)
+- ลบ CSS `player-info-export-popup__*` (10 rules) ที่ตายแล้วออกจาก `public/style.css`
+
+### Added
+- **`src/ui/components/check-circle.js`** — Check / Check_Circle / Uncheck_Circle (Figma `3305:445/446/447`) วงกลมเป็น CSS ตามกฎ CSS-first มีแต่เครื่องหมายถูกที่เป็น SVG; รวมสามคอมโพเนนต์เป็นตัวเดียวที่สลับสถานะด้วย `:checked` ของ `<input>` จริง (คีย์บอร์ด/screen reader ยังทำงาน — AC#6)
+- ปุ่มยืนยันถูก **disable เมื่อไม่ได้เลือกประเภทข้อมูลเลย** — ของเดิมกดได้แล้วได้ไฟล์เปล่า
+
+### 🔴 กับดักที่เจอตอนทำ (อย่าทำซ้ำ)
+- **`<legend>` ที่ float ทับตัวเลือกแรกของกลุ่ม** — legend ต้อง float ถึงจะวางตัวเป็นหัวข้อธรรมดาใน fieldset แต่ block box ตัวถัดไปไม่หลบ float ทำให้ตัวเลือกแรกของทั้งสองกลุ่ม **หายไปเลย** → เปลี่ยนเป็น `<div role="group" aria-labelledby>` + `<p>` แทน
+- **ปุ่ม `_Stroke` ไม่มีความสูงของตัวเอง** (`width/height: 100%` ล้วน ต่างจากปุ่มธรรมดาที่มี `height` ในตัว) อยู่ใน grid row สูง auto จึงกลายเป็นสูง 0 และหายไป → ต้องกำหนด `height` ให้จาก parent เสมอ
+- **label ของปุ่ม stroke เป็น `white-space: nowrap` + font-size คงที่** — พอใส่คำยาวอย่าง "ส่งออกข้อมูล" แล้วล้นปุ่มบนจอ 360px
+
+### Verified (headless render + jsdom, 2026-07-20)
+- เทียบกับ mockup ที่ owner ให้มา: หัวข้อ/กลุ่ม/วงกลม/ปุ่ม ตรงตามแบบ
+- 520x940, 360x640 (จอแคบ) และ 740x420 (แนวนอนเตี้ย — รายการ scroll ในตัว ปุ่มยังกดถึง, AC#5)
+- 14 behaviour checks: ค่าเริ่มต้น, multi-select ประเภทข้อมูล, scope เลือกได้อย่างเดียว, confirm คืนค่าถูก, cancel/back/backdrop/Escape คืน `null`, disable/enable ปุ่มยืนยัน, คืนค่า `body.overflow`
 
 ## [1.2.0] - 2026-07-20
 **Version bump:** `1.1.7 → 1.2.0` (**MINOR**) — US-E10-01/02 add new functionality: the leaderboard now shows only the viewer's own test group.
