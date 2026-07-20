@@ -1,8 +1,8 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** 🟢 **Release 1.2.2** | **Current Sprint:** [Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) *(Active)*
-**Version:** 1.2.2 | **Last Updated:** 2026-07-20 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 **Release 1.2.3** | **Current Sprint:** [Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) *(Active)*
+**Version:** 1.2.3 | **Last Updated:** 2026-07-20 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -22,7 +22,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
 ### Latest Sprint Planning
-- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-13](agile/user-stories/US-E9-13.md) / [US-E9-05](agile/user-stories/US-E9-05.md) / [US-E10-01](agile/user-stories/US-E10-01.md) / [US-E10-02](agile/user-stories/US-E10-02.md) / [US-E7-30](agile/user-stories/US-E7-30.md) ✅ Done; [US-E10-03](agile/user-stories/US-E10-03.md) / [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
+- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-13](agile/user-stories/US-E9-13.md) / [US-E9-05](agile/user-stories/US-E9-05.md) / [US-E10-01](agile/user-stories/US-E10-01.md) / [US-E10-02](agile/user-stories/US-E10-02.md) / [US-E7-30](agile/user-stories/US-E7-30.md) ✅ Done; [US-E10-03](agile/user-stories/US-E10-03.md) ✅ Done; [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
 - **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — Completed:** P0 gameplay US-E9-01..04 + device/hub/UX — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
 - **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น:** ✅ Done (v1.1.0) — `tree_type` a/b/c/d + lazy backfill
 

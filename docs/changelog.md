@@ -58,9 +58,26 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.1.7` | 2026-07-17 | US-E9-13 internet-loss character art refresh + SW cache bump |
 | `1.2.0` | 2026-07-20 | US-E10-01/02 test-group segmentation — leaderboard scoped to the viewer's `GRPID` + group-specific title |
 | `1.2.1` | 2026-07-20 | US-E7-30 export-CSV popup ใช้ art ชุดเดียวกับ popup อื่น (Frame_Form_Panel + ปุ่ม stroke + Check_Circle) |
-| `1.2.2` | 2026-07-20 | **(current)** US-E7-30 ปรับระยะห่างใน popup export ตามที่ owner จูน + owner ยืนยันบนเครื่องจริง |
+| `1.2.2` | 2026-07-20 | US-E7-30 ปรับระยะห่างใน popup export ตามที่ owner จูน + owner ยืนยันบนเครื่องจริง |
+| `1.2.3` | 2026-07-20 | **(current)** US-E10-03 ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น — สลับกับปุ่ม "กลับไปหน้าเกม" |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.2.3] - 2026-07-20
+**Version bump:** `1.2.2 → 1.2.3` (**PATCH**) — US-E10-03 อุดช่องที่ผู้เล่นออกจาก popup วิดีโอไม่ได้ระหว่างคลิปยังเล่น (แนวเดียวกับ US-E9-06/US-E9-08 ที่เป็น UX fix จากหน้างานแล้วนับเป็น PATCH)
+
+### Fixed
+- **US-E10-03 — ปุ่มปิด popup วิดีโอระหว่างคลิปกำลังเล่น.** เดิมปุ่ม `กลับไปหน้าเกม` โผล่ **หลังคลิปจบเท่านั้น** (`.gh-video-popup.is-ended`) คลิปที่ยาวจึงทำให้ผู้เล่นติดอยู่โดยไม่มีทางออก
+- ปุ่มย้อนกลับที่ owner ใส่ไว้ในแถบหัวเรื่อง **เป็นปุ่มตาย** — `wire()` ผูก event ให้เฉพาะ `.gh-start-button` ตอนนี้ผูก handler แล้ว กดกลับหน้า Game Hub ได้จริง
+- ทั้งสองปุ่ม **สลับกันเสมอ ไม่โผล่พร้อมกัน** — `ended` → ซ่อนปุ่มย้อนกลับ แสดงปุ่มจบ; `play` → ถอด `is-ended` กลับสู่สถานะเดิม (กดเล่นซ้ำก็สลับกลับถูกต้อง)
+- เปลี่ยน `id="player-info-back"` (ก็อปมาจาก `player-info-screen.js`) → `checkin-video-close` และ `aria-label` เป็น "ปิดวิดีโอแล้วกลับไปหน้าเกม"
+
+### 📌 หมายเหตุ
+- **ปิดกลางคันไม่ได้ทำให้ข้ามอะไร** — ทั้ง `game-hub-screen.js` และ `player-info-screen.js` เรียก `await showCheckInPopup({...})` โดย**ไม่ได้อ่านค่าที่ resolve กลับมา** เช็คอินจึงไม่ได้ผูกกับการดูคลิปจบตั้งแต่แรก (คำถามที่ค้างไว้ใน story ตกไป)
+- `cleanup()` เดิมเรียก `state.videoPlayerInstance?.destroy()` + `dismissPopup()` อยู่แล้ว ปิดกลางคลิปจึงไม่มีเสียงเล่นค้าง และได้อนิเมชันปิดตาม US-E7-20 โดยไม่ต้องแก้เพิ่ม
+
+### Verified
+- ทดสอบกฎ CSS จริงด้วย jsdom ทั้ง 3 สถานะ — กำลังเล่น / จบ / กดเล่นซ้ำ: **มีทางออกโผล่ครั้งละปุ่มเดียวเสมอ** ไม่มีสถานะไหนที่โผล่พร้อมกันหรือหายทั้งคู่
 
 ## [1.2.2] - 2026-07-20
 **Version bump:** `1.2.1 → 1.2.2` (**PATCH**) — ปรับระยะห่างภายใน popup ส่งออก CSV ให้อ่านง่ายขึ้น (owner จูนเอง) และ owner ยืนยันการใช้งานจริงแล้ว

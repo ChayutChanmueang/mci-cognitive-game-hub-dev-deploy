@@ -11,6 +11,7 @@ import { renderFramePopupMarkup } from "./components/frame-popup.js";
 import { renderFramePanel } from "./components/frame-panel.js";
 import { renderStartGameButton } from "./components/start-game-button.js";
 import { dismissPopup } from "./transition/popup-transition.js";
+import { renderIconButtonBack } from "./components/icon-button-back.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -433,10 +434,23 @@ export function showCheckInPopup(options = {}) {
             // US-E7-04: video step uses Frame_Panel (no header) with the title above it.
             // The clip frame is large while playing, then collapses and reveals the
             // Start-Game-Button when it ends.
+            //
+            // US-E10-03: the two exits swap, never both at once — a clip can run long and the
+            // Start-Game-Button only appears once it has finished, which left a player with no
+            // way out while it played. The back icon covers that window; the swap is driven by
+            // `is-ended` on the popup root, toggled by the player's own play/ended events (so
+            // replaying re-hides the end button and brings the back icon back).
             const markup = `
                 <div class="gh-video-popup" role="dialog" aria-modal="true" aria-label="${escapeHtml(videoTitle)}">
                     <div class="parent-gh-video-popup__frame">
                         <div class="gh-video-popup__title">
+                            <div class="gh-video-popup__title-back">
+                                <div class="gh-video-popup__title-back-icon">
+                                    <div class="gh-video-popup__title-back-icon-container">
+                                        ${renderIconButtonBack({ id: "checkin-video-close", ariaLabel: "ปิดวิดีโอแล้วกลับไปหน้าเกม" })}
+                                    </div>
+                                </div>
+                            </div>
                             <h2 class="gh-video-popup__title-text">${escapeHtml(videoTitle)}</h2>
                         </div>
                         ${renderFramePanel({
@@ -444,7 +458,7 @@ export function showCheckInPopup(options = {}) {
                             body: `<div class="video-popup-player" data-video-container></div>`,
                         })}
                         <div class="gh-popup__button gh-video-popup__button">
-                            ${renderStartGameButton({ label: "ต่อไป" })}
+                            ${renderStartGameButton({ label: "กลับไปหน้าเกม" })}
                         </div>
                     </div>
                 </div>
@@ -459,13 +473,25 @@ export function showCheckInPopup(options = {}) {
                         label: escapeHtml(videoTitle),
                     });
                     VideoManager.register(state.videoPlayerInstance);
-                    // When the clip ends, collapse the frame + reveal the button.
+                    // When the clip ends, collapse the frame + swap back icon → end button.
                     state.videoPlayerInstance.on("ended", () => {
                         videoPopupEl?.classList.add("is-ended");
                     });
+                    // Replaying puts us back in the "no way out yet" state, so swap back.
+                    state.videoPlayerInstance.on("play", () => {
+                        videoPopupEl?.classList.remove("is-ended");
+                    });
                 }
 
+                // Both exits land in the same place — the Game Hub. `cleanup()` already
+                // destroys the player and plays the leave animation, so closing mid-clip
+                // leaves no audio running. Neither caller reads the resolved value, so
+                // closing early is not a way to skip anything.
                 stageEl.querySelector(".gh-start-button")?.addEventListener("click", () => {
+                    cleanup(true);
+                });
+
+                stageEl.querySelector("#checkin-video-close")?.addEventListener("click", () => {
                     cleanup(true);
                 });
             };

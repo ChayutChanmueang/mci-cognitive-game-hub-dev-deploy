@@ -1744,6 +1744,7 @@
 }
 
 .gh-video-popup__title {
+  position: relative;
   width: 100%;
   height: 75px;
   margin: 0;
@@ -1754,14 +1755,36 @@
   justify-content: flex-end;
 }
 
+.gh-video-popup__title-back {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  z-index: 3;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gh-video-popup__title-back-icon {
+  width: min(48vh, 80cqh * 9 / 16);
+  z-index: 3;
+}
+
+.gh-video-popup__title-back-icon-container {
+  position: relative;
+  left: -10px;
+}
+
 .gh-video-popup__title-text {
   width: 100%;
   font-weight: 700;
-  font-size: clamp(2.3rem, 15vw, 2.3rem);
+  font-size: clamp(2.3rem, 12vw, 2.3rem);
   text-align: center;
   text-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
   font-family: var(--main-font), var(--main-font-type);
-  line-height: 2;
+  line-height: 2.5;
   margin: 0;
 }
 
@@ -1811,6 +1834,14 @@
    still fits — no fixed height needed. */
 .gh-video-popup.is-ended .gh-video-popup__button {
   display: block;
+}
+
+/* US-E10-03 — the two exits swap, never both at once. `.gh-video-popup__button` (กลับไปหน้าเกม)
+   is display:none until `is-ended`; the back icon is the mirror image of that, so while the clip
+   plays there is exactly one way out, and once it ends there is exactly one. `play` removes
+   `is-ended`, so replaying swaps them back. */
+.gh-video-popup.is-ended .gh-video-popup__title-back {
+  display: none;
 }
 
 .gh-video-popup.is-ended .gh-video-popup__frame {

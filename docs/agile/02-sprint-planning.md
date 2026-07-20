@@ -112,7 +112,7 @@ gantt
 ### 🏷 E10: Sprint 10 Additions — Test Group Segmentation & UX (Post-1.0)
 - **Sprint 10:** แบ่งกลุ่มผู้เล่นด้วย Tag เพื่อเทียบผลรายกลุ่มทดสอบ — lookup table `user_group_tag` + FK `GRPID` บน `user_game_profile_data`; Leaderboard แสดงเฉพาะกลุ่มของผู้เล่น ส่วน `UNTAGGED` เห็นทุกกลุ่ม (มุมมอง admin)
 - **Target:** shipped **v1.2.0** (2026-07-20) — [US-E10-01](user-stories/US-E10-01.md) ✅ Done *(AC#3 Player-Info / AC#4 CSV export descoped)*, [US-E10-02](user-stories/US-E10-02.md) ✅ Done
-- **ค้าง:** ยังไม่มีเครื่องมือ tag ผู้เล่น (ทำผ่าน SQL เท่านั้น), CSV export ยังไม่มีคอลัมน์กลุ่ม และ [US-E10-03](user-stories/US-E10-03.md) (ปุ่มปิดวิดีโอ) ยัง Backlog
+- **ค้าง:** ยังไม่มีเครื่องมือ tag ผู้เล่น (ทำผ่าน SQL เท่านั้น) และ CSV export ยังไม่มีคอลัมน์กลุ่ม — [US-E10-03](user-stories/US-E10-03.md) ✅ Done (`1.2.3`)
 - **ชื่อ epic:** ตั้งแต่ 2026-07-20 E10 = "งานใหม่ที่เพิ่มเข้ามาใน Sprint 10" ไม่ได้จำกัดแค่เรื่อง test group — [US-E10-03](user-stories/US-E10-03.md) เป็นงาน UX ของ popup วิดีโอ คนละเรื่องกับ E10-01/02
 
 **Shipped so far (Sprint 9):**
@@ -137,6 +137,7 @@ gantt
 | [US-E10-01](user-stories/US-E10-01.md) Tag แบ่งกลุ่มผู้เล่น (`user_group_tag` + `GRPID`) | `1.2.0` | ✅ Done 2026-07-20 *(AC#3/#4 descoped)* |
 | [US-E10-02](user-stories/US-E10-02.md) Leaderboard แยกตามกลุ่ม — `UNTAGGED` เห็นทุกกลุ่ม | `1.2.0` | ✅ owner 2026-07-20 |
 | [US-E7-30](user-stories/US-E7-30.md) Popup export CSV — art + `Check_Circle` | `1.2.1` → `1.2.2` | ✅ owner 2026-07-20 |
+| [US-E10-03](user-stories/US-E10-03.md) ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น | `1.2.3` | ✅ Done 2026-07-20 |
 | [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | `1.1.6` | ✅ Done 2026-07-17 |
 | [US-E9-13](user-stories/US-E9-13.md) อัปเดต art popup อินเทอร์เน็ตหาย | `1.1.7` | ✅ Done 2026-07-17 |
 

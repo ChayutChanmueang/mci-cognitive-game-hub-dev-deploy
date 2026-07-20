@@ -28,7 +28,7 @@ gantt
     section P2 — Art
     Export popup art (US-E7-30)      :done, t730, 2026-07-20, 1d
     section P1 — Video UX
-    Video close button (US-E10-03)   :t1003, 2026-07-21, 2d
+    Video close button (US-E10-03)   :done, t1003, 2026-07-20, 1d
     section QA
     A10s playtest                    :q1, 2026-07-27, 4d
 ```
@@ -50,15 +50,16 @@ gantt
 | [US-E10-01](../user-stories/US-E10-01.md) | Tag แบ่งกลุ่มผู้เล่น — `user_group_tag` + `GRPID` *(AC#3/#4 descoped)* | P1 | ✅ Done (v1.2.0, 2026-07-20) |
 | [US-E10-02](../user-stories/US-E10-02.md) | Leaderboard แยกตามกลุ่ม `GRPID` — `UNTAGGED` เห็นทุกกลุ่ม | P1 | ✅ Done (v1.2.0, 2026-07-20) |
 | [US-E7-30](../user-stories/US-E7-30.md) | Popup export CSV ใช้ art ชุดเดียวกับ popup อื่น + Check_Circle | P2 | ✅ owner verified (v1.2.1 → v1.2.2, 2026-07-20) |
+| [US-E10-03](../user-stories/US-E10-03.md) | ปุ่มปิด popup วิดีโอระหว่างคลิปกำลังเล่น (สลับกับปุ่ม "กลับไปหน้าเกม") | P1 | ✅ Done (v1.2.3, 2026-07-20) |
 
 ### 📋 Backlog (Sprint 10)
 | ID | Story / Task | Priority | สถานะ |
 |----|--------------|----------|--------|
-| [US-E10-03](../user-stories/US-E10-03.md) | ปุ่มปิด popup วิดีโอระหว่างคลิปกำลังเล่น (สลับกับปุ่ม "กลับไปหน้าเกม") | P1 | 📋 Backlog *(รอ owner เคลียร์: ปิดกลางคันนับว่าดูจบไหม)* |
 | [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog *(sparkle slice ✅ v1.1.5; confetti + Phaser ค้าง)* |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog |
 
-> **2026-07-20:** Owner เพิ่มงานใหม่ — [US-E10-03](../user-stories/US-E10-03.md) ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น (owner ใส่ markup ปุ่มย้อนกลับเองแล้ว เหลือผูก handler + สลับการแสดงผล)
+> **2026-07-20:** [US-E10-03](../user-stories/US-E10-03.md) ✅ Done (**v1.2.3**) — ผูก handler ปุ่มย้อนกลับ + สลับการแสดงผลกับปุ่ม "กลับไปหน้าเกม"
+> **2026-07-20:** Owner เพิ่มงานใหม่ — [US-E10-03](../user-stories/US-E10-03.md) ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น (owner ใส่ markup ปุ่มย้อนกลับเองแล้ว)
 > **2026-07-20:** [US-E7-30](../user-stories/US-E7-30.md) ✅ owner verified (**v1.2.2**) — owner จูนระยะห่างใน popup เอง
 > **2026-07-20:** [US-E7-30](../user-stories/US-E7-30.md) ✅ Done (**v1.2.1**) — popup export CSV ใช้ art ชุดเดียวกับ popup อื่น + คอมโพเนนต์ `Check_Circle`
 > **2026-07-20:** [US-E10-01](../user-stories/US-E10-01.md)/[US-E10-02](../user-stories/US-E10-02.md) ✅ Done (**v1.2.0**) — leaderboard แยกตามกลุ่ม; owner ปรับ CSS หัวข้อให้รองรับชื่อกลุ่มที่ยาวขึ้น
@@ -78,13 +79,13 @@ gantt
 
 - [Sprint 09](sprint-09.md) ✅ **Completed** (2026-07-17) — P0 gameplay [US-E9-01](../user-stories/US-E9-01.md)..[US-E9-04](../user-stories/US-E9-04.md) Done
 - [US-E9-10](../user-stories/US-E9-10.md) ✅ Done ใน Sprint 09 (CLI, ไม่ bump version)
-- **Current shipped:** `1.2.2` (US-E7-30 art popup export CSV + ระยะห่างที่ owner จูน)
-- **Focus ที่เหลือ:** [US-E10-03](../user-stories/US-E10-03.md) (ปุ่มปิดวิดีโอ) / [US-E9-07](../user-stories/US-E9-07.md) (A10s perf) / [US-E9-09](../user-stories/US-E9-09.md) (system font scale) — งานที่เพิ่ม 2026-07-18 (US-E10-01/02, US-E7-30) ปิดครบแล้ว 2026-07-20
+- **Current shipped:** `1.2.3` (US-E10-03 ปุ่มปิด popup วิดีโอ)
+- **Focus ที่เหลือ:** [US-E9-07](../user-stories/US-E9-07.md) (A10s perf) / [US-E9-09](../user-stories/US-E9-09.md) (system font scale) — งานที่เพิ่ม 2026-07-18 (US-E10-01/02, US-E7-30) ปิดครบแล้ว 2026-07-20
 
 ---
 
 ## 📊 Sprint Summary
-- **งานที่ commit:** US-E9-13 / US-E9-05 / US-E10-01 / US-E10-02 / US-E7-30 ✅ Done; เหลือ US-E10-03 + US-E9-07/09
+- **งานที่ commit:** US-E9-13 / US-E9-05 / US-E10-01 / US-E10-02 / US-E7-30 / US-E10-03 ✅ Done; เหลือ US-E9-07/09
 - **สถานะ:** 🟢 **Sprint 10 Open** (ล่าสุด US-E7-30 owner verified **v1.2.2** 2026-07-20; เหลือ US-E9-07/09)
 
 ---
