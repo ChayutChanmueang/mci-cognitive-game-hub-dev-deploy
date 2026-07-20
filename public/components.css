@@ -2498,7 +2498,7 @@
      opposite — full width, top-aligned, with the option list taking the slack. */
   justify-content: stretch;
   grid-template-rows: minmax(0, 1fr) auto;
-  gap: calc(18px * var(--gh-scale, 1));
+  gap: calc(38px * var(--gh-scale, 1));
   padding-bottom: 26px;
 }
 
@@ -2510,7 +2510,7 @@
 }
 
 .gh-export-popup__lead {
-  margin: 0 0 calc(18px * var(--gh-scale, 1));
+  margin: calc(36px * var(--gh-scale, 1)) 0 calc(28px * var(--gh-scale, 1));
   text-align: center;
   color: #305a69;
   font-family: var(--main-font), var(--main-font-type);
@@ -2532,7 +2532,7 @@
    border box to lay out as a plain heading, and a floated legend then overlaps the first
    option row (block boxes ignore floats), which hid the first choice in each group. */
 .gh-export-popup__legend {
-  margin: 0 0 calc(10px * var(--gh-scale, 1));
+  margin: calc(24px * var(--gh-scale, 1)) 0 calc(24px * var(--gh-scale, 1));
   padding: 0;
   color: #305a69;
   font-family: var(--main-font), var(--main-font-type);

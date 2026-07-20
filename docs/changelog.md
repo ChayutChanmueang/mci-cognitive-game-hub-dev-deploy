@@ -57,9 +57,20 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.1.6` | 2026-07-17 | US-E9-05 full player data export (complete set, no data loss) |
 | `1.1.7` | 2026-07-17 | US-E9-13 internet-loss character art refresh + SW cache bump |
 | `1.2.0` | 2026-07-20 | US-E10-01/02 test-group segmentation — leaderboard scoped to the viewer's `GRPID` + group-specific title |
-| `1.2.1` | 2026-07-20 | **(current)** US-E7-30 export-CSV popup ใช้ art ชุดเดียวกับ popup อื่น (Frame_Form_Panel + ปุ่ม stroke + Check_Circle) |
+| `1.2.1` | 2026-07-20 | US-E7-30 export-CSV popup ใช้ art ชุดเดียวกับ popup อื่น (Frame_Form_Panel + ปุ่ม stroke + Check_Circle) |
+| `1.2.2` | 2026-07-20 | **(current)** US-E7-30 ปรับระยะห่างใน popup export ตามที่ owner จูน + owner ยืนยันบนเครื่องจริง |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.2.2] - 2026-07-20
+**Version bump:** `1.2.1 → 1.2.2` (**PATCH**) — ปรับระยะห่างภายใน popup ส่งออก CSV ให้อ่านง่ายขึ้น (owner จูนเอง) และ owner ยืนยันการใช้งานจริงแล้ว
+
+### Changed
+- `public/components.css` — เพิ่มระยะหายใจใน [US-E7-30](agile/user-stories/US-E7-30.md) popup ส่งออก CSV (owner ปรับเอง)
+  - `.gh-popup--export .gh-frame-popup-panel__body` `gap` `18px → 38px` (ระยะระหว่างรายการตัวเลือกกับแถวปุ่ม)
+  - `.gh-export-popup__lead` เพิ่ม `margin-top 36px` และ `margin-bottom 18px → 28px`
+  - `.gh-export-popup__legend` เพิ่ม `margin-top 24px`, `margin-bottom 10px → 24px` (หัวข้อกลุ่มไม่ติดตัวเลือกด้านบน)
+- [US-E7-30](agile/user-stories/US-E7-30.md) → ✅ **owner verified บนเครื่องจริง** (เดิม Done แต่ยืนยันแค่ headless render + jsdom)
 
 ## [1.2.1] - 2026-07-20
 **Version bump:** `1.2.0 → 1.2.1` (**PATCH**) — US-E7-30 เปลี่ยน art ของ popup ส่งออก CSV ให้ตรงกับ popup อื่น ๆ; ความสามารถของผู้ใช้ไม่ได้เพิ่มขึ้น (ยัง export scope/type ชุดเดิม) จึงเป็น PATCH ไม่ใช่ MINOR
