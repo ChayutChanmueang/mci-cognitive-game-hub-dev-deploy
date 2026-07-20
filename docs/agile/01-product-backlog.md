@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-20 | **Release:** [v1.2.2](../changelog.md) — Current | **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (US-E9-13/05 Done; US-E9-07/09 + US-E10-01/02 + US-E7-30 Backlog)
+**Last Updated:** 2026-07-20 | **Release:** [v1.2.2](../changelog.md) — Current | **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (US-E9-13/05 + US-E10-01/02 + US-E7-30 Done; US-E10-03 + US-E9-07/09 Backlog)
 
 ## 🎯 Product Vision
 
@@ -178,13 +178,14 @@
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                 | Med      | 📋 Backlog                 |
 | [US-E10-01](./user-stories/US-E10-01.md) | Tag แบ่งกลุ่มผู้เล่น — `user_group_tag` + `GRPID` *(AC#3/#4 descoped)*                          | Med      | ✅ Done (v1.2.0)           |
 | [US-E10-02](./user-stories/US-E10-02.md) | Leaderboard แสดงเฉพาะกลุ่มทดสอบที่ Tag ตรงกัน (`UNTAGGED` เห็นทุกกลุ่ม)                        | Med      | ✅ Done (v1.2.0)           |
+| [US-E10-03](./user-stories/US-E10-03.md) | ปุ่มปิด Popup วิดีโอระหว่างคลิปกำลังเล่น (สลับกับปุ่ม "กลับไปหน้าเกม")                             | High     | 📋 Backlog                 |
 | [US-E7-30](./user-stories/US-E7-30.md) | Art assets สำหรับ Popup Export CSV หน้าข้อมูลผู้เล่น                                             | Low      | ✅ Done (v1.2.2)           |
-| [US-E7-31](./user-stories/US-E7-31.md) | ปุ่มปิด Popup วิดีโอระหว่างคลิปกำลังเล่น (สลับกับปุ่มตอนจบ)                                        | High     | 📋 Backlog                 |
 
-> ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) — [US-E9-13](./user-stories/US-E9-13.md)/[US-E9-05](./user-stories/US-E9-05.md) ✅ Done; [US-E9-07](./user-stories/US-E9-07.md)/[US-E9-09](./user-stories/US-E9-09.md) + [US-E10-01](./user-stories/US-E10-01.md)/[US-E10-02](./user-stories/US-E10-02.md)/[US-E7-30](./user-stories/US-E7-30.md) Backlog
+> ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) — [US-E9-13](./user-stories/US-E9-13.md)/[US-E9-05](./user-stories/US-E9-05.md)/[US-E10-01](./user-stories/US-E10-01.md)/[US-E10-02](./user-stories/US-E10-02.md)/[US-E7-30](./user-stories/US-E7-30.md) ✅ Done; [US-E10-03](./user-stories/US-E10-03.md)/[US-E9-07](./user-stories/US-E9-07.md)/[US-E9-09](./user-stories/US-E9-09.md) Backlog
 > ⤷ US-E9-13 ต่อยอด [US-E7-27](./user-stories/US-E7-27.md) — art `*_internet_loss.png` + SW `CACHE_VERSION` v3 (**v1.1.7**)
 > ⤷ [US-E9-07](./user-stories/US-E9-07.md) sparkle slice shipped **v1.1.5**; confetti + Phaser remainder ค้าง Backlog
 > ⤷ Epic ยังเป็น E9 (Field Feedback); แยกตารางตาม sprint เพื่อติดตามงานที่ carry-over
+> ⤷ **2026-07-20:** [US-E10-03](./user-stories/US-E10-03.md) (ปุ่มปิด popup วิดีโอ) เข้า E10 — เป็นงานใหม่ของ Sprint 10 ไม่ใช่ส่วนต่อขยายของงาน art ใน E7 จึงขยายชื่อ epic E10 ให้ครอบคลุมงานใหม่ของสปรินต์นี้ ไม่ใช่เฉพาะ test group
 > ⤷ **2026-07-18:** Owner เพิ่มงานใหม่เข้า Sprint 10 — [US-E10-01](./user-stories/US-E10-01.md)/[US-E10-02](./user-stories/US-E10-02.md) (Epic ใหม่ **E10: Test Group Segmentation** — Tag กลุ่มทดสอบ + Leaderboard กรองตามกลุ่ม; E10-02 ต้องทำหลัง E10-01) และ [US-E7-30](./user-stories/US-E7-30.md) (Epic E7 — art popup export CSV)
 > ⤷ US-E8-01 → [Sprint 08](./sprint-backlogs/sprint-08.md); US-E7-* → [Sprint 07](./sprint-backlogs/sprint-07.md)
 >  US-E7-10 Done เฉพาะขอบเขตเอฟเฟค Juicy (growth transition + sparkle, ยืนยัน 2026-07-06); การทำต้นไม้หลายรูปแบบ (art) ยกออกเป็นงานติดตามในภายหลัง

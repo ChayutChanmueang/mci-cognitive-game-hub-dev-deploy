@@ -109,10 +109,11 @@ gantt
 - **Sprint 10 (Active):** ~~full data export~~ ✅ [US-E9-05](user-stories/US-E9-05.md); ~~internet-loss art~~ ✅ [US-E9-13](user-stories/US-E9-13.md); A10s/font scale Backlog → [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
-### 🏷 E10: Test Group Segmentation & Research Tools (Post-1.0)
+### 🏷 E10: Sprint 10 Additions — Test Group Segmentation & UX (Post-1.0)
 - **Sprint 10:** แบ่งกลุ่มผู้เล่นด้วย Tag เพื่อเทียบผลรายกลุ่มทดสอบ — lookup table `user_group_tag` + FK `GRPID` บน `user_game_profile_data`; Leaderboard แสดงเฉพาะกลุ่มของผู้เล่น ส่วน `UNTAGGED` เห็นทุกกลุ่ม (มุมมอง admin)
 - **Target:** shipped **v1.2.0** (2026-07-20) — [US-E10-01](user-stories/US-E10-01.md) ✅ Done *(AC#3 Player-Info / AC#4 CSV export descoped)*, [US-E10-02](user-stories/US-E10-02.md) ✅ Done
-- **ค้าง:** ยังไม่มีเครื่องมือ tag ผู้เล่น (ทำผ่าน SQL เท่านั้น) และ CSV export ยังไม่มีคอลัมน์กลุ่ม
+- **ค้าง:** ยังไม่มีเครื่องมือ tag ผู้เล่น (ทำผ่าน SQL เท่านั้น), CSV export ยังไม่มีคอลัมน์กลุ่ม และ [US-E10-03](user-stories/US-E10-03.md) (ปุ่มปิดวิดีโอ) ยัง Backlog
+- **ชื่อ epic:** ตั้งแต่ 2026-07-20 E10 = "งานใหม่ที่เพิ่มเข้ามาใน Sprint 10" ไม่ได้จำกัดแค่เรื่อง test group — [US-E10-03](user-stories/US-E10-03.md) เป็นงาน UX ของ popup วิดีโอ คนละเรื่องกับ E10-01/02
 
 **Shipped so far (Sprint 9):**
 
