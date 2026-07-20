@@ -7,7 +7,6 @@ kanban-plugin: board
 ## 📋 Backlog (Prioritized)
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (A10s) → Sprint 10 *(sparkle v1.1.5 shipped)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
-- [ ] [US-E10-01](user-stories/US-E10-01.md) 🟠 Tag แบ่งกลุ่มผู้เล่น (Test Group) — `group_tag` → Sprint 10
 - [ ] [US-E7-30](user-stories/US-E7-30.md) 🟡 Art assets popup export CSV หน้าข้อมูลผู้เล่น → Sprint 10
 
 ## 🔵 In Progress (WIP Limit: 3)
@@ -19,6 +18,7 @@ kanban-plugin: board
 
 
 ## ✅ Done
+- [x] [US-E10-01](user-stories/US-E10-01.md) Tag แบ่งกลุ่มผู้เล่น — `user_group_tag` + `GRPID` (v1.2.0) — ✅ Done 2026-07-20 *(AC#3 Player-Info / AC#4 CSV descoped)*
 - [x] [US-E10-02](user-stories/US-E10-02.md) Leaderboard แยกตามกลุ่ม `GRPID` — `UNTAGGED` เห็นทุกกลุ่ม (v1.2.0) — ✅ Done 2026-07-20 (Sprint 10)
 - [x] [US-E9-13](user-stories/US-E9-13.md) อัปเดต art popup อินเทอร์เน็ตหาย — `*_internet_loss.png` (v1.1.7) — ✅ Done 2026-07-17 (Sprint 10)
 - [x] [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลครบชุด (v1.1.6) — ✅ Done 2026-07-17 (Sprint 10)

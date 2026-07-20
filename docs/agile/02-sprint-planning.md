@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-17
+**Last Updated:** 2026-07-20
 
 ## 📅 Sprint Schedule Overview (2-Week Cycles)
 
@@ -18,7 +18,7 @@
 | [sprint-07](sprint-backlogs/sprint-07.md) | Jun 23-Jul 07 | Game Art Assets, Version Display & Mini-game Vertical Responsiveness → **v1.0.0 release** | Completed |
 | [sprint-08](sprint-backlogs/sprint-08.md) | Jul 08-21 | Per-player progression tree (`tree_type`) → **v1.1.0** | Completed |
 | [sprint-09](sprint-backlogs/sprint-09.md) | Jul 10-23 | Field Feedback Hotfix — P0 gameplay ✅ Done | Completed |
-| [sprint-10](sprint-backlogs/sprint-10.md) | Jul 17-30 | US-E9-05 ✅ Done; A10s/font scale Backlog | **Active** |
+| [sprint-10](sprint-backlogs/sprint-10.md) | Jul 17-30 | US-E9-05/13 + US-E10-01/02 ✅ Done; A10s/font scale Backlog | **Active** |
 
 ## 📊 Project Timeline (Gantt Chart)
 ```mermaid
@@ -109,6 +109,11 @@ gantt
 - **Sprint 10 (Active):** ~~full data export~~ ✅ [US-E9-05](user-stories/US-E9-05.md); ~~internet-loss art~~ ✅ [US-E9-13](user-stories/US-E9-13.md); A10s/font scale Backlog → [US-E9-07](user-stories/US-E9-07.md), [US-E9-09](user-stories/US-E9-09.md)
 - **Source:** [Meeting 2026-07-10](meeting-backlogs/2026-07-10.md)
 
+### 🏷 E10: Test Group Segmentation & Research Tools (Post-1.0)
+- **Sprint 10:** แบ่งกลุ่มผู้เล่นด้วย Tag เพื่อเทียบผลรายกลุ่มทดสอบ — lookup table `user_group_tag` + FK `GRPID` บน `user_game_profile_data`; Leaderboard แสดงเฉพาะกลุ่มของผู้เล่น ส่วน `UNTAGGED` เห็นทุกกลุ่ม (มุมมอง admin)
+- **Target:** shipped **v1.2.0** (2026-07-20) — [US-E10-01](user-stories/US-E10-01.md) ✅ Done *(AC#3 Player-Info / AC#4 CSV export descoped)*, [US-E10-02](user-stories/US-E10-02.md) ✅ Done
+- **ค้าง:** ยังไม่มีเครื่องมือ tag ผู้เล่น (ทำผ่าน SQL เท่านั้น) และ CSV export ยังไม่มีคอลัมน์กลุ่ม
+
 **Shipped so far (Sprint 9):**
 
 | Story | Version | Verified |
@@ -128,6 +133,8 @@ gantt
 
 | Story | Version | Verified |
 | :--- | :--- | :--- |
+| [US-E10-01](user-stories/US-E10-01.md) Tag แบ่งกลุ่มผู้เล่น (`user_group_tag` + `GRPID`) | `1.2.0` | ✅ Done 2026-07-20 *(AC#3/#4 descoped)* |
+| [US-E10-02](user-stories/US-E10-02.md) Leaderboard แยกตามกลุ่ม — `UNTAGGED` เห็นทุกกลุ่ม | `1.2.0` | ✅ owner 2026-07-20 |
 | [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย | `1.1.6` | ✅ Done 2026-07-17 |
 | [US-E9-13](user-stories/US-E9-13.md) อัปเดต art popup อินเทอร์เน็ตหาย | `1.1.7` | ✅ Done 2026-07-17 |
 

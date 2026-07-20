@@ -1865,16 +1865,16 @@
 }
 
 .gh-leaderboard-header__title {
-  top: calc(38px * var(--gh-scale, 1));
+  top: calc(50px * var(--gh-scale, 1));
   color: #305a69;
-  font-size: calc(clamp(72px, 21vw, 84px) * var(--gh-scale, 1));
+  font-size: calc(clamp(54px, 16.5vw, 72px) * var(--gh-scale, 1));
   font-weight: 700;
 }
 
 .gh-leaderboard-header__subtitle {
-  top: calc(177px * var(--gh-scale, 1));
+  top: calc(170px * var(--gh-scale, 1));
   color: #3690b1;
-  font-size: calc(clamp(32px, 12vw, 52px) * var(--gh-scale, 1));
+  font-size: calc(clamp(28px, 11vw, 48px) * var(--gh-scale, 1));
   font-weight: 500;
 }
 
