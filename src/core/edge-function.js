@@ -74,8 +74,17 @@ class EdgeFunction {
         return response.json();
     }
 
-    async getLeaderboard({ offset = 0, limit = 20 } = {}) {
-        const response = await this._post("read-database/getLeaderboard", { offset, limit });
+    /**
+     * US-E10-02 — `hn` ใช้ให้ฝั่ง server หากลุ่มของผู้ดูเอง (ไม่ได้ส่ง GRPID มาเพราะปลอมได้)
+     * `null` = ยังไม่รู้ว่าใครดู → server ปฏิบัติเหมือน UNTAGGED คือเห็นทุกกลุ่ม
+     */
+    async getLeaderboard({ offset = 0, limit = 20, hn = null } = {}) {
+        const parsedHn = String(hn ?? "").trim();
+        const response = await this._post("read-database/getLeaderboard", {
+            offset,
+            limit,
+            hn: parsedHn || null,
+        });
         if (!response.ok) {
             const body = await response.json().catch(() => ({}));
             throw new Error(body?.error || `Edge function error: ${response.status}`);

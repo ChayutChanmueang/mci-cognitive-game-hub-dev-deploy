@@ -40,6 +40,7 @@ gantt
 |----|--------------|----------|--------|
 | [US-E9-13](../user-stories/US-E9-13.md) | อัปเดต art popup อินเทอร์เน็ตหาย — `*_internet_loss.png` | P1 | ✅ Done (v1.1.7, 2026-07-17) |
 | [US-E9-05](../user-stories/US-E9-05.md) | ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย (Edge Function / pagination) | P1 | ✅ Done (v1.1.6, 2026-07-17) |
+| [US-E10-02](../user-stories/US-E10-02.md) | Leaderboard แยกตามกลุ่ม `GRPID` — `UNTAGGED` เห็นทุกกลุ่ม | P1 | ✅ Done (v1.2.0, 2026-07-20) |
 
 ### 📋 Backlog (Sprint 10)
 | ID | Story / Task | Priority | สถานะ |
@@ -47,7 +48,6 @@ gantt
 | [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog *(sparkle slice ✅ v1.1.5; confetti + Phaser ค้าง)* |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog |
 | [US-E10-01](../user-stories/US-E10-01.md) | Tag แบ่งกลุ่มผู้เล่น (Test Group Segmentation) — `group_tag` | P1 | 📋 Backlog |
-| [US-E10-02](../user-stories/US-E10-02.md) | Leaderboard แสดงเฉพาะกลุ่มทดสอบที่ Tag ตรงกัน *(ขึ้นกับ US-E10-01)* | P1 | 📋 Backlog |
 | [US-E7-30](../user-stories/US-E7-30.md) | Art assets popup export CSV หน้าข้อมูลผู้เล่น | P2 | 📋 Backlog |
 
 > **2026-07-18:** Owner เพิ่มงานใหม่เข้า Sprint 10 — [US-E10-01](../user-stories/US-E10-01.md)/[US-E10-02](../user-stories/US-E10-02.md) (Tag กลุ่มทดสอบ + Leaderboard กรองตามกลุ่ม) และ [US-E7-30](../user-stories/US-E7-30.md) (art popup export CSV)

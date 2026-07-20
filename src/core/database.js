@@ -12,6 +12,9 @@ const USER_GAME_HISTORY_TABLE = "user_game_history";
 const REPLAY_LOG_TABLE = "game_replay_log";
 const USER_PATIENT_DATA_TABLE = "user_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
+// US-E10-01 — ค่า default ของคอลัมน์ GRPID; ผู้เล่นกลุ่มนี้ (และผู้ที่ยังไม่มีแถว profile)
+// เห็นอันดับของทุกกลุ่ม เพราะเป็นมุมมองสำหรับ admin ตรวจสอบ
+const UNTAGGED_GROUP_ID = "UNTAGGED";
 const GAME_TREE_LIST_TABLE = "game_tree_list";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
 const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
@@ -1931,6 +1934,32 @@ class Database {
         return this.writeReplayLog(params);
     }
 
+    /**
+     * US-E10-01 — map hn → GRPID สำหรับเส้นทางสำรองฝั่ง client เท่านั้น
+     *
+     * user_game_profile_data ไม่มี UNIQUE(hn) — index (hn, created_at desc, id desc) บอกว่า
+     * "แถวล่าสุดชนะ" จึงเรียงแล้วเก็บแถวแรกของแต่ละ hn ให้ตรงกับที่ SQL ทำ
+     */
+    async _getGroupByHn() {
+        const rows = await this.getAllTableRows(
+            USER_GAME_PROFILE_DATA_TABLE,
+            'hn, "GRPID", created_at, id',
+            [
+                { column: "hn", ascending: true },
+                { column: "created_at", ascending: false },
+                { column: "id", ascending: false },
+            ],
+        );
+
+        const groupByHn = new Map();
+        for (const row of rows || []) {
+            const hn = String(row?.hn || "").trim();
+            if (!hn || groupByHn.has(hn)) continue;
+            groupByHn.set(hn, String(row?.GRPID || "").trim() || UNTAGGED_GROUP_ID);
+        }
+        return groupByHn;
+    }
+
     _buildLeaderboardPlayers(rows, currentHn, offset = 0) {
         return rows.map((row, index) => {
             const hn = String(row?.hn || "").trim();
@@ -1944,6 +1973,36 @@ class Database {
                 current: currentHn ? hn === currentHn : false,
             };
         });
+    }
+
+    /**
+     * US-E10-01 — กลุ่มของผู้เล่น (GRPID + ชื่อกลุ่ม) สำหรับกรอง leaderboard และตั้งชื่อหัวข้อ
+     *
+     * ผู้เล่นที่ไม่มีแถวใน user_game_profile_data ถือเป็น 'UNTAGGED' (เห็นทุกกลุ่ม) เหมือนกับที่
+     * ฝั่ง SQL ทำ — ห้ามให้ทั้งสองฝั่งตีความต่างกัน
+     */
+    async getUserGroup(hn) {
+        await this.initAuth();
+
+        const parsedHn = String(hn || "").trim();
+        const untagged = { grpid: UNTAGGED_GROUP_ID, tagName: null };
+        if (!parsedHn) {
+            return untagged;
+        }
+
+        const client = this.getClient();
+        const { data, error } = await client.rpc("get_user_group", { p_hn: parsedHn });
+        const row = Array.isArray(data) ? data[0] : null;
+
+        if (error || !row) {
+            if (error) console.warn("get_user_group unavailable, treating viewer as untagged:", error);
+            return untagged;
+        }
+
+        return {
+            grpid: String(row.grpid || UNTAGGED_GROUP_ID).trim() || UNTAGGED_GROUP_ID,
+            tagName: String(row.tag_name || "").trim() || null,
+        };
     }
 
     async getUserRank(hn) {
@@ -1987,7 +2046,13 @@ class Database {
         const parsedLimit = Math.max(1, Number(limit) || 20);
 
         try {
-            const result = await edgeFunction.getLeaderboard({ offset: parsedOffset, limit: parsedLimit });
+            // US-E10-02 — hn เป็นตัวกำหนดกลุ่มที่จะเห็น โดยฝั่ง server เป็นผู้ resolve เอง
+            // (ห้ามส่ง GRPID มาจาก client เพราะปลอมได้)
+            const result = await edgeFunction.getLeaderboard({
+                offset: parsedOffset,
+                limit: parsedLimit,
+                hn: parsedCurrentHn || null,
+            });
             const rows = result?.rows || [];
             const total = Number(result?.total) || 0;
             return {
@@ -2003,6 +2068,7 @@ class Database {
         const { data: rpcRows, error: rpcError } = await client.rpc("get_leaderboard_page", {
             p_offset: parsedOffset,
             p_limit: parsedLimit,
+            p_hn: parsedCurrentHn || null,
         });
 
         if (!rpcError) {
@@ -2073,7 +2139,18 @@ class Database {
             patients.map((p) => [String(p?.hn || "").trim(), p]),
         );
 
+        // US-E10-02 — เส้นทางสำรองสุดท้ายนี้ประกอบอันดับเองทั้งหมด จึงต้องกรองกลุ่มเองด้วย
+        // ไม่งั้นเมื่อทั้ง edge function และ RPC ล่ม ผู้เล่นจะเห็นข้ามกลุ่มโดยเงียบ ๆ
+        const groupByHn = await this._getGroupByHn();
+        const viewerGroup = parsedCurrentHn
+            ? (groupByHn.get(parsedCurrentHn) || UNTAGGED_GROUP_ID)
+            : UNTAGGED_GROUP_ID;
+        const isVisible = (hn) =>
+            viewerGroup === UNTAGGED_GROUP_ID
+            || (groupByHn.get(hn) || UNTAGGED_GROUP_ID) === viewerGroup;
+
         const allRows = [...scoreByHn.entries()]
+            .filter(([hn]) => isVisible(hn))
             .map(([hn, totalScore]) => {
                 const patient = patientByHn.get(hn) || {};
                 return {

@@ -2,7 +2,7 @@
 
 ---
 
-**Last Updated:** 2026-07-18 | **Release:** [v1.1.7](../changelog.md) — Current | **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (US-E9-13/05 Done; US-E9-07/09 + US-E10-01/02 + US-E7-30 Backlog)
+**Last Updated:** 2026-07-20 | **Release:** [v1.2.0](../changelog.md) — Current | **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) (US-E9-13/05 Done; US-E9-07/09 + US-E10-01/02 + US-E7-30 Backlog)
 
 ## 🎯 Product Vision
 
@@ -177,7 +177,7 @@
 | [US-E9-07](./user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s baseline)                                 | High     | 📋 Backlog                 |
 | [US-E9-09](./user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale)                                                 | Med      | 📋 Backlog                 |
 | [US-E10-01](./user-stories/US-E10-01.md) | Tag แบ่งกลุ่มผู้เล่น (`group_tag`) เพื่อแบ่งประเภทกลุ่มทดสอบ                                   | Med      | 📋 Backlog                 |
-| [US-E10-02](./user-stories/US-E10-02.md) | Leaderboard แสดงเฉพาะกลุ่มทดสอบที่ Tag ตรงกัน (ขึ้นกับ US-E10-01)                              | Med      | 📋 Backlog                 |
+| [US-E10-02](./user-stories/US-E10-02.md) | Leaderboard แสดงเฉพาะกลุ่มทดสอบที่ Tag ตรงกัน (`UNTAGGED` เห็นทุกกลุ่ม)                        | Med      | ✅ Done (v1.2.0)           |
 | [US-E7-30](./user-stories/US-E7-30.md) | Art assets สำหรับ Popup Export CSV หน้าข้อมูลผู้เล่น                                             | Low      | 📋 Backlog                 |
 
 > ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) — [US-E9-13](./user-stories/US-E9-13.md)/[US-E9-05](./user-stories/US-E9-05.md) ✅ Done; [US-E9-07](./user-stories/US-E9-07.md)/[US-E9-09](./user-stories/US-E9-09.md) + [US-E10-01](./user-stories/US-E10-01.md)/[US-E10-02](./user-stories/US-E10-02.md)/[US-E7-30](./user-stories/US-E7-30.md) Backlog

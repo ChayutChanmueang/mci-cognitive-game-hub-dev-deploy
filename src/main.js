@@ -2295,6 +2295,7 @@ document.addEventListener("DOMContentLoaded", () => {
             patientLabel,
             onBack,
             getUserRank: () => db.getUserRank(currentHn),
+            getUserGroup: () => db.getUserGroup(currentHn),
             loadPlayers: ({ offset, limit }) => db.getLeaderboard({ currentHn, offset, limit }),
         });
     };

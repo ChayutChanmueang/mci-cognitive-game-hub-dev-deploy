@@ -55,9 +55,35 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.1.4` | 2026-07-14 | US-E9-12 game-exit popup layout aligned with `popup-dialog.js` via shared `renderConfirmDialog` — owner verified on device |
 | `1.1.5` | 2026-07-15 | US-E9-07 (partial) — `sparkle-effect.js` tuned for check-in tree growth burst (`sMinMax`, spread/cancel lifecycle) |
 | `1.1.6` | 2026-07-17 | US-E9-05 full player data export (complete set, no data loss) |
-| `1.1.7` | 2026-07-17 | **(current)** US-E9-13 internet-loss character art refresh + SW cache bump |
+| `1.1.7` | 2026-07-17 | US-E9-13 internet-loss character art refresh + SW cache bump |
+| `1.2.0` | 2026-07-20 | **(current)** US-E10-02 leaderboard scoped to the viewer's `group_tag` (`GRPID`); group-specific title |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.2.0] - 2026-07-20
+**Version bump:** `1.1.7 → 1.2.0` (**MINOR**) — US-E10-02 adds new functionality: the leaderboard now shows only the viewer's own test group.
+
+### Added
+- **US-E10-02 — Leaderboard แยกตามกลุ่มทดสอบ.** ผู้เล่นที่ถูก tag ด้วย `GRPID` เห็นเฉพาะอันดับของกลุ่มตัวเอง; `UNTAGGED` (หรือยังไม่มีแถวใน `user_game_profile_data`) เห็นทุกกลุ่มตามเดิม — เป็นมุมมองสำหรับ admin ตรวจอันดับ
+- หัวข้อหน้า Leaderboard เปลี่ยนตามกลุ่ม — `ชุมชนพัฒนาสมอง` + `tag_name` เช่น **ชุมชนพัฒนาสมองหางดง**; `UNTAGGED` ใช้ชื่อกลางเฉย ๆ (tag_name ของ `UNTAGGED` คือ `"ไม่มี"` ต่อท้ายตรง ๆ ไม่ได้) พร้อมคำโปรยรองที่ตรงกับรายชื่อที่กรองแล้ว
+- SQL: `get_user_group(p_hn)` ใหม่ + `get_leaderboard_page` รับ `p_hn` (default `NULL`) — [migration](../supabase/migrations/20260720090000_leaderboard_group_tag_scope.sql)
+
+### Changed
+- **`get_user_rank` กรองตามกลุ่มด้วย** (signature เดิม) — แถบอันดับล่างจอกับรายชื่อเป็นคนละ query ถ้ากรองแค่รายชื่อ ผู้เล่นหางดงจะเห็นรายชื่อ 20 คน แต่แถบล่างเขียนว่า "อันดับ 34"
+- `getLeaderboard` ส่ง `hn` ของผู้ดูไปทั้ง 3 เส้นทาง (edge function → RPC → client fallback) — เส้นทางสำรองสุดท้ายประกอบอันดับเองใน JS จึงต้องกรองกลุ่มเองด้วย ไม่งั้นเวลา server ล่มผู้เล่นจะเห็นข้ามกลุ่มโดยเงียบ ๆ
+- Edge function `mci_functions` v0.7.0 (รีโปแยก) — deploy แล้วบน `cgxaanoyyjcopezsrivs`
+
+### 🔴 ข้อควรระวัง
+- **กลุ่มต้อง resolve ฝั่ง server จาก `hn` เท่านั้น** — RPC เป็น `SECURITY DEFINER` เรียกได้ด้วย anon key ถ้ารับ `GRPID` จาก client ใครก็ขอดูกลุ่มไหนก็ได้
+- **`CREATE OR REPLACE` ที่เพิ่ม argument = สร้าง overload ไม่ใช่แทนที่** — ต้อง `DROP FUNCTION get_leaderboard_page(integer, integer)` ตัวเก่าทิ้ง ไม่งั้นการเรียกแบบ 2 argument จะกำกวมหรือวิ่งไปโดนตัวเก่าที่ไม่กรองกลุ่ม
+- **`user_game_profile_data` ไม่มี `UNIQUE(hn)`** — ทุกจุดที่หากลุ่มใช้ `DISTINCT ON (hn) ORDER BY created_at DESC, id DESC` ("แถวล่าสุดชนะ") ตาม index ที่มีอยู่ ห้ามสมมติว่ามีแถวเดียวต่อคน
+
+### Verified (2026-07-20, ข้อมูลจริงบน production)
+| ผู้ดู | เห็นกี่คน |
+| :--- | :--- |
+| `HD01` (หางดง) | 20 |
+| `TS01` (ท่าศาลา) | 31 |
+| `UNTAGGED` / ไม่ส่ง `hn` | 51 (ทั้งหมด) |
 
 ## [1.1.7] - 2026-07-17
 **Version bump:** `1.1.6 → 1.1.7` (**PATCH**) — US-E9-13 refresh offline popup character art (`*_internet_loss.png`) so players see the updated คุณตา/คุณยาย climbing-palm art; bump SW `CACHE_VERSION` so stale precached PNGs are replaced.
