@@ -5,6 +5,7 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
+- [ ] [US-E7-31](user-stories/US-E7-31.md) 🟠 ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น — สลับกับปุ่ม "กลับไปหน้าเกม" → Sprint 10
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (A10s) → Sprint 10 *(sparkle v1.1.5 shipped)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
 

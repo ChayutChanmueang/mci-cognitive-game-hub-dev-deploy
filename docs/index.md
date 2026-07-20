@@ -22,7 +22,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
 ### Latest Sprint Planning
-- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-13](agile/user-stories/US-E9-13.md) / [US-E9-05](agile/user-stories/US-E9-05.md) / [US-E10-01](agile/user-stories/US-E10-01.md) / [US-E10-02](agile/user-stories/US-E10-02.md) / [US-E7-30](agile/user-stories/US-E7-30.md) ✅ Done; [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
+- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-13](agile/user-stories/US-E9-13.md) / [US-E9-05](agile/user-stories/US-E9-05.md) / [US-E10-01](agile/user-stories/US-E10-01.md) / [US-E10-02](agile/user-stories/US-E10-02.md) / [US-E7-30](agile/user-stories/US-E7-30.md) ✅ Done; [US-E7-31](agile/user-stories/US-E7-31.md) / [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
 - **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — Completed:** P0 gameplay US-E9-01..04 + device/hub/UX — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
 - **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น:** ✅ Done (v1.1.0) — `tree_type` a/b/c/d + lazy backfill
 

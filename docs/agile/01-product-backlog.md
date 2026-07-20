@@ -179,6 +179,7 @@
 | [US-E10-01](./user-stories/US-E10-01.md) | Tag แบ่งกลุ่มผู้เล่น — `user_group_tag` + `GRPID` *(AC#3/#4 descoped)*                          | Med      | ✅ Done (v1.2.0)           |
 | [US-E10-02](./user-stories/US-E10-02.md) | Leaderboard แสดงเฉพาะกลุ่มทดสอบที่ Tag ตรงกัน (`UNTAGGED` เห็นทุกกลุ่ม)                        | Med      | ✅ Done (v1.2.0)           |
 | [US-E7-30](./user-stories/US-E7-30.md) | Art assets สำหรับ Popup Export CSV หน้าข้อมูลผู้เล่น                                             | Low      | ✅ Done (v1.2.2)           |
+| [US-E7-31](./user-stories/US-E7-31.md) | ปุ่มปิด Popup วิดีโอระหว่างคลิปกำลังเล่น (สลับกับปุ่มตอนจบ)                                        | High     | 📋 Backlog                 |
 
 > ⤷ **Current Sprint:** [Sprint 10](./sprint-backlogs/sprint-10.md) — [US-E9-13](./user-stories/US-E9-13.md)/[US-E9-05](./user-stories/US-E9-05.md) ✅ Done; [US-E9-07](./user-stories/US-E9-07.md)/[US-E9-09](./user-stories/US-E9-09.md) + [US-E10-01](./user-stories/US-E10-01.md)/[US-E10-02](./user-stories/US-E10-02.md)/[US-E7-30](./user-stories/US-E7-30.md) Backlog
 > ⤷ US-E9-13 ต่อยอด [US-E7-27](./user-stories/US-E7-27.md) — art `*_internet_loss.png` + SW `CACHE_VERSION` v3 (**v1.1.7**)
