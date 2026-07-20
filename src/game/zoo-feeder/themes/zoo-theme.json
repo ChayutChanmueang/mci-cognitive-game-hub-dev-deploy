@@ -4,6 +4,8 @@
     "description": "เกมคัดเลือกอาหารให้ถูกต้อง",
     "instructions": "เลือกอาหารที่สัตว์กินไม่ได้ออกจากสายพาน",
     "acceptText": "อาหารที่กินได้ :",
+    "rejectText": "ของที่ต้องคัดออก :",
+    "startButtonText": "เริ่มเกม",
     "tutorialTitle": "คู่มือการเล่น",
     "coverImage": "assets/common/cover/cover_zoo_feeder.png",
     "defaultLevel": 1,

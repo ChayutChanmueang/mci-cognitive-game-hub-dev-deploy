@@ -72,6 +72,19 @@ export class TutorialPanel {
 
         const categoryStyles = this.options.categoryStyles || {};
 
+        const buildItemChip = (item, itemNames, { isFigma, rotateDeg = 0 }) => {
+            if (!item.src) return "";
+            const itemMarginTop = isFigma ? (rotateDeg ? "-55px" : "-45px") : "0px";
+            const transformStyle = rotateDeg ? ` transform: rotate(${rotateDeg}deg);` : "";
+            const itemGap = isFigma ? "20px" : "10px";
+            return `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: ${itemGap};">
+                    <img src="${item.src}" style="height: 175px; width: auto; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.25)); margin-top: ${itemMarginTop};${transformStyle}" />
+                    ${itemNames[item.key] ? `<span style="font-family: 'Noto Sans Thai Looped', sans-serif; font-size: 40px; color: #81512E; text-shadow: -3px -3px 0 #FFF, 3px -3px 0 #FFF, -3px 3px 0 #FFF, 3px 3px 0 #FFF, -3px 0px 0 #FFF, 3px 0px 0 #FFF, 0px -3px 0 #FFF, 0px 3px 0 #FFF; font-weight: 600; text-align: center; margin-top: -5px;">${itemNames[item.key]}</span>` : ""}
+                </div>
+            `;
+        };
+
         const buildCategoryCard = (catData, index) => {
             const catStyle = categoryStyles[catData.cat] || {};
             const titleBgColor = catStyle.titleBgColor || '#7DC850';
@@ -79,20 +92,48 @@ export class TutorialPanel {
             const itemsBgColor = catStyle.itemsBgColor || 'rgba(73, 205, 56, 0.2)';
 
             const pal = cardPalettes[index % cardPalettes.length];
+            const isFigma = this.options.variant === "figma";
             const iconHtml = catData.icons
                 .map(iconKey => themeAssets[iconKey] || iconKey)
                 .filter(src => src)
-                .map(src => `<img src="${src}" style="width: 253px; height: 253px; object-fit: contain;" />`)
+                .map(src => {
+                    const lowerSrc = src.toLowerCase();
+                    const isLion = lowerSrc.includes('lion') || lowerSrc.includes('_li.png');
+                    const isBear = lowerSrc.includes('bear');
+                    const isFox = lowerSrc.includes('fox');
+                    
+                    let figmaHeight = 273;
+                    let normalHeight = 328.9;
+                    
+                    if (isLion) {
+                        figmaHeight = 250;
+                        normalHeight = 250;
+                    } else if (isBear) {
+                        figmaHeight += 10;
+                        normalHeight += 10;
+                    }
+                    
+                    let imgStyle = `height: ${isFigma ? figmaHeight + 'px' : normalHeight + 'px'}; width: auto; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.25));`;
+                    if (isFigma && isLion) {
+                        imgStyle += ` margin-top: 10px;`;
+                    } else if (isFigma && isFox) {
+                        imgStyle += ` margin-left: 20px; margin-right: -20px;`;
+                    }
+                    
+                    return `<img src="${src}" style="${imgStyle}" />`;
+                })
                 .join("");
             const itemNames = this.options.itemNames || {};
             const itemImgs = catData.items
-                .map(item => item.src ? `
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                        <img src="${item.src}" style="height: 175px; width: auto; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.25));" />
-                        ${itemNames[item.key] ? `<span style="font-family: 'Noto Looped Thai', sans-serif; font-size: 40px; color: #81512E; -webkit-text-stroke: 1px #FFF; font-weight: 700; text-align: center; margin-top: -5px;">${itemNames[item.key]}</span>` : ""}
-                    </div>
-                ` : "")
+                .map(item => buildItemChip(item, itemNames, { isFigma }))
                 .join("");
+
+            const titlePadding = isFigma ? "0 38px" : "0 45px";
+            const iconRowGap = isFigma ? "0px" : "20px";
+            const chipContainerRadius = isFigma ? "52px" : "70px";
+            const chipContainerPadding = isFigma ? "56px 52px 26px" : "26px 52px";
+            const chipAlignItems = isFigma ? "flex-end" : "center";
+            const captionGap = isFigma ? "45px" : "20px";
 
             return `
                 <div style="
@@ -108,11 +149,11 @@ export class TutorialPanel {
                         align-items: center;
                         justify-content: center;
                         height: 114px;
-                        padding: 0 45px;
+                        padding: ${titlePadding};
                         background-color: ${titleBgColor};
                         border-radius: 30.88px;
                         box-shadow: ${titleShadow};
-                        font-family: 'Noto Looped Thai', sans-serif;
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
                         font-size: 60px;
                         font-weight: 600;
                         color: #FFFFFF;
@@ -123,14 +164,15 @@ export class TutorialPanel {
                         width: 100%;
                         display: flex;
                         justify-content: center;
-                        gap: 20px;
+                        gap: ${iconRowGap};
                         margin-bottom: 20px;
+                        ${isFigma && catData.cat === 'Meat' ? 'transform: translateX(20px);' : ''}
                     ">${iconHtml}</div>
-                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
-                        <span style="font-family: 'Noto Looped Thai', sans-serif; font-size: 48px; color: #945E17; font-weight: 500;">
+                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${captionGap};">
+                        <span style="font-family: 'Noto Sans Thai Looped', sans-serif; font-size: 48px; color: #945E17; font-weight: 500;">
                             ${this.options.acceptText || "สิ่งที่รับได้ :"}
                         </span>
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 26px; background-color: ${itemsBgColor}; border-radius: 70px; padding: 26px 52px;">
+                        <div style="display: flex; align-items: ${chipAlignItems}; justify-content: center; gap: 26px; background-color: ${itemsBgColor}; border-radius: ${chipContainerRadius}; padding: ${chipContainerPadding};">
                             ${itemImgs}
                         </div>
                     </div>
@@ -138,16 +180,22 @@ export class TutorialPanel {
         };
 
         const buildRejectCard = (rejectItems) => {
-            const iconHtml = `<img src="assets/zoo-feeder/etc/Garbage.png" style="width: 205px; height: 205px; object-fit: contain;" />`;
+            const isFigma = this.options.variant === "figma";
+            const iconHtml = isFigma 
+                ? `<img src="assets/zoo-feeder/etc/Garbage.png" style="height: 307.6px; width: auto; object-fit: contain; filter: drop-shadow(0px 14px 5px rgba(80,80,80,0.25));" />`
+                : `<img src="assets/zoo-feeder/etc/Garbage.png" style="width: 246.5px; height: 246.5px; object-fit: contain;" />`;
             const itemNames = this.options.itemNames || {};
+            const rotations = [-8, 0, 10];
             const itemImgs = rejectItems
-                .map(item => item.src ? `
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                        <img src="${item.src}" style="height: 175px; width: auto; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.25));" />
-                        ${itemNames[item.key] ? `<span style="font-family: 'Noto Looped Thai', sans-serif; font-size: 40px; color: #81512E; -webkit-text-stroke: 1px #FFF; font-weight: 700; text-align: center; margin-top: -5px;">${itemNames[item.key]}</span>` : ""}
-                    </div>
-                ` : "")
+                .map((item, idx) => buildItemChip(item, itemNames, { isFigma, rotateDeg: isFigma ? rotations[idx % rotations.length] : 0 }))
                 .join("");
+
+            const titlePadding = isFigma ? "0 38px" : "0 45px";
+            const iconRowGap = isFigma ? "0px" : "20px";
+            const chipContainerRadius = isFigma ? "52px" : "70px";
+            const chipContainerPadding = isFigma ? "56px 52px 26px" : "26px 52px";
+            const chipAlignItems = isFigma ? "flex-end" : "center";
+            const captionGap = isFigma ? "45px" : "20px";
 
             return `
                 <div style="
@@ -163,29 +211,29 @@ export class TutorialPanel {
                         align-items: center;
                         justify-content: center;
                         height: 114px;
-                        padding: 0 45px;
+                        padding: ${titlePadding};
                         background-color: #F04E4E;
                         border-radius: 30.88px;
                         box-shadow: inset 0px 3px 12px 0px #FD7979, 0px 2px 2.5px 0px #BF5B1361;
-                        font-family: 'Noto Looped Thai', sans-serif;
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
                         font-size: 60px;
                         font-weight: 600;
                         color: #FFFFFF;
                         white-space: nowrap;
-                        margin-bottom: 46px;
+                        margin-bottom: ${isFigma ? '20px' : '46px'};
                     ">สิ่งที่กินไม่ได้</div>
                     <div style="
                         width: 100%;
                         display: flex;
                         justify-content: center;
-                        gap: 20px;
+                        gap: ${iconRowGap};
                         margin-bottom: 20px;
                     ">${iconHtml}</div>
-                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
-                        <span style="font-family: 'Noto Looped Thai', sans-serif; font-size: 48px; color: #945E17; font-weight: 500;">
+                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${captionGap};">
+                        <span style="font-family: 'Noto Sans Thai Looped', sans-serif; font-size: 48px; color: #945E17; font-weight: 500;">
                             ${this.options.rejectText || "ของที่ต้องคัดออก :"}
                         </span>
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 26px; background-color: #F9A97033; border-radius: 70px; padding: 26px 52px;">
+                        <div style="display: flex; align-items: ${chipAlignItems}; justify-content: center; gap: 26px; background-color: #F9A97033; border-radius: ${chipContainerRadius}; padding: ${chipContainerPadding};">
                             ${itemImgs}
                         </div>
                     </div>
@@ -206,10 +254,20 @@ export class TutorialPanel {
             this.pages.push(buildRejectCard(rejectItems));
         }
 
+        const isFigma = this.options.variant === "figma";
+        const wrapperClass = isFigma ? "tutorial-wrapper tutorial-wrapper--figma" : "tutorial-wrapper";
+        const panelClass = isFigma ? "result-panel dynamic-panel result-panel--tutorial result-panel--tutorial-figma" : "result-panel dynamic-panel result-panel--tutorial";
+        const navRowClass = isFigma ? "tutorial-nav-row tutorial-nav-row--figma" : "tutorial-nav-row";
+        const navBtnClass = isFigma ? "result-btn-home tutorial-nav-btn tutorial-nav-btn--figma" : "result-btn-home tutorial-nav-btn";
+        const descFontSize = isFigma ? "56px" : "52px";
+        const subDescFontSize = isFigma ? "44px" : "32px";
+        const subDescMarginTop = isFigma ? "4px" : "18px";
+        const pageContentGap = isFigma ? "20px" : "30px";
+
         overlay.innerHTML = `
             <div class="result-backdrop"></div>
-            <div class="tutorial-wrapper" id="tutorial-wrapper">
-                <div class="result-panel dynamic-panel result-panel--tutorial" id="tutorial-result-panel">
+            <div class="${wrapperClass}" id="tutorial-wrapper">
+                <div class="${panelClass}" id="tutorial-result-panel">
                     <div class="result-header">
                         <h2>${title}</h2>
                     </div>
@@ -217,30 +275,31 @@ export class TutorialPanel {
                         position: relative;
                         width: 90%;
                         text-align: center;
-                        font-family: 'Noto Looped Thai', sans-serif;
-                        font-size: 52px;
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
+                        font-size: ${descFontSize};
                         color: ${primaryFontColor};
                         font-weight: 500;
                         white-space: normal;
                         line-height: 1.2;
                         margin-top: 35px;
                     ">${description}</div>
+                    ${this.options.subdescription ? `
                     <div style="
                         position: relative;
                         width: 90%;
                         text-align: center;
-                        font-family: 'Noto Looped Thai', sans-serif;
-                        font-size: 32px;
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
+                        font-size: ${subDescFontSize};
                         color: ${secondaryFontColor};
                         font-weight: 500;
                         white-space: normal;
                         line-height: 1.3;
-                        margin-top: 18px;
-                    ">${this.options.subdescription || ""}</div>
+                        margin-top: ${subDescMarginTop};
+                    ">${this.options.subdescription}</div>` : ""}
                     <div id="tutorial-page-content" style="
                         display: flex;
                         flex-direction: column;
-                        gap: 30px;
+                        gap: ${pageContentGap};
                         margin-top: 20px;
                         align-items: center;
                         width: 100%;
@@ -248,9 +307,9 @@ export class TutorialPanel {
                         <!-- Page content injected here -->
                     </div>
                 </div>
-                <div class="tutorial-nav-row">
-                    <button id="tutorial-back-button" class="result-btn-home tutorial-nav-btn tutorial-nav-btn--back">ย้อนกลับ</button>
-                    <button id="tutorial-forward-button" class="result-btn-home tutorial-nav-btn tutorial-nav-btn--forward">ถัดไป</button>
+                <div class="${navRowClass}">
+                    <button id="tutorial-back-button" class="${navBtnClass} tutorial-nav-btn--back">ย้อนกลับ</button>
+                    <button id="tutorial-forward-button" class="${navBtnClass} tutorial-nav-btn--forward">ถัดไป</button>
                 </div>
             </div>
         `;
@@ -269,6 +328,9 @@ export class TutorialPanel {
         // Override the fixed base .result-panel height so the panel shrinks to fit content
         if (panel) {
             panel.style.height = 'auto';
+            if (this.options.variant === "figma") {
+                panel.style.paddingBottom = "45px";
+            }
         }
 
         const backBtn = overlay.querySelector("#tutorial-back-button");
@@ -289,7 +351,7 @@ export class TutorialPanel {
 
             // Update Forward/Start Button
             if (this.currentPage === this.pages.length - 1) {
-                forwardBtn.textContent = "เริ่มเล่นเกม";
+                forwardBtn.textContent = this.options.startButtonText || "เริ่มเล่นเกม";
                 forwardBtn.classList.remove("tutorial-nav-btn--forward");
                 forwardBtn.classList.add("tutorial-nav-btn--start");
             } else {
@@ -358,7 +420,8 @@ export class TutorialPanel {
         const actualWidth = wrapper.offsetWidth || 876;
         const actualHeight = wrapper.offsetHeight || 1200;
 
-        const availableWidth = window.innerWidth * 0.9;
+        const widthMultiplier = this.options.variant === "figma" ? 0.95 : 0.9;
+        const availableWidth = window.innerWidth * widthMultiplier;
         const availableHeight = window.innerHeight - 25 - 40;
 
         const scaleX = availableWidth / actualWidth;
@@ -370,7 +433,7 @@ export class TutorialPanel {
         // Manually calculate the exact top margin needed to perfectly center the SCALED content
         const scaledHeight = actualHeight * scale;
         const emptyVerticalSpace = window.innerHeight - scaledHeight;
-        const marginTop = Math.max(0, emptyVerticalSpace / 2);
+        let marginTop = Math.max(0, emptyVerticalSpace / 2);
 
         wrapper.style.transformOrigin = "top center";
         wrapper.style.marginTop = `${marginTop}px`;

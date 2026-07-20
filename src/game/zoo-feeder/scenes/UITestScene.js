@@ -142,6 +142,9 @@ export default class UITestScene extends Phaser.Scene {
       itemSpriteLibrary:  ItemSpriteLibrary,
       themeAssets:        ThemeAssets,
       categoryStyles:     CategoryStyles,
+      variant:            "figma",
+      rejectText:         StartMenuSetting.rejectText,
+      startButtonText:    StartMenuSetting.startButtonText,
       onStart: () => {
         this.physics.resume();
         this.spawnItem();

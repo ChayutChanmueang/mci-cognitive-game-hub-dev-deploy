@@ -3220,3 +3220,11 @@ md-linear-progress.no-transition::part(bar) {
 .minigame-hud--zoo-feeder .minigame-hud__time-box {
     pointer-events: auto;
 }
+
+/* Figma Variant for Tutorial Panel */
+.tutorial-wrapper--figma { width: 971px; }
+.result-panel--tutorial-figma { box-shadow: 0px 16px 8px rgba(0,0,0,0.15); }
+.result-panel--tutorial-figma .result-header { height: 152px; }
+.result-panel--tutorial-figma .result-header h2 { font-size: 80px; }
+.tutorial-nav-row--figma { width: 950px; gap: 50px; }
+.tutorial-nav-btn--figma { width: 407px; height: 210px; font-size: 75px; border-radius: 89px; border: 12px solid #FFFFFF; box-sizing: border-box; }
