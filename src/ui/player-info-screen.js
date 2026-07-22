@@ -100,6 +100,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
         onEndProgram = () => {},
         onLogout = () => {},
         onExport = () => {},
+        loadGroups = () => Promise.resolve([]),
         testGames = [],
         testProgramPresets = [],
         activeProgramId = null,
@@ -376,7 +377,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
     });
 
     const handleExport = async () => {
-        const exportSelection = await showExportOptionsPopup();
+        const exportSelection = await showExportOptionsPopup({ loadGroups });
 
         if (!exportSelection?.exportTypes?.length) {
             clearToast();

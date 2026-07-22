@@ -2143,7 +2143,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 navigateTo(ROUTES.login);
             },
-            onExport: async (exportPlayer, { exportTypes, exportScope } = {}) => {
+            loadGroups: () => db.getGroupTags(),
+            onExport: async (exportPlayer, { exportTypes, exportScope, exportGroup } = {}) => {
                 const wantsPlayerExport = exportTypes?.includes(CsvExportType.Player);
                 const wantsGameExport = exportTypes?.includes(CsvExportType.Game);
                 const wantsHistoryExport = exportTypes?.includes(CsvExportType.History);
@@ -2155,8 +2156,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 const exportedItems = [];
 
                 if (exportScope === CsvExportScope.All) {
+                    // US-E10-04: กลุ่มมีผลเฉพาะ scope "ทุกคน" (ผู้เล่นคนเดียวอยู่กลุ่มเดียวอยู่แล้ว)
+                    // grpid ว่าง/null = ทุกกลุ่ม (พฤติกรรมเดิม)
+                    const grpid = String(exportGroup || "").trim() || null;
+
                     if (wantsPlayerExport) {
-                        const players = await db.getAllPatientCsvExportRows();
+                        const players = await db.getAllPatientCsvExportRows({ grpid });
 
                         if (players.length) {
                             downloadCsv(getPlayersCsvFilename(), buildPlayersCsv(players));
@@ -2165,7 +2170,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     if (wantsGameExport) {
-                        const gameRecords = await db.getGameCsvExportRows();
+                        const gameRecords = await db.getGameCsvExportRows({ grpid });
 
                         if (gameRecords.length) {
                             downloadCsv(getGamesCsvFilename(), buildGameCsv(gameRecords));
@@ -2174,7 +2179,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     if (wantsHistoryExport) {
-                        const historyRecords = await db.getGameHistoryCsvExportRows();
+                        const historyRecords = await db.getGameHistoryCsvExportRows({ grpid });
 
                         if (historyRecords.length) {
                             downloadCsv(getGameHistoriesCsvFilename(), buildGameHistoryCsv(historyRecords));

@@ -259,8 +259,35 @@ class Database {
      * row ที่ได้ป้อน buildPlayersCsv() / buildPlayerCsv() ได้ตรง ๆ ไม่ต้องแปลงอะไร
      * (พิสูจน์แล้วว่า CSV ที่ออกมาเหมือนของเดิม byte-for-byte)
      */
-    async getAllPatientCsvExportRows({ hn = null } = {}) {
-        return edgeFunction.getPlayerExportRows(hn);
+    /**
+     * US-E10-04 — รายชื่อกลุ่มจาก user_group_tag สำหรับสร้างตัวเลือกใน popup export
+     *
+     * คืน [{ grpid, tagName }] เรียงตาม id (UNTAGGED มาก่อนตาม id=0) — ไม่ hardcode
+     * เพราะกลุ่มเพิ่มได้ ผู้เรียกเอา grpid ไปเป็นค่า filter, tagName ไปแสดง
+     */
+    async getGroupTags() {
+        await this.initAuth();
+        const client = this.getClient();
+        const { data, error } = await client
+            .from("user_group_tag")
+            .select('"GRPID", tag_name, id')
+            .order("id", { ascending: true });
+
+        if (error) {
+            console.warn("getGroupTags unavailable:", error);
+            return [];
+        }
+
+        return (data || [])
+            .map((row) => ({
+                grpid: String(row?.GRPID || "").trim(),
+                tagName: String(row?.tag_name || "").trim(),
+            }))
+            .filter((group) => group.grpid);
+    }
+
+    async getAllPatientCsvExportRows({ hn = null, grpid = null } = {}) {
+        return edgeFunction.getPlayerExportRows(hn, grpid);
     }
 
     /**
@@ -271,8 +298,8 @@ class Database {
      * ทำให้ผู้เล่นที่เล่นเยอะนับได้ไม่ครบ (วัดจริง: ได้ 1000 จาก 4,231 = หาย 76.4%)
      * ตอนนี้ปล่อยให้ SQL นับ ซึ่งไม่ผ่านเพดาน PostgREST → ได้ครบ
      */
-    async getGameCsvExportRows({ hn = null } = {}) {
-        return edgeFunction.getGameExportRows(hn);
+    async getGameCsvExportRows({ hn = null, grpid = null } = {}) {
+        return edgeFunction.getGameExportRows(hn, grpid);
     }
 
     /**
@@ -282,8 +309,8 @@ class Database {
      * fallback นั้นถูกลบทิ้งแล้วโดยตั้งใจ — มันกลบความจริงว่า RPC ใช้ไม่ได้มาตลอด
      * โดยไม่มีใครรู้ ตอนนี้ถ้า export พังจะพังให้เห็น ไม่ใช่เงียบ ๆ แล้วให้ข้อมูลที่อาจไม่ครบ
      */
-    async getGameHistoryCsvExportRows({ hn = null } = {}) {
-        return edgeFunction.getGameHistoryExportRows(hn);
+    async getGameHistoryCsvExportRows({ hn = null, grpid = null } = {}) {
+        return edgeFunction.getGameHistoryExportRows(hn, grpid);
     }
 
     async getAllTableRows(tableName, selectColumns, orders = []) {

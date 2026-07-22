@@ -2558,6 +2558,13 @@
   margin-bottom: 0;
 }
 
+/* US-E10-04: group section dims + becomes non-interactive when scope is "ผู้เล่นคนนี้",
+   since a single player is already in one group and the filter has no effect there. */
+.gh-export-popup__group--disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
 /* Underlined group label from the mockup. Deliberately a <p> inside a role="group"
    rather than <legend> in a <fieldset>: a legend has to be floated out of the fieldset's
    border box to lay out as a plain heading, and a floated legend then overlaps the first

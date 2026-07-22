@@ -1,4 +1,4 @@
-// US-E7-30 · export-options-popup.js — the "ส่งออกข้อมูล" CSV picker.
+// US-E7-30 / US-E10-04 · export-options-popup.js — the "ส่งออกข้อมูล" CSV picker.
 //
 // Moved out of player-info-screen.js, which built this markup inline with generic
 // `app-popup` / Material components while every other popup in the app had already moved
@@ -9,13 +9,17 @@
 // Icon_ButtonBack in the header, and the standard stroke buttons — red = ยกเลิก,
 // green = ส่งออกข้อมูล (US-E7-15).
 //
-// ⚠️ The two groups look identical (same Figma circle) but behave differently on purpose:
-//   ข้อมูลของ    → radio    — the scope is one-or-the-other (this player / everyone)
-//   ประเภทข้อมูล → checkbox — you may export several data types at once
-// That mirrors the previous switch + checkboxes behaviour, which US-E9-05's export flow
-// depends on. The circles are the same by design, so the difference is carried by real
-// <input type> — keyboard and screen-reader behaviour stay correct even though the art
-// does not distinguish them.
+// ⚠️ The three sections look identical (same Figma circle) but the input TYPE differs on
+// purpose, and the difference is carried by real <input type> so keyboard + screen readers
+// stay correct even though the art does not distinguish them:
+//   ข้อมูลของ    → radio    — scope is one-or-the-other (this player / everyone)
+//   ประเภทข้อมูล → checkbox — several data types at once (US-E9-05 depends on this)
+//   กลุ่มผู้เล่น  → radio    — one group at a time, plus "ทุกกลุ่ม" (US-E10-04)
+//
+// US-E10-04: the group filter only applies to scope = "ผู้เล่นทั้งหมด" — a single player is
+// already in exactly one group, so the group radios are DISABLED while "ผู้เล่นคนนี้" is
+// selected. Groups load async from the caller's `loadGroups`; until they arrive (or if it
+// fails) only "ทุกกลุ่ม" is shown, which reproduces the pre-US-E10-04 behaviour.
 import { renderFramePopupPanel } from "./components/frame-form-panel.js";
 import { renderIconButtonBack } from "./components/icon-button-back.js";
 import { renderButtonOkStroke } from "./components/button-ok-stroke.js";
@@ -35,12 +39,19 @@ const TYPE_OPTIONS = [
   { value: CsvExportType.History, label: "ประวัติการเล่นรายวัน" },
 ];
 
+// The "all groups" radio carries an empty value so getSelection resolves it to null (= no
+// GRPID filter), which is exactly the pre-US-E10-04 export.
+const ALL_GROUPS_VALUE = "";
+
 /**
- * @returns {Promise<{exportScope: string, exportTypes: string[]}|null>}
- *          null when cancelled — unchanged from the previous implementation, so the
- *          caller's "user backed out" branch keeps working.
+ * @param {object} [options]
+ * @param {() => Promise<Array<{grpid: string, tagName: string}>>} [options.loadGroups]
+ *        Returns the group tags to offer. Optional: without it the popup shows only
+ *        "ทุกกลุ่ม" and behaves exactly as before.
+ * @returns {Promise<{exportScope: string, exportTypes: string[], exportGroup: string|null}|null>}
+ *          null when cancelled — unchanged, so the caller's "backed out" branch keeps working.
  */
-export function showExportOptionsPopup() {
+export function showExportOptionsPopup({ loadGroups } = {}) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     const titleId = `player-export-title-${Date.now()}`;
@@ -94,6 +105,20 @@ export function showExportOptionsPopup() {
                   }),
                 ).join("")}
               </div>
+
+              <div class="gh-export-popup__group gh-export-popup__group--tag" role="radiogroup" aria-labelledby="${titleId}-group" data-group-container>
+                <p id="${titleId}-group" class="gh-export-popup__legend">กลุ่มผู้เล่น :</p>
+                <div data-group-options>
+                  ${renderCheckOption({
+                    type: "radio",
+                    name: "export-group",
+                    value: ALL_GROUPS_VALUE,
+                    label: "ทุกกลุ่ม",
+                    checked: true,
+                    dataAttr: "data-export-group",
+                  })}
+                </div>
+              </div>
             </div>
 
             <div class="gh-export-popup__actions">
@@ -119,11 +144,20 @@ export function showExportOptionsPopup() {
 
     const typeInputs = [...overlay.querySelectorAll("[data-export-option]")];
     const confirmButton = overlay.querySelector("#export-popup-confirm");
+    const groupContainer = overlay.querySelector("[data-group-container]");
+    const groupOptions = overlay.querySelector("[data-group-options]");
+
+    const isAllScope = () =>
+      overlay.querySelector("[data-export-scope]:checked")?.value === CsvExportScope.All;
 
     const getSelection = () => ({
       exportScope:
         overlay.querySelector("[data-export-scope]:checked")?.value || CsvExportScope.Current,
       exportTypes: typeInputs.filter((input) => input.checked).map((input) => input.value),
+      // Group only applies to the "everyone" scope; for a single player it is meaningless.
+      exportGroup: isAllScope()
+        ? overlay.querySelector("[data-export-group]:checked")?.value || null
+        : null,
     });
 
     // Exporting nothing produces an empty file rather than an error, so the confirm button
@@ -133,6 +167,16 @@ export function showExportOptionsPopup() {
       const hasType = typeInputs.some((input) => input.checked);
       confirmButton.disabled = !hasType;
       confirmButton.setAttribute("aria-disabled", String(!hasType));
+    };
+
+    // Group radios are only meaningful for scope "ผู้เล่นทั้งหมด" — disable + dim them
+    // otherwise, so it is clear the group has no effect on a single-player export.
+    const syncGroupEnabled = () => {
+      const enabled = isAllScope();
+      groupContainer?.classList.toggle("gh-export-popup__group--disabled", !enabled);
+      overlay.querySelectorAll("[data-export-group]").forEach((input) => {
+        input.disabled = !enabled;
+      });
     };
 
     const onKeyDown = (event) => {
@@ -146,7 +190,11 @@ export function showExportOptionsPopup() {
     confirmButton?.addEventListener("click", () => cleanup(getSelection()));
     overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(null));
     typeInputs.forEach((input) => input.addEventListener("change", syncConfirmEnabled));
+    overlay.querySelectorAll("[data-export-scope]").forEach((input) =>
+      input.addEventListener("change", syncGroupEnabled),
+    );
     syncConfirmEnabled();
+    syncGroupEnabled();
 
     document.body.style.overflow = "hidden";
     document.body.appendChild(overlay);
@@ -154,6 +202,33 @@ export function showExportOptionsPopup() {
     requestAnimationFrame(() => {
       confirmButton?.focus();
     });
+
+    // Load the real groups and append them after "ทุกกลุ่ม". Done after mount so the popup
+    // shows immediately; if it fails the popup still works with "ทุกกลุ่ม" only.
+    if (typeof loadGroups === "function" && groupOptions) {
+      Promise.resolve()
+        .then(loadGroups)
+        .then((groups) => {
+          if (settled || !Array.isArray(groups)) return;
+          const markup = groups
+            .filter((group) => group && group.grpid)
+            .map((group) =>
+              renderCheckOption({
+                type: "radio",
+                name: "export-group",
+                value: group.grpid,
+                label: group.tagName || group.grpid,
+                dataAttr: "data-export-group",
+              }),
+            )
+            .join("");
+          groupOptions.insertAdjacentHTML("beforeend", markup);
+          syncGroupEnabled();
+        })
+        .catch(() => {
+          /* keep "ทุกกลุ่ม" only — no group filter available */
+        });
+    }
   });
 }
 
