@@ -51,7 +51,7 @@ gantt
 | [US-E10-01](../user-stories/US-E10-01.md) | Tag แบ่งกลุ่มผู้เล่น — `user_group_tag` + `GRPID` *(AC#3/#4 descoped)* | P1 | ✅ Done (v1.2.0, 2026-07-20) |
 | [US-E10-02](../user-stories/US-E10-02.md) | Leaderboard แยกตามกลุ่ม `GRPID` — `UNTAGGED` เห็นทุกกลุ่ม | P1 | ✅ Done (v1.2.0, 2026-07-20) |
 | [US-E7-30](../user-stories/US-E7-30.md) | Popup export CSV ใช้ art ชุดเดียวกับ popup อื่น + Check_Circle | P2 | ✅ owner verified (v1.2.1 → v1.2.2, 2026-07-20) |
-| [US-E10-04](../user-stories/US-E10-04.md) | Filter export CSV ตามกลุ่ม `GRPID` + scroll view + คอลัมน์กลุ่ม | P1 | ✅ Done (v1.3.0, 2026-07-22) |
+| [US-E10-04](../user-stories/US-E10-04.md) | Filter export CSV ตามกลุ่ม `GRPID` + scroll view (filter-only) | P1 | ✅ Done (v1.3.0, 2026-07-22) |
 | [US-E10-03](../user-stories/US-E10-03.md) | ปุ่มปิด popup วิดีโอระหว่างคลิปกำลังเล่น (สลับกับปุ่ม "กลับไปหน้าเกม") | P1 | ✅ Done (v1.2.3, 2026-07-20) |
 
 ### 📋 Backlog (Sprint 10)
@@ -60,7 +60,7 @@ gantt
 | [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog *(sparkle slice ✅ v1.1.5; confetti + Phaser ค้าง)* |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog |
 
-> **2026-07-22:** [US-E10-04](../user-stories/US-E10-04.md) ✅ Done (**v1.3.0**) — filter export ตามกลุ่ม `GRPID` + scroll view + คอลัมน์กลุ่ม (ปิด US-E10-01 AC#4); edge fn v0.8.0
+> **2026-07-22:** [US-E10-04](../user-stories/US-E10-04.md) ✅ Done (**v1.3.0**) — filter export ตามกลุ่ม `GRPID` + scroll view (filter-only, owner ไม่เอาคอลัมน์กลุ่ม); edge fn v0.8.0
 > **2026-07-20:** Owner เพิ่มงานใหม่ — [US-E10-04](../user-stories/US-E10-04.md) filter export CSV ตามกลุ่ม + scroll view (ต่อยอด US-E10-01 AC#4 ที่ descope ไว้)
 > **2026-07-20:** [US-E10-03](../user-stories/US-E10-03.md) ✅ Done (**v1.2.3**) — ผูก handler ปุ่มย้อนกลับ + สลับการแสดงผลกับปุ่ม "กลับไปหน้าเกม"
 > **2026-07-20:** Owner เพิ่มงานใหม่ — [US-E10-03](../user-stories/US-E10-03.md) ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น (owner ใส่ markup ปุ่มย้อนกลับเองแล้ว)

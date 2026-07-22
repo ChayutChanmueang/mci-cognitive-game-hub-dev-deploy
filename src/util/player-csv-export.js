@@ -28,9 +28,6 @@ export const PLAYER_CSV_COLUMNS = Object.freeze([
     "started_program",
     "ended_program",
     "program",
-    // US-E10-04: กลุ่มทดสอบของผู้เล่น (ปิด US-E10-01 AC#4) — grpid ไว้กรอง, group_name ไว้อ่าน
-    "grpid",
-    "group_name",
 ]);
 
 export const GAME_CSV_COLUMNS = Object.freeze([
@@ -87,9 +84,6 @@ export function buildPlayerCsvRecord(player = {}, options = {}) {
         started_program: formatCsvDateTime(startedProgram),
         ended_program: formatCsvDateTime(endedProgram),
         program: options.programName || player.programName || "",
-        // US-E10-04: มาจาก get_player_export_rows (grpid / tag_name)
-        grpid: player.grpid || player.GRPID || "",
-        group_name: player.tag_name || player.tagName || player.group_name || "",
     };
 }
 

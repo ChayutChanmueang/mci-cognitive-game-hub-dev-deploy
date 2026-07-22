@@ -1,5 +1,4 @@
--- US-E10-04 — filter the three CSV export RPCs by group tag (GRPID), and add the group
--- columns to the player export so that file is self-describing (closes US-E10-01 AC#4).
+-- US-E10-04 — filter the three CSV export RPCs by group tag (GRPID).
 --
 -- Each export is a public wrapper over a SECURITY DEFINER private impl. Adding a defaulted
 -- p_grpid parameter changes the signature, so — exactly like US-E10-02's get_leaderboard_page
@@ -8,16 +7,18 @@
 --
 -- p_grpid is optional and NULL means "every group", so the deployed edge function — which
 -- calls these with named p_hn/p_offset/p_limit and never sends p_grpid — keeps working after
--- this migration. The player export gains two trailing output columns (grpid, tag_name); the
--- edge function does `select *` and the client picks columns by name, so extra columns are
--- inert until the client opts in.
+-- this migration.
+--
+-- No group COLUMN is added to any export: a downloaded file is already the chosen group's
+-- file (or everyone, where group is moot), so the column would be redundant. The exports
+-- filter only.
 --
 -- Group is resolved from user_game_profile_data, which has no UNIQUE(hn): latest row wins
 -- (DISTINCT ON (hn) ORDER BY created_at DESC, id DESC), matching US-E10-02. A player with no
 -- profile row — or GRPID NULL — counts as 'UNTAGGED'. The filter runs at the row-producing
 -- stage so LIMIT/OFFSET paging counts filtered rows.
 
--- ── Player export ───────────────────────────────────────────────────────────────────────
+-- ── Player export (filter only — no group column) ───────────────────────────────────────
 DROP FUNCTION IF EXISTS public.get_player_export_rows(text, integer, integer);
 DROP FUNCTION IF EXISTS private.get_player_export_rows(text, integer, integer);
 
@@ -30,8 +31,7 @@ CREATE FUNCTION private.get_player_export_rows(
 RETURNS TABLE(
   hn text, firstname text, lastname text, gender text, birth_date date, phone text,
   started_program timestamp with time zone, education_level text, "educationName" text,
-  "programId" bigint, "programName" text, "programDayCount" integer,
-  grpid text, tag_name text
+  "programId" bigint, "programName" text, "programDayCount" integer
 )
 LANGUAGE sql
 SECURITY DEFINER
@@ -55,7 +55,7 @@ AS $function$
     where nullif(trim(gp.hn), '') is not null
     order by gp.hn, gp.created_at desc, gp.id desc
   ), latest_group as (
-    -- US-E10-04: latest GRPID per hn (same "latest row wins" rule as latest_profile)
+    -- US-E10-04: kept only to FILTER by group; not surfaced as an output column
     select distinct on (gp.hn) gp.hn, gp."GRPID" as grpid
     from public.user_game_profile_data gp
     where nullif(trim(gp.hn), '') is not null
@@ -78,16 +78,13 @@ AS $function$
     coalesce(nullif(edu.name, ''), trim(coalesce(p.education_level, '')))::text as "educationName",
     lp.program as "programId",
     coalesce(nullif(pl.name, ''), '')::text as "programName",
-    coalesce(pd.day_count, 0) as "programDayCount",
-    coalesce(lg.grpid, 'UNTAGGED')::text as grpid,
-    coalesce(gt.tag_name, '')::text as tag_name
+    coalesce(pd.day_count, 0) as "programDayCount"
   from public.user_data p
   left join edu on edu.key = trim(coalesce(p.education_level, ''))
   left join latest_profile lp on lp.hn = p.hn
   left join public.game_level_preset_list pl on pl.id = lp.program
   left join program_days pd on pd.gpid = lp.program
   left join latest_group lg on lg.hn = p.hn
-  left join public.user_group_tag gt on gt."GRPID" = coalesce(lg.grpid, 'UNTAGGED')
   where (nullif(trim(p_hn), '') is null or p.hn = trim(p_hn))
     and (nullif(trim(p_grpid), '') is null or coalesce(lg.grpid, 'UNTAGGED') = trim(p_grpid))
   order by p.hn
@@ -103,8 +100,7 @@ CREATE FUNCTION public.get_player_export_rows(
 RETURNS TABLE(
   hn text, firstname text, lastname text, gender text, birth_date date, phone text,
   started_program timestamp with time zone, education_level text, "educationName" text,
-  "programId" bigint, "programName" text, "programDayCount" integer,
-  grpid text, tag_name text
+  "programId" bigint, "programName" text, "programDayCount" integer
 )
 LANGUAGE sql
 SET search_path TO 'public', 'pg_temp'

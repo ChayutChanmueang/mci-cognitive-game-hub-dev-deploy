@@ -17,7 +17,7 @@ kanban-plugin: board
 
 
 ## ✅ Done
-- [x] [US-E10-04](user-stories/US-E10-04.md) Filter export CSV ตามกลุ่ม `GRPID` + scroll view + คอลัมน์กลุ่ม (ปิด E10-01 AC#4) (v1.3.0) — ✅ Done 2026-07-22 (Sprint 10)
+- [x] [US-E10-04](user-stories/US-E10-04.md) Filter export CSV ตามกลุ่ม `GRPID` + scroll view (filter-only) (v1.3.0) — ✅ Done 2026-07-22 (Sprint 10)
 - [x] [US-E10-03](user-stories/US-E10-03.md) ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น — สลับกับปุ่ม "กลับไปหน้าเกม" (v1.2.3) — ✅ Done 2026-07-20 (Sprint 10)
 - [x] [US-E7-30](user-stories/US-E7-30.md) Popup export CSV ใช้ art ชุดเดียวกับ popup อื่น + Check_Circle (v1.2.1 → ระยะห่าง v1.2.2) — ✅ owner verified 2026-07-20 (Sprint 10)
 - [x] [US-E10-01](user-stories/US-E10-01.md) Tag แบ่งกลุ่มผู้เล่น — `user_group_tag` + `GRPID` (v1.2.0) — ✅ Done 2026-07-20 *(AC#3 Player-Info / AC#4 CSV descoped)*
