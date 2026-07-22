@@ -29,6 +29,7 @@ gantt
     Export popup art (US-E7-30)      :done, t730, 2026-07-20, 1d
     section P1 — Video UX
     Video close button (US-E10-03)   :done, t1003, 2026-07-20, 1d
+    Export group filter (US-E10-04)  :t1004, 2026-07-22, 3d
     section QA
     A10s playtest                    :q1, 2026-07-27, 4d
 ```
@@ -55,9 +56,11 @@ gantt
 ### 📋 Backlog (Sprint 10)
 | ID | Story / Task | Priority | สถานะ |
 |----|--------------|----------|--------|
+| [US-E10-04](../user-stories/US-E10-04.md) | Filter export CSV ตามกลุ่ม `GRPID` + scroll view + คอลัมน์กลุ่ม (ปิด [US-E10-01](../user-stories/US-E10-01.md) AC#4) | P1 | 📋 Backlog *(รอ owner เคลียร์ 4 ข้อ: group×scope, เดี่ยว/หลายกลุ่ม, UNTAGGED, default)* |
 | [US-E9-07](../user-stories/US-E9-07.md) | Optimize สเปคต่ำ — เอฟเฟคเก่งมาก + Phaser (Galaxy A10s) | P0 | 📋 Backlog *(sparkle slice ✅ v1.1.5; confetti + Phaser ค้าง)* |
 | [US-E9-09](../user-stories/US-E9-09.md) | Layout ทนต่อการขยายฟอนต์ระบบ (System Font Scale) | P1 | 📋 Backlog |
 
+> **2026-07-20:** Owner เพิ่มงานใหม่ — [US-E10-04](../user-stories/US-E10-04.md) filter export CSV ตามกลุ่ม + scroll view (ต่อยอด US-E10-01 AC#4 ที่ descope ไว้)
 > **2026-07-20:** [US-E10-03](../user-stories/US-E10-03.md) ✅ Done (**v1.2.3**) — ผูก handler ปุ่มย้อนกลับ + สลับการแสดงผลกับปุ่ม "กลับไปหน้าเกม"
 > **2026-07-20:** Owner เพิ่มงานใหม่ — [US-E10-03](../user-stories/US-E10-03.md) ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น (owner ใส่ markup ปุ่มย้อนกลับเองแล้ว)
 > **2026-07-20:** [US-E7-30](../user-stories/US-E7-30.md) ✅ owner verified (**v1.2.2**) — owner จูนระยะห่างใน popup เอง
@@ -80,12 +83,12 @@ gantt
 - [Sprint 09](sprint-09.md) ✅ **Completed** (2026-07-17) — P0 gameplay [US-E9-01](../user-stories/US-E9-01.md)..[US-E9-04](../user-stories/US-E9-04.md) Done
 - [US-E9-10](../user-stories/US-E9-10.md) ✅ Done ใน Sprint 09 (CLI, ไม่ bump version)
 - **Current shipped:** `1.2.3` (US-E10-03 ปุ่มปิด popup วิดีโอ)
-- **Focus ที่เหลือ:** [US-E9-07](../user-stories/US-E9-07.md) (A10s perf) / [US-E9-09](../user-stories/US-E9-09.md) (system font scale) — งานที่เพิ่ม 2026-07-18 (US-E10-01/02, US-E7-30) ปิดครบแล้ว 2026-07-20
+- **Focus ที่เหลือ:** [US-E10-04](../user-stories/US-E10-04.md) (filter export ตามกลุ่ม) / [US-E9-07](../user-stories/US-E9-07.md) (A10s perf) / [US-E9-09](../user-stories/US-E9-09.md) (system font scale) — งานที่เพิ่ม 2026-07-18 (US-E10-01/02, US-E7-30) ปิดครบแล้ว 2026-07-20
 
 ---
 
 ## 📊 Sprint Summary
-- **งานที่ commit:** US-E9-13 / US-E9-05 / US-E10-01 / US-E10-02 / US-E7-30 / US-E10-03 ✅ Done; เหลือ US-E9-07/09
+- **งานที่ commit:** US-E9-13 / US-E9-05 / US-E10-01 / US-E10-02 / US-E7-30 / US-E10-03 ✅ Done; เหลือ US-E10-04 + US-E9-07/09
 - **สถานะ:** 🟢 **Sprint 10 Open** (ล่าสุด US-E7-30 owner verified **v1.2.2** 2026-07-20; เหลือ US-E9-07/09)
 
 ---

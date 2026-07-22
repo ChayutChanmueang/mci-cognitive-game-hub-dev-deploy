@@ -5,6 +5,7 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
+- [ ] [US-E10-04](user-stories/US-E10-04.md) 🟠 Filter export CSV ตามกลุ่ม `GRPID` + scroll view + คอลัมน์กลุ่ม (ปิด E10-01 AC#4) → Sprint 10
 - [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (A10s) → Sprint 10 *(sparkle v1.1.5 shipped)*
 - [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
 
