@@ -6,6 +6,8 @@ export class TutorialPanel {
         this.options = options;
         this.element = null;
         this.resizeHandler = this.resizePanel.bind(this);
+        this.pages = [];
+        this.currentPage = 0;
     }
 
     render() {
@@ -14,8 +16,8 @@ export class TutorialPanel {
         overlay.style.alignItems = "flex-start";
         overlay.style.paddingTop = "0";
 
-        const title            = this.options.title            || "วิธีการเล่น";
-        const description      = this.options.description      || "";
+        const title = this.options.title || "วิธีการเล่น";
+        const description = this.options.description || "";
         const panelBorderColor = this.options.panelBorderColor || '#DE8D23';
         const panelHeaderColor = this.options.panelHeaderColor || '#FEA837';
         const primaryFontColor = this.options.primaryFontColor || '#945E17';
@@ -24,9 +26,9 @@ export class TutorialPanel {
         // -------------------------------------------------------------------
         // Build category cards dynamically from theme data
         // -------------------------------------------------------------------
-        const receiverSetting  = this.options.receiverSetting  || {};
+        const receiverSetting = this.options.receiverSetting || {};
         const itemSpriteLibrary = this.options.itemSpriteLibrary || {};
-        const themeAssets      = this.options.themeAssets       || {};
+        const themeAssets = this.options.themeAssets || {};
 
         // Collect the categories that have a receiver (i.e. "acceptable" categories)
         const acceptedCategories = new Set(
@@ -41,9 +43,10 @@ export class TutorialPanel {
             if (!categoryCardMap[cat]) {
                 const sprites = itemSpriteLibrary[cat] || [];
                 categoryCardMap[cat] = {
+                    cat: cat,
                     label: receiver.Label || cat,
                     icons: [],
-                    items: sprites.slice(0, 3).map(key => themeAssets[key] || ""),
+                    items: sprites.slice(0, 3).map(key => ({ key: key, src: themeAssets[key] || "" })),
                 };
             }
             if (receiver.Icon) {
@@ -56,7 +59,7 @@ export class TutorialPanel {
             cat => !acceptedCategories.has(cat)
         );
         const rejectItems = rejectCategories.flatMap(cat =>
-            (itemSpriteLibrary[cat] || []).slice(0, 3).map(key => themeAssets[key] || "")
+            (itemSpriteLibrary[cat] || []).slice(0, 3).map(key => ({ key: key, src: themeAssets[key] || "" }))
         ).slice(0, 3);
 
         // Colour palette for accept cards (cycles if more than the list length)
@@ -67,156 +70,247 @@ export class TutorialPanel {
             { bg: '#FBF7FF', border: '#A67CD4', labelColor: '#7B4CC7', badgeFill: '#9A6AE0' },
         ];
 
+        const categoryStyles = this.options.categoryStyles || {};
+
+        const buildItemChip = (item, itemNames, { isFigma, rotateDeg = 0 }) => {
+            if (!item.src) return "";
+            const itemMarginTop = isFigma ? (rotateDeg ? "-55px" : "-45px") : "0px";
+            const transformStyle = rotateDeg ? ` transform: rotate(${rotateDeg}deg);` : "";
+            const itemGap = isFigma ? "20px" : "10px";
+            return `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: ${itemGap};">
+                    <img src="${item.src}" style="height: 175px; width: auto; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.25)); margin-top: ${itemMarginTop};${transformStyle}" />
+                    ${itemNames[item.key] ? `<span style="font-family: 'Noto Sans Thai Looped', sans-serif; font-size: 40px; color: #81512E; text-shadow: -3px -3px 0 #FFF, 3px -3px 0 #FFF, -3px 3px 0 #FFF, 3px 3px 0 #FFF, -3px 0px 0 #FFF, 3px 0px 0 #FFF, 0px -3px 0 #FFF, 0px 3px 0 #FFF; font-weight: 600; text-align: center; margin-top: -5px;">${itemNames[item.key]}</span>` : ""}
+                </div>
+            `;
+        };
+
         const buildCategoryCard = (catData, index) => {
+            const catStyle = categoryStyles[catData.cat] || {};
+            const titleBgColor = catStyle.titleBgColor || '#7DC850';
+            const titleShadow = catStyle.titleShadow || 'inset 0 3.56px 14.25px #8EFF4A, 0 2.38px 2.97px #BF5B1361';
+            const itemsBgColor = catStyle.itemsBgColor || 'rgba(73, 205, 56, 0.2)';
+
             const pal = cardPalettes[index % cardPalettes.length];
+            const isFigma = this.options.variant === "figma";
             const iconHtml = catData.icons
                 .map(iconKey => themeAssets[iconKey] || iconKey)
                 .filter(src => src)
-                .map(src => `<img src="${src}" style="width: 220px; height: 220px; object-fit: contain;" />`)
+                .map(src => {
+                    const lowerSrc = src.toLowerCase();
+                    const isLion = lowerSrc.includes('lion') || lowerSrc.includes('_li.png');
+                    const isBear = lowerSrc.includes('bear');
+                    const isFox = lowerSrc.includes('fox');
+                    
+                    let figmaHeight = 273;
+                    let normalHeight = 328.9;
+                    
+                    if (isLion) {
+                        figmaHeight = 250;
+                        normalHeight = 250;
+                    } else if (isBear) {
+                        figmaHeight += 10;
+                        normalHeight += 10;
+                    }
+                    
+                    let imgStyle = `height: ${isFigma ? figmaHeight + 'px' : normalHeight + 'px'}; width: auto; object-fit: contain; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.25));`;
+                    if (isFigma && isLion) {
+                        imgStyle += ` margin-top: 10px;`;
+                    } else if (isFigma && isFox) {
+                        imgStyle += ` margin-left: 20px; margin-right: -20px;`;
+                    }
+                    
+                    return `<img src="${src}" style="${imgStyle}" />`;
+                })
                 .join("");
+            const itemNames = this.options.itemNames || {};
             const itemImgs = catData.items
-                .map(src => src ? `<img src="${src}" style="height: 100px; width: auto; object-fit: contain;" />` : "")
+                .map(item => buildItemChip(item, itemNames, { isFigma }))
                 .join("");
+
+            const titlePadding = isFigma ? "0 38px" : "0 45px";
+            const iconRowGap = isFigma ? "0px" : "20px";
+            const chipContainerRadius = isFigma ? "52px" : "70px";
+            const chipContainerPadding = isFigma ? "56px 52px 26px" : "26px 52px";
+            const chipAlignItems = isFigma ? "flex-end" : "center";
+            const captionGap = isFigma ? "45px" : "20px";
 
             return `
                 <div style="
                     position: relative;
                     width: 774px;
-                    height: 386px;
-                    background-color: ${pal.bg};
-                    border: 3px solid ${pal.border};
-                    border-radius: 50px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
                     box-sizing: border-box;
                 ">
                     <div style="
-                        position: absolute;
-                        top: 50px;
-                        left: 65px;
-                        font-family: 'Noto Looped Thai', sans-serif;
-                        font-size: 56px;
-                        color: ${pal.labelColor};
-                        font-weight: 500;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 114px;
+                        padding: ${titlePadding};
+                        background-color: ${titleBgColor};
+                        border-radius: 30.88px;
+                        box-shadow: ${titleShadow};
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
+                        font-size: 60px;
+                        font-weight: 600;
+                        color: #FFFFFF;
                         white-space: nowrap;
+                        margin-bottom:0px;
                     ">${catData.label}</div>
                     <div style="
-                        position: absolute;
-                        top: 80px;
                         width: 100%;
                         display: flex;
                         justify-content: center;
-                        gap: 20px;
+                        gap: ${iconRowGap};
+                        margin-bottom: 20px;
+                        ${isFigma && catData.cat === 'Meat' ? 'transform: translateX(20px);' : ''}
                     ">${iconHtml}</div>
-                    <div style="position: absolute; top: 280px; left: 67px; width: 160px; height: 70px;">
-                        <svg width="160" height="70" viewBox="0 0 160 70" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0;">
-                            <path d="M 15 0 L 130 0 C 138 0, 142 3, 147 10 L 156 25 C 160 31, 160 39, 156 45 L 147 60 C 142 67, 138 70, 130 70 L 15 70 C 6.7 70, 0 63.3, 0 55 L 0 15 C 0 6.7, 6.7 0, 15 0 Z" fill="${pal.badgeFill}" />
-                        </svg>
-                        <div style="position: absolute; top: 0; left: 0; width: 145px; height: 70px; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Noto Looped Thai', sans-serif; font-size: 36px; font-weight: 700;">รับได้</div>
-                    </div>
-                    <div style="position: absolute; top: 265px; left: 257px; display: flex; align-items: center; gap: 15px; height: 100px;">
-                        ${itemImgs}
+                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${captionGap};">
+                        <span style="font-family: 'Noto Sans Thai Looped', sans-serif; font-size: 48px; color: #945E17; font-weight: 500;">
+                            ${this.options.acceptText || "สิ่งที่รับได้ :"}
+                        </span>
+                        <div style="display: flex; align-items: ${chipAlignItems}; justify-content: center; gap: 26px; background-color: ${itemsBgColor}; border-radius: ${chipContainerRadius}; padding: ${chipContainerPadding};">
+                            ${itemImgs}
+                        </div>
                     </div>
                 </div>`;
         };
 
-        const buildRejectCard = (itemPaths) => {
-            const itemImgs = itemPaths
-                .map(src => src ? `<img src="${src}" style="width: 170px; height: 170px; object-fit: contain;" />` : "")
+        const buildRejectCard = (rejectItems) => {
+            const isFigma = this.options.variant === "figma";
+            const iconHtml = isFigma 
+                ? `<img src="assets/zoo-feeder/etc/Garbage.png" style="height: 307.6px; width: auto; object-fit: contain; filter: drop-shadow(0px 14px 5px rgba(80,80,80,0.25));" />`
+                : `<img src="assets/zoo-feeder/etc/Garbage.png" style="width: 246.5px; height: 246.5px; object-fit: contain;" />`;
+            const itemNames = this.options.itemNames || {};
+            const rotations = [-8, 0, 10];
+            const itemImgs = rejectItems
+                .map((item, idx) => buildItemChip(item, itemNames, { isFigma, rotateDeg: isFigma ? rotations[idx % rotations.length] : 0 }))
                 .join("");
+
+            const titlePadding = isFigma ? "0 38px" : "0 45px";
+            const iconRowGap = isFigma ? "0px" : "20px";
+            const chipContainerRadius = isFigma ? "52px" : "70px";
+            const chipContainerPadding = isFigma ? "56px 52px 26px" : "26px 52px";
+            const chipAlignItems = isFigma ? "flex-end" : "center";
+            const captionGap = isFigma ? "45px" : "20px";
+
             return `
                 <div style="
                     position: relative;
                     width: 774px;
-                    height: 300px;
-                    background-color: #FFF9F9;
-                    border: 3px solid #DF5F5F;
-                    border-radius: 50px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
                     box-sizing: border-box;
                 ">
                     <div style="
-                        position: absolute;
-                        top: 40px;
-                        left: 65px;
-                        display: flex;
+                        display: inline-flex;
                         align-items: center;
-                        gap: 20px;
-                    ">
-                        <span style="
-                            font-family: 'Noto Looped Thai', sans-serif;
-                            font-size: 56px;
-                            color: #DF5F5F;
-                            font-weight: 500;
-                            white-space: nowrap;
-                        ">สิ่งที่ทิ้งออก</span>
-                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="12" fill="#DF5F5F"/>
-                            <path d="M8 8L16 16M16 8L8 16" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
+                        justify-content: center;
+                        height: 114px;
+                        padding: ${titlePadding};
+                        background-color: #F04E4E;
+                        border-radius: 30.88px;
+                        box-shadow: inset 0px 3px 12px 0px #FD7979, 0px 2px 2.5px 0px #BF5B1361;
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
+                        font-size: 60px;
+                        font-weight: 600;
+                        color: #FFFFFF;
+                        white-space: nowrap;
+                        margin-bottom: ${isFigma ? '20px' : '46px'};
+                    ">สิ่งที่กินไม่ได้</div>
                     <div style="
-                        position: absolute;
-                        top: 100px;
                         width: 100%;
                         display: flex;
                         justify-content: center;
-                        gap: 10px;
-                    ">${itemImgs}</div>
+                        gap: ${iconRowGap};
+                        margin-bottom: 20px;
+                    ">${iconHtml}</div>
+                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${captionGap};">
+                        <span style="font-family: 'Noto Sans Thai Looped', sans-serif; font-size: 48px; color: #945E17; font-weight: 500;">
+                            ${this.options.rejectText || "ของที่ต้องคัดออก :"}
+                        </span>
+                        <div style="display: flex; align-items: ${chipAlignItems}; justify-content: center; gap: 26px; background-color: #F9A97033; border-radius: ${chipContainerRadius}; padding: ${chipContainerPadding};">
+                            ${itemImgs}
+                        </div>
+                    </div>
                 </div>`;
         };
 
         // -------------------------------------------------------------------
-        // Assemble the full HTML
+        // Assemble pages
         // -------------------------------------------------------------------
         const cardEntries = Object.values(categoryCardMap);
 
-        let cardsHtml = "";
+        this.pages = [];
         cardEntries.forEach((cardData, i) => {
-            cardsHtml += buildCategoryCard(cardData, i);
+            this.pages.push(buildCategoryCard(cardData, i));
         });
 
-        const rejectHtml = rejectItems.length > 0 ? buildRejectCard(rejectItems) : "";
+        if (rejectItems.length > 0) {
+            this.pages.push(buildRejectCard(rejectItems));
+        }
+
+        const isFigma = this.options.variant === "figma";
+        const wrapperClass = isFigma ? "tutorial-wrapper tutorial-wrapper--figma" : "tutorial-wrapper";
+        const panelClass = isFigma ? "result-panel dynamic-panel result-panel--tutorial result-panel--tutorial-figma" : "result-panel dynamic-panel result-panel--tutorial";
+        const navRowClass = isFigma ? "tutorial-nav-row tutorial-nav-row--figma" : "tutorial-nav-row";
+        const navBtnClass = isFigma ? "result-btn-home tutorial-nav-btn tutorial-nav-btn--figma" : "result-btn-home tutorial-nav-btn";
+        const descFontSize = isFigma ? "56px" : "52px";
+        const subDescFontSize = isFigma ? "44px" : "32px";
+        const subDescMarginTop = isFigma ? "4px" : "18px";
+        const pageContentGap = isFigma ? "20px" : "30px";
 
         overlay.innerHTML = `
             <div class="result-backdrop"></div>
-            <div class="result-panel dynamic-panel result-panel--tutorial" id="tutorial-result-panel">
-                <div class="result-header">
-                    <h2>${title}</h2>
+            <div class="${wrapperClass}" id="tutorial-wrapper">
+                <div class="${panelClass}" id="tutorial-result-panel">
+                    <div class="result-header">
+                        <h2>${title}</h2>
+                    </div>
+                    <div style="
+                        position: relative;
+                        width: 90%;
+                        text-align: center;
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
+                        font-size: ${descFontSize};
+                        color: ${primaryFontColor};
+                        font-weight: 500;
+                        white-space: normal;
+                        line-height: 1.2;
+                        margin-top: 35px;
+                    ">${description}</div>
+                    ${this.options.subdescription ? `
+                    <div style="
+                        position: relative;
+                        width: 90%;
+                        text-align: center;
+                        font-family: 'Noto Sans Thai Looped', sans-serif;
+                        font-size: ${subDescFontSize};
+                        color: ${secondaryFontColor};
+                        font-weight: 500;
+                        white-space: normal;
+                        line-height: 1.3;
+                        margin-top: ${subDescMarginTop};
+                    ">${this.options.subdescription}</div>` : ""}
+                    <div id="tutorial-page-content" style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: ${pageContentGap};
+                        margin-top: 20px;
+                        align-items: center;
+                        width: 100%;
+                    ">
+                        <!-- Page content injected here -->
+                    </div>
                 </div>
-                <div style="
-                    position: relative;
-                    width: 90%;
-                    text-align: center;
-                    font-family: 'Noto Looped Thai', sans-serif;
-                    font-size: 52px;
-                    color: ${primaryFontColor};
-                    font-weight: 500;
-                    white-space: normal;
-                    line-height: 1.2;
-                    margin-top: 35px;
-                ">${description}</div>
-                <div style="
-                    position: relative;
-                    width: 90%;
-                    text-align: center;
-                    font-family: 'Noto Looped Thai', sans-serif;
-                    font-size: 32px;
-                    color: ${secondaryFontColor};
-                    font-weight: 500;
-                    white-space: normal;
-                    line-height: 1.3;
-                    margin-top: 18px;
-                ">${this.options.subdescription || ""}</div>
-                <div style="
-                    display: flex;
-                    flex-direction: column;
-                    gap: 30px;
-                    margin-top: 40px;
-                    align-items: center;
-                    width: 100%;
-                ">
-                    ${cardsHtml}
-                    ${rejectHtml}
+                <div class="${navRowClass}">
+                    <button id="tutorial-back-button" class="${navBtnClass} tutorial-nav-btn--back">ย้อนกลับ</button>
+                    <button id="tutorial-forward-button" class="${navBtnClass} tutorial-nav-btn--forward">ถัดไป</button>
                 </div>
-                <button id="tutorial-start-button" class="result-btn-home result-btn-home--start result-btn-home--tutorial">เริ่มเล่นเกม</button>
             </div>
         `;
         this.element = overlay;
@@ -231,20 +325,84 @@ export class TutorialPanel {
         if (header && panelHeaderColor) {
             header.style.backgroundColor = panelHeaderColor;
         }
+        // Override the fixed base .result-panel height so the panel shrinks to fit content
+        if (panel) {
+            panel.style.height = 'auto';
+            if (this.options.variant === "figma") {
+                panel.style.paddingBottom = "45px";
+            }
+        }
 
-        const btn = overlay.querySelector("#tutorial-start-button");
-        if (btn) {
-            const handleStart = (e) => {
+        const backBtn = overlay.querySelector("#tutorial-back-button");
+        const forwardBtn = overlay.querySelector("#tutorial-forward-button");
+        const pageContent = overlay.querySelector("#tutorial-page-content");
+
+        const renderPage = (index) => {
+            if (index < 0 || index >= this.pages.length) return;
+            this.currentPage = index;
+            pageContent.innerHTML = this.pages[this.currentPage];
+
+            // Update Back Button
+            if (this.currentPage === 0) {
+                backBtn.classList.add("tutorial-nav-btn--hidden");
+            } else {
+                backBtn.classList.remove("tutorial-nav-btn--hidden");
+            }
+
+            // Update Forward/Start Button
+            if (this.currentPage === this.pages.length - 1) {
+                forwardBtn.textContent = this.options.startButtonText || "เริ่มเล่นเกม";
+                forwardBtn.classList.remove("tutorial-nav-btn--forward");
+                forwardBtn.classList.add("tutorial-nav-btn--start");
+            } else {
+                forwardBtn.textContent = "ถัดไป";
+                forwardBtn.classList.remove("tutorial-nav-btn--start");
+                forwardBtn.classList.add("tutorial-nav-btn--forward");
+            }
+
+            // Optional: call resizePanel to adapt to any height differences, though we use fixed height mostly
+            setTimeout(() => this.resizePanel(), 0);
+        };
+
+        let lastActionTime = 0;
+
+        if (backBtn) {
+            const handleBack = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.destroy();
-                if (this.options.onStart) {
-                    this.options.onStart();
+                if (Date.now() - lastActionTime < 200) return;
+                lastActionTime = Date.now();
+
+                if (this.currentPage > 0) {
+                    renderPage(this.currentPage - 1);
                 }
             };
-            btn.addEventListener("click", handleStart);
-            btn.addEventListener("pointerdown", handleStart);
+            backBtn.addEventListener("click", handleBack);
+            backBtn.addEventListener("pointerdown", handleBack);
         }
+
+        if (forwardBtn) {
+            const handleForward = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (Date.now() - lastActionTime < 200) return;
+                lastActionTime = Date.now();
+
+                if (this.currentPage < this.pages.length - 1) {
+                    renderPage(this.currentPage + 1);
+                } else {
+                    this.destroy();
+                    if (this.options.onStart) {
+                        this.options.onStart();
+                    }
+                }
+            };
+            forwardBtn.addEventListener("click", handleForward);
+            forwardBtn.addEventListener("pointerdown", handleForward);
+        }
+
+        // Render initial page
+        renderPage(0);
 
         window.addEventListener("resize", this.resizeHandler);
         requestAnimationFrame(() => this.resizePanel());
@@ -252,34 +410,34 @@ export class TutorialPanel {
 
     resizePanel() {
         if (!this.element) return;
-        const panel = this.element.querySelector("#tutorial-result-panel");
-        if (!panel) return;
+        const wrapper = this.element.querySelector("#tutorial-wrapper");
+        if (!wrapper) return;
 
         // Briefly remove transform to measure true layout dimensions
-        panel.style.transform = 'none';
+        wrapper.style.transform = 'none';
+        wrapper.style.marginTop = '0px';
 
-        const actualWidth = panel.offsetWidth || 876;
-        const actualPanelHeight = panel.offsetHeight || 1700;
+        const actualWidth = wrapper.offsetWidth || 876;
+        const actualHeight = wrapper.offsetHeight || 1200;
 
-        // Total height includes the panel itself + 40px gap + 228px exit button
-        const totalContentHeight = actualPanelHeight + 40 + 228;
-
-        const availableWidth  = window.innerWidth * 0.9;
+        const widthMultiplier = this.options.variant === "figma" ? 0.95 : 0.9;
+        const availableWidth = window.innerWidth * widthMultiplier;
         const availableHeight = window.innerHeight - 25 - 40;
 
-        const scaleX = availableWidth  / actualWidth;
-        const scaleY = availableHeight / totalContentHeight;
+        const scaleX = availableWidth / actualWidth;
+        const scaleY = availableHeight / actualHeight;
 
-        const scale = Math.min(0.85, scaleX, scaleY);
-        
-        // Manually calculate the exact top margin needed to perfectly center the SCALED panel
-        const scaledHeight = totalContentHeight * scale;
+        // Scale down only when content doesn't fit; never scale up beyond 1.0
+        const scale = Math.min(1.0, scaleX, scaleY);
+
+        // Manually calculate the exact top margin needed to perfectly center the SCALED content
+        const scaledHeight = actualHeight * scale;
         const emptyVerticalSpace = window.innerHeight - scaledHeight;
-        const marginTop = Math.max(0, emptyVerticalSpace / 2);
+        let marginTop = Math.max(0, emptyVerticalSpace / 2);
 
-        panel.style.transformOrigin = "top center";
-        panel.style.marginTop = `${marginTop}px`;
-        panel.style.transform = `scale(${scale})`;
+        wrapper.style.transformOrigin = "top center";
+        wrapper.style.marginTop = `${marginTop}px`;
+        wrapper.style.transform = `scale(${scale})`;
     }
 
     destroy() {

@@ -3,6 +3,7 @@
     "title": "จัดยา",
     "description": "เกมคัดแยกยาและสิ่งของให้ถูกประเภท",
     "instructions": "แตะสิ่งของที่เป็นอันตรายหรือไม่ใช่ยาออกจากสายพาน และปล่อยให้ยาที่ถูกต้องผ่านไปให้ถูกช่อง",
+    "acceptText": "สิ่งที่รับได้ :",
     "tutorialTitle": "คู่มือการเล่น",
     "coverImage": "assets/common/cover/cover_zoo_feeder.png",
     "defaultLevel": 1,
@@ -21,6 +22,17 @@
     "ORAL_MEDICATION":     "OralMedication",
     "EXTERIOR_MEDICATION": "ExteriorMedication",
     "DANGEROUS_CHEMICAL":  "DangerousChemical"
+  },
+  "ItemNames": {
+    "capsule_pill_sprite": "แคปซูล",
+    "pill1_sprite":        "ยาเม็ด",
+    "pill2_sprite":        "ยาเม็ด",
+    "counterpain_sprite":  "ยาทา",
+    "inhaler_sprite":      "ยาดม",
+    "plaster_sprite":      "พลาสเตอร์",
+    "chemical_sprite":     "สารเคมี",
+    "dishwasher_sprite":   "น้ำยาล้างจาน",
+    "pesticide_sprite":    "ยาฆ่าแมลง"
   },
   "ItemSpriteLibrary": {
     "OralMedication":     ["capsule_pill_sprite", "pill1_sprite", "pill2_sprite"],
