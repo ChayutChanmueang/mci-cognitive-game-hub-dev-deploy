@@ -5,7 +5,7 @@ export const StartMenuSetting = Object.freeze({
     title: 'สวนสัตว์นักสืบ',
     description: 'เกมสังเกตคำใบ้และจัดวางสัตว์ให้ถูกตำแหน่ง',
     instructions: 'อ่านคำใบ้ทีละข้อ แล้วเลือกสัตว์ไปวางในช่องให้ตรงกับเงื่อนไขทั้งหมด',
-    coverImage: 'assets/common/cover/cover_zoo_detective.png',
+    coverImage: 'assets/common/cover/cover_zoo detective.png',
     titleFontSize: '80px',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,
