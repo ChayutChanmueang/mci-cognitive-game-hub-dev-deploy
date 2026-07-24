@@ -3,7 +3,7 @@
     "title": "ภาพสะท้อน",
     "description": "เกมจัดวางของให้สมมาตรกัน",
     "instructions": "จัดของให้สมมาตรกัน ตามการสะท้อนของกระจก",
-    "coverImage": "assets/common/cover/cover_symmetry_decor.png",
+    "coverImage": "assets/common/cover/cover_symmetry_animal.png",
     "titleFontSize": "80px",
     "defaultLevel": 1,
     "panelBorderColor": "#DB4670",

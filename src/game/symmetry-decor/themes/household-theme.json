@@ -3,7 +3,7 @@
     "title": "ภาพสะท้อน (ของใช้)",
     "description": "เกมจัดวางของใช้ให้สมมาตรกัน",
     "instructions": "จัดของใช้ให้สมมาตรกัน ตามการสะท้อนของกระจก",
-    "coverImage": "assets/common/cover/cover_symmetry_decor.png",
+    "coverImage": "assets/common/cover/cover_symmetry_tool.png",
     "titleFontSize": "80px",
     "defaultLevel": 1,
     "panelBorderColor": "#446A46",
