@@ -5,7 +5,7 @@ export const StartMenuSetting = Object.freeze({
     title: 'นักสืบในบ้าน',
     description: 'เกมสังเกตคำใบ้และจัดวางของใช้ให้ถูกตำแหน่ง',
     instructions: 'อ่านคำใบ้ทีละข้อ แล้วเลือกของใช้ไปวางในช่องให้ตรงกับเงื่อนไขทั้งหมด',
-    coverImage: 'assets/common/cover/cover_zoo_detective.png',
+    coverImage: 'assets/common/cover/cover_tool detective.png',
     titleFontSize: '80px',
     /** Default level shown when none is stored in session (1 = easy, 2 = medium, 3 = hard) */
     defaultLevel: 1,
@@ -49,7 +49,27 @@ export const Config = Object.freeze({
         easy: 48,
         medium: 24,
         hard: 24,
-    }
+    },
+    Cell: Object.freeze({
+        Radius: 42,
+        StrokeWidth: 7,
+
+        // Empty cell.
+        FillColor: 0xfffaf1,          // was Theme.colors.warmSurface
+        StrokeColor: 0xf0b34c,        // was Theme.colors.warmAccent
+
+        // The dragged animal is hovering over this cell (US-E9-03).
+        HoverFillColor: 0xFFEAD5,
+        HoverStrokeColor: 0xB48557,
+
+        // A hint has come true — the animal here is correct and can no longer be moved.
+        LockedFillColor: 0xEFFDEE,    // was Theme.colors.primaryContainer
+        LockedStrokeColor: 0x40BC4F,  // was Theme.colors.primary
+
+        // Wrong placement — the border blinks this colour, then returns to normal.
+        ErrorStrokeColor: 0xff0000,
+        ErrorStrokeWidth: 8,
+    }),
 })
 
 export const PuzzleLevelConfig = Object.freeze({
@@ -89,6 +109,7 @@ export const GameplayConfig = Object.freeze({
     stageLabel: "เลเวล",
     promptJoiner: "\n",
     defaultPromptFallback: "วางของใช้ตามคำใบ้ลงไปในช่องด้านล่าง",
+    fontSize_FallbackPrompt: "44px",
     hintDirection: {
         up: "อยู่ด้านบน",
         down: "อยู่ด้านล่าง",
