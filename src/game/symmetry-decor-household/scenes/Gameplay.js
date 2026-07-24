@@ -89,6 +89,7 @@ export default class GameplayScene extends Phaser.Scene {
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
     EventBus.emit('minigame:score', { score: this.allScore });
     EventBus.emit('minigame:level', { level: `${this.level} - รอบที่ ${this.stage}` });
+    this._lastTimeLeftS = maxTimeS;
     EventBus.emit('minigame:tick', { timeLeft: maxTimeS, maxTime: maxTimeS });
 
     // Flag: timer expired while puzzle was in progress — finish puzzle first
@@ -101,12 +102,10 @@ export default class GameplayScene extends Phaser.Scene {
       const draggableData = entity.getComponent(DraggableDataComponent);
       if (!draggableData) return;
 
-      console.log(`Locked into ${socketComponent.name}`);
       if (socketComponent.entity.getComponent(SolutionSocketComponent) != null) {
         var socketChecker = socketComponent.entity.getComponent(SolutionSocketComponent);
         this.totalMove++;
         if (socketChecker.checkEntity(draggableData)) {
-          console.log("Correct Socket");
           EventBus.emit('audio:play', 'symmetry-decor-household:correct');
           if (!socketComponent.hasAwardedPoints) {
             socketComponent.hasAwardedPoints = true;
@@ -116,13 +115,10 @@ export default class GameplayScene extends Phaser.Scene {
               draggableData.animal,
               true,
             );
-            console.log("Correct Slot Logged");
-            console.log("Current Correct Log : " + this.correctSlotMove);
             this.allScore += 5;
             EventBus.emit('minigame:score', { score: this.allScore });
           }
           if (this.checkIfAllSocketIsFilledCorrectly()) {
-            console.log("Game Complete");
             this.handleRoundComplete();
           }
         }
@@ -133,7 +129,6 @@ export default class GameplayScene extends Phaser.Scene {
           } else {
             if (this._swapInProgress) this._swapWrongLogged = true;
             this.wrongSlotMove++;
-            console.log("Current Wrong Slot : " + this.wrongSlotMove);
             this.replayLogger.addAnswerEvent(
               GlobalReplayEvent.ANSWER_SUBMITTED,
               draggableData.animal,
@@ -228,7 +223,11 @@ export default class GameplayScene extends Phaser.Scene {
     const timeLeftS = Math.ceil((Config.TimeLimitMs - elapsePlaytimeMS) / 1000);
 
     const maxTimeS = Math.ceil(Config.TimeLimitMs / 1000);
-    EventBus.emit('minigame:tick', { timeLeft: Math.max(0, timeLeftS), maxTime: maxTimeS });
+    const clampedTimeLeftS = Math.max(0, timeLeftS);
+    if (clampedTimeLeftS !== this._lastTimeLeftS) {
+      this._lastTimeLeftS = clampedTimeLeftS;
+      EventBus.emit('minigame:tick', { timeLeft: clampedTimeLeftS, maxTime: maxTimeS });
+    }
 
     if (elapsePlaytimeMS >= Config.TimeLimitMs && !this.pendingGameOver) {
       // Let the player finish the current puzzle before ending

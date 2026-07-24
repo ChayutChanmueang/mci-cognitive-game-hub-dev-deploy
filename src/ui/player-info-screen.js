@@ -4,10 +4,7 @@ import {
     formatThaiProgramDate,
     getProgramEndDate,
 } from "../util/program-date-util.js";
-import {
-    CsvExportScope,
-    CsvExportType,
-} from "../util/player-csv-export.js";
+import { showExportOptionsPopup } from "./export-options-popup.js";
 import { showRestingPointPopup } from "./resting-point-popup.js";
 import { showCheckInPopup } from "./checkin-summary-screen.js";
 import { showDayCompletionPopup } from "./day-completion-popup.js";
@@ -31,8 +28,11 @@ function escapeHtml(value) {
         .replaceAll("'", "&#39;");
 }
 
+// US-E9-11: the patient card is the record of what was entered, so it spells the พ.ศ. year out in
+// full — a two-digit year reads as ambiguous next to a ค.ศ. date. The compact program-day labels
+// elsewhere keep the short form.
 function formatDisplayDate(value) {
-    return formatThaiProgramDate(value);
+    return formatThaiProgramDate(value, { shortYear: false });
 }
 
 function formatGenderDisplay(gender) {
@@ -85,124 +85,6 @@ function buildTestProgramMenuItems(testProgramPresets, activeProgramId) {
             `;
         })
         .join("");
-}
-
-function showExportOptionsPopup() {
-    return new Promise((resolve) => {
-        const overlay = document.createElement("div");
-        const titleId = `player-export-title-${Date.now()}`;
-        const messageId = `player-export-message-${Date.now()}`;
-        const previousOverflow = document.body.style.overflow;
-
-        overlay.className = "app-popup player-info-export-popup";
-        overlay.innerHTML = `
-            <div class="app-popup__backdrop"></div>
-            <div
-                class="app-popup__dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="${titleId}"
-                aria-describedby="${messageId}"
-            >
-                <div class="app-popup__header">
-                    <div class="app-popup__icon-wrap">
-                        <span class="material-symbols-rounded app-popup__icon">download</span>
-                    </div>
-                    <div class="app-popup__copy">
-                        <h2 id="${titleId}">ส่งออกข้อมูล</h2>
-                        <p id="${messageId}">เลือกข้อมูลที่ต้องการส่งออกเป็น CSV</p>
-                        <div class="player-info-export-popup__group" aria-label="ขอบเขตข้อมูล">
-                            <label class="player-info-export-popup__option player-info-export-popup__scope">
-                                <span class="player-info-export-popup__scope-copy">
-                                    <span class="player-info-export-popup__scope-title">ส่งออกข้อมูล ผู้เล่นคนนี้/ทุกคน</span>
-                                    <span class="player-info-export-popup__scope-value" data-export-scope-value>
-                                        ข้อมูลของผู้เล่นคนนี้
-                                    </span>
-                                </span>
-                                <md-switch
-                                    aria-label="ส่งออกข้อมูลทั้งหมด"
-                                    data-export-scope-switch
-                                    icons
-                                ></md-switch>
-                            </label>
-                        </div>
-                        <label class="player-info-export-popup__option">
-                            <md-checkbox
-                                aria-label="ส่งออกข้อมูลผู้เล่น"
-                                touch-target="wrapper"
-                                data-export-option="${CsvExportType.Player}"
-                                checked
-                            ></md-checkbox>
-                            <span>ส่งออกข้อมูลผู้เล่น</span>
-                        </label>
-                        <label class="player-info-export-popup__option">
-                            <md-checkbox
-                                aria-label="ส่งออกข้อมูลการเล่นเกม"
-                                touch-target="wrapper"
-                                data-export-option="${CsvExportType.Game}"
-                            ></md-checkbox>
-                            <span>ส่งออกข้อมูลการเล่นเกม</span>
-                        </label>
-                        <label class="player-info-export-popup__option">
-                            <md-checkbox
-                                aria-label="ส่งออกประวัติการเล่นรายวัน"
-                                touch-target="wrapper"
-                                data-export-option="${CsvExportType.History}"
-                            ></md-checkbox>
-                            <span>ส่งออกประวัติการเล่นรายวัน</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="app-popup__actions">
-                    <md-outlined-button type="button" data-popup-cancel>ยกเลิก</md-outlined-button>
-                    <md-filled-button type="button" data-popup-confirm>ส่งออก</md-filled-button>
-                </div>
-            </div>
-        `;
-
-        const cleanup = (result) => {
-            document.removeEventListener("keydown", onKeyDown);
-            overlay.remove();
-            document.body.style.overflow = previousOverflow;
-            resolve(result);
-        };
-        const scopeSwitch = overlay.querySelector("[data-export-scope-switch]");
-        const scopeValue = overlay.querySelector("[data-export-scope-value]");
-        const updateScopeValue = () => {
-            if (!scopeValue) {
-                return;
-            }
-
-            scopeValue.textContent = scopeSwitch?.selected
-                ? "ข้อมูลของผู้เล่นทุกคน"
-                : "ข้อมูลของผู้เล่นคนนี้";
-        };
-        const getSelection = () => ({
-            exportScope: scopeSwitch?.selected ? CsvExportScope.All : CsvExportScope.Current,
-            exportTypes: [...overlay.querySelectorAll("[data-export-option]")]
-                .filter((checkbox) => checkbox.checked)
-                .map((checkbox) => String(checkbox.getAttribute("data-export-option") || "").trim())
-                .filter(Boolean),
-        });
-        const onKeyDown = (event) => {
-            if (event.key === "Escape") {
-                cleanup(null);
-            }
-        };
-
-        overlay.querySelector("[data-popup-cancel]")?.addEventListener("click", () => cleanup(null));
-        overlay.querySelector("[data-popup-confirm]")?.addEventListener("click", () => cleanup(getSelection()));
-        overlay.querySelector(".app-popup__backdrop")?.addEventListener("click", () => cleanup(null));
-        scopeSwitch?.addEventListener("change", updateScopeValue);
-        updateScopeValue();
-
-        document.body.style.overflow = "hidden";
-        document.body.appendChild(overlay);
-        document.addEventListener("keydown", onKeyDown);
-        requestAnimationFrame(() => {
-            overlay.querySelector("[data-popup-confirm]")?.focus();
-        });
-    });
 }
 
 export function renderPlayerInfoScreen(root, options = {}) {
@@ -437,6 +319,13 @@ export function renderPlayerInfoScreen(root, options = {}) {
         root.querySelector("[data-test-checkin-popup]")?.addEventListener("click", async () => {
             closeTestMenus();
             const totalDays = 14;
+            let treeType = "a";
+            try {
+                const gameProfile = await db.ensureUserGameProfileTreeType({ hn: player?.hn });
+                treeType = String(gameProfile?.tree_type || "a").trim();
+            } catch (error) {
+                console.warn("Unable to load the player's tree type for the check-in test:", error);
+            }
             const completedCount = Math.floor(Math.random() * totalDays) + 1;
             const programStart = new Date();
             programStart.setDate(programStart.getDate() - totalDays + 1);
@@ -450,6 +339,7 @@ export function renderPlayerInfoScreen(root, options = {}) {
                 programStartedAt: programStart.toISOString(),
                 defaultDayCount: totalDays,
                 loadVideoSrc: () => db.getRandomGameVideoUrl(),
+                treeType,
             });
         });
 

@@ -1,11 +1,10 @@
 import Phaser from "phaser";
 
-export default class Entity extends Phaser.Physics.Arcade.Sprite{
+export default class Entity extends Phaser.GameObjects.Sprite{
     constructor(scene,x,y,texture = '__DEFAULT'){
         super(scene,x,y,texture);
 
         scene.add.existing(this);
-        scene.physics.add.existing(this);
 
         this.components = [];
 
@@ -21,15 +20,6 @@ export default class Entity extends Phaser.Physics.Arcade.Sprite{
     }
     getComponent(ComponentClass){
         return this.components.find(c => c instanceof ComponentClass);
-    }
-    preUpdate(time,delta){
-        super.preUpdate(time,delta);
-
-        for(const _component of this.components){
-            if(_component.update){
-                _component.update(time,delta);
-            }
-        }
     }
     destroy(fromScene){
         for(const _component of this.components){

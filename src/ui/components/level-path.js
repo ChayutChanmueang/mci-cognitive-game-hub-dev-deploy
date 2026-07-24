@@ -80,7 +80,11 @@ function renderSide(node) {
   }
   const label = node.sideLabel || node.title || "";
   if (!label) return "";
-  return `<div class="gh-game-pill">${escapeText(label)}</div>`;
+  
+  return `
+    <div class="gh-game-pill">
+      <span class="gh-game-pill__label">${escapeText(label)}</span>
+    </div>`;
 }
 
 function renderConnector(fromNode) {

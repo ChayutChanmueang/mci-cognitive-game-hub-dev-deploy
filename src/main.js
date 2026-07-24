@@ -55,6 +55,7 @@ import { MinigameResultPanel } from "./ui/minigame-result-panel.js";
 import StorageManager from "./core/storage-manager.js";
 import SessionStorageManager from "./core/session-storage-manager.js";
 import MiniGameDBUtil from "./util/minigame-db-util.js";
+import screenWakeLock from "./core/wake-lock-manager.js"; // US-E9-06
 
 const gameModuleLoaders = import.meta.glob(["./game/*/main.js", "!./game/game-hub/main.js"]);
 
@@ -210,6 +211,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const destroyActiveGame = () => {
+        // US-E9-06: stop holding the screen awake once the player leaves the game.
+        // This is the single teardown chokepoint, so it covers every exit path
+        // (exit button, game-over, back navigation, route change).
+        screenWakeLock.release("minigame");
+
         // Unregister game sounds IMMEDIATELY, before any Phaser destroy logic can potentially throw an error
         if (currentGameSlug) {
             EventBus.emit('audio:unregister', currentGameSlug);
@@ -225,12 +231,39 @@ document.addEventListener("DOMContentLoaded", () => {
                     activeGameInstance.scale.stopFullscreen();
                 } catch (e) { }
             }
+
+            // US-E9-07: Phaser 3.90's WebGLRenderer.destroy() nulls its `gl` reference but
+            // never calls loseContext(), so the GL context survives until GC. Each minigame
+            // launch builds a new canvas + context, so they accumulate; past ~16 the browser
+            // force-drops the oldest, and on low-RAM devices the GPU process dies first.
+            // Grab the context now — the renderer discards it during destroy.
+            const abandonedGl = activeGameInstance.renderer?.gl || null;
+
             try {
                 if (typeof activeGameInstance.destroy === "function") {
                     activeGameInstance.destroy(true);
                 }
             } catch (e) {
                 console.error("[Main] Error during game destruction:", e);
+            }
+
+            // Game.destroy() only sets `pendingDestroy`; the real teardown runs on the next
+            // game step. Release the context after that, so Phaser is not deleting GL objects
+            // on an already-lost context. The timeout is the backstop for when the step never
+            // comes (rAF is paused while the tab is hidden).
+            if (abandonedGl) {
+                let released = false;
+                const releaseGl = () => {
+                    if (released) {
+                        return;
+                    }
+                    released = true;
+                    try {
+                        abandonedGl.getExtension("WEBGL_lose_context")?.loseContext();
+                    } catch (e) { }
+                };
+                requestAnimationFrame(() => requestAnimationFrame(releaseGl));
+                setTimeout(releaseGl, 250);
             }
         }
 
@@ -676,10 +709,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const patientLabel = rememberedPatient ? getPatientSessionLabel(rememberedPatient) : patientCode;
 
         let patientGender = "";
+        let treeType = "a";
         if (patientCode) {
             try {
-                const patient = await db.getPatientByHn(patientCode);
+                const [patient, gameProfile] = await Promise.all([
+                    db.getPatientByHn(patientCode),
+                    db.ensureUserGameProfileTreeType({ hn: patientCode }),
+                ]);
                 patientGender = String(patient?.gender || "").trim();
+                treeType = String(gameProfile?.tree_type || "a").trim();
                 // Cache gender so the offline popup can show the right character even
                 // once the connection drops (can't hit the DB then). US-E7-27.
                 internetManager.setGender(patientGender);
@@ -728,6 +766,7 @@ document.addEventListener("DOMContentLoaded", () => {
             patientCode,
             patientLabel,
             patientGender,
+            treeType,
             initialScene: options.initialScene,
             initialCategory: options.initialCategory,
             sharedState: hubUiState,
@@ -1381,6 +1420,11 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             activeGameInstance = await startGame("game-container");
 
+            // US-E9-06: keep the screen awake for the duration of the game. Acquired
+            // only after a successful launch, and after the destroyActiveGame() above
+            // has released any lock left over from a previous game.
+            screenWakeLock.acquire("minigame");
+
             // Mount Minigame HUD
             uiRoot.innerHTML = "";
             uiRoot.hidden = false;
@@ -1484,6 +1528,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 navigateTo(getGameExitRoute(selectedGame));
             };
 
+            const handleExitWithCompletion = async ({ score, level: eventLevel }) => {
+                const gid = String(selectedGame?.gid || "").trim();
+                const historyMap = readPendingGameHistoryMap();
+                const pendingHistory = historyMap[gid];
+
+                if (pendingHistory) {
+                    try {
+                        const level = Number(eventLevel || selectedGame?.level || 1);
+                        await MiniGameDBUtil.pushGameData(
+                            score,
+                            level,
+                            pendingHistory.startAt,
+                            new Date().toISOString(),
+                        );
+                        console.log(`Successfully saved score ${score} for game ${gid} at level ${level} (skip)`);
+                    } catch (error) {
+                        console.error("Failed to save game result to database:", error);
+                    }
+                }
+                
+                cleanup();
+                navigateTo(getGameExitRoute(selectedGame));
+            };
+
             const cleanup = () => {
                 removeBackGuard();
                 EventBus.off("minigame:exit-request", handleExit);
@@ -1491,6 +1559,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 EventBus.off("minigame:retry-request", handleRetry);
                 EventBus.off("minigame:level-select-request", handleLevelSelect);
                 EventBus.off("minigame:exit-confirmed", handleExitConfirmed);
+                EventBus.off("minigame:exit-with-completion", handleExitWithCompletion);
                 activeResultPanel?.destroy();
                 activeResultPanel = null;
                 hud.destroy();
@@ -1503,6 +1572,7 @@ document.addEventListener("DOMContentLoaded", () => {
             EventBus.on("minigame:retry-request", handleRetry);
             EventBus.on("minigame:level-select-request", handleLevelSelect);
             EventBus.on("minigame:exit-confirmed", handleExitConfirmed);
+            EventBus.on("minigame:exit-with-completion", handleExitWithCompletion);
 
             return true;
         } catch (error) {
@@ -1552,6 +1622,7 @@ document.addEventListener("DOMContentLoaded", () => {
             educationLevels,
             educationLevelsError,
             onBack: () => navigateTo(ROUTES.login),
+            loadRandomTreeType: () => db.pickRandomTreeType(),
             onSubmit: async (formData) => {
                 const patientCodeLabel = `ID ${String(formData?.hn || "").trim()}`;
                 const shouldCreatePatient = await showPopup({
@@ -1570,7 +1641,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const createdPatient = await db.createPatientProfile(formData);
 
                 try {
-                    await db.createUserGameProfile({ hn: createdPatient?.hn || formData?.hn });
+                    await db.createUserGameProfile({
+                        hn: createdPatient?.hn || formData?.hn,
+                        treeType: formData?.treeType,
+                    });
                 } catch (error) {
                     // TODO: Replace this client-side compensation with a Supabase RPC transaction
                     // that creates user_data and user_game_profile_data atomically.
@@ -2132,24 +2206,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 const missingItems = [];
 
                 if (wantsPlayerExport) {
-                    let programName = "";
+                    const hn = String(exportPlayer.hn || exportPlayer.patientCode || "").trim();
+                    // ใช้ path เดียวกับ export ทุกคน — เดิมประกอบเองจาก exportPlayer + playerProgram
+                    // แล้วเรียก getGameLevelPresetList() แยกเพื่อหา programName ทำให้ profile
+                    // รายคนกับทุกคนมาคนละทาง เสี่ยงไม่ตรงกัน (US-E9-05)
+                    const [playerRow] = await db.getAllPatientCsvExportRows({ hn });
 
-                    try {
-                        const programPresets = await db.getGameLevelPresetList();
-                        const programId = Number(playerProgram?.programId);
-                        programName = programPresets.find((preset) => Number(preset.id) === programId)?.name || "";
-                    } catch (error) {
-                        console.warn("Unable to load program preset name for CSV export:", error);
+                    if (!playerRow) {
+                        missingItems.push("ข้อมูลผู้เล่น");
+                    } else {
+                        // ไม่ต้องส่ง options — row จาก RPC มี educationName/programName/programDayCount
+                        // ครบอยู่แล้ว เหมือน path "ทุกคน" ที่เรียก buildPlayersCsv(players) เปล่า ๆ
+                        downloadCsv(getPlayerCsvFilename(playerRow), buildPlayerCsv(playerRow));
+                        exportedItems.push("ข้อมูลผู้เล่น");
                     }
-
-                    const csvContent = buildPlayerCsv(exportPlayer, {
-                        educationName: exportPlayer.educationName,
-                        programDayCount: playerProgram?.programDayCount ?? null,
-                        programName,
-                    });
-
-                    downloadCsv(getPlayerCsvFilename(exportPlayer), csvContent);
-                    exportedItems.push("ข้อมูลผู้เล่น");
                 }
 
                 if (wantsGameExport) {
@@ -2227,6 +2297,7 @@ document.addEventListener("DOMContentLoaded", () => {
             patientLabel,
             onBack,
             getUserRank: () => db.getUserRank(currentHn),
+            getUserGroup: () => db.getUserGroup(currentHn),
             loadPlayers: ({ offset, limit }) => db.getLeaderboard({ currentHn, offset, limit }),
         });
     };

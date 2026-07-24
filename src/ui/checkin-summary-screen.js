@@ -11,6 +11,7 @@ import { renderFramePopupMarkup } from "./components/frame-popup.js";
 import { renderFramePanel } from "./components/frame-panel.js";
 import { renderStartGameButton } from "./components/start-game-button.js";
 import { dismissPopup } from "./transition/popup-transition.js";
+import { renderIconButtonBack } from "./components/icon-button-back.js";
 
 function escapeHtml(value) {
     return String(value || "")
@@ -52,10 +53,12 @@ function bounceCheckInCharacter(target) {
 //
 // `onGrow` fires at the exact moment the new tree pops in — used to time the sparkle burst.
 // Returns a `{ cancel }` handle that stops both phases and leaves the next-stage image in place.
-function growTreeTransition(img, prevStage, nextStage, onGrow) {
+function growTreeTransition(img, prevStage, nextStage, treeType, onGrow) {
+    const prevSrc = getTreeImagePath(prevStage, treeType);
+    const nextSrc = getTreeImagePath(nextStage, treeType);
     const finishToNext = () => {
         if (img) {
-            img.src = getTreeImagePath(nextStage);
+            img.src = nextSrc;
             img.style.transform = "";
             img.style.transformOrigin = "";
         }
@@ -70,7 +73,15 @@ function growTreeTransition(img, prevStage, nextStage, onGrow) {
     }
 
     img.style.transformOrigin = "bottom center";
-    img.src = getTreeImagePath(prevStage);
+    img.src = prevSrc;
+
+    // Preload the grown stage while the previous stage is held on screen. This prevents
+    // the browser from keeping the already-rendered grown image visible while it waits
+    // for a newly selected tree variant to load.
+    if (typeof Image === "function" && nextSrc !== prevSrc) {
+        const nextImage = new Image();
+        nextImage.src = nextSrc;
+    }
 
     // Hold the previous tree on screen before starting the transition.
     const HOLD_PREV_MS = 1000;
@@ -102,7 +113,7 @@ function growTreeTransition(img, prevStage, nextStage, onGrow) {
                 return;
             }
             // Phase 2: swap to the next stage, fire the sparkle, then pop the new tree up.
-            img.src = getTreeImagePath(nextStage);
+            img.src = nextSrc;
             onGrow?.();
             grow = img.animate(
                 [
@@ -185,8 +196,10 @@ function getTreeStage(completedDays, totalDays) {
     return Math.max(1, Math.min(TREE_STAGES, Math.round(ratio * (TREE_STAGES - 1)) + 1));
 }
 
-function getTreeImagePath(stage) {
-    return `/assets/checkin-popup/tree_0${stage}.png`;
+function getTreeImagePath(stage, treeType = "a") {
+    const safeTreeType = String(treeType || "a").trim().toLowerCase();
+    const safeStage = String(Math.max(1, Math.min(TREE_STAGES, Number(stage) || 1))).padStart(2, "0");
+    return `/assets/checkin-popup/${encodeURIComponent(safeTreeType)}/tree_${encodeURIComponent(safeTreeType)}_${safeStage}.png`;
 }
 
 function buildDayItems(dayCount, checkInDates, programStartedAt = new Date()) {
@@ -225,6 +238,7 @@ export function showCheckInPopup(options = {}) {
         videoTitle = "ละครสั้นประจำวัน",
         dismissible = false,
         patientGender = "",
+        treeType = "a",
     } = options;
 
     return new Promise((resolve) => {
@@ -331,6 +345,7 @@ export function showCheckInPopup(options = {}) {
                 const dayItems = buildDayItems(state.dayCount, checkInDates, programStartedAt);
                 const completedDays = dayItems.filter((item) => item.done).length;
                 const stage = getTreeStage(completedDays, state.dayCount);
+                const prevStage = getTreeStage(Math.max(0, completedDays - 1), state.dayCount);
                 const label = TREE_LABELS[stage - 1] || TREE_LABELS[0];
                 const percent = state.dayCount > 0
                     ? Math.round((completedDays / state.dayCount) * 100)
@@ -350,8 +365,8 @@ export function showCheckInPopup(options = {}) {
                             <div class="tree-progress-frame">
                                 <img
                                     class="tree-progress-plant"
-                                    src="${getTreeImagePath(stage)}"
-                                    alt="ต้นไม้ระดับที่ ${escapeHtml(String(stage))}"
+                                    src="${getTreeImagePath(prevStage, treeType)}"
+                                    alt="ต้นไม้ระดับที่ ${escapeHtml(String(prevStage))}"
                                 >
                             </div>
                             <p class="tree-progress-plant-label">${escapeHtml(label)}</p>
@@ -385,12 +400,11 @@ export function showCheckInPopup(options = {}) {
                         }
                         const plant = stageEl.querySelector(".tree-progress-plant");
                         const frame = stageEl.querySelector(".tree-progress-frame");
-                        const prevStage = getTreeStage(Math.max(0, completedDays - 1), state.dayCount);
-                        treeGrow = growTreeTransition(plant, prevStage, stage, () => {
+                        treeGrow = growTreeTransition(plant, prevStage, stage, treeType, () => {
                             if (settled || state.step !== "calendar") {
                                 return;
                             }
-                            sparkle = showSparkleEffect({ anchor: frame });
+                            sparkle = showSparkleEffect({ anchor: frame, color: "#ffd700" });
                         });
                     });
 
@@ -420,10 +434,23 @@ export function showCheckInPopup(options = {}) {
             // US-E7-04: video step uses Frame_Panel (no header) with the title above it.
             // The clip frame is large while playing, then collapses and reveals the
             // Start-Game-Button when it ends.
+            //
+            // US-E10-03: the two exits swap, never both at once — a clip can run long and the
+            // Start-Game-Button only appears once it has finished, which left a player with no
+            // way out while it played. The back icon covers that window; the swap is driven by
+            // `is-ended` on the popup root, toggled by the player's own play/ended events (so
+            // replaying re-hides the end button and brings the back icon back).
             const markup = `
                 <div class="gh-video-popup" role="dialog" aria-modal="true" aria-label="${escapeHtml(videoTitle)}">
                     <div class="parent-gh-video-popup__frame">
                         <div class="gh-video-popup__title">
+                            <div class="gh-video-popup__title-back">
+                                <div class="gh-video-popup__title-back-icon">
+                                    <div class="gh-video-popup__title-back-icon-container">
+                                        ${renderIconButtonBack({ id: "checkin-video-close", ariaLabel: "ปิดวิดีโอแล้วกลับไปหน้าเกม" })}
+                                    </div>
+                                </div>
+                            </div>
                             <h2 class="gh-video-popup__title-text">${escapeHtml(videoTitle)}</h2>
                         </div>
                         ${renderFramePanel({
@@ -431,7 +458,7 @@ export function showCheckInPopup(options = {}) {
                             body: `<div class="video-popup-player" data-video-container></div>`,
                         })}
                         <div class="gh-popup__button gh-video-popup__button">
-                            ${renderStartGameButton({ label: "ต่อไป" })}
+                            ${renderStartGameButton({ label: "กลับไปหน้าเกม" })}
                         </div>
                     </div>
                 </div>
@@ -446,13 +473,25 @@ export function showCheckInPopup(options = {}) {
                         label: escapeHtml(videoTitle),
                     });
                     VideoManager.register(state.videoPlayerInstance);
-                    // When the clip ends, collapse the frame + reveal the button.
+                    // When the clip ends, collapse the frame + swap back icon → end button.
                     state.videoPlayerInstance.on("ended", () => {
                         videoPopupEl?.classList.add("is-ended");
                     });
+                    // Replaying puts us back in the "no way out yet" state, so swap back.
+                    state.videoPlayerInstance.on("play", () => {
+                        videoPopupEl?.classList.remove("is-ended");
+                    });
                 }
 
+                // Both exits land in the same place — the Game Hub. `cleanup()` already
+                // destroys the player and plays the leave animation, so closing mid-clip
+                // leaves no audio running. Neither caller reads the resolved value, so
+                // closing early is not a way to skip anything.
                 stageEl.querySelector(".gh-start-button")?.addEventListener("click", () => {
+                    cleanup(true);
+                });
+
+                stageEl.querySelector("#checkin-video-close")?.addEventListener("click", () => {
                     cleanup(true);
                 });
             };

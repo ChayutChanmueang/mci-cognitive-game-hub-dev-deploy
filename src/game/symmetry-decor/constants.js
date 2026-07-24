@@ -7,9 +7,9 @@ export const StartMenuSetting = Object.freeze({
     ...activeTheme.StartMenuSetting,
     /** Callback-style template for the level detail string; receives `level` at render time */
     levelDetailTemplate: (level) => {
-        if (level === 1) return 'ตาราง 4x4 / สะท้อน 2 ทิศทาง';
-        if (level === 2) return 'ตารางใหญ่ขึ้น / สะท้อน 4 ทิศทาง';
-        return 'ตารางใหญ่สุด / สะท้อนหลายรูปแบบ';
+        if (level === 1) return 'ตาราง 2x4 / สะท้อน 2 ทิศทาง';
+        if (level === 2) return 'ตาราง 4x4 / สะท้อน 4 ทิศทาง';
+        return 'ตาราง 6x6 / สะท้อน 4 ทิศทาง';
     },
 });
 
@@ -76,6 +76,70 @@ export const Config = Object.freeze({
         [Difficulty.HARD]: 100
     },
     TimeLimitMs: 180000 // 3 Minutes
+});
+
+export const TutorialConfig = Object.freeze({
+    [Difficulty.EASY]: {
+        // --- When to show ---
+        showOnFirstStart: false,     // Show tutorial on very first game
+        showOnEveryStart: true,      // Show tutorial every time game starts
+        showOnIdle: true,            // Show tutorial after player is idle
+        idleTimeoutMs: 15000,        // <- Designer-tweakable (ms)
+
+        // --- Animation style ---
+        // 'hand-only'       -> hand slides from item to slot
+        // 'ghost-preview'   -> hand drags a semi-transparent copy of the item along with it
+        animationStyle: 'hand-only',
+
+        // --- Dismissal behavior ---
+        dismissOnDrag: true,         // Tutorial disappears when player starts dragging
+        dismissOnTap: true,          // Tutorial disappears when player taps anywhere
+    },
+    [Difficulty.NORMAL]: {
+        showOnFirstStart: false,
+        showOnEveryStart: true,
+        showOnIdle: true,
+        idleTimeoutMs: 15000,        // <- Designer-tweakable (ms)
+        animationStyle: 'ghost-preview',
+        dismissOnDrag: true,
+        dismissOnTap: true,
+    },
+    [Difficulty.HARD]: {
+        showOnFirstStart: false,
+        showOnEveryStart: true,
+        showOnIdle: true,
+        idleTimeoutMs: 15000,        // <- Designer-tweakable (ms)
+        animationStyle: 'ghost-preview',
+        dismissOnDrag: true,
+        dismissOnTap: false,
+    },
+});
+
+export const TutorialLevelConfig = Object.freeze({
+    // --- Developer toggles ---
+    enabled: true,                    // Master switch: false = skip tutorial entirely
+    alwaysShowTutorial: false,        // true = show every session; false = first time only
+    localStorageKey: 'symmetry_decor_tutorial_level_completed',
+
+    // --- Grid config (easiest possible) ---
+    gridColumns: 2,
+    gridRows: 4,
+    symmetryType: 'L-R',             // Simple left-right mirror
+    itemCount: 3,                     // 3 items for a fuller tutorial experience
+
+    // --- Tutorial hand behavior ---
+    animationStyle: 'ghost-preview',  // Ghost preview so player sees what moves
+    handDelayMs: 800,                 // Delay before showing hand for each new step
+
+    // --- Blocking behavior ---
+    // true  = "watch first, then do" — hand completes 1 animation loop
+    //         before enabling drag on the guided item
+    // false = "non-blocking" — player can drag immediately while hand animates
+    semiBlocking: true,
+
+    // --- Optional text overlay ---
+    showTextOverlay: false,           // true = show instructional text during tutorial
+    textOverlayContent: 'ลากรูปนี้ไปวางตรงช่องที่ถูกต้อง',  // Thai: "Drag this to the correct slot"
 });
 
 export const GameLevels = {

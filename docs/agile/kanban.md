@@ -5,22 +5,41 @@ kanban-plugin: board
 ---
 
 ## 📋 Backlog (Prioritized)
-- [ ] [US-E7-06](user-stories/US-E7-06.md) มินิเกมรองรับการยืดแนวตั้ง (Vertical Responsive)
-- [ ] [US-E7-08](user-stories/US-E7-08.md) แก้คำศัพท์ยาก "สมอบก" ในเกมคำใบ้บริบท (Doctor FB #2)
-- [ ] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone แฮปปี้ + ความถูกต้องวิดีโอ (Doctor FB #2)
-- [ ] [US-E7-12](user-stories/US-E7-12.md) แสดงโดเมน Cognitive + สรุปหลังบ้าน + เตรียมข้อมูล AI (Doctor FB #2)
+- [ ] [US-E9-07](user-stories/US-E9-07.md) 🔴 Optimize สเปคต่ำ — เก่งมาก + Phaser (A10s) → Sprint 10 *(sparkle v1.1.5 shipped)*
+- [ ] [US-E9-09](user-stories/US-E9-09.md) 🟠 Layout ทนฟอนต์ระบบขยายใหญ่ → Sprint 10
 
 ## 🔵 In Progress (WIP Limit: 3)
 - [ ] [TD-DB-01](user-stories/TD-DB-01.md) Database Normalization & Column Renaming
-- [ ] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชีและลงชื่อออก
+
 
 
 ## 🔍 Review / Testing
 
 
 ## ✅ Done
+- [x] [US-E10-03](user-stories/US-E10-03.md) ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น — สลับกับปุ่ม "กลับไปหน้าเกม" (v1.2.3) — ✅ Done 2026-07-20 (Sprint 10)
+- [x] [US-E7-30](user-stories/US-E7-30.md) Popup export CSV ใช้ art ชุดเดียวกับ popup อื่น + Check_Circle (v1.2.1 → ระยะห่าง v1.2.2) — ✅ owner verified 2026-07-20 (Sprint 10)
+- [x] [US-E10-01](user-stories/US-E10-01.md) Tag แบ่งกลุ่มผู้เล่น — `user_group_tag` + `GRPID` (v1.2.0) — ✅ Done 2026-07-20 *(AC#3 Player-Info / AC#4 CSV descoped)*
+- [x] [US-E10-02](user-stories/US-E10-02.md) Leaderboard แยกตามกลุ่ม `GRPID` — `UNTAGGED` เห็นทุกกลุ่ม (v1.2.0) — ✅ Done 2026-07-20 (Sprint 10)
+- [x] [US-E9-13](user-stories/US-E9-13.md) อัปเดต art popup อินเทอร์เน็ตหาย — `*_internet_loss.png` (v1.1.7) — ✅ Done 2026-07-17 (Sprint 10)
+- [x] [US-E9-05](user-stories/US-E9-05.md) ส่งออกข้อมูลครบชุด (v1.1.6) — ✅ Done 2026-07-17 (Sprint 10)
+- [x] [US-E9-01](user-stories/US-E9-01.md) Symmetry Decor — บล็อกฝั่งโจทย์, ลดโหมดสะท้อน, ลดช่อง, เส้นแบ่งชัด, จบเมื่อหมดเวลา — ✅ Done 2026-07-14
+- [x] [US-E9-02](user-stories/US-E9-02.md) Fry Food — ปุ่มข้ามเมื่อไม่มี Gyroscope — ✅ Done 2026-07-14
+- [x] [US-E9-03](user-stories/US-E9-03.md) Zoo Detective — ลากเพื่อวางแทนจิ้ม — ✅ Done 2026-07-14 (มินิเกม version แยก — ไม่ bump `package.json`)
+- [x] [US-E9-04](user-stories/US-E9-04.md) Postcard Reader — ขยายตัวอักษรโจทย์เพิ่มเติม — ✅ Done 2026-07-14 (มินิเกม version แยก — ไม่ bump `package.json`)
+- [x] [US-E9-12](user-stories/US-E9-12.md) Popup ออกจากเกม — layout/art ตรง popup-dialog (v1.1.4) — ✅ owner verified 2026-07-14
+- [x] [US-E9-10](user-stories/US-E9-10.md) CLI `update-user-hn.js` — แก้ ID/`hn` ผิด — ✅ Done 2026-07-14 (ไม่ bump version)
+- [x] [US-E7-08](user-stories/US-E7-08.md) แก้คำ "สมอบก" ใน Context Clues — ทีมเนื้อหา/แพทย์ — ✅ Done 2026-07-14
+- [x] [US-E7-11](user-stories/US-E7-11.md) ละครสั้น Mood&Tone + วิดีโอใหม่ — ทีมเนื้อหา — ✅ Done 2026-07-14
+- [x] [US-E7-12](user-stories/US-E7-12.md) โดเมน Cognitive + สรุปหลังบ้าน — ทีมหลังบ้าน/ข้อมูล — ✅ Done 2026-07-14
+- [x] [US-E5-03](user-stories/US-E5-03.md) ระบบลบบัญชี — CLI `delete-user.js` + logout — ✅ Done 2026-07-14
+- [x] [US-E8-01](user-stories/US-E8-01.md) ต้นคิดดีหลายชนิดต่อผู้เล่น — `tree_type` a/b/c/d + lazy backfill (v1.1.0) — ✅ owner verified 2026-07-14
+- [x] [US-E9-11](user-stories/US-E9-11.md) Sign-up วันเกิด/วันที่เริ่มโปรแกรม เป็น พ.ศ. — เลือก วัน/เดือน/ปี พ.ศ. แทน `<input type="date">` (ที่แสดง ค.ศ. เสมอ), DB ยังเก็บ ค.ศ. (v1.1.3) — ✅ owner verified 2026-07-13
+- [x] [US-E9-06](user-stories/US-E9-06.md) ป้องกันหน้าจอดับระหว่างเล่น (Wake Lock) — จอไม่ดับระหว่างเล่น + dim ได้ตามปกติเมื่อกลับ Game Hub (v1.1.2) — ✅ owner verified 2026-07-10
+- [x] [US-E7-29](user-stories/US-E7-29.md) ปิดปุ่มเริ่มเกมบน Game Hub ก่อนถึงวันเริ่มโปรแกรม (ก้องไผ่) — ✅ Done 2026-07-07
 - [x] [US-E7-09](user-stories/US-E7-09.md) จดหมายจากหลานรัก — เสียง AI/ถอดเสียง + ขยายตัวอักษรโจทย์ (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
 - [x] [US-E7-14](user-stories/US-E7-14.md) Layout Game Hub — ระยะเลเวล/สลับชื่อ/เงาตัวละคร (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
+- [x] [US-E9-08](user-stories/US-E9-08.md) Game Hub — ชื่อเกมบน / หมวดล่าง (v1.1.1, `a3ffc8d`) — ✅ owner verified 2026-07-10
 - [x] [US-E7-15](user-stories/US-E7-15.md) ระบบสีปุ่มมาตรฐาน เขียว=ยืนยัน/แดง=ยกเลิก (v0.30.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-07
 - [x] [BUG-004](reports/bugs/BUG-004.md) พื้นหลัง Game Hub ดำหลังกลับจากมินิเกม full-screen — ✅ Resolved 2026-07-07
 - [x] [US-E7-24](user-stories/US-E7-24.md) ย้ายชื่อเกม "ทอดอาหาร" ขึ้นแทนหมวดหมู่ MCI + จัดเป็นหมวด Physical (v0.29.0) — ✅ ยืนยันโดยเจ้าของงาน 2026-07-06

@@ -57,6 +57,12 @@ class _AccelerometerManager {
         /** @type {'idle'|'requesting'|'granted'|'denied'|'unsupported'} */
         this._status = 'idle';
 
+        /**
+         * Cached result of hardware detection probe.
+         * @type {boolean|null}
+         */
+        this._hardwareDetected = null;
+
         // Bound handlers so we can add/remove the same reference
         this._onDeviceMotion = this._handleDeviceMotion.bind(this);
         this._onDeviceOrientation = this._handleDeviceOrientation.bind(this);
@@ -177,6 +183,56 @@ class _AccelerometerManager {
         this._listening = true;
         console.log('[AccelerometerManager] Started listening (orientation + motion).');
         return this._status;
+    }
+
+    /**
+     * Probe for actual orientation hardware by listening to deviceorientation
+     * events for up to `timeoutMs`. Resolves `true` if at least one event
+     * fires with non-null beta/gamma values, `false` otherwise.
+     *
+     * This is necessary because most browsers expose the DeviceOrientationEvent
+     * API even on devices without a physical gyroscope/accelerometer.
+     *
+     * @param {number} [timeoutMs=3000] - How long to wait for sensor data.
+     * @returns {Promise<boolean>}
+     */
+    async detectHardwareSupport(timeoutMs = 3000) {
+        if (this._hardwareDetected !== null) {
+            return this._hardwareDetected;
+        }
+
+        return new Promise((resolve) => {
+            let timeoutId;
+
+            const handleProbeEvent = (event) => {
+                // If we receive an event with actual beta or gamma data, hardware exists
+                if (event.beta !== null || event.gamma !== null) {
+                    clearTimeout(timeoutId);
+                    window.removeEventListener('deviceorientation', handleProbeEvent, true);
+                    this._hardwareDetected = true;
+                    resolve(true);
+                }
+            };
+
+            // Set timeout to resolve false if no valid event received
+            timeoutId = setTimeout(() => {
+                window.removeEventListener('deviceorientation', handleProbeEvent, true);
+                this._hardwareDetected = false;
+                console.warn('[AccelerometerManager] No orientation hardware detected within timeout.');
+                resolve(false);
+            }, timeoutMs);
+
+            window.addEventListener('deviceorientation', handleProbeEvent, true);
+        });
+    }
+
+    /**
+     * Whether orientation hardware was detected.
+     * Will return null if detectHardwareSupport() hasn't completed yet.
+     * @returns {boolean|null}
+     */
+    hasOrientationHardware() {
+        return this._hardwareDetected;
     }
 
     /**

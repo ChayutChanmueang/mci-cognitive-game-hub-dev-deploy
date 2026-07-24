@@ -1,27 +1,22 @@
 // US-E7-04 · game-exit-popup.js — Figma popup art (same system as popup-dialog.js).
 // Renders with the verified Figma components:
 //   • Frame_Panel (3161:657)        -> the white blue-stroke frame around title + message
-//   • Button_Close_Stroke (3204:28) -> the red "cancel" button (keep playing, resolves false)
-//   • Button_OK_Stroke (3204:29)    -> the green "confirm" button (exit, resolves true)
+//   • Button_Close_Stroke (3204:28) -> the red button = "ออก" / exit (resolves true)
+//   • Button_OK_Stroke (3204:29)    -> the green button = "เล่นต่อ" / keep playing (resolves false)
+// Red is the destructive (exit) action and green is the safe (keep playing)
+// action, per the standard button-colour convention (US-E7-15).
 //
-// Layout follows the confirm mock (title + message inside the panel, two stroke
-// buttons below it), matching popup-dialog.js confirm mode.
+// US-E9-12: layout comes from the shared renderConfirmDialog shell, the same one popup-dialog.js
+// uses — title, message AND both buttons inside the Frame_Panel (Frame 1257). This popup used to
+// build its own markup with the buttons below the panel, which is why it looked unlike every other
+// popup in the app.
 //
 // Behaviour is unchanged: returns a Promise resolving true (confirm/exit) or
 // false (cancel/keep playing / dismiss / Escape / backdrop).
-import { renderFramePanel } from "./components/frame-panel.js";
+import { renderConfirmDialog } from "./components/confirm-dialog.js";
 import { renderButtonOkStroke } from "./components/button-ok-stroke.js";
 import { renderButtonCloseStroke } from "./components/button-close-stroke.js";
 import { dismissPopup } from "./transition/popup-transition.js";
-
-function escapeHtml(value) {
-    return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-}
 
 export function showGameExitPopup(options = {}) {
     if (typeof document === "undefined") {
@@ -46,35 +41,26 @@ export function showGameExitPopup(options = {}) {
         const messageId = `popup-message-${Date.now()}`;
 
         overlay.className = "app-popup";
-        overlay.innerHTML = `
-            <div class="app-popup__backdrop"></div>
-            <div
-                class="gh-dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="${titleId}"
-                ${message ? `aria-describedby="${messageId}"` : ""}
-            >
-                ${renderFramePanel({
-                    className: "gh-dialog__panel",
-                    body: `
-                        <h2 id="${titleId}" class="gh-dialog__title">${escapeHtml(title)}</h2>
-                        ${message ? `<p id="${messageId}" class="gh-dialog__message">${escapeHtml(message)}</p>` : ""}
-                    `,
-                })}
-                <div class="gh-dialog__actions">
-                    <div class="gh-dialog-popup__button">
-                        ${renderButtonCloseStroke({ label: cancelText })}
-                    </div>
-                    <div class="gh-dialog-popup__button">
-                        ${renderButtonOkStroke({ label: confirmText })}
-                    </div>
+        // Red (Close_Stroke) first, then green (OK_Stroke) — the same left-to-right order as
+        // popup-dialog.js. Here red is the confirm/exit action and green keeps playing (US-E7-15).
+        overlay.innerHTML = renderConfirmDialog({
+            titleId,
+            messageId,
+            title,
+            message,
+            actions: `
+                <div class="gh-dialog-popup__button">
+                    ${renderButtonCloseStroke({ label: confirmText })}
                 </div>
-            </div>
-        `;
+                <div class="gh-dialog-popup__button">
+                    ${renderButtonOkStroke({ label: cancelText })}
+                </div>
+            `,
+        });
 
-        const confirmButton = overlay.querySelector(".gh-button-ok-stroke");
-        const cancelButton = overlay.querySelector(".gh-button-close-stroke");
+        // Red button (Close_Stroke) is the exit action; green (OK_Stroke) keeps playing.
+        const exitButton = overlay.querySelector(".gh-button-close-stroke");
+        const keepPlayingButton = overlay.querySelector(".gh-button-ok-stroke");
         const backdrop = overlay.querySelector(".app-popup__backdrop");
         const previousOverflow = document.body.style.overflow;
 
@@ -98,11 +84,11 @@ export function showGameExitPopup(options = {}) {
             }
         };
 
-        confirmButton?.addEventListener("click", () => {
+        exitButton?.addEventListener("click", () => {
             cleanup(true);
         });
 
-        cancelButton?.addEventListener("click", () => {
+        keepPlayingButton?.addEventListener("click", () => {
             cleanup(false);
         });
 
@@ -116,7 +102,8 @@ export function showGameExitPopup(options = {}) {
         document.body.appendChild(overlay);
         document.addEventListener("keydown", onKeyDown);
         requestAnimationFrame(() => {
-            confirmButton?.focus();
+            // Focus the safe option (keep playing) by default.
+            keepPlayingButton?.focus();
         });
     });
 }

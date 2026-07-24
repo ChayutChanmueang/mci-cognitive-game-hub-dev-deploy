@@ -83,6 +83,20 @@ export default class DragDropManager {
         return zone;
     }
 
+    // Drop a draggable that is going away (its game object is about to be destroyed), so the
+    // manager stops tracking a dead handle.
+    unregisterDraggable(handle) {
+        if (!this.draggables.has(handle)) {
+            return;
+        }
+
+        if (handle.input) {
+            this.scene.input.setDraggable(handle, false);
+        }
+
+        this.draggables.delete(handle);
+    }
+
     moveHome(handle, duration = this.returnDuration) {
         const draggable = this.draggables.get(handle);
 
@@ -274,11 +288,19 @@ export default class DragDropManager {
         return best;
     }
 
+    // Phaser fires dragenter/dragleave for any drop zone under the pointer, accepting or not. A zone
+    // that will refuse the drop must not light up as if it will take it, so hover feedback is gated
+    // on the same `accepts` check that handleDrop uses — e.g. a Zoo Detective cell whose hint is
+    // already locked in, or a Context Clues slot that is already filled.
     handleDragEnter(pointer, handle, zone) {
         const draggable = this.draggables.get(handle);
         const dropZone = this.dropZones.get(zone);
 
         if (!draggable || !dropZone || !dropZone.onDragEnter) {
+            return;
+        }
+
+        if (!this.acceptsDrop(draggable, dropZone)) {
             return;
         }
 
@@ -290,6 +312,10 @@ export default class DragDropManager {
         const dropZone = this.dropZones.get(zone);
 
         if (!draggable || !dropZone || !dropZone.onDragLeave) {
+            return;
+        }
+
+        if (!this.acceptsDrop(draggable, dropZone)) {
             return;
         }
 

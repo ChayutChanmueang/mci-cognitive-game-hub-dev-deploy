@@ -5,7 +5,6 @@ import {
 } from "../util/phone-number-util.js";
 import edgeFunction from "./edge-function.js";
 import { getProgramDayStatus } from "../util/program-date-util.js";
-import { GlobalReplayEvent } from "./replay-event.js";
 
 const GAME_LIST_TABLE = "game_list_data";
 const USER_GAME_DATA_TABLE = "user_game_data";
@@ -13,6 +12,10 @@ const USER_GAME_HISTORY_TABLE = "user_game_history";
 const REPLAY_LOG_TABLE = "game_replay_log";
 const USER_PATIENT_DATA_TABLE = "user_data";
 const USER_GAME_PROFILE_DATA_TABLE = "user_game_profile_data";
+// US-E10-01 — ค่า default ของคอลัมน์ GRPID; ผู้เล่นกลุ่มนี้ (และผู้ที่ยังไม่มีแถว profile)
+// เห็นอันดับของทุกกลุ่ม เพราะเป็นมุมมองสำหรับ admin ตรวจสอบ
+const UNTAGGED_GROUP_ID = "UNTAGGED";
+const GAME_TREE_LIST_TABLE = "game_tree_list";
 const USER_EDUCATION_LEVEL_TABLE = "user_education_level";
 const GAME_LEVEL_PRESET_LIST_TABLE = "game_level_preset_list";
 const GAME_DAILY_PRESET_DATA_TABLE = "game_daily_preset_data";
@@ -246,520 +249,41 @@ class Database {
         return data || [];
     }
 
-    async getAllPatientCsvExportRows() {
-        await this.initAuth();
-
-        const [
-            patients,
-            educationLevels,
-            profiles,
-            programPresets,
-            programRows,
-        ] = await Promise.all([
-            this.getAllTableRows(
-                USER_PATIENT_DATA_TABLE,
-                "id, hn, firstname, lastname, phone, gender, education_level, started_program, birth_date",
-                [{ column: "hn", ascending: true }],
-            ),
-            this.getAllTableRows(
-                USER_EDUCATION_LEVEL_TABLE,
-                "id, eduid, name, dropdown_index",
-                [
-                    { column: "dropdown_index", ascending: true, nullsFirst: false },
-                    { column: "id", ascending: true },
-                ],
-            ),
-            this.getAllTableRows(
-                USER_GAME_PROFILE_DATA_TABLE,
-                "id, hn, program, created_at",
-                [{ column: "created_at", ascending: false }],
-            ),
-            this.getAllTableRows(
-                GAME_LEVEL_PRESET_LIST_TABLE,
-                "id, name, description, created_at",
-                [{ column: "id", ascending: true }],
-            ),
-            this.getAllTableRows(
-                GAME_LEVEL_PRESET_DATA_TABLE,
-                "id, gpid, day",
-                [{ column: "gpid", ascending: true }],
-            ),
-        ]);
-
-        const educationNameByKey = new Map();
-        for (const level of educationLevels) {
-            const name = String(level?.name || "").trim();
-            const eduid = String(level?.eduid || "").trim();
-            const id = String(level?.id || "").trim();
-
-            if (eduid) {
-                educationNameByKey.set(eduid, name);
-            }
-            if (id) {
-                educationNameByKey.set(id, name);
-            }
-        }
-
-        const latestProfileByHn = new Map();
-        for (const profile of profiles) {
-            const hn = String(profile?.hn || "").trim();
-            if (hn && !latestProfileByHn.has(hn)) {
-                latestProfileByHn.set(hn, profile);
-            }
-        }
-
-        const programNameById = new Map(
-            programPresets.map((preset) => [Number(preset?.id), String(preset?.name || "").trim()]),
-        );
-        const programDayCountById = new Map();
-        for (const row of programRows) {
-            const programId = Number(row?.gpid);
-            const day = Number(row?.day);
-
-            if (!Number.isFinite(programId) || !Number.isFinite(day)) {
-                continue;
-            }
-
-            programDayCountById.set(
-                programId,
-                Math.max(programDayCountById.get(programId) || 0, Math.floor(day)),
-            );
-        }
-
-        return patients.map((patient) => {
-            const hn = String(patient?.hn || "").trim();
-            const educationKey = String(patient?.education_level || "").trim();
-            const profile = latestProfileByHn.get(hn) || null;
-            const programId = Number(profile?.program);
-
-            return {
-                ...patient,
-                educationName: educationNameByKey.get(educationKey) || educationKey,
-                programId: Number.isFinite(programId) ? programId : null,
-                programName: programNameById.get(programId) || "",
-                programDayCount: programDayCountById.get(programId) || 0,
-            };
-        });
+    /**
+     * ข้อมูลผู้เล่นสำหรับ CSV — hn ว่าง/ไม่ส่ง = ทุกคน
+     *
+     * เดิมเมธอดนี้ดึง 5 ตารางเต็มมา join ใน browser (user_data, user_education_level,
+     * user_game_profile_data, game_level_preset_list, game_level_preset_data)
+     * ตอนนี้ย้ายไป SQL ทั้งหมดผ่าน edge function → US-E9-05
+     *
+     * row ที่ได้ป้อน buildPlayersCsv() / buildPlayerCsv() ได้ตรง ๆ ไม่ต้องแปลงอะไร
+     * (พิสูจน์แล้วว่า CSV ที่ออกมาเหมือนของเดิม byte-for-byte)
+     */
+    async getAllPatientCsvExportRows({ hn = null } = {}) {
+        return edgeFunction.getPlayerExportRows(hn);
     }
 
+    /**
+     * ข้อมูลการเล่นรายครั้งสำหรับ CSV — hn ว่าง/ไม่ส่ง = ทุกคน
+     *
+     * เดิมดึง 4 ตารางเต็มแล้วกรอง hn ใน JS + นับข้อถูก/ผิดจาก replay log ฝั่ง client
+     * ซึ่ง query replay **ไม่มี .range()** → PostgREST ตัดที่ 1,000 แถวเงียบ ๆ
+     * ทำให้ผู้เล่นที่เล่นเยอะนับได้ไม่ครบ (วัดจริง: ได้ 1000 จาก 4,231 = หาย 76.4%)
+     * ตอนนี้ปล่อยให้ SQL นับ ซึ่งไม่ผ่านเพดาน PostgREST → ได้ครบ
+     */
     async getGameCsvExportRows({ hn = null } = {}) {
-        await this.initAuth();
-
-        const client = this.getClient();
-        const parsedHn = String(hn || "").trim();
-
-        const [
-            patients,
-            gameDataRows,
-            games,
-        ] = await Promise.all([
-            this.getAllTableRows(
-                USER_PATIENT_DATA_TABLE,
-                "id, hn",
-                [{ column: "id", ascending: true }],
-            ),
-            this.getAllTableRows(
-                USER_GAME_DATA_TABLE,
-                "id, gid, started_at, ended_at, score, level",
-                [{ column: "started_at", ascending: true }],
-            ),
-            this.getAllTableRows(
-                GAME_LIST_TABLE,
-                "id, gid, name, th_name, mci_group, max_score, created_at",
-                [{ column: "gid", ascending: true }],
-            ),
-        ]);
-        const histories = await this.getAllTableRows(
-            USER_GAME_HISTORY_TABLE,
-            "id, hn, gid, stage, start_at, end_at, user_game_data_id, \"check-in\"",
-            [{ column: "start_at", ascending: true }],
-        );
-
-        const gameDataById = new Map(
-            gameDataRows.map((row) => [Number(row?.id), row]),
-        );
-        const gameByGid = new Map(
-            games.map((game) => [String(game?.gid || "").trim(), game]),
-        );
-        const patientOrderByHn = new Map(
-            patients.map((patient, index) => [String(patient?.hn || "").trim(), index]),
-        );
-        const matchedRows = histories
-            .filter((history) => {
-                const gid = String(history?.gid || "").trim();
-                const hn = String(history?.hn || "").trim();
-
-                return gid
-                    && history?.["check-in"] !== true
-                    && (!parsedHn || hn === parsedHn);
-            })
-            .map((history) => {
-                const hn = String(history?.hn || "").trim();
-                const gid = String(history?.gid || "").trim();
-                const gameData = gameDataById.get(Number(history?.user_game_data_id)) || null;
-                const game = gameByGid.get(gid) || null;
-
-                return {
-                    hn,
-                    gid,
-                    minigame_name: game?.name || game?.th_name || gid,
-                    mci_group: game?.mci_group || "",
-                    start_at: gameData?.started_at || "",
-                    end_at: gameData?.ended_at || "",
-                    score: gameData?.score ?? "",
-                    level: gameData?.level ?? "",
-                    _patientOrder: patientOrderByHn.has(hn) ? patientOrderByHn.get(hn) : Number.POSITIVE_INFINITY,
-                    _historyId: Number(history?.id) || 0,
-                    _sortAt: history?.start_at || gameData?.started_at || "",
-                };
-            });
-
-        matchedRows.sort((a, b) => (
-            this.compareCsvSortValue(a._patientOrder, b._patientOrder)
-            || new Date(a._sortAt || 0) - new Date(b._sortAt || 0)
-            || a._historyId - b._historyId
-        ));
-
-        const replayCountsByHistoryId = new Map();
-        const matchedHistoryIds = matchedRows.map((r) => r._historyId).filter((id) => id > 0);
-        if (matchedHistoryIds.length) {
-            try {
-                const { data: replayData } = await client
-                    .from(REPLAY_LOG_TABLE)
-                    .select("historyid, value")
-                    .in("historyid", matchedHistoryIds)
-                    .eq("replayid", GlobalReplayEvent.ANSWER_SUBMITTED);
-
-                for (const log of replayData || []) {
-                    const historyId = Number(log?.historyid);
-                    if (!Number.isFinite(historyId) || historyId <= 0) continue;
-                    const answerResult = this.resolveReplayAnswerResult(log?.value);
-                    if (answerResult !== true && answerResult !== false) continue;
-                    const entry = replayCountsByHistoryId.get(historyId) || { correct: 0, wrong: 0 };
-                    if (answerResult === true) entry.correct += 1;
-                    else entry.wrong += 1;
-                    replayCountsByHistoryId.set(historyId, entry);
-                }
-            } catch (replayError) {
-                console.warn("Unable to fetch replay log counts:", replayError);
-            }
-        }
-
-        return matchedRows.map((row) => {
-            const {
-                _patientOrder,
-                _historyId,
-                _sortAt,
-                ...exportRow
-            } = row;
-
-            const counts = replayCountsByHistoryId.get(_historyId) || null;
-            return {
-                ...exportRow,
-                total_correct: counts ? counts.correct : "",
-                total_wrong: counts ? counts.wrong : "",
-            };
-        });
+        return edgeFunction.getGameExportRows(hn);
     }
 
-    compareCsvSortValue(a, b) {
-        const aValue = Number.isFinite(a) ? a : Number.MAX_SAFE_INTEGER;
-        const bValue = Number.isFinite(b) ? b : Number.MAX_SAFE_INTEGER;
-
-        return aValue - bValue;
-    }
-
-    resolveReplayAnswerResult(value) {
-        if (value?.data === true || value?.data === false) {
-            return value.data;
-        }
-
-        if (value?.answer === true || value?.answer === false) {
-            return value.answer;
-        }
-
-        return null;
-    }
-
+    /**
+     * ประวัติรายวัน (ผู้เล่น × วันโปรแกรม) สำหรับ CSV — hn ว่าง/ไม่ส่ง = ทุกคน
+     *
+     * เดิมเรียก RPC แล้วถ้าพลาดจะ **ตกไป fallback ดึง 4 ตารางเต็มเงียบ ๆ** (console.warn อย่างเดียว)
+     * fallback นั้นถูกลบทิ้งแล้วโดยตั้งใจ — มันกลบความจริงว่า RPC ใช้ไม่ได้มาตลอด
+     * โดยไม่มีใครรู้ ตอนนี้ถ้า export พังจะพังให้เห็น ไม่ใช่เงียบ ๆ แล้วให้ข้อมูลที่อาจไม่ครบ
+     */
     async getGameHistoryCsvExportRows({ hn = null } = {}) {
-        await this.initAuth();
-
-        const client = this.getClient();
-        const parsedHn = String(hn || "").trim();
-        const { data: rpcRows, error: rpcError } = await client.rpc("get_game_history_csv_export_rows", {
-            p_hn: parsedHn || null,
-        });
-
-        if (!rpcError) {
-            return rpcRows || [];
-        }
-
-        console.warn("Unable to load game history CSV export rows from RPC, falling back to client query:", rpcError);
-
-        const [patients, profiles, programRows, histories] = await Promise.all([
-            this.getAllTableRows(
-                USER_PATIENT_DATA_TABLE,
-                "id, hn, started_program",
-                [{ column: "id", ascending: true }],
-            ),
-            this.getAllTableRows(
-                USER_GAME_PROFILE_DATA_TABLE,
-                "id, hn, program, created_at",
-                [
-                    { column: "created_at", ascending: false },
-                    { column: "id", ascending: false },
-                ],
-            ),
-            this.getAllTableRows(
-                GAME_LEVEL_PRESET_DATA_TABLE,
-                "id, gpid, day",
-                [
-                    { column: "gpid", ascending: true },
-                    { column: "day", ascending: true },
-                    { column: "id", ascending: true },
-                ],
-            ),
-            this.getAllTableRows(
-                USER_GAME_HISTORY_TABLE,
-                "id, hn, gid, start_at, end_at, user_game_data_id, \"check-in\"",
-                [{ column: "start_at", ascending: true }],
-            ),
-        ]);
-        const patientOrderByHn = new Map(
-            patients.map((patient, index) => [String(patient?.hn || "").trim(), index]),
-        );
-        const latestProfileByHn = new Map();
-        for (const profile of profiles) {
-            const profileHn = String(profile?.hn || "").trim();
-            if (profileHn && !latestProfileByHn.has(profileHn)) {
-                latestProfileByHn.set(profileHn, profile);
-            }
-        }
-
-        const programDaysById = new Map();
-        for (const programRow of programRows) {
-            const programId = Number(programRow?.gpid);
-            const programDay = Math.floor(Number(programRow?.day));
-
-            if (!Number.isFinite(programId) || !Number.isFinite(programDay) || programDay < 1) {
-                continue;
-            }
-
-            if (!programDaysById.has(programId)) {
-                programDaysById.set(programId, new Set());
-            }
-            programDaysById.get(programId).add(programDay);
-        }
-
-        const historyByHnDay = new Map();
-        const getHistoryKey = (historyHn, localDay) => `${historyHn}\u0000${localDay}`;
-
-        for (const history of histories) {
-            const historyHn = String(history?.hn || "").trim();
-            const gid = String(history?.gid || "").trim();
-            const isCheckIn = history?.["check-in"] === true;
-
-            if ((!gid && !isCheckIn) || (parsedHn && historyHn !== parsedHn)) {
-                continue;
-            }
-
-            const localDay = this.getBangkokDateKey(history?.start_at);
-            if (!historyHn || !localDay) {
-                continue;
-            }
-
-            const key = getHistoryKey(historyHn, localDay);
-            if (!historyByHnDay.has(key)) {
-                historyByHnDay.set(key, {
-                    user_hn: historyHn,
-                    firstgame_at: "",
-                    lastgame_at: "",
-                    total_time: "",
-                    "check-in": false,
-                    last_stage: 0,
-                    _historyCount: 0,
-                    _userGameDataIds: [],
-                });
-            }
-
-            const row = historyByHnDay.get(key);
-            const startAt = this.parseDateMs(history?.start_at);
-            const endAt = this.parseDateMs(history?.end_at || history?.start_at);
-
-            row._historyCount += 1;
-
-            if (isCheckIn) {
-                row["check-in"] = true;
-            }
-
-            if (gid && !isCheckIn) {
-                row.firstgame_at = this.minDateValue(row.firstgame_at, history?.start_at);
-                row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
-
-                if (gid !== "REST001") {
-                    row.last_stage += 1;
-                    const userGameDataId = Number(history?.user_game_data_id);
-                    if (Number.isFinite(userGameDataId) && userGameDataId > 0) {
-                        row._userGameDataIds.push(userGameDataId);
-                    }
-                }
-            } else if (isCheckIn) {
-                row.lastgame_at = this.maxDateValue(row.lastgame_at, history?.end_at || history?.start_at);
-            }
-
-            if (Number.isFinite(startAt) && Number.isFinite(endAt)) {
-                row.lastgame_at = this.maxDateValue(row.lastgame_at, new Date(Math.max(startAt, endAt)).toISOString());
-            }
-        }
-
-        const allGameDataIds = [...new Set(
-            [...historyByHnDay.values()].flatMap((row) => row._userGameDataIds),
-        )];
-        const scoreByGameDataId = new Map();
-        if (allGameDataIds.length) {
-            try {
-                const { data: gameDataRows } = await client
-                    .from(USER_GAME_DATA_TABLE)
-                    .select("id, score")
-                    .in("id", allGameDataIds);
-                for (const gd of gameDataRows || []) {
-                    const id = Number(gd?.id);
-                    const score = Number(gd?.score);
-                    if (Number.isFinite(id) && id > 0 && Number.isFinite(score)) {
-                        scoreByGameDataId.set(id, score);
-                    }
-                }
-            } catch (scoreError) {
-                console.warn("Unable to fetch game data scores:", scoreError);
-            }
-        }
-
-        const rows = [];
-        for (const patient of patients) {
-            const patientHn = String(patient?.hn || "").trim();
-            if (!patientHn || (parsedHn && patientHn !== parsedHn)) {
-                continue;
-            }
-
-            const profile = latestProfileByHn.get(patientHn) || null;
-            const programId = Number(profile?.program);
-            const programDays = Number.isFinite(programId)
-                ? [...(programDaysById.get(programId) || [])].sort((a, b) => a - b)
-                : [];
-
-            if (!programDays.length) {
-                continue;
-            }
-
-            for (const programDay of programDays) {
-                const localDay = this.getBangkokProgramDateKey(patient?.started_program, programDay);
-                if (!localDay) {
-                    continue;
-                }
-
-                const historyRow = historyByHnDay.get(getHistoryKey(patientHn, localDay)) || null;
-                const firstgameAt = historyRow?.firstgame_at || "";
-                const lastgameAt = historyRow?.lastgame_at || "";
-                const firstMs = this.parseDateMs(firstgameAt);
-                const lastMs = this.parseDateMs(lastgameAt);
-
-                const dayScores = (historyRow?._userGameDataIds || [])
-                    .map((id) => scoreByGameDataId.get(id))
-                    .filter((s) => Number.isFinite(s));
-
-                rows.push({
-                    user_hn: patientHn,
-                    firstgame_at: firstgameAt,
-                    lastgame_at: lastgameAt,
-                    total_time: Number.isFinite(firstMs) && Number.isFinite(lastMs) && lastMs >= firstMs
-                        ? ((lastMs - firstMs) / 60000).toFixed(1)
-                        : "",
-                    "check-in": historyRow?.["check-in"] === true,
-                    last_stage: historyRow?._historyCount > 0 ? historyRow.last_stage : null,
-                    total_score: dayScores.length > 0 ? dayScores.reduce((sum, s) => sum + s, 0) : null,
-                    _day: localDay,
-                    _patientOrder: patientOrderByHn.has(patientHn)
-                        ? patientOrderByHn.get(patientHn)
-                        : Number.POSITIVE_INFINITY,
-                });
-            }
-        }
-
-        return rows
-            .sort((a, b) => (
-                this.compareCsvSortValue(a._patientOrder, b._patientOrder)
-                || String(a._day).localeCompare(String(b._day))
-            ))
-            .map((row) => {
-                const {
-                    _day,
-                    _patientOrder,
-                    ...exportRow
-                } = row;
-
-                return exportRow;
-            });
-    }
-
-    getBangkokDateKey(value) {
-        const date = new Date(value || "");
-        if (Number.isNaN(date.getTime())) {
-            return "";
-        }
-
-        return new Intl.DateTimeFormat("en-CA", {
-            timeZone: "Asia/Bangkok",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-        }).format(date);
-    }
-
-    getBangkokProgramDateKey(startedProgram, programDay) {
-        const startKey = this.getBangkokDateKey(startedProgram);
-        const [year, month, day] = startKey.split("-").map(Number);
-        const parsedProgramDay = Math.floor(Number(programDay));
-
-        if (
-            !Number.isFinite(year)
-            || !Number.isFinite(month)
-            || !Number.isFinite(day)
-            || !Number.isFinite(parsedProgramDay)
-            || parsedProgramDay < 1
-        ) {
-            return "";
-        }
-
-        const date = new Date(Date.UTC(year, month - 1, day));
-        date.setUTCDate(date.getUTCDate() + parsedProgramDay - 1);
-        return date.toISOString().slice(0, 10);
-    }
-
-    parseDateMs(value) {
-        const date = new Date(value || "");
-        return Number.isNaN(date.getTime()) ? NaN : date.getTime();
-    }
-
-    minDateValue(currentValue, nextValue) {
-        const currentMs = this.parseDateMs(currentValue);
-        const nextMs = this.parseDateMs(nextValue);
-
-        if (!Number.isFinite(nextMs)) {
-            return currentValue || "";
-        }
-
-        return !Number.isFinite(currentMs) || nextMs < currentMs ? nextValue : currentValue;
-    }
-
-    maxDateValue(currentValue, nextValue) {
-        const currentMs = this.parseDateMs(currentValue);
-        const nextMs = this.parseDateMs(nextValue);
-
-        if (!Number.isFinite(nextMs)) {
-            return currentValue || "";
-        }
-
-        return !Number.isFinite(currentMs) || nextMs > currentMs ? nextValue : currentValue;
+        return edgeFunction.getGameHistoryExportRows(hn);
     }
 
     async getAllTableRows(tableName, selectColumns, orders = []) {
@@ -994,6 +518,7 @@ class Database {
     async createUserGameProfile({
         hn,
         defaultProgramId = DEFAULT_GAME_PROFILE_PROGRAM_ID,
+        treeType = "",
     }) {
         const parsedHn = String(hn || "").trim();
         const parsedProgramId = Number(defaultProgramId);
@@ -1009,10 +534,16 @@ class Database {
         await this.initAuth();
 
         const client = this.getClient();
+        const treeRows = await this.getGameTreeList();
+        const allowedTreeTypes = new Set(treeRows.map((row) => String(row?.id || "").trim()).filter(Boolean));
+        const requestedTreeType = String(treeType || "").trim();
+        const resolvedTreeType = allowedTreeTypes.has(requestedTreeType)
+            ? requestedTreeType
+            : await this.pickRandomTreeType(treeRows);
         const { data, error } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .insert([{ hn: parsedHn, program: parsedProgramId }])
-            .select("id, hn, program, created_at")
+            .insert([{ hn: parsedHn, program: parsedProgramId, tree_type: resolvedTreeType }])
+            .select("id, hn, program, tree_type, created_at")
             .maybeSingle();
 
         if (error) {
@@ -1020,6 +551,108 @@ class Database {
         }
 
         return data || { hn: parsedHn };
+    }
+
+    async getGameTreeList() {
+        await this.initAuth();
+
+        const { data, error } = await this.getClient()
+            .from(GAME_TREE_LIST_TABLE)
+            .select("id, name, created_at")
+            .order("id", { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        return (data || []).filter((row) => String(row?.id || "").trim());
+    }
+
+    async pickRandomTreeType(treeRows = null) {
+        const rows = Array.isArray(treeRows) ? treeRows : await this.getGameTreeList();
+        const treeTypes = [...new Set(rows.map((row) => String(row?.id || "").trim()).filter(Boolean))];
+
+        if (!treeTypes.length) {
+            throw new Error("Game tree catalog is empty or inaccessible");
+        }
+
+        return treeTypes[Math.floor(Math.random() * treeTypes.length)];
+    }
+
+    async ensureUserGameProfileTreeType({ hn }) {
+        const parsedHn = String(hn || "").trim();
+        if (!parsedHn) {
+            throw new Error("Invalid hn");
+        }
+
+        await this.initAuth();
+
+        const client = this.getClient();
+        const treeRows = await this.getGameTreeList();
+        const allowedTreeTypes = new Set(treeRows.map((row) => String(row?.id || "").trim()).filter(Boolean));
+        if (!allowedTreeTypes.size) {
+            throw new Error("Game tree catalog is empty or inaccessible");
+        }
+        const { data: profileRows, error: profileError } = await client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .select("id, hn, program, tree_type, created_at")
+            .eq("hn", parsedHn)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+        if (profileError) {
+            throw profileError;
+        }
+
+        const profile = Array.isArray(profileRows) ? profileRows[0] : null;
+        if (!profile?.id) {
+            throw new Error("Game profile not found");
+        }
+
+        const currentTreeType = String(profile.tree_type || "").trim();
+        if (allowedTreeTypes.has(currentTreeType)) {
+            return profile;
+        }
+
+        const nextTreeType = await this.pickRandomTreeType(treeRows);
+        let updateQuery = client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .update({ tree_type: nextTreeType })
+            .eq("id", profile.id);
+
+        updateQuery = profile.tree_type == null
+            ? updateQuery.is("tree_type", null)
+            : updateQuery.eq("tree_type", profile.tree_type);
+
+        const { data: updatedRows, error: updateError } = await updateQuery
+            .select("id, hn, program, tree_type, created_at");
+
+        if (updateError) {
+            throw updateError;
+        }
+
+        const updatedProfile = Array.isArray(updatedRows) ? updatedRows[0] : null;
+        if (updatedProfile?.tree_type) {
+            return updatedProfile;
+        }
+
+        // Another tab may have filled the value first. Read the persisted winner.
+        const { data: latestRows, error: latestError } = await client
+            .from(USER_GAME_PROFILE_DATA_TABLE)
+            .select("id, hn, program, tree_type, created_at")
+            .eq("id", profile.id)
+            .limit(1);
+
+        if (latestError) {
+            throw latestError;
+        }
+
+        const latestProfile = Array.isArray(latestRows) ? latestRows[0] : null;
+        if (!allowedTreeTypes.has(String(latestProfile?.tree_type || "").trim())) {
+            throw new Error("Unable to persist a valid game tree type");
+        }
+
+        return latestProfile;
     }
 
     async getGameLevelPresetList() {
@@ -1055,7 +688,7 @@ class Database {
         const client = this.getClient();
         const { data: existingRows, error: findError } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .select("id, hn, program, created_at")
+            .select("id, hn, program, tree_type, created_at")
             .eq("hn", parsedHn)
             .order("created_at", { ascending: false })
             .limit(1);
@@ -1070,7 +703,7 @@ class Database {
                 .from(USER_GAME_PROFILE_DATA_TABLE)
                 .update({ program: parsedProgramId })
                 .eq("id", existingProfile.id)
-                .select("id, hn, program, created_at")
+                .select("id, hn, program, tree_type, created_at")
                 .maybeSingle();
 
             if (updateError) {
@@ -1084,10 +717,11 @@ class Database {
             return updatedProfile;
         }
 
+        const treeType = await this.pickRandomTreeType();
         const { data: insertedProfile, error: insertError } = await client
             .from(USER_GAME_PROFILE_DATA_TABLE)
-            .insert([{ hn: parsedHn, program: parsedProgramId }])
-            .select("id, hn, program, created_at")
+            .insert([{ hn: parsedHn, program: parsedProgramId, tree_type: treeType }])
+            .select("id, hn, program, tree_type, created_at")
             .maybeSingle();
 
         if (insertError) {
@@ -1228,7 +862,7 @@ class Database {
                 .maybeSingle(),
             client
                 .from(USER_GAME_PROFILE_DATA_TABLE)
-                .select("id, hn, program, created_at")
+                .select("id, hn, program, tree_type, created_at")
                 .eq("hn", parsedHn)
                 .order("created_at", { ascending: false })
                 .limit(1),
@@ -2300,6 +1934,32 @@ class Database {
         return this.writeReplayLog(params);
     }
 
+    /**
+     * US-E10-01 — map hn → GRPID สำหรับเส้นทางสำรองฝั่ง client เท่านั้น
+     *
+     * user_game_profile_data ไม่มี UNIQUE(hn) — index (hn, created_at desc, id desc) บอกว่า
+     * "แถวล่าสุดชนะ" จึงเรียงแล้วเก็บแถวแรกของแต่ละ hn ให้ตรงกับที่ SQL ทำ
+     */
+    async _getGroupByHn() {
+        const rows = await this.getAllTableRows(
+            USER_GAME_PROFILE_DATA_TABLE,
+            'hn, "GRPID", created_at, id',
+            [
+                { column: "hn", ascending: true },
+                { column: "created_at", ascending: false },
+                { column: "id", ascending: false },
+            ],
+        );
+
+        const groupByHn = new Map();
+        for (const row of rows || []) {
+            const hn = String(row?.hn || "").trim();
+            if (!hn || groupByHn.has(hn)) continue;
+            groupByHn.set(hn, String(row?.GRPID || "").trim() || UNTAGGED_GROUP_ID);
+        }
+        return groupByHn;
+    }
+
     _buildLeaderboardPlayers(rows, currentHn, offset = 0) {
         return rows.map((row, index) => {
             const hn = String(row?.hn || "").trim();
@@ -2313,6 +1973,36 @@ class Database {
                 current: currentHn ? hn === currentHn : false,
             };
         });
+    }
+
+    /**
+     * US-E10-01 — กลุ่มของผู้เล่น (GRPID + ชื่อกลุ่ม) สำหรับกรอง leaderboard และตั้งชื่อหัวข้อ
+     *
+     * ผู้เล่นที่ไม่มีแถวใน user_game_profile_data ถือเป็น 'UNTAGGED' (เห็นทุกกลุ่ม) เหมือนกับที่
+     * ฝั่ง SQL ทำ — ห้ามให้ทั้งสองฝั่งตีความต่างกัน
+     */
+    async getUserGroup(hn) {
+        await this.initAuth();
+
+        const parsedHn = String(hn || "").trim();
+        const untagged = { grpid: UNTAGGED_GROUP_ID, tagName: null };
+        if (!parsedHn) {
+            return untagged;
+        }
+
+        const client = this.getClient();
+        const { data, error } = await client.rpc("get_user_group", { p_hn: parsedHn });
+        const row = Array.isArray(data) ? data[0] : null;
+
+        if (error || !row) {
+            if (error) console.warn("get_user_group unavailable, treating viewer as untagged:", error);
+            return untagged;
+        }
+
+        return {
+            grpid: String(row.grpid || UNTAGGED_GROUP_ID).trim() || UNTAGGED_GROUP_ID,
+            tagName: String(row.tag_name || "").trim() || null,
+        };
     }
 
     async getUserRank(hn) {
@@ -2356,7 +2046,13 @@ class Database {
         const parsedLimit = Math.max(1, Number(limit) || 20);
 
         try {
-            const result = await edgeFunction.getLeaderboard({ offset: parsedOffset, limit: parsedLimit });
+            // US-E10-02 — hn เป็นตัวกำหนดกลุ่มที่จะเห็น โดยฝั่ง server เป็นผู้ resolve เอง
+            // (ห้ามส่ง GRPID มาจาก client เพราะปลอมได้)
+            const result = await edgeFunction.getLeaderboard({
+                offset: parsedOffset,
+                limit: parsedLimit,
+                hn: parsedCurrentHn || null,
+            });
             const rows = result?.rows || [];
             const total = Number(result?.total) || 0;
             return {
@@ -2372,6 +2068,7 @@ class Database {
         const { data: rpcRows, error: rpcError } = await client.rpc("get_leaderboard_page", {
             p_offset: parsedOffset,
             p_limit: parsedLimit,
+            p_hn: parsedCurrentHn || null,
         });
 
         if (!rpcError) {
@@ -2442,7 +2139,18 @@ class Database {
             patients.map((p) => [String(p?.hn || "").trim(), p]),
         );
 
+        // US-E10-02 — เส้นทางสำรองสุดท้ายนี้ประกอบอันดับเองทั้งหมด จึงต้องกรองกลุ่มเองด้วย
+        // ไม่งั้นเมื่อทั้ง edge function และ RPC ล่ม ผู้เล่นจะเห็นข้ามกลุ่มโดยเงียบ ๆ
+        const groupByHn = await this._getGroupByHn();
+        const viewerGroup = parsedCurrentHn
+            ? (groupByHn.get(parsedCurrentHn) || UNTAGGED_GROUP_ID)
+            : UNTAGGED_GROUP_ID;
+        const isVisible = (hn) =>
+            viewerGroup === UNTAGGED_GROUP_ID
+            || (groupByHn.get(hn) || UNTAGGED_GROUP_ID) === viewerGroup;
+
         const allRows = [...scoreByHn.entries()]
+            .filter(([hn]) => isVisible(hn))
             .map(([hn, totalScore]) => {
                 const patient = patientByHn.get(hn) || {};
                 return {

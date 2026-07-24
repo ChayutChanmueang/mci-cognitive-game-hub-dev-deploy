@@ -2,7 +2,7 @@
 // Network-first with a small offline-asset cache so the offline popup art
 // (US-E7-27) still renders when the connection drops.
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 
 // Assets that MUST be available while offline (offline popup character art).
 // Precached on install so the "อินเทอร์เน็ตหายไปแล้ว" popup can show the

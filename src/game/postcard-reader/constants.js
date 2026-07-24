@@ -64,7 +64,17 @@ export const Config = Object.freeze({
     },
     ScorePerCorrect: 6,
     MemoryTimeS: 15, // 15 seconds to memorize
-    QuizTimeLimitMs: 180000 // 3 minutes for total quiz session
+    QuizTimeLimitMs: 180000, // 3 minutes for total quiz session
+
+    // The question is drawn centred on the logical canvas (1100x2000, see main.js), so a wrap width
+    // WIDER than the canvas makes long questions run off BOTH edges instead of wrapping. It used to
+    // be a flat 1200, which pushed 54 of the 228 questions off-screen. Derive it from the canvas
+    // instead of hardcoding, so it can never exceed the screen again.
+    Question: Object.freeze({
+        PanelSize: Object.freeze({ x: 900, y: 350 }),
+        // Clear of the screen edges, with room for the text's own padding (~8px) and stroke (10px).
+        SideMargin: 90
+    })
 });
 
 

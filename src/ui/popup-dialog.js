@@ -12,7 +12,7 @@
 //
 // Behaviour is unchanged: returns a Promise resolving true (confirm), false
 // (cancel / dismiss / Escape / backdrop), or the chosen action value.
-import { renderFramePanel } from "./components/frame-panel.js";
+import { renderConfirmDialog } from "./components/confirm-dialog.js";
 import { renderButtonOkStroke } from "./components/button-ok-stroke.js";
 import { renderButtonCloseStroke } from "./components/button-close-stroke.js";
 import { dismissPopup } from "./transition/popup-transition.js";
@@ -111,27 +111,14 @@ export function showPopup(options = {}) {
                     ${renderButtonOkStroke({ label: confirmText })}
                 </div>`;
 
-            overlay.innerHTML = `
-                <div class="app-popup__backdrop"></div>
-                <div
-                    class="gh-dialog"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="${titleId}"
-                    ${message ? `aria-describedby="${messageId}"` : ""}
-                >
-                    ${renderFramePanel({
-                        className: "gh-dialog__panel",
-                        body: `
-                            <h2 id="${titleId}" class="gh-dialog__title">${escapeHtml(title)}</h2>
-                            ${message ? `<p id="${messageId}" class="gh-dialog__message">${escapeHtml(message)}</p>` : ""}
-                            <div class="gh-dialog__actions">
-                                ${actionsMarkup}
-                            </div>
-                        `,
-                    })}
-                </div>
-            `;
+            // US-E9-12: shared with game-exit-popup.js so the two cannot drift apart again.
+            overlay.innerHTML = renderConfirmDialog({
+                titleId,
+                messageId,
+                title,
+                message,
+                actions: actionsMarkup,
+            });
         }
 
         const confirmButton = overlay.querySelector(".gh-button-ok-stroke");

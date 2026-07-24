@@ -1,12 +1,12 @@
 # 🌐 MCI Cognitive Games — Knowledge Wiki
 
-**Last Updated:** 2026-05-31 | **Maintained by:** Antigravity AI
+**Last Updated:** 2026-07-17 | **Maintained by:** ทีมพัฒนา NapLab
 
 ## 🎯 Quick Access
 - **Game Concept & Architecture**: [Game Concept & Architecture](../gdd/00-concept.md)
 - **Core Mechanics**: [Core Mechanics](../gdd/01-mechanics.md)
 - **Product Backlog**: [Product Backlog](../agile/01-product-backlog.md)
-- **Current Sprint**: [Current Sprint](../agile/02-sprint-planning.md)
+- **Current Sprint**: [Sprint 10](../agile/sprint-backlogs/sprint-10.md) — [Roadmap](../agile/02-sprint-planning.md)
 
 ---
 
@@ -25,6 +25,7 @@
 ### 🛠 Development & Setup
 - [Development Setup Guide](development/SETUP.md) - ขั้นตอนการติดตั้งและเตรียมสภาพแวดล้อม
 - [Level Complete Effect Guide](development/level-complete-effect-guide.md) - คู่มือการใช้งานเอฟเฟกต์ "เก่งมาก" และ Confetti แบบแชร์กันใช้
+- [Symmetry Decor Performance Optimization Case Study](development/symmetry-decor-performance-optimization-case-study.md) - กรณีศึกษาการแก้ปัญหาเกมหน่วงบนมือถือ พร้อมแนวทางสำหรับมินิเกมอื่น
 
 ### 🤖 Agentic AI & Tools
 - [Agentic AI Implementation Process (LvL)](Agentic-AI/AGENTIC_AI_PROCESS_LVL.md) - **กระบวนการและระดับการใช้งาน AI ในโครงการ**

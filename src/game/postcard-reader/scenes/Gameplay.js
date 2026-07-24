@@ -139,6 +139,15 @@ export default class GameplayScene extends Phaser.Scene {
     }
   }
 
+  // Never wider than the canvas — the question is centred, so an oversized wrap width runs off both
+  // edges rather than wrapping. Also never wider than the panel it sits in.
+  getQuestionWrapWidth() {
+    return Math.min(
+      Config.Question.PanelSize.x,
+      this.scale.width - (Config.Question.SideMargin * 2)
+    );
+  }
+
   intializeGamePage() {
     if (this.questionPanel == null) {
       this.questionPanel = new UIPanel(
@@ -146,7 +155,7 @@ export default class GameplayScene extends Phaser.Scene {
         this.scale.width / 2,
         this.scale.height / 5 + 50,
         {
-          size: { x: 900, y: 350 },
+          size: { ...Config.Question.PanelSize },
           strokeEnable: false,
           overlayEnable: false,
         },
@@ -167,7 +176,7 @@ export default class GameplayScene extends Phaser.Scene {
           stroke: "#FFFFFF",
           strokeThickness: 10
         },
-        { origin: 0.5, wrapWidth: 1200 }
+        { origin: 0.5, wrapWidth: this.getQuestionWrapWidth() }
       );
       this.questionPanel.addElements(this.questionText);
     } else {

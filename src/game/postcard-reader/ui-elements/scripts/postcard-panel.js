@@ -16,9 +16,9 @@ import VoiceService from "../../../../core/voice-service.js";
  * @returns {string}
  */
 function getTtsUrl(scene) {
-    const topic   = scene.currentTopic        ?? 'farm';
+    const topic = scene.currentTopic ?? 'farm';
     const diffKey = scene.currentDifficultyKey ?? 'easy';
-    const index   = scene.currentPostcardIndex ?? 0;
+    const index = scene.currentPostcardIndex ?? 0;
     return `assets/audio/postcard-reader/tts/${topic}/${diffKey}/${index}.mp3`;
 }
 
@@ -37,7 +37,7 @@ export default class PostcardPanel extends UIPage {
             0,
             scene.postcardText,
             {
-                fontSize: "52px",
+                fontSize: "88px",
                 fontStyle: "bold",
                 color: "#743D14"
             },
@@ -46,11 +46,28 @@ export default class PostcardPanel extends UIPage {
 
         this.addElements([this.titleText]);
 
+        this.updatePanelSize();
+
         this.startMemoryCountdown();
 
         // Accessibility: Read postcard text aloud using pre-recorded TTS MP3
         // Falls back to Web Speech API automatically if the file is missing
         VoiceService.speakFromUrl(getTtsUrl(scene), scene.postcardText);
+    }
+
+    updatePanelSize() {
+        const textHeight = this.titleText.height;
+        const textWidth = this.titleText.width;
+        
+        // Add padding around the text
+        const paddingX = 160;
+        const paddingY = 240;
+        
+        // Calculate new size with some minimum bounds
+        const newWidth = Math.max(600, Math.min(920, textWidth + paddingX));
+        const newHeight = Math.max(400, textHeight + paddingY);
+        
+        this.drawPanel(newWidth, newHeight);
     }
 
     startMemoryCountdown() {
@@ -71,6 +88,7 @@ export default class PostcardPanel extends UIPage {
     reinitializedPanel() {
         this.forceShow();
         this.titleText.setText(this.scene.postcardText);
+        this.updatePanelSize();
         this.startMemoryCountdown();
 
         // Accessibility: Read postcard text aloud using pre-recorded TTS MP3
@@ -86,7 +104,7 @@ export default class PostcardPanel extends UIPage {
 
     drawPanel(width, height) {
         this.panelBg.clear();
-        
+
         // Shadow (Figma: X=0, Y=12, Blur=4, Spread=0, Color=#E49A2C)
         // Simulate slight blur by drawing an outer layer with lower alpha
         this.panelBg.fillStyle(0xE49A2C, 0.3);

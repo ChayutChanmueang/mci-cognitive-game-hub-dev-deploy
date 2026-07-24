@@ -2,7 +2,7 @@
 
 All notable changes to the game documentation suite will be documented in this file.
 
-> Project version follows [Semantic Versioning 2.0.0](https://semver.org). Source of truth: `package.json`. The game is **pre-beta**, so it stays in the `0.x` line (SemVer rule 4 — "anything MAY change"); we do **not** bump to `1.0.0` until a stable, production public API is declared. Within `0.x`: new backward-compatible functionality bumps MINOR; bug fixes bump PATCH.
+> Project version follows [Semantic Versioning 2.0.0](https://semver.org). Source of truth: `package.json`. **v1.0.0** (2026-07-07) is the first **stable production release** — owner-declared full build after Sprint 7 merge to `development`. Post-1.0: backward-compatible features bump **MINOR** (`1.Y.0`); bug fixes bump **PATCH** (`1.0.Z`). The pre-1.0 `0.x` line (Feb–Jul 2026) is preserved in the version history below.
 >
 > ⚠️ **REMINDER — bump the version with the change, not "at ship".** Every change that adds functionality (MINOR) or fixes a bug (PATCH) **must** apply the version bump in lockstep — update `package.json` **and** this changelog **and** every doc that cites the version — following the **[semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md)** (see its §4 decision procedure + §5 update protocol + §9 checklist). Do **not** defer bumps to release time and do **not** bump PATCH for new features. When several unreleased changes accumulate, the highest applicable part wins and they share one version.
 
@@ -46,9 +46,359 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `0.27.0` | 2026-07-06 | US-E7-26: additional Leaderboard layout pass — refined row / top-bar / bottom-status spacing & alignment and constrained page content to a centered `max 720px` wrapper (built on the US-E7-01 `gh-leaderboard-*` art); scales via `--gh-scale` |
 | `0.28.0` | 2026-07-06 | US-E7-23: Context Clues easier answer placement — larger, independently tunable answer-box / blank-slot hit areas (`answerBox.hitArea`/`hitOffset`) + overlap-based drop in `DragDropManager` (`overlapDrop`: a word snaps in when its box overlaps an accepting zone, no pixel-perfect pointer aim) |
 | `0.29.0` | 2026-07-06 | US-E7-24 (Fry Food → **Physical** category on Game Hub), US-E7-27 (offline "อินเทอร์เน็ตหายไปแล้ว" popup + `InternetManager`, gender art buffered as data URLs for offline render), US-E7-28 (program-complete popup shows Thai-era **start/end dates**) |
-| `0.30.0` | 2026-07-07 | **(current)** US-E7-09 (Postcard Reader voice/font), US-E7-14 (Game Hub layout — spacing/swap/shadow), US-E7-15 (standardized green/red buttons); BUG-004 Resolved (black background after full-screen minigame) |
+| `0.30.0` | 2026-07-07 | US-E7-09 (Postcard Reader voice/font), US-E7-14 (Game Hub layout — spacing/swap/shadow), US-E7-15 (standardized green/red buttons); BUG-004 Resolved (black background after full-screen minigame) |
+| `1.0.0` | 2026-07-07 | First production-ready full build: owner-declared milestone after `features/game-hub` → `development` merge; core patient/admin flows, 14-day Game Hub program, minigame suite, PWA, Supabase persistence, Docker/nginx deploy |
+| `1.1.0` | 2026-07-08 | US-E8-01 per-player progression trees, signup assignment, and lazy backfill for existing profiles |
+| `1.1.1` | 2026-07-10 | US-E9-08 Game Hub label swap: game name ↑ / category ↓ (commit `a3ffc8d`) |
+| `1.1.2` | 2026-07-10 | US-E9-06 Screen Wake Lock: screen stays awake during minigames and story videos and dims again on return to the Game Hub; silent-video fallback for non-HTTPS origins (field feedback hotfix) — owner verified on device |
+| `1.1.3` | 2026-07-13 | US-E9-11 Sign-up dates are entered and shown in **พ.ศ.** (วัน/เดือน/ปี selects replacing `<input type="date">`, which can only render ค.ศ.); DB keeps ค.ศ. Patient-Info card now prints the full Buddhist year (`15/01/2510`) instead of a 2-digit one — owner verified on device |
+| `1.1.4` | 2026-07-14 | US-E9-12 game-exit popup layout aligned with `popup-dialog.js` via shared `renderConfirmDialog` — owner verified on device |
+| `1.1.5` | 2026-07-15 | US-E9-07 (partial) — `sparkle-effect.js` tuned for check-in tree growth burst (`sMinMax`, spread/cancel lifecycle) |
+| `1.1.6` | 2026-07-17 | US-E9-05 full player data export (complete set, no data loss) |
+| `1.1.7` | 2026-07-17 | US-E9-13 internet-loss character art refresh + SW cache bump |
+| `1.2.0` | 2026-07-20 | US-E10-01/02 test-group segmentation — leaderboard scoped to the viewer's `GRPID` + group-specific title |
+| `1.2.1` | 2026-07-20 | US-E7-30 export-CSV popup ใช้ art ชุดเดียวกับ popup อื่น (Frame_Form_Panel + ปุ่ม stroke + Check_Circle) |
+| `1.2.2` | 2026-07-20 | US-E7-30 ปรับระยะห่างใน popup export ตามที่ owner จูน + owner ยืนยันบนเครื่องจริง |
+| `1.2.3` | 2026-07-20 | **(current)** US-E10-03 ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น — สลับกับปุ่ม "กลับไปหน้าเกม" |
 
-> The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively.
+> The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## [1.2.3] - 2026-07-20
+**Version bump:** `1.2.2 → 1.2.3` (**PATCH**) — US-E10-03 อุดช่องที่ผู้เล่นออกจาก popup วิดีโอไม่ได้ระหว่างคลิปยังเล่น (แนวเดียวกับ US-E9-06/US-E9-08 ที่เป็น UX fix จากหน้างานแล้วนับเป็น PATCH)
+
+### Fixed
+- **US-E10-03 — ปุ่มปิด popup วิดีโอระหว่างคลิปกำลังเล่น.** เดิมปุ่ม `กลับไปหน้าเกม` โผล่ **หลังคลิปจบเท่านั้น** (`.gh-video-popup.is-ended`) คลิปที่ยาวจึงทำให้ผู้เล่นติดอยู่โดยไม่มีทางออก
+- ปุ่มย้อนกลับที่ owner ใส่ไว้ในแถบหัวเรื่อง **เป็นปุ่มตาย** — `wire()` ผูก event ให้เฉพาะ `.gh-start-button` ตอนนี้ผูก handler แล้ว กดกลับหน้า Game Hub ได้จริง
+- ทั้งสองปุ่ม **สลับกันเสมอ ไม่โผล่พร้อมกัน** — `ended` → ซ่อนปุ่มย้อนกลับ แสดงปุ่มจบ; `play` → ถอด `is-ended` กลับสู่สถานะเดิม (กดเล่นซ้ำก็สลับกลับถูกต้อง)
+- เปลี่ยน `id="player-info-back"` (ก็อปมาจาก `player-info-screen.js`) → `checkin-video-close` และ `aria-label` เป็น "ปิดวิดีโอแล้วกลับไปหน้าเกม"
+
+### 📌 หมายเหตุ
+- **ปิดกลางคันไม่ได้ทำให้ข้ามอะไร** — ทั้ง `game-hub-screen.js` และ `player-info-screen.js` เรียก `await showCheckInPopup({...})` โดย**ไม่ได้อ่านค่าที่ resolve กลับมา** เช็คอินจึงไม่ได้ผูกกับการดูคลิปจบตั้งแต่แรก (คำถามที่ค้างไว้ใน story ตกไป)
+- `cleanup()` เดิมเรียก `state.videoPlayerInstance?.destroy()` + `dismissPopup()` อยู่แล้ว ปิดกลางคลิปจึงไม่มีเสียงเล่นค้าง และได้อนิเมชันปิดตาม US-E7-20 โดยไม่ต้องแก้เพิ่ม
+
+### Verified
+- ทดสอบกฎ CSS จริงด้วย jsdom ทั้ง 3 สถานะ — กำลังเล่น / จบ / กดเล่นซ้ำ: **มีทางออกโผล่ครั้งละปุ่มเดียวเสมอ** ไม่มีสถานะไหนที่โผล่พร้อมกันหรือหายทั้งคู่
+
+## [1.2.2] - 2026-07-20
+**Version bump:** `1.2.1 → 1.2.2` (**PATCH**) — ปรับระยะห่างภายใน popup ส่งออก CSV ให้อ่านง่ายขึ้น (owner จูนเอง) และ owner ยืนยันการใช้งานจริงแล้ว
+
+### Changed
+- `public/components.css` — เพิ่มระยะหายใจใน [US-E7-30](agile/user-stories/US-E7-30.md) popup ส่งออก CSV (owner ปรับเอง)
+  - `.gh-popup--export .gh-frame-popup-panel__body` `gap` `18px → 38px` (ระยะระหว่างรายการตัวเลือกกับแถวปุ่ม)
+  - `.gh-export-popup__lead` เพิ่ม `margin-top 36px` และ `margin-bottom 18px → 28px`
+  - `.gh-export-popup__legend` เพิ่ม `margin-top 24px`, `margin-bottom 10px → 24px` (หัวข้อกลุ่มไม่ติดตัวเลือกด้านบน)
+- [US-E7-30](agile/user-stories/US-E7-30.md) → ✅ **owner verified บนเครื่องจริง** (เดิม Done แต่ยืนยันแค่ headless render + jsdom)
+
+## [1.2.1] - 2026-07-20
+**Version bump:** `1.2.0 → 1.2.1` (**PATCH**) — US-E7-30 เปลี่ยน art ของ popup ส่งออก CSV ให้ตรงกับ popup อื่น ๆ; ความสามารถของผู้ใช้ไม่ได้เพิ่มขึ้น (ยัง export scope/type ชุดเดิม) จึงเป็น PATCH ไม่ใช่ MINOR
+
+### Changed
+- **US-E7-30 — Popup ส่งออกข้อมูล CSV ใช้ art ชุดเดียวกับ popup อื่น.** ย้ายออกจาก `player-info-screen.js` (เดิม build markup เอง ใช้ `app-popup` + Material) มาเป็น `src/ui/export-options-popup.js` ที่ประกอบจากชิ้นส่วนกลาง — Frame_Form_Panel (แถบหัวฟ้า) + Icon_ButtonBack + ปุ่ม stroke แดง/เขียว (US-E7-15)
+- `md-switch` (ผู้เล่นคนนี้/ทุกคน) → **radio 2 ตัว** ตาม mockup; `md-checkbox` → **checkbox วงกลมแบบ Figma** ยังเลือกได้หลายอย่างเหมือนเดิม (US-E9-05 ไม่ regress)
+- ใช้ `dismissPopup` แล้ว — เดิม popup นี้ `overlay.remove()` ตรง ๆ ข้ามอนิเมชันปิดของ US-E7-20 ที่ popup อื่นทุกตัวเล่น (AC#4)
+- ลบ CSS `player-info-export-popup__*` (10 rules) ที่ตายแล้วออกจาก `public/style.css`
+
+### Added
+- **`src/ui/components/check-circle.js`** — Check / Check_Circle / Uncheck_Circle (Figma `3305:445/446/447`) วงกลมเป็น CSS ตามกฎ CSS-first มีแต่เครื่องหมายถูกที่เป็น SVG; รวมสามคอมโพเนนต์เป็นตัวเดียวที่สลับสถานะด้วย `:checked` ของ `<input>` จริง (คีย์บอร์ด/screen reader ยังทำงาน — AC#6)
+- ปุ่มยืนยันถูก **disable เมื่อไม่ได้เลือกประเภทข้อมูลเลย** — ของเดิมกดได้แล้วได้ไฟล์เปล่า
+
+### 🔴 กับดักที่เจอตอนทำ (อย่าทำซ้ำ)
+- **`<legend>` ที่ float ทับตัวเลือกแรกของกลุ่ม** — legend ต้อง float ถึงจะวางตัวเป็นหัวข้อธรรมดาใน fieldset แต่ block box ตัวถัดไปไม่หลบ float ทำให้ตัวเลือกแรกของทั้งสองกลุ่ม **หายไปเลย** → เปลี่ยนเป็น `<div role="group" aria-labelledby>` + `<p>` แทน
+- **ปุ่ม `_Stroke` ไม่มีความสูงของตัวเอง** (`width/height: 100%` ล้วน ต่างจากปุ่มธรรมดาที่มี `height` ในตัว) อยู่ใน grid row สูง auto จึงกลายเป็นสูง 0 และหายไป → ต้องกำหนด `height` ให้จาก parent เสมอ
+- **label ของปุ่ม stroke เป็น `white-space: nowrap` + font-size คงที่** — พอใส่คำยาวอย่าง "ส่งออกข้อมูล" แล้วล้นปุ่มบนจอ 360px
+
+### Verified (headless render + jsdom, 2026-07-20)
+- เทียบกับ mockup ที่ owner ให้มา: หัวข้อ/กลุ่ม/วงกลม/ปุ่ม ตรงตามแบบ
+- 520x940, 360x640 (จอแคบ) และ 740x420 (แนวนอนเตี้ย — รายการ scroll ในตัว ปุ่มยังกดถึง, AC#5)
+- 14 behaviour checks: ค่าเริ่มต้น, multi-select ประเภทข้อมูล, scope เลือกได้อย่างเดียว, confirm คืนค่าถูก, cancel/back/backdrop/Escape คืน `null`, disable/enable ปุ่มยืนยัน, คืนค่า `body.overflow`
+
+## [1.2.0] - 2026-07-20
+**Version bump:** `1.1.7 → 1.2.0` (**MINOR**) — US-E10-01/02 add new functionality: the leaderboard now shows only the viewer's own test group.
+
+### Added
+- **US-E10-01 — Tag แบ่งกลุ่มผู้เล่น.** Schema `user_group_tag` (`GRPID` + `tag_name`) + FK `GRPID` บน `user_game_profile_data` (owner สร้างเอง) — ค่าถูกควบคุมด้วย FK, default `'UNTAGGED'` ⚠️ **AC#3 (Player-Info แสดง tag) และ AC#4 (คอลัมน์ tag ใน CSV export) descoped** ยังไม่ได้ทำใน v1.2.0
+- **US-E10-02 — Leaderboard แยกตามกลุ่มทดสอบ.** ผู้เล่นที่ถูก tag ด้วย `GRPID` เห็นเฉพาะอันดับของกลุ่มตัวเอง; `UNTAGGED` (หรือยังไม่มีแถวใน `user_game_profile_data`) เห็นทุกกลุ่มตามเดิม — เป็นมุมมองสำหรับ admin ตรวจอันดับ
+- หัวข้อหน้า Leaderboard เปลี่ยนตามกลุ่ม — `ชุมชนพัฒนาสมอง` + `tag_name` เช่น **ชุมชนพัฒนาสมองหางดง**; `UNTAGGED` ใช้ชื่อกลางเฉย ๆ (tag_name ของ `UNTAGGED` คือ `"ไม่มี"` ต่อท้ายตรง ๆ ไม่ได้) พร้อมคำโปรยรองที่ตรงกับรายชื่อที่กรองแล้ว
+- SQL: `get_user_group(p_hn)` ใหม่ + `get_leaderboard_page` รับ `p_hn` (default `NULL`) — [migration](../supabase/migrations/20260720090000_leaderboard_group_tag_scope.sql)
+
+### Changed
+- **`get_user_rank` กรองตามกลุ่มด้วย** (signature เดิม) — แถบอันดับล่างจอกับรายชื่อเป็นคนละ query ถ้ากรองแค่รายชื่อ ผู้เล่นหางดงจะเห็นรายชื่อ 20 คน แต่แถบล่างเขียนว่า "อันดับ 34"
+- `getLeaderboard` ส่ง `hn` ของผู้ดูไปทั้ง 3 เส้นทาง (edge function → RPC → client fallback) — เส้นทางสำรองสุดท้ายประกอบอันดับเองใน JS จึงต้องกรองกลุ่มเองด้วย ไม่งั้นเวลา server ล่มผู้เล่นจะเห็นข้ามกลุ่มโดยเงียบ ๆ
+- Edge function `mci_functions` v0.7.0 (รีโปแยก) — deploy แล้วบน `cgxaanoyyjcopezsrivs`
+- `public/components.css` — ลดขนาดหัวข้อ/คำโปรยหน้า Leaderboard (`72→54..72px` / `52→48px`) ให้ชื่อกลุ่มที่ยาวขึ้น เช่น "ชุมชนพัฒนาสมองหางดง" ไม่ล้นกรอบ (owner ปรับเอง)
+
+### 🔴 ข้อควรระวัง
+- **กลุ่มต้อง resolve ฝั่ง server จาก `hn` เท่านั้น** — RPC เป็น `SECURITY DEFINER` เรียกได้ด้วย anon key ถ้ารับ `GRPID` จาก client ใครก็ขอดูกลุ่มไหนก็ได้
+- **`CREATE OR REPLACE` ที่เพิ่ม argument = สร้าง overload ไม่ใช่แทนที่** — ต้อง `DROP FUNCTION get_leaderboard_page(integer, integer)` ตัวเก่าทิ้ง ไม่งั้นการเรียกแบบ 2 argument จะกำกวมหรือวิ่งไปโดนตัวเก่าที่ไม่กรองกลุ่ม
+- **`user_game_profile_data` ไม่มี `UNIQUE(hn)`** — ทุกจุดที่หากลุ่มใช้ `DISTINCT ON (hn) ORDER BY created_at DESC, id DESC` ("แถวล่าสุดชนะ") ตาม index ที่มีอยู่ ห้ามสมมติว่ามีแถวเดียวต่อคน
+
+### Verified (2026-07-20, ข้อมูลจริงบน production)
+| ผู้ดู | เห็นกี่คน |
+| :--- | :--- |
+| `HD01` (หางดง) | 20 |
+| `TS01` (ท่าศาลา) | 31 |
+| `UNTAGGED` / ไม่ส่ง `hn` | 51 (ทั้งหมด) |
+
+## [1.1.7] - 2026-07-17
+**Version bump:** `1.1.6 → 1.1.7` (**PATCH**) — US-E9-13 refresh offline popup character art (`*_internet_loss.png`) so players see the updated คุณตา/คุณยาย climbing-palm art; bump SW `CACHE_VERSION` so stale precached PNGs are replaced.
+
+### Changed
+- **US-E9-13 — อัปเดต art popup อินเทอร์เน็ตหายไปแล้ว.** แทนที่ `OldWoman_internet_loss.png` / `OldMan_internet_loss.png`; `public/sw.js` `CACHE_VERSION` `v2` → `v3`
+- Agile docs: [US-E9-13](agile/user-stories/US-E9-13.md) → ✅ Done (v1.1.7); product backlog, kanban, sprint-10, sprint planning, `docs/index.md`
+
+## [1.1.6] - 2026-07-17
+**Version bump:** `1.1.5 → 1.1.6` (**PATCH**) — US-E9-05 full player data export so admin/research can pull a complete player dataset without loss.
+
+### Added
+- **US-E9-05 — ส่งออกข้อมูลผู้เล่นครบถ้วนไม่สูญหาย.** Full export path (Edge Function / pagination) covering profile, game history, scores, replay events, and check-in history; per-player and bulk admin export; CSV/JSON; read-only so live players are unaffected.
+
+### Changed
+- Agile docs: [US-E9-05](agile/user-stories/US-E9-05.md) → ✅ Done (v1.1.6); product backlog, kanban, sprint-10, sprint planning, `docs/index.md`
+
+## [2026-07-17] - Sprint 10 hub docs sync (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.5`).
+
+### Changed
+- [01-product-backlog.md](agile/01-product-backlog.md) — E9 footnotes + Related Documents ชี้ Sprint 10 Active / US-E9-05 In Progress
+- [docs/index.md](index.md) — Latest Sprint Planning + Agile links → Sprint 10 (ไม่ใช่ Sprint 08/09)
+- [04-retrospectives-backlog.md](agile/04-retrospectives-backlog.md), [wiki/wiki.md](wiki/wiki.md), meeting note Traceability
+
+## [2026-07-17] - Sprint 10 kickoff + US-E9-05 In Progress (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.5`).
+
+### Changed
+- [Sprint 10](agile/sprint-backlogs/sprint-10.md) → **🟢 Active** (2026-07-17 → 2026-07-30)
+- [Sprint 09](agile/sprint-backlogs/sprint-09.md) → ✅ **Completed**
+- [US-E9-05](agile/user-stories/US-E9-05.md) → **🔵 In Progress** (full data export)
+- [US-E9-07](agile/user-stories/US-E9-07.md) → **📋 Backlog** (Sprint 10; sparkle partial v1.1.5)
+- Product backlog, kanban, sprint planning, `docs/index.md`, meeting note 2026-07-10
+
+## [1.1.5] - 2026-07-15
+**Version bump:** `1.1.4 → 1.1.5` (**PATCH**) — fixes/refines check-in sparkle burst behaviour (part of [US-E9-07](agile/user-stories/US-E9-07.md) low-end celebration work).
+
+### Fixed
+- **US-E9-07 (partial) — sparkle effect on check-in tree growth.** `showSparkleEffect` (`src/ui/components/effects/sparkle-effect.js`): configurable per-particle size via `sMinMax`, wider spread radius (`centerOf` `sRadius`), denser burst defaults (`count` 48), and reliable teardown via `cancel()` — wired in `checkin-summary-screen.js` to fire on `growTreeTransition` `onGrow` (anchor `.tree-progress-frame`) and cancelled in `cleanup()`. `prefers-reduced-motion` caps particles to 8.
+
+### Changed
+- [US-E9-07](agile/user-stories/US-E9-07.md) → **🔵 In Progress** (sparkle slice shipped `1.1.5`; Phaser/A10s perf tasks remain Sprint 10)
+- Agile docs: product backlog, kanban, sprint-10, `docs/index.md`
+
+## [1.1.4] - 2026-07-14
+**Version bump:** `1.1.3 → 1.1.4` (**PATCH**) — fixes incorrect popup layout (exit dialog looked unlike every other confirm popup). Shared shell prevents future drift between `popup-dialog.js` and `game-exit-popup.js`.
+
+### Fixed
+- **US-E9-12 — game exit popup layout/art.** `showGameExitPopup` (`src/ui/game-exit-popup.js`) now renders through shared `renderConfirmDialog` (`src/ui/components/confirm-dialog.js`) — title, message, and stroke buttons **inside** `Frame_Panel` (Frame 1257), matching `popup-dialog.js` confirm mode. Red = ออก (destructive), green = เล่นต่อ (US-E7-15). Promise contract unchanged (`true` = exit). Owner verified 2026-07-14.
+
+### Changed
+- `popup-dialog.js` confirm branch refactored to use the same `renderConfirmDialog` shell.
+- Agile docs: [US-E9-12](agile/user-stories/US-E9-12.md) → Done (v1.1.4); product backlog, kanban, sprint-09, `docs/index.md`.
+
+## [2026-07-14] - US-E9-04 status → Done (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.4`; มินิเกมนับเวอร์ชันเอง)
+
+### Changed
+- [US-E9-04](agile/user-stories/US-E9-04.md) Postcard Reader — ขยายตัวอักษรโจทย์ → **✅ Done** (P0 gameplay Sprint 09 ปิดครบ US-E9-01..04)
+- Product backlog, kanban, sprint-09, meeting note 2026-07-10, sprint planning
+
+## [2026-07-14] - US-E9-03 status → Done (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.4`; มินิเกมนับเวอร์ชันเอง เช่น Zoo Detective `v1.0.1` ในเกม)
+
+### Changed
+- [US-E9-03](agile/user-stories/US-E9-03.md) Zoo Detective drag-to-place → **✅ Done**
+- Product backlog, kanban, sprint-09, meeting note 2026-07-10, sprint planning
+
+## [2026-07-14] - US-E9-01, US-E9-02 status → Done (docs)
+**Docs-only** — no `package.json` bump (ยัง `1.1.4`).
+
+### Changed
+- [US-E9-01](agile/user-stories/US-E9-01.md) Symmetry Decor UX → **✅ Done** (บล็อกฝั่งโจทย์, grid 2×2/4×4/6×6, โหมดสะท้อนซ้าย-ขวา, เส้นแบ่งชัด, จบเมื่อหมดเวลา)
+- [US-E9-02](agile/user-stories/US-E9-02.md) Fry Food skip button → **✅ Done** (ปุ่มข้ามเมื่อไม่มี Gyro — score 0 + skip event)
+- Product backlog, kanban, sprint-09, meeting note 2026-07-10, sprint planning
+
+## [2026-07-14] - US-E9-12 status → In Progress (docs)
+**Docs-only** — no `package.json` bump.
+
+- [US-E9-12](agile/user-stories/US-E9-12.md) → **🔵 In Progress** — popup ออกจากเกม (`game-exit-popup.js`)
+- Product backlog, kanban, sprint-09
+
+## [2026-07-14] - Sprint 09 scope rebalance (docs)
+**Docs-only** — no `package.json` bump.
+
+### Changed
+- [US-E9-03](agile/user-stories/US-E9-03.md) → **🔵 In Progress** (Sprint 09)
+- [US-E9-05](agile/user-stories/US-E9-05.md), [US-E9-07](agile/user-stories/US-E9-07.md), [US-E9-09](agile/user-stories/US-E9-09.md) → **📋 Backlog** — เลื่อน [Sprint 10](agile/sprint-backlogs/sprint-10.md)
+- [US-E9-12](agile/user-stories/US-E9-12.md) — จัด layout/art `game-exit-popup.js` ให้ตรง `popup-dialog.js` confirm mode (Sprint 09)
+- Product backlog, kanban, sprint-09, sprint-10 (new), meeting 2026-07-10, sprint planning
+
+## [2026-07-14] - US-E9-10 status → Done (docs)
+**Docs-only** — no `package.json` bump (CLI ops tool, ไม่เกี่ยวกับโค้ดเกมโดยตรง).
+
+### Changed
+- [US-E9-10](agile/user-stories/US-E9-10.md) → **✅ Done** — CLI [`update-user-hn.js`](../../update-user-hn.js) (`--from-hn`, `--to-hn`, `--dry-run`)
+- Product backlog, kanban, sprint-09, meeting 2026-07-10 action item #11
+
+## [2026-07-14] - US-E7-08, US-E7-11, US-E7-12 status → Done (docs)
+**Docs-only** — no `package.json` bump.
+
+- [US-E7-08](agile/user-stories/US-E7-08.md) → **✅ Done** — แก้คำศัพท์ Context Clues โดยทีมเนื้อหา/แพทย์
+- [US-E7-11](agile/user-stories/US-E7-11.md) → **✅ Done** — ละครสั้น/วิดีโอใหม่โดยทีมเนื้อหา
+- [US-E7-12](agile/user-stories/US-E7-12.md) → **✅ Done** — โดเมน Cognitive + สรุปหลังบ้านโดยทีมหลังบ้าน/ข้อมูล
+- Product backlog, kanban, sprint-07/08, meeting 2026-06-24 action items, sprint planning
+
+## [2026-07-14] - US-E5-03 status → Done (docs)
+**Docs-only** — no `package.json` bump.
+
+### Changed
+- [US-E5-03](agile/user-stories/US-E5-03.md) → **✅ Done** — ลบบัญชีผ่าน CLI [`delete-user.js`](../../delete-user.js) + logout ในแอป (Admin UI แทนด้วย script)
+- Product backlog, kanban, sprint-08 carried-over table
+
+## [2026-07-14] - US-E8-01 status → Done (docs)
+**Docs-only** — no `package.json` bump (shipped ใน **v1.1.0** แล้ว).
+
+### Changed
+- [US-E8-01](agile/user-stories/US-E8-01.md) → **✅ Done** (owner verified 2026-07-14: ต้นคิดดีหลายชนิดแสดงผลได้ปกติ)
+- Sprint 8 → Completed; product backlog, kanban, meeting action item #5, sprint planning
+
+## [2026-07-14] - Sprint 09 scope commit: US-E9-05, 09, 10 (docs)
+**Docs-only** — no `package.json` bump.
+
+### Changed
+- Owner commits [US-E9-05](agile/user-stories/US-E9-05.md), [US-E9-09](agile/user-stories/US-E9-09.md), [US-E9-10](agile/user-stories/US-E9-10.md) to current Sprint 09 release line — status → **In Progress**
+- Planned PATCH targets: US-E9-05 → `1.1.4`, US-E9-09 → `1.1.5`, US-E9-10 → `1.1.6` (bump ตอน ship แต่ละ story)
+- อัปเดต [Sprint 09](agile/sprint-backlogs/sprint-09.md), [product backlog](agile/01-product-backlog.md), [kanban](agile/kanban.md), [meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
+
+## [1.1.3] - 2026-07-13
+**Version bump:** `1.1.2 → 1.1.3` (**PATCH**) — fixes incorrect behavior (the sign-up form asked for and displayed a calendar era ผู้สูงอายุ do not use). No new user-facing capability: the form already collected a birth date and a program start date; it now collects them in the era the user actually knows. The new `thai-era-date.js` / `thai-date-select.js` modules are the implementation of that fix, not a new feature surface.
+
+### Fixed
+- **US-E9-11** — Sign-up birth date (`วันเกิด`) and program start date (`วันที่เริ่มโปรแกรม`) are entered and displayed in **พ.ศ.**; the database still stores ISO **ค.ศ.** (`YYYY-MM-DD`). Conversion happens only at the UI boundary, so no Buddhist year ever reaches the backend.
+- Patient-Info card printed the Buddhist year with two digits (`15/01/10`), which reads as ambiguous next to a ค.ศ. date. It now spells the year out (`15/01/2510`). The compact program-day labels elsewhere keep the short form.
+
+### Changed
+- `<input type="date">` replaced by three native selects (วัน / เดือน / ปี พ.ศ.). A native date input always renders its calendar and text in the **browser's own locale** and exposes no era/locale override, so พ.ศ. is not achievable with it — this is why the control had to change. The selects also remove typing for elderly users and make a malformed date impossible to enter.
+- The three selects are fused into one field-box-shaped pill (`gh-frame-field-box-date-l/-c/-r`) so the date keeps the same two-column row as every other field. The month shows its abbreviation once chosen (`ม.ค.`) because the full name is wider than the collapsed select; the dropdown still lists full names (`มกราคม`).
+- Day options follow the selected month and year — กุมภาพันธ์ offers 28 or 29 days by Buddhist leap year, and a day past the end of a shorter month clamps down.
+
+### Added
+- `src/util/thai-era-date.js` — พ.ศ. ↔ ค.ศ. conversion, Thai month names/abbreviations, Buddhist-aware days-in-month.
+- `src/ui/components/thai-date-select.js` — the วัน/เดือน/ปี control; `getValue()`/`setValue()` speak ISO ค.ศ.
+
+### Validated
+- Buddhist-era conversion: พ.ศ. 15/ม.ค./2510 persists as `1967-01-15`; age renders `59 ปี`; the submitted payload contains no Buddhist year.
+- Calendar edges: 29 ก.พ. 2567 (=2024, leap) accepted; 29 ก.พ. 2566 rejected; 31 เม.ย. rejected (no silent month rollover); switching 31 ธ.ค. → ก.พ. clamps to the 28th.
+- An incomplete date blocks submit and outlines the whole pill in red.
+- Layout verified at 360px and 768px, including the widest case (`30 | เม.ย. | 2510`) and the empty placeholder state — no cropping. Production build passes.
+- Owner verified on device (2026-07-13).
+
+---
+
+## [2026-07-10] - Field Feedback รอบ 2 → US-E9-06..11 (docs)
+**Docs-only** (no `package.json` bump).
+
+### Added
+- User stories [US-E9-06](agile/user-stories/US-E9-06.md)..[US-E9-11](agile/user-stories/US-E9-11.md) จาก feedback รอบ 2 (ลงพื้นที่)
+- อัปเดต [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md) §2.7–2.12, [Sprint 09](agile/sprint-backlogs/sprint-09.md), backlog, kanban
+
+### Consolidation
+- **US-E9-07** รวม: เอฟเฟคเก่งมากค้าง + Phaser performance + Galaxy A10s เป็นเครื่องอ้างอิงขั้นต่ำ
+- แยกต่างหาก: Wake lock (06), Game Hub labels (08), system font scale (09), HN CLI (10), พ.ศ. signup (11)
+
+---
+
+## [2026-07-10] - Field Feedback ลงพื้นที่ → Sprint 09 + Epic E9 (docs)
+**Docs-only** (no `package.json` bump).
+
+### Added
+- Meeting note: [2026-07-10 Field Feedback — ลงพื้นที่](agile/meeting-backlogs/2026-07-10.md)
+- Epic **E9: Field Feedback Hotfixes** — user stories [US-E9-01](agile/user-stories/US-E9-01.md)..[US-E9-05](agile/user-stories/US-E9-05.md)
+- [Sprint 09](agile/sprint-backlogs/sprint-09.md): แก้ด่วน UX มินิเกมจากการลงพื้นที่ → target **`1.1.1`** PATCH
+- อัปเดต product backlog, sprint planning, meeting logs, project index
+
+### Notes
+- ต้นคิดดีสุ่ม 4 ชนิด → ครอบคลุมแล้วใน [US-E8-01](agile/user-stories/US-E8-01.md) (Sprint 08, target `1.1.0`) — ไม่สร้าง story ซ้ำ
+- ลำดับความสำคัญ: P0 gameplay (US-E9-01..04) ก่อน → P1 ระบบ (US-E9-05)
+
+---
+
+## [1.1.0] - 2026-07-08
+**Version bump:** `1.0.0 → 1.1.0` (**MINOR**) — adds backward-compatible per-player progression-tree personalization.
+
+### Corrected
+- Synced the production `user_game_profile_data` DDL: `tree_type` is nullable with **no database default**. Signup therefore supplies the catalog-selected value explicitly; omitted values remain `NULL` for lazy backfill.
+
+### Added
+- `database.js`: catalog-backed `getGameTreeList()`, `pickRandomTreeType()`, and race-aware `ensureUserGameProfileTreeType({ hn })`.
+- Sign-up assigns and persists a random tree type from `game_tree_list`; Game Hub lazily backfills existing `NULL`, blank, or invalid values.
+- Check-in tree assets resolve through `/assets/checkin-popup/{tree_type}/tree_{tree_type}_{01..14}.png` in both static and growth-transition states.
+- Supabase migration adds the authenticated SELECT grant/RLS policy required to read `game_tree_list`.
+
+### Changed
+- User game-profile reads include `tree_type`; Game Hub and Player Info test hooks pass it to the check-in popup.
+- Empty/inaccessible tree catalogs fail closed in the data layer, preventing accidental mass persistence of fallback type `a` before the RLS migration is deployed.
+- US-E8-01 moved to Review / Testing. Production build passes; the RLS migration still needs deployment before manual Supabase and mobile visual QA.
+
+### Fixed
+- Restored the check-in growth sequence: the calendar DOM now renders the previous/smaller tree stage initially, holds it for the original timing, then transitions to the current/grown stage. The grown asset is preloaded during the hold to prevent a flash of the final tree before animation.
+
+## [2026-07-08] - US-E8-01: production DB snapshot (docs)
+**Docs-only** (no `package.json` bump).
+
+### Added
+- Production data snapshots from Supabase export (owner, 2026-07-08):
+  - `game_tree_list`: 4 rows (`a`–`d`, `name` null)
+  - `user_game_profile_data`: 17 rows (id 59–75), **all `tree_type = NULL`**, all `program = 5`
+- SQL reference files: `docs/agile/user-stories/assets/us-e8-01-game_tree_list_rows.sql`, `us-e8-01-user_game_profile_data_rows.sql`
+- § **Production Snapshot** in [US-E8-01](agile/user-stories/US-E8-01.md) with full HN table
+
+### Changed
+- [US-E8-01](agile/user-stories/US-E8-01.md): AC#1/#7, migration notes, marked DB migration task done
+- [03-data-schema.md](software/03-data-schema.md), [sprint-08.md](agile/sprint-backlogs/sprint-08.md): production counts
+
+## [2026-07-08] - US-E8-01: v1.0.0 player backfill + `game_tree_list` (docs)
+**Docs-only** (no `package.json` bump — ยังอยู่ที่ `1.0.0` จนกว่า US-E8-01 จะ ship เป็น **`1.1.0`** MINOR).
+
+### Added
+- ตาราง **`game_tree_list`** — แหล่งรายการชนิดต้นไม้ที่สุ่มได้ (`id`, `name`); seed ตัวอย่าง `a`/`b`/`c`/`d`
+- **Lazy backfill** สำหรับผู้เล่น **v1.0.0 ที่เริ่มโปรแกรมไปแล้ว**: ถ้า `user_game_profile_data.tree_type IS NULL` (หรือว่าง) → สุ่มจาก `game_tree_list` แล้ว **`UPDATE`** ตอนโหลด profile — ค่าคงที่หลัง login ครั้งแรก (ไม่ fallback ชั่วคราวบน UI อย่างเดียว)
+
+### Changed
+- [US-E8-01](agile/user-stories/US-E8-01.md): AC#3 (backfill), §`game_tree_list`, §Migration, tasks (`ensureUserGameProfileTreeType`, `getGameTreeList`, `pickRandomTreeType`)
+- [sprint-08.md](agile/sprint-backlogs/sprint-08.md): DoD + risks (race backfill, empty `game_tree_list`)
+- [03-data-schema.md](software/03-data-schema.md): §3.4 `game_tree_list`, ER diagram, runtime notes ของ `user_game_profile_data`
+- `01-product-backlog.md`, `kanban.md`, `index.md`, `02-sprint-planning.md`
+
+## [2026-07-08] - Sprint 8 Planning: Per-Player Progression Tree (US-E8-01, docs)
+**Docs-only** (no `package.json` bump — ยังอยู่ที่ `1.0.0` จนกว่า US-E8-01 จะ ship เป็น **`1.1.0`** MINOR).
+
+### Added
+- Opened **Sprint 8** (2026-07-08 → 2026-07-21): [sprint-08.md](agile/sprint-backlogs/sprint-08.md) — post-1.0 line, target **v1.1.0**
+- Epic **E8: Check-in Personalization & Post-1.0 Enhancements** with [US-E8-01](agile/user-stories/US-E8-01.md):
+  - ต้นคิดดีหลายชนิดต่อผู้เล่น — `user_game_profile_data.tree_type` + `game_tree_list`
+  - สุ่มตอนสร้าง profile; lazy backfill ผู้เล่นเก่า `tree_type = NULL`
+  - asset ที่ `public/assets/checkin-popup/{type}/tree_{type}_01..14.png`
+  - ต่อยอดงานที่ยกจาก US-E7-10 (ต้นไม้หลายรูปแบบ)
+- Documented `tree_type` column + DDL ใน [03-data-schema.md](software/03-data-schema.md)
+
+### Changed
+- Updated `01-product-backlog.md`, `02-sprint-planning.md`, `kanban.md`, `index.md`
+- Linked US-E7-10 deferred AC#1/#6 → US-E8-01
+
+## [1.0.0] - 2026-07-07
+**Version bump:** `0.30.0 → 1.0.0` (**MAJOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — deliberate stable-release milestone: owner confirms the game is **production-ready / full build** after Sprint 7 work merged to `development`. Resets MINOR and PATCH to 0.
+
+### Release highlights
+- **Patient flow (complete):** Welcome → Login/Sign-up → Game Hub → daily minigames → check-in / profile / leaderboard.
+- **14-day cognitive program:** level progression, daily goals, rest nodes, program-complete popup with Thai-era start/end dates (US-E7-28), block play before program start date (US-E7-29).
+- **Minigame suite:** Zoo Detective, Zoo Feeder, Context Clues, Symmetry Decor, Postcard Reader, Resting Point, Fry Food (accelerometer + iOS gyro).
+- **Presentation layer (Sprint 7):** Figma-derived DOM UI (Leaderboard, Login, Sign-up, Player-Info, popups), gender-based คุณตา/คุณยาย art, Toast, transitions, offline popup + `InternetManager` (US-E7-27), version badge (US-E7-05).
+- **Platform:** Installable PWA, service worker, VideoPlayer (check-in / rest), Supabase + edge-function fallbacks, CSV export, admin tools, Docker/nginx production build.
+- **Stability fixes shipped in 0.x line:** BUG-004/005/006/007 resolved; boot loading overlay; route-version guard; scroll containment.
+
+### Known follow-up (post-1.0 backlog — not blocking this release)
+- US-E7-06 (minigame vertical responsive), ~~US-E7-08/11/12~~ (doctor feedback — **Done** 2026-07-14, ฝ่ายอื่น), ~~US-E5-03~~ (delete-account — **Done** 2026-07-14), TD-DB-01.
+
+### Docs
+- Bumped `package.json`, `docs/index.md`, `docs/changelog.md`, sprint planning — project status → **Stable Release 1.0.0**.
 
 ## [0.30.0] - 2026-07-07
 **Version bump:** `0.29.0 → 0.30.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — three Sprint 7 user stories verified complete by the owner plus one bug fix; highest applicable part (MINOR) wins.
@@ -63,6 +413,7 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 ### Docs
 - Marked **US-E7-09, US-E7-14, US-E7-15 Done** and **BUG-004 Resolved**. Synced `01-product-backlog.md`, `sprint-07.md`, `kanban.md`, user-story files, and `BUG-004.md`.
+- Added **US-E7-29** (block Game Hub start button before program start date; node state = not yet playable) to backlog, sprint-07, kanban.
 
 ## [0.29.0] - 2026-07-06
 **Version bump:** `0.28.0 → 0.29.0` (**MINOR**, per [semantic-versioning skill](../.agents/skills/semantic-versioning/SKILL.md) §2/§3) — three new backward-compatible features (offline popup, program-complete dates, Physical category) verified by the owner; the highest applicable part (MINOR) wins and they share one version.

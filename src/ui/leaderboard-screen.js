@@ -11,6 +11,31 @@ function formatScore(value) {
     return new Intl.NumberFormat("en-US").format(Number(value) || 0);
 }
 
+// US-E10-02 — หัวข้อเป็นชื่อชุมชนต่อท้ายด้วยชื่อกลุ่ม เช่น "ชุมชนพัฒนาสมองหางดง"
+// ผู้เล่น UNTAGGED เห็นอันดับทุกกลุ่ม จึงใช้ชื่อกลางเฉย ๆ — ห้ามต่อท้ายด้วย tag_name ของ
+// UNTAGGED (คือคำว่า "ไม่มี") เพราะจะกลายเป็น "ชุมชนพัฒนาสมองไม่มี"
+const LEADERBOARD_TITLE_BASE = "ชุมชนพัฒนาสมอง";
+const UNTAGGED_GROUP_ID = "UNTAGGED";
+
+function buildGroupTitle(group) {
+    const grpid = String(group?.grpid || UNTAGGED_GROUP_ID).trim();
+    const tagName = String(group?.tagName || "").trim();
+    if (!tagName || grpid === UNTAGGED_GROUP_ID) {
+        return { title: LEADERBOARD_TITLE_BASE, subtitle: "อันดับคะแนนรวมของผู้เล่นทั้งหมด" };
+    }
+    return {
+        title: `${LEADERBOARD_TITLE_BASE}${tagName}`,
+        subtitle: `อันดับคะแนนรวมของกลุ่ม${tagName}`,
+    };
+}
+
+function escapeHtml(value) {
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char],
+    );
+}
+
 export function renderLeaderboardScreen(root, options = {}) {
     if (!root) {
         return;
@@ -21,6 +46,7 @@ export function renderLeaderboardScreen(root, options = {}) {
         onBack = () => {},
         loadPlayers,
         getUserRank,
+        getUserGroup,
     } = options;
 
     let activeCleanup = [];
@@ -49,8 +75,10 @@ export function renderLeaderboardScreen(root, options = {}) {
             )
             .join("");
 
-    const renderContent = ({ players = [], currentRankInfo = null, loading = false } = {}) => {
+    const renderContent = ({ players = [], currentRankInfo = null, group = null, loading = false } = {}) => {
         cleanup();
+
+        const { title, subtitle } = buildGroupTitle(group);
 
         const listMarkup = loading
             ? `
@@ -90,8 +118,8 @@ export function renderLeaderboardScreen(root, options = {}) {
 
                     <header class="gh-leaderboard-header">
                         ${renderIconButtonBack({ className: "gh-leaderboard-back", ariaLabel: "กลับ" })}
-                        <h1 id="leaderboard-title" class="gh-leaderboard-header__title">ชุมชนพัฒนาสมอง</h1>
-                        <p class="gh-leaderboard-header__subtitle">อันดับคะแนนรวมของผู้เล่นทั้งหมด</p>
+                        <h1 id="leaderboard-title" class="gh-leaderboard-header__title">${escapeHtml(title)}</h1>
+                        <p class="gh-leaderboard-header__subtitle">${escapeHtml(subtitle)}</p>
                         <div class="gh-leaderboard-header__flower-clamp">
                             <div class="gh-leaderboard-header__flower-cover-left">
                                 <img class="gh-leaderboard-header__flower gh-leaderboard-header__flower--1" src="/assets/leaderboard/flower-1.png" alt="" aria-hidden="true" />
@@ -117,10 +145,13 @@ export function renderLeaderboardScreen(root, options = {}) {
     Promise.all([
         loadPlayers?.({ offset: 0, limit: 10 }),
         getUserRank?.(),
-    ]).then(([leaderboardResult, rankResult]) => {
+        // หัวข้อกลุ่มเป็นแค่ส่วนตกแต่ง — ถ้าหากลุ่มไม่ได้ก็ยังแสดงอันดับได้ ใช้ชื่อกลางแทน
+        getUserGroup?.().catch(() => null),
+    ]).then(([leaderboardResult, rankResult, groupResult]) => {
         renderContent({
             players: leaderboardResult?.players || [],
             currentRankInfo: rankResult || null,
+            group: groupResult || null,
         });
     }).catch(() => {
         renderContent({});

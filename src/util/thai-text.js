@@ -237,12 +237,20 @@ export function wrapThaiText(text, textObject, maxWidth) {
       if (currentLine && candidateWidth > maxWidth) {
         lines.push(currentLine.trimEnd());
 
-        if (measureTextWidth(textObject, nextSegment) > maxWidth) {
-          const brokenSegments = breakLongSegment(nextSegment, textObject, maxWidth);
+        // Strip leading whitespace from the segment carried onto the new
+        // line — otherwise a segment that is itself just a space (the one
+        // that caused the overflow) becomes a stray leading space, since a
+        // non-empty " " string is truthy and skips the line-start trim below.
+        const carried = nextSegment.trimStart();
+
+        if (!carried) {
+          currentLine = "";
+        } else if (measureTextWidth(textObject, carried) > maxWidth) {
+          const brokenSegments = breakLongSegment(carried, textObject, maxWidth);
           lines.push(...brokenSegments.slice(0, -1));
           currentLine = brokenSegments[brokenSegments.length - 1] ?? "";
         } else {
-          currentLine = nextSegment;
+          currentLine = carried;
         }
 
         continue;
@@ -289,10 +297,93 @@ function segmentWords(text) {
   }
 
   if (wordSegmenter) {
-    return Array.from(wordSegmenter.segment(text), ({ segment }) => segment);
+    const rawTokens = Array.from(
+      wordSegmenter.segment(text),
+      ({ segment, isWordLike }) => ({ segment, isWordLike })
+    );
+    return mergeKeepTogetherSegments(rawTokens).map((token) => token.segment);
   }
 
   return text.split(/(\s+)/).filter(Boolean);
+}
+
+const DIGIT_RE = /^[0-9]+$/;
+const NUMERIC_JOIN_RE = /^[:,.]$/;
+
+/**
+ * Glue tokens that should never be split across a line break:
+ * - numeric runs joined by ":" "," "." (e.g. "18" ":" "00" -> "18:00")
+ * - a number plus its immediately following unit/classifier word, including
+ *   an attached abbreviation dot and one "/word." extension for compound
+ *   units (e.g. "18:00" " " "น" "." -> "18:00 น."; "80" " " "กม" "." "/" "ชม" "." -> "80 กม./ชม.")
+ *
+ * Only ever absorbs a single trailing word so it never swallows unrelated
+ * words that happen to sit right after a classifier in space-less Thai text.
+ */
+function mergeKeepTogetherSegments(tokens) {
+  const merged = [];
+  let i = 0;
+
+  while (i < tokens.length) {
+    if (tokens[i].isWordLike && DIGIT_RE.test(tokens[i].segment)) {
+      let j = i + 1;
+      let combined = tokens[i].segment;
+
+      while (
+        j + 1 < tokens.length &&
+        !tokens[j].isWordLike && NUMERIC_JOIN_RE.test(tokens[j].segment) &&
+        tokens[j + 1].isWordLike && DIGIT_RE.test(tokens[j + 1].segment)
+      ) {
+        combined += tokens[j].segment + tokens[j + 1].segment;
+        j += 2;
+      }
+
+      const glued = glueTrailingUnit(tokens, j, combined);
+      merged.push({ segment: glued.segment, isWordLike: true });
+      i = glued.nextIndex;
+      continue;
+    }
+
+    merged.push(tokens[i]);
+    i += 1;
+  }
+
+  return merged;
+}
+
+function glueTrailingUnit(tokens, index, numericSegment) {
+  let segment = numericSegment;
+  let i = index;
+  let hasSpace = false;
+
+  if (i < tokens.length && !tokens[i].isWordLike && tokens[i].segment === " ") {
+    hasSpace = true;
+    i += 1;
+  }
+
+  if (i < tokens.length && tokens[i].isWordLike) {
+    let unit = tokens[i].segment;
+    let k = i + 1;
+
+    while (k < tokens.length && !tokens[k].isWordLike && tokens[k].segment === ".") {
+      unit += tokens[k].segment;
+      k += 1;
+
+      if (
+        k + 1 < tokens.length &&
+        !tokens[k].isWordLike && tokens[k].segment === "/" &&
+        tokens[k + 1].isWordLike
+      ) {
+        unit += tokens[k].segment + tokens[k + 1].segment;
+        k += 2;
+      }
+    }
+
+    segment += (hasSpace ? " " : "") + unit;
+    i = k;
+  }
+
+  return { segment, nextIndex: i };
 }
 
 function breakLongSegment(text, textObject, maxWidth) {

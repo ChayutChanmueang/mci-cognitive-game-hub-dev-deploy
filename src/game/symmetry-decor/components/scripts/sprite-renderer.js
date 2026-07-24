@@ -17,26 +17,11 @@ export default class SpriteRenderer extends Component {
         // Directly set the texture and scale on the Entity (which is a Sprite)
         this.entity.setTexture(this.textureKey);
         this.entity.setScale(this.sizeScale);
-        this.syncPhysicsBody();
     }
 
     changeSprite(newTextureKey) {
         // Easily swap textures dynamically
         this.entity.setTexture(newTextureKey);
-    }
-
-    syncPhysicsBody() {
-        if (this.entity.body) {
-            // Adjust the hitbox size to match the newly scaled sprite, and auto-center the offset
-            this.entity.body.setSize(this.entity.width, this.entity.height, true);
-            
-            // Force the physics engine to resync its position with the visual game object
-            this.entity.body.updateFromGameObject(); 
-
-            // 2. Apply your custom offset to shift the physical hitbox
-            this.entity.body.setOffset(this.offsetX, this.offsetY);
-            this.entity.body.updateFromGameObject();
-        }
     }
 
     // Notice we completely removed the update() and destroy() methods!
