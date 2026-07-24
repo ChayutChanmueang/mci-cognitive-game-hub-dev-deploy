@@ -79,9 +79,9 @@ export const PuzzleLevelConfig = Object.freeze({
 });
 
 export const HouseholdIconAssets = Object.freeze({
-    broom: Object.freeze({ texture: "household-item-broom", path: "assets/symmetry-decor/household-item/Broom.png" }),
-    phone: Object.freeze({ texture: "household-item-phone", path: "assets/symmetry-decor/household-item/Phone.png" }),
-    umbrella: Object.freeze({ texture: "household-item-umbrella", path: "assets/symmetry-decor/household-item/Umbrella.png" }),
+    broom: Object.freeze({ texture: "household-item-broom", path: "assets/symmetry-decor/household-item/broom.png" }),
+    phone: Object.freeze({ texture: "household-item-phone", path: "assets/symmetry-decor/household-item/phone.png" }),
+    umbrella: Object.freeze({ texture: "household-item-umbrella", path: "assets/symmetry-decor/household-item/umbrella.png" }),
     bowl: Object.freeze({ texture: "household-item-bowl", path: "assets/symmetry-decor/household-item/bowl.png" }),
     glasses: Object.freeze({ texture: "household-item-glasses", path: "assets/symmetry-decor/household-item/glasses.png" }),
     keys: Object.freeze({ texture: "household-item-keys", path: "assets/symmetry-decor/household-item/keys.png" }),
