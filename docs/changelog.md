@@ -64,6 +64,23 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
 
+## Documentation — 2026-07-24
+**No app version bump** (docs only). Sync software design docs with shipped v1.3.0 / Sprint 10 systems.
+
+### Changed
+- `docs/software/01-system-design.md` → **v1.6** — เติมระบบที่ขาด: Audio/Howler, Daily Preset tool (`src/tools/`), Test Hub, Welcome/version badge/avatars, minigame HUD overlays, layout utils, deployment; ลิงก์เอกสารคู่ที่ยังค้าง
+- `docs/software/01-system-design.md` → **v1.5** (รอบก่อน) — ครอบคลุม E8–E10 (tree_type, wake lock, offline, group tag, export filter, PWA, medicine-feeder, symmetry-household, ฯลฯ)
+- `docs/software/03-data-schema.md` → **v1.8** — เพิ่ม `user_group_tag` และคอลัมน์ `GRPID` บน `user_game_profile_data`
+- Root `system-design.md` — รายงานสรุประบบแบบข้อความล้วน (ตรวจเทียบ docs/software ทั้งชุด + inventory `src/`)
+- `docs/index.md` — ลิงก์รายงาน + หมายเหตุ schema/system design ที่อัปเดต
+
+### Still stale (ยังไม่ sync ในรอบนี้)
+- `02-class-diagram.md` (ค้าง 2026-05-26)
+- `03-data-reference.md` (ยังไม่มี GRPID / tree_type / export filter payloads)
+- `04-ui-components.md` (ค้าง 2026-06-17 — ไม่ครบ art/Hub/popup ชุดใหม่)
+- `05-voice-service.md` (ยังไม่เชื่อม AudioManager ducking)
+- `06-ui-design-wireframes.md` (ค้าง 2026-05-03 — อ้าง React HUD / card grid)
+
 ## [1.3.0] - 2026-07-22
 **Version bump:** `1.2.3 → 1.3.0` (**MINOR**) — US-E10-04 เพิ่มความสามารถใหม่: กรอง export CSV ตามกลุ่มผู้เล่น (`GRPID`)
 

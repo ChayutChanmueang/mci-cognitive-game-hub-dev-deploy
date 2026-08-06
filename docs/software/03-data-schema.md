@@ -2,9 +2,9 @@
 
 ---
 
-## *Document Version: 1.7*
+## *Document Version: 1.8*
 *Project: MCI Cognitive Games*
-*Last Updated: 2026-07-08*
+*Last Updated: 2026-07-24*
 
 ## 1. Database Overview
 
@@ -17,6 +17,7 @@ erDiagram
     GAME_LEVEL_PRESET_LIST ||--o{ GAME_LEVEL_PRESET_DATA : "defines"
     GAME_LEVEL_PRESET_LIST ||--o{ USER_GAME_PROFILE_DATA : "used by"
     GAME_TREE_LIST ||--o{ USER_GAME_PROFILE_DATA : "tree_type references id"
+    USER_GROUP_TAG ||--o{ USER_GAME_PROFILE_DATA : "GRPID"
     GAME_DAILY_PRESET_DATA ||--o{ GAME_LEVEL_PRESET_DATA : "groups daily plan"
 ```
 
@@ -140,6 +141,7 @@ Supabase built-in authentication table (`auth.users`).
 | hn         | text      | NULL    | FK → `user_data(hn)` ON DELETE CASCADE |
 | program    | bigint    | `2`     | FK → `game_level_preset_list(id)`  |
 | tree_type  | text      | `NULL`  | ชนิดต้นคิดดี: **`a`**, **`b`**, **`c`**, **`d`**; runtime ต้องกำหนดจาก `game_tree_list` |
+| GRPID      | text      | `'UNTAGGED'` | FK → `user_group_tag("GRPID")` — กลุ่มทดสอบ (US-E10-01) |
 
 **DDL (อ้างอิง production)**
 ```sql
@@ -149,21 +151,22 @@ create table public.user_game_profile_data (
   program bigint null default '2'::bigint,
   hn text null,
   tree_type text null,
+  "GRPID" text null default 'UNTAGGED',
   constraint game_hub_data_pkey primary key (id),
   constraint game_hub_data_hn_fkey foreign KEY (hn) references user_data (hn) on delete CASCADE,
-  constraint user_game_hub_data_program_fkey foreign KEY (program) references game_level_preset_list (id)
+  constraint user_game_hub_data_program_fkey foreign KEY (program) references game_level_preset_list (id),
+  constraint user_game_profile_data_grpid_fkey foreign KEY ("GRPID") references user_group_tag ("GRPID")
+    on update CASCADE on delete RESTRICT
 ) TABLESPACE pg_default;
 ```
 
 **Runtime notes**
 - แหล่งรายการชนิดที่สุ่มได้ = ตาราง [`game_tree_list`](#34-game_tree_list) (ไม่ hardcode ใน client)
 - Production schema ไม่มี default ของ `tree_type`; การสร้าง profile ใหม่ต้องส่งค่าที่สุ่มจาก `game_tree_list` ในคำสั่ง `INSERT` อย่างชัดเจน
-- **Production (2026-07-08):** `game_tree_list` มี 4 แถว (`a`–`d`, `name` = null); `user_game_profile_data` มี 17 profile (id 59–75) ที่ **`tree_type IS NULL` ทั้งหมด**, `program = 5` — รอ lazy backfill ตอน v1.1.0 (ดู [US-E8-01](../agile/user-stories/US-E8-01.md#-production-snapshot-2026-07-08))
-- `tree_type` ถูก **สุ่ม** จาก `game_tree_list` ตอนสร้าง profile ใหม่ (ดู [US-E8-01](../agile/user-stories/US-E8-01.md))
-- **ผู้เล่น v1.0.0 ที่เริ่มไปแล้ว:** แถวเก่าอาจมี `tree_type IS NULL` → ตอนโหลด profile ระบบต้อง **สุ่มแล้ว `UPDATE`** (lazy backfill) ไม่ใช่แค่ fallback ชั่วคราวบน UI
+- `tree_type` ถูก **สุ่ม** จาก `game_tree_list` ตอนสร้าง profile ใหม่ และ **lazy backfill** เมื่อเป็น `NULL` (ดู [US-E8-01](../agile/user-stories/US-E8-01.md))
 - Check-in progression tree แสดง asset ที่ `public/assets/checkin-popup/{tree_type}/tree_{tree_type}_{01..14}.png`
 - ค่าไม่อยู่ใน `game_tree_list` → re-roll หรือ fallback ตาม logic ใน `ensureUserGameProfileTreeType`
-- โค้ด v1.0.0 ยัง select เฉพาะ `id, hn, program, created_at` — Sprint 8 จะขยายให้อ่าน/เขียน `tree_type`
+- `GRPID` default `'UNTAGGED'`; ผู้เล่นที่ยังไม่มีแถว profile ก็ถือเป็น `UNTAGGED` — ดู [`user_group_tag`](#38-user_group_tag)
 
 ### 3.4 game_tree_list
 รายการชนิดต้นคิดดี (progression tree) ที่ระบบอนุญาตให้สุ่มและผูกกับ `user_game_profile_data.tree_type`
@@ -225,6 +228,21 @@ Leaderboard ปัจจุบันถูกอ่านผ่าน service la
 
 > หมายเหตุ: `getRandomGameVideoUrl()` query เฉพาะแถวที่ `hidden = false` เท่านั้น
 
+### 3.8 user_group_tag
+Lookup กลุ่มทดสอบ (Test Group Segmentation) — [US-E10-01](../agile/user-stories/US-E10-01.md)
+
+| Column | Type | Description |
+| ------ | ---- | ----------- |
+| id | int | ลำดับแสดงผล (เช่น `UNTAGGED` = 0) |
+| GRPID | text | UK — รหัสกลุ่ม (เช่น `TS01`, `HD01`, `UNTAGGED`) |
+| tag_name | text | ชื่อแสดงผลภาษาไทย |
+
+**Runtime notes**
+- Leaderboard กรองตาม `GRPID` ของผู้ดู; `UNTAGGED` เห็นทุกกลุ่ม ([US-E10-02](../agile/user-stories/US-E10-02.md))
+- CSV export กรองตามกลุ่มได้ (filter-only) ([US-E10-04](../agile/user-stories/US-E10-04.md))
+- ยังไม่มี UI/CLI ตั้ง tag — เปลี่ยนกลุ่มผ่าน SQL โดยตรง
+- ตัวอย่างกลุ่มภาคสนาม: `TS01` ท่าศาลา, `HD01` หางดง, `UNTAGGED`
+
 ---
 
 ## 4. Full ER Diagram
@@ -242,6 +260,8 @@ erDiagram
     
     game_level_preset_list ||--o{ game_level_preset_data : "structure"
     game_level_preset_list ||--o{ user_game_profile_data : "selection"
+    game_tree_list ||--o{ user_game_profile_data : "tree_type"
+    user_group_tag ||--o{ user_game_profile_data : "GRPID"
     
     game_daily_preset_data ||--o{ game_level_preset_data : "daily config"
 ```
