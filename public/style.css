@@ -385,6 +385,7 @@ body.game-mode .app-version-badge {
 
 /* US-E7-22: partner / supporter logo row at the bottom of the landing screen. */
 .landing-screen__partners {
+    --partner-logo-scale: 1;
     position: absolute;
     align-self: end;
     width: 100%;
@@ -394,37 +395,55 @@ body.game-mode .app-version-badge {
     align-items: center;
     justify-content: center;
     justify-self: anchor-center;
-    gap: clamp(12px, 3.5vw, 30px);
+    gap: calc(clamp(12px, 3.5vw, 30px) * var(--partner-logo-scale));
+}
+
+.landing-screen__partners > img {
+    /* Shrink to fit rather than getting clipped when the row is wider than the container. */
+    min-width: 0;
 }
 
 .landing-screen__partner-logo-nrct {
-    height: clamp(36px, 15vw, 58px);
+    height: calc(clamp(32px, 13.5vw, 50px) * var(--partner-logo-scale));
     width: auto;
     object-fit: contain;
 }
 
 .landing-screen__partner-logo-medcmu {
-    height: clamp(36px, 13vw, 56px);
+    height: calc(clamp(32px, 11.7vw, 48px) * var(--partner-logo-scale));
+    width: auto;
+    object-fit: contain;
+}
+
+.landing-screen__partner-logo-family-medicine {
+    height: calc(clamp(34px, 12.6vw, 50px) * var(--partner-logo-scale));
     width: auto;
     object-fit: contain;
 }
 
 .landing-screen__partner-logo-cmu {
-    height: clamp(32px, 6vw, 34px);
+    height: calc(clamp(29px, 5.4vw, 29px) * var(--partner-logo-scale));
     width: auto;
     object-fit: contain;
 }
 
 .landing-screen__partner-logo-camt {
-    height: clamp(36px, 9vw, 40px);
+    height: calc(clamp(32px, 8.1vw, 34px) * var(--partner-logo-scale));
     width: auto;
     object-fit: contain;
 }
 
 .landing-screen__partner-logo-naplab {
-    height: clamp(38px, 11vw, 42px);
+    height: calc(clamp(34px, 9.9vw, 36px) * var(--partner-logo-scale));
     width: auto;
     object-fit: contain;
+}
+
+/* Narrow phones (e.g. 412px-wide Samsung) cannot fit six logos at full size. */
+@media (max-width: 412px) {
+    .landing-screen__partners {
+        --partner-logo-scale: 0.9;
+    }
 }
 
 .login-screen__actions {
