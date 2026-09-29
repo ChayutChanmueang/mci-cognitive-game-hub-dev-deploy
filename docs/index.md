@@ -1,8 +1,8 @@
 # 🎮 MCI Cognitive Games — Project Index
 
 **Project:** MCI Cognitive Games (เกมฝึกสมองสำหรับผู้ป่วย MCI)
-**Status:** 🟢 **Release 1.2.3** | **Current Sprint:** [Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) *(Active)*
-**Version:** 1.2.3 | **Last Updated:** 2026-07-20 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
+**Status:** 🟢 **Release 1.3.0** | **Current Sprint:** [Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) *(Active)*
+**Version:** 1.3.0 | **Last Updated:** 2026-07-24 | **Knowledge Hub:** [🌐 Project Wiki](wiki/wiki.md)
 
 ---
 
@@ -14,7 +14,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Patient flow:** Welcome (game logo) -> Login -> Signup if HN is missing -> Game Hub -> Minigames -> Check-in/Profile/Leaderboard.
 - **Platform/PWA:** Installable PWA with a full icon set (192/512/maskable + apple-touch) and web manifest; Fry Food motion controls use the accelerometer manager with an iOS gyro input handler and motion-permission flow.
 - **Admin/tooling flow:** Admin login, player data screens, CSV export, daily preset editor, and test/debug controls.
-- **Game suite:** Zoo Detective, Zoo Feeder, Context Clues, Symmetry Decor, Postcard Reader, Resting Point, and Fry Food.
+- **Game suite:** Zoo Detective, Zoo Feeder, Medicine Feeder, Context Clues, Symmetry Decor (รวม Household variant), Postcard Reader, Resting Point, และ Fry Food.
 - **Game Hub UI:** Figma-derived component system — header bar, level-path/progression nodes, and an auto-layout progress bar (fill-width rendering with a text-color flip at the 50% mark); CSS `--gh-scale` scaling with scroll-to-current targeting.
 - **Character avatars:** Gender-based character images for the Game Hub header profile avatar, the rest/check-in progression nodes, and the check-in success screen.
 - **Data services:** Supabase client, edge-function fallback paths, leaderboard RPC/client fallback, user rank lookup, game history, check-in history, and CSV export helpers.
@@ -22,7 +22,7 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 - **Deployment note:** Test VM and nginx builds must use a branch that includes the leaderboard rewrite fix; older staging builds may still contain stale `topObserver` code.
 
 ### Latest Sprint Planning
-- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-13](agile/user-stories/US-E9-13.md) / [US-E9-05](agile/user-stories/US-E9-05.md) / [US-E10-01](agile/user-stories/US-E10-01.md) / [US-E10-02](agile/user-stories/US-E10-02.md) / [US-E7-30](agile/user-stories/US-E7-30.md) ✅ Done; [US-E10-03](agile/user-stories/US-E10-03.md) ✅ Done; [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
+- **[Sprint 10 — Field Feedback carry-over](agile/sprint-backlogs/sprint-10.md) — Active (2026-07-17 → 2026-07-30):** [US-E9-13](agile/user-stories/US-E9-13.md) / [US-E9-05](agile/user-stories/US-E9-05.md) / [US-E10-01](agile/user-stories/US-E10-01.md) / [US-E10-02](agile/user-stories/US-E10-02.md) / [US-E7-30](agile/user-stories/US-E7-30.md) ✅ Done; [US-E10-03](agile/user-stories/US-E10-03.md) / [US-E10-04](agile/user-stories/US-E10-04.md) ✅ Done; [US-E9-07](agile/user-stories/US-E9-07.md) / [US-E9-09](agile/user-stories/US-E9-09.md) Backlog
 - **[Sprint 9 — Field Feedback Hotfix](agile/sprint-backlogs/sprint-09.md) — Completed:** P0 gameplay US-E9-01..04 + device/hub/UX — จาก [Meeting 2026-07-10](agile/meeting-backlogs/2026-07-10.md)
 - **[US-E8-01](agile/user-stories/US-E8-01.md) — ต้นคิดดีหลายชนิดต่อผู้เล่น:** ✅ Done (v1.1.0) — `tree_type` a/b/c/d + lazy backfill
 
@@ -42,9 +42,10 @@ MCI Cognitive Games is currently a Phaser 3 + Vite browser application with DOM-
 ## 💻 Software Design
 เอกสารทางเทคนิคเกี่ยวกับการสร้างและสถาปัตยกรรม
 - [00. Concept Design](gdd/00-concept.md) - (ดูใน Game Concept) โครงสร้างและการทำงานระหว่าง DOM App UI, Supabase และ Phaser
-- [01. System Design](software/01-system-design.md) - รายละเอียด Subsystems และ Design Patterns
+- [01. System Design](software/01-system-design.md) - รายละเอียด Subsystems และ Design Patterns (อัปเดต v1.5 / 2026-07-24 ให้ตรง v1.3.0)
+- [รายงานสรุประบบ (ข้อความ)](../system-design.md) - รายงานระบุระบบในเกมแบบข้อความล้วน ที่ root project
 - [02. Class Diagram](software/02-class-diagram.md) - แผนภาพความสัมพันธ์ของ Class หลัก
-- [03. Data Schema](software/03-data-schema.md) - โครงสร้างฐานข้อมูล Supabase
+- [03. Data Schema](software/03-data-schema.md) - โครงสร้างฐานข้อมูล Supabase (รวม `user_group_tag` / `GRPID`)
 - [04. Data Reference](software/03-data-reference.md) - ตัวอย่างข้อมูล (Payloads) และคู่มือสำหรับนักพัฒนา
 
 ---

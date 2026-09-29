@@ -59,9 +59,57 @@ The `package.json` previously held an arbitrary `1.4.0` that never corresponded 
 | `1.2.0` | 2026-07-20 | US-E10-01/02 test-group segmentation — leaderboard scoped to the viewer's `GRPID` + group-specific title |
 | `1.2.1` | 2026-07-20 | US-E7-30 export-CSV popup ใช้ art ชุดเดียวกับ popup อื่น (Frame_Form_Panel + ปุ่ม stroke + Check_Circle) |
 | `1.2.2` | 2026-07-20 | US-E7-30 ปรับระยะห่างใน popup export ตามที่ owner จูน + owner ยืนยันบนเครื่องจริง |
-| `1.2.3` | 2026-07-20 | **(current)** US-E10-03 ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น — สลับกับปุ่ม "กลับไปหน้าเกม" |
+| `1.2.3` | 2026-07-20 | US-E10-03 ปุ่มปิด popup วิดีโอระหว่างคลิปเล่น — สลับกับปุ่ม "กลับไปหน้าเกม" |
+| `1.3.0` | 2026-07-22 | **(current)** US-E10-04 filter export CSV ตามกลุ่ม `GRPID` + scroll view |
 
 > The dates and groupings are reconstructed from git history and are approximate; only `0.10.0` onward is tracked prospectively. **`1.0.0`** is the first formally declared stable release.
+
+## Documentation — 2026-07-24
+**No app version bump** (docs only). Sync software design docs with shipped v1.3.0 / Sprint 10 systems.
+
+### Changed
+- `docs/software/01-system-design.md` → **v1.6** — เติมระบบที่ขาด: Audio/Howler, Daily Preset tool (`src/tools/`), Test Hub, Welcome/version badge/avatars, minigame HUD overlays, layout utils, deployment; ลิงก์เอกสารคู่ที่ยังค้าง
+- `docs/software/01-system-design.md` → **v1.5** (รอบก่อน) — ครอบคลุม E8–E10 (tree_type, wake lock, offline, group tag, export filter, PWA, medicine-feeder, symmetry-household, ฯลฯ)
+- `docs/software/03-data-schema.md` → **v1.8** — เพิ่ม `user_group_tag` และคอลัมน์ `GRPID` บน `user_game_profile_data`
+- Root `system-design.md` — รายงานสรุประบบแบบข้อความล้วน (ตรวจเทียบ docs/software ทั้งชุด + inventory `src/`)
+- `docs/index.md` — ลิงก์รายงาน + หมายเหตุ schema/system design ที่อัปเดต
+
+### Still stale (ยังไม่ sync ในรอบนี้)
+- `02-class-diagram.md` (ค้าง 2026-05-26)
+- `03-data-reference.md` (ยังไม่มี GRPID / tree_type / export filter payloads)
+- `04-ui-components.md` (ค้าง 2026-06-17 — ไม่ครบ art/Hub/popup ชุดใหม่)
+- `05-voice-service.md` (ยังไม่เชื่อม AudioManager ducking)
+- `06-ui-design-wireframes.md` (ค้าง 2026-05-03 — อ้าง React HUD / card grid)
+
+## [1.3.0] - 2026-07-22
+**Version bump:** `1.2.3 → 1.3.0` (**MINOR**) — US-E10-04 เพิ่มความสามารถใหม่: กรอง export CSV ตามกลุ่มผู้เล่น (`GRPID`)
+
+### Added
+- **US-E10-04 — Filter export CSV ตามกลุ่มผู้เล่น.** popup ส่งออก (`src/ui/export-options-popup.js`) มีส่วนที่ 3 "กลุ่มผู้เล่น :" — radio เลือกทีละกลุ่ม + "ทุกกลุ่ม" (default); ตัวเลือกโหลดจาก `user_group_tag` จริง (ไม่ hardcode) ผ่าน `db.getGroupTags()`
+- SQL migration `20260721090000_export_group_tag_filter.sql` — export RPC ทั้ง 3 (public + private) รับ `p_grpid` (filter-only, ไม่เพิ่มคอลัมน์กลุ่มใน row)
+
+### Changed
+- **กลุ่มมีผลเฉพาะ scope "ผู้เล่นทั้งหมด"** (owner decision) — ผู้เล่นคนเดียวอยู่กลุ่มเดียวอยู่แล้ว จึง disable + dim ส่วนกลุ่มเมื่อเลือก "ผู้เล่นคนนี้"
+- popup มี **scroll view** (`.gh-export-popup__scroll`) — 3 ส่วนสูงเกินจอก็เลื่อนได้ ปุ่มยกเลิก/ส่งออกกดถึงเสมอ (AC#5)
+- Edge function `mci_functions` v0.8.0 (รีโปแยก) — deploy แล้วบน `cgxaanoyyjcopezsrivs`
+
+### 📌 ไม่มีคอลัมน์กลุ่มใน CSV
+- **ตั้งใจไม่ใส่คอลัมน์กลุ่ม** — ไฟล์ที่โหลดมาเป็นของกลุ่มนั้นอยู่แล้ว (หรือโหลดทั้งหมดก็ไม่สนกลุ่ม) ทุก export เป็น filter-only เหมือนกัน
+
+### 🔴 ข้อควรระวัง (เหมือน US-E10-02)
+- **กรองฝั่ง server** — RPC รับ `p_grpid` แล้ว JOIN `user_game_profile_data` กรองก่อน paging ไม่ใช่ client ดึงมาทั้งหมดแล้วกรอง (game export ~4,500 แถว)
+- **เพิ่ม `p_grpid` = DROP signature เก่าก่อน CREATE** ไม่งั้น overload กำกวม — migration DROP+CREATE ทั้ง public + private ทั้ง 3 ฟังก์ชัน
+- **`user_game_profile_data` ไม่มี `UNIQUE(hn)`** → "แถวล่าสุดชนะ" (`DISTINCT ON (hn) ORDER BY created_at DESC, id DESC`); ไม่มี profile / `GRPID` NULL = `UNTAGGED`
+
+### Verified (2026-07-22, ข้อมูลจริงบน production)
+| Export | ทุกกลุ่ม | HD01 (หางดง) | TS01 (ท่าศาลา) |
+| :--- | :--- | :--- | :--- |
+| player | 58 | 19 | 31 |
+| game | 4,522 | 1,118 | 3,340 |
+| history | 742 | 266 | 434 |
+
+- HTTP endpoint (deployed edge fn) กรองถูกทั้ง 3; เรียกแบบไม่ส่ง `grpid` = เท่าเดิม (back-compat)
+- popup: 16 jsdom behaviour checks (โหลดกลุ่ม async, radio เดี่ยว, disable ตาม scope, ค่าที่ resolve, load ล้มเหลวยังใช้ได้); render 520x980 + scroll ที่ 420x560
 
 ## [1.2.3] - 2026-07-20
 **Version bump:** `1.2.2 → 1.2.3` (**PATCH**) — US-E10-03 อุดช่องที่ผู้เล่นออกจาก popup วิดีโอไม่ได้ระหว่างคลิปยังเล่น (แนวเดียวกับ US-E9-06/US-E9-08 ที่เป็น UX fix จากหน้างานแล้วนับเป็น PATCH)
