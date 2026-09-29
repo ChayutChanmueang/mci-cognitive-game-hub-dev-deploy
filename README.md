@@ -39,7 +39,6 @@ This project leverages cutting-edge AI orchestration for both development and do
   - Material Web Components @material/web 2.4.1
 - **Phaser Plugins:**
   - [Rex Rainbow Plugins](https://rexrainbow.github.io/phaser3-rex-notes/docs/site/index.html) (UI, Gestures)
-  - [@koreez/phaser3-i18n](https://github.com/koreez/phaser3-i18n) (Internationalization)
 - **Language:** JavaScript (ES Modules)
 
 ## 📂 Project Structure
